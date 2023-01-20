@@ -58,12 +58,12 @@ export default function App() {
                 
                 <View style={{position:'absolute',
                 left: inFullscreen2 ? ((width/2)-20) : 50,
-                top:110}}>
+                top: inFullscreen2 ? ((width/2)-70) : 65}}>
                   <TouchableOpacity onPress={backward}><Ionicons name="ios-play-back-circle" size={40} color="" style={{color:"#ffffff"}}/></TouchableOpacity>
                 </View>
                 <View style={{position:'absolute',
                 right:inFullscreen2 ? ((width/2)-20) : 50,
-                top:110}}>
+                top: inFullscreen2 ? ((width/2)-70) : 65}}>
                   <TouchableOpacity onPress={forward}><Ionicons name="play-forward-circle" size={40} color="" style={{color:"#ffffff"}}/></TouchableOpacity>
                 </View>
               </View>
@@ -90,7 +90,7 @@ export default function App() {
         }}
         style={{
           videoBackgroundColor: 'black',
-          height: inFullscreen2 ? width : 300,
+          height: inFullscreen2 ? width : 250,
           width: inFullscreen2 ? height : width,
         }}
         playbackCallback={(playbackStatus) => {
