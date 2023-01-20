@@ -1,0 +1,213 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.video"
+4    android:versionCode="1"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+9        android:targetSdkVersion="31" />
+10
+11    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+11-->D:\videotest\android\app\src\main\AndroidManifest.xml:4:3-75
+11-->D:\videotest\android\app\src\main\AndroidManifest.xml:4:20-73
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->D:\videotest\android\app\src\main\AndroidManifest.xml:2:3-64
+12-->D:\videotest\android\app\src\main\AndroidManifest.xml:2:20-62
+13    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+13-->D:\videotest\android\app\src\main\AndroidManifest.xml:3:3-77
+13-->D:\videotest\android\app\src\main\AndroidManifest.xml:3:20-75
+14    <uses-permission android:name="android.permission.VIBRATE" />
+14-->D:\videotest\android\app\src\main\AndroidManifest.xml:5:3-63
+14-->D:\videotest\android\app\src\main\AndroidManifest.xml:5:20-61
+15    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+15-->D:\videotest\android\app\src\main\AndroidManifest.xml:6:3-78
+15-->D:\videotest\android\app\src\main\AndroidManifest.xml:6:20-76
+16
+17    <queries>
+17-->D:\videotest\android\app\src\main\AndroidManifest.xml:7:3-13:13
+18        <intent>
+18-->D:\videotest\android\app\src\main\AndroidManifest.xml:8:5-12:14
+19            <action android:name="android.intent.action.VIEW" />
+19-->D:\videotest\android\app\src\main\AndroidManifest.xml:9:7-58
+19-->D:\videotest\android\app\src\main\AndroidManifest.xml:9:15-56
+20
+21            <category android:name="android.intent.category.BROWSABLE" />
+21-->D:\videotest\android\app\src\main\AndroidManifest.xml:10:7-67
+21-->D:\videotest\android\app\src\main\AndroidManifest.xml:10:17-65
+22
+23            <data android:scheme="https" />
+23-->D:\videotest\android\app\src\main\AndroidManifest.xml:11:7-37
+23-->D:\videotest\android\app\src\main\AndroidManifest.xml:11:13-35
+24        </intent>
+25        <!-- Query open documents -->
+26        <intent>
+26-->[:expo-file-system] D:\videotest\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:17:9-19:18
+27            <action android:name="android.intent.action.OPEN_DOCUMENT_TREE" />
+27-->[:expo-file-system] D:\videotest\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:18:13-79
+27-->[:expo-file-system] D:\videotest\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:18:21-76
+28        </intent>
+29    </queries>
+30
+31    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+31-->[com.facebook.flipper:flipper:0.125.0] C:\Users\Sainath\.gradle\caches\transforms-3\03f04a3f11198ce3b7c6cedb9b41266b\transformed\jetified-flipper-0.125.0\AndroidManifest.xml:16:5-76
+31-->[com.facebook.flipper:flipper:0.125.0] C:\Users\Sainath\.gradle\caches\transforms-3\03f04a3f11198ce3b7c6cedb9b41266b\transformed\jetified-flipper-0.125.0\AndroidManifest.xml:16:22-73
+32    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+32-->[com.google.android.exoplayer:exoplayer-core:2.18.1] C:\Users\Sainath\.gradle\caches\transforms-3\6e6040b0110196b50016d783ece7421c\transformed\jetified-exoplayer-core-2.18.1\AndroidManifest.xml:24:5-79
+32-->[com.google.android.exoplayer:exoplayer-core:2.18.1] C:\Users\Sainath\.gradle\caches\transforms-3\6e6040b0110196b50016d783ece7421c\transformed\jetified-exoplayer-core-2.18.1\AndroidManifest.xml:24:22-76
+33    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE" />
+33-->[com.android.installreferrer:installreferrer:1.0] C:\Users\Sainath\.gradle\caches\transforms-3\3c8b4c3987458b223071b6e87a3721cc\transformed\jetified-installreferrer-1.0\AndroidManifest.xml:9:5-110
+33-->[com.android.installreferrer:installreferrer:1.0] C:\Users\Sainath\.gradle\caches\transforms-3\3c8b4c3987458b223071b6e87a3721cc\transformed\jetified-installreferrer-1.0\AndroidManifest.xml:9:22-107
+34
+35    <application
+35-->D:\videotest\android\app\src\main\AndroidManifest.xml:14:3-33:17
+36        android:name="com.video.MainApplication"
+36-->D:\videotest\android\app\src\main\AndroidManifest.xml:14:16-47
+37        android:allowBackup="true"
+37-->D:\videotest\android\app\src\main\AndroidManifest.xml:14:162-188
+38        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+38-->[androidx.core:core:1.7.0] C:\Users\Sainath\.gradle\caches\transforms-3\63a3df243d2d102452600006144a86df\transformed\core-1.7.0\AndroidManifest.xml:24:18-86
+39        android:debuggable="true"
+40        android:icon="@mipmap/ic_launcher"
+40-->D:\videotest\android\app\src\main\AndroidManifest.xml:14:81-115
+41        android:label="@string/app_name"
+41-->D:\videotest\android\app\src\main\AndroidManifest.xml:14:48-80
+42        android:roundIcon="@mipmap/ic_launcher_round"
+42-->D:\videotest\android\app\src\main\AndroidManifest.xml:14:116-161
+43        android:theme="@style/AppTheme"
+43-->D:\videotest\android\app\src\main\AndroidManifest.xml:14:189-220
+44        android:usesCleartextTraffic="true" >
+44-->D:\videotest\android\app\src\main\AndroidManifest.xml:14:221-256
+45        <meta-data
+45-->D:\videotest\android\app\src\main\AndroidManifest.xml:15:5-82
+46            android:name="expo.modules.updates.ENABLED"
+46-->D:\videotest\android\app\src\main\AndroidManifest.xml:15:16-59
+47            android:value="true" />
+47-->D:\videotest\android\app\src\main\AndroidManifest.xml:15:60-80
+48        <meta-data
+48-->D:\videotest\android\app\src\main\AndroidManifest.xml:16:5-93
+49            android:name="expo.modules.updates.EXPO_SDK_VERSION"
+49-->D:\videotest\android\app\src\main\AndroidManifest.xml:16:16-68
+50            android:value="47.0.0" />
+50-->D:\videotest\android\app\src\main\AndroidManifest.xml:16:69-91
+51        <meta-data
+51-->D:\videotest\android\app\src\main\AndroidManifest.xml:17:5-105
+52            android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH"
+52-->D:\videotest\android\app\src\main\AndroidManifest.xml:17:16-80
+53            android:value="ALWAYS" />
+53-->D:\videotest\android\app\src\main\AndroidManifest.xml:17:81-103
+54        <meta-data
+54-->D:\videotest\android\app\src\main\AndroidManifest.xml:18:5-99
+55            android:name="expo.modules.updates.EXPO_UPDATES_LAUNCH_WAIT_MS"
+55-->D:\videotest\android\app\src\main\AndroidManifest.xml:18:16-79
+56            android:value="0" />
+56-->D:\videotest\android\app\src\main\AndroidManifest.xml:18:80-97
+57        <meta-data
+57-->D:\videotest\android\app\src\main\AndroidManifest.xml:19:5-123
+58            android:name="expo.modules.updates.EXPO_UPDATE_URL"
+58-->D:\videotest\android\app\src\main\AndroidManifest.xml:19:16-67
+59            android:value="https://exp.host/@anonymous/videotest" />
+59-->D:\videotest\android\app\src\main\AndroidManifest.xml:19:68-121
+60
+61        <activity
+61-->D:\videotest\android\app\src\main\AndroidManifest.xml:20:5-31:16
+62            android:name="com.video.MainActivity"
+62-->D:\videotest\android\app\src\main\AndroidManifest.xml:20:15-43
+63            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
+63-->D:\videotest\android\app\src\main\AndroidManifest.xml:20:77-154
+64            android:exported="true"
+64-->D:\videotest\android\app\src\main\AndroidManifest.xml:20:276-299
+65            android:label="@string/app_name"
+65-->D:\videotest\android\app\src\main\AndroidManifest.xml:20:44-76
+66            android:launchMode="singleTask"
+66-->D:\videotest\android\app\src\main\AndroidManifest.xml:20:155-186
+67            android:screenOrientation="portrait"
+67-->D:\videotest\android\app\src\main\AndroidManifest.xml:20:300-336
+68            android:theme="@style/Theme.App.SplashScreen"
+68-->D:\videotest\android\app\src\main\AndroidManifest.xml:20:230-275
+69            android:windowSoftInputMode="adjustResize" >
+69-->D:\videotest\android\app\src\main\AndroidManifest.xml:20:187-229
+70            <intent-filter>
+70-->D:\videotest\android\app\src\main\AndroidManifest.xml:21:7-24:23
+71                <action android:name="android.intent.action.MAIN" />
+71-->D:\videotest\android\app\src\main\AndroidManifest.xml:22:9-60
+71-->D:\videotest\android\app\src\main\AndroidManifest.xml:22:17-58
+72
+73                <category android:name="android.intent.category.LAUNCHER" />
+73-->D:\videotest\android\app\src\main\AndroidManifest.xml:23:9-68
+73-->D:\videotest\android\app\src\main\AndroidManifest.xml:23:19-66
+74            </intent-filter>
+75            <intent-filter>
+75-->D:\videotest\android\app\src\main\AndroidManifest.xml:25:7-30:23
+76                <action android:name="android.intent.action.VIEW" />
+76-->D:\videotest\android\app\src\main\AndroidManifest.xml:9:7-58
+76-->D:\videotest\android\app\src\main\AndroidManifest.xml:9:15-56
+77
+78                <category android:name="android.intent.category.DEFAULT" />
+78-->D:\videotest\android\app\src\main\AndroidManifest.xml:27:9-67
+78-->D:\videotest\android\app\src\main\AndroidManifest.xml:27:19-65
+79                <category android:name="android.intent.category.BROWSABLE" />
+79-->D:\videotest\android\app\src\main\AndroidManifest.xml:10:7-67
+79-->D:\videotest\android\app\src\main\AndroidManifest.xml:10:17-65
+80
+81                <data android:scheme="com.video" />
+81-->D:\videotest\android\app\src\main\AndroidManifest.xml:11:7-37
+81-->D:\videotest\android\app\src\main\AndroidManifest.xml:11:13-35
+82            </intent-filter>
+83        </activity>
+84        <activity
+84-->D:\videotest\android\app\src\main\AndroidManifest.xml:32:5-106
+85            android:name="com.facebook.react.devsupport.DevSettingsActivity"
+85-->D:\videotest\android\app\src\main\AndroidManifest.xml:32:15-79
+86            android:exported="false" />
+86-->D:\videotest\android\app\src\main\AndroidManifest.xml:32:80-104
+87
+88        <provider
+88-->[:expo-file-system] D:\videotest\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:23:9-32:20
+89            android:name="expo.modules.filesystem.FileSystemFileProvider"
+89-->[:expo-file-system] D:\videotest\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:24:13-74
+90            android:authorities="com.video.FileSystemFileProvider"
+90-->[:expo-file-system] D:\videotest\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:25:13-74
+91            android:exported="false"
+91-->[:expo-file-system] D:\videotest\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:26:13-37
+92            android:grantUriPermissions="true" >
+92-->[:expo-file-system] D:\videotest\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:27:13-47
+93            <meta-data
+93-->[:expo-file-system] D:\videotest\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:29:13-31:70
+94                android:name="android.support.FILE_PROVIDER_PATHS"
+94-->[:expo-file-system] D:\videotest\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:30:17-67
+95                android:resource="@xml/file_system_provider_paths" />
+95-->[:expo-file-system] D:\videotest\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:31:17-67
+96        </provider>
+97
+98        <meta-data
+98-->[:expo-modules-core] D:\videotest\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-12:89
+99            android:name="org.unimodules.core.AppLoader#react-native-headless"
+99-->[:expo-modules-core] D:\videotest\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:11:13-79
+100            android:value="expo.modules.adapters.react.apploader.RNHeadlessAppLoader" />
+100-->[:expo-modules-core] D:\videotest\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:12:13-86
+101
+102        <provider
+102-->[androidx.emoji2:emoji2:1.0.0] C:\Users\Sainath\.gradle\caches\transforms-3\b6fe4da57007a43d86a66ba4c66459bd\transformed\jetified-emoji2-1.0.0\AndroidManifest.xml:26:9-34:20
+103            android:name="androidx.startup.InitializationProvider"
+103-->[androidx.emoji2:emoji2:1.0.0] C:\Users\Sainath\.gradle\caches\transforms-3\b6fe4da57007a43d86a66ba4c66459bd\transformed\jetified-emoji2-1.0.0\AndroidManifest.xml:27:13-67
+104            android:authorities="com.video.androidx-startup"
+104-->[androidx.emoji2:emoji2:1.0.0] C:\Users\Sainath\.gradle\caches\transforms-3\b6fe4da57007a43d86a66ba4c66459bd\transformed\jetified-emoji2-1.0.0\AndroidManifest.xml:28:13-68
+105            android:exported="false" >
+105-->[androidx.emoji2:emoji2:1.0.0] C:\Users\Sainath\.gradle\caches\transforms-3\b6fe4da57007a43d86a66ba4c66459bd\transformed\jetified-emoji2-1.0.0\AndroidManifest.xml:29:13-37
+106            <meta-data
+106-->[androidx.emoji2:emoji2:1.0.0] C:\Users\Sainath\.gradle\caches\transforms-3\b6fe4da57007a43d86a66ba4c66459bd\transformed\jetified-emoji2-1.0.0\AndroidManifest.xml:31:13-33:52
+107                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+107-->[androidx.emoji2:emoji2:1.0.0] C:\Users\Sainath\.gradle\caches\transforms-3\b6fe4da57007a43d86a66ba4c66459bd\transformed\jetified-emoji2-1.0.0\AndroidManifest.xml:32:17-75
+108                android:value="androidx.startup" />
+108-->[androidx.emoji2:emoji2:1.0.0] C:\Users\Sainath\.gradle\caches\transforms-3\b6fe4da57007a43d86a66ba4c66459bd\transformed\jetified-emoji2-1.0.0\AndroidManifest.xml:33:17-49
+109            <meta-data
+109-->[androidx.lifecycle:lifecycle-process:2.4.0] C:\Users\Sainath\.gradle\caches\transforms-3\bc74a39e1ea23fea00bfcf2682a93948\transformed\jetified-lifecycle-process-2.4.0\AndroidManifest.xml:31:13-33:52
+110                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+110-->[androidx.lifecycle:lifecycle-process:2.4.0] C:\Users\Sainath\.gradle\caches\transforms-3\bc74a39e1ea23fea00bfcf2682a93948\transformed\jetified-lifecycle-process-2.4.0\AndroidManifest.xml:32:17-78
+111                android:value="androidx.startup" />
+111-->[androidx.lifecycle:lifecycle-process:2.4.0] C:\Users\Sainath\.gradle\caches\transforms-3\bc74a39e1ea23fea00bfcf2682a93948\transformed\jetified-lifecycle-process-2.4.0\AndroidManifest.xml:33:17-49
+112        </provider>
+113    </application>
+114
+115</manifest>
