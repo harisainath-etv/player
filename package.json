@@ -12,6 +12,7 @@
     "expo": "~47.0.12",
     "expo-av": "~13.0.2",
     "expo-cli": "^6.1.0",
+    "expo-navigation-bar": "^2.0.1",
     "expo-screen-orientation": "^5.0.1",
     "expo-splash-screen": "~0.17.5",
     "expo-status-bar": "~1.4.2",

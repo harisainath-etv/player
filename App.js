@@ -1,14 +1,42 @@
 import { StatusBar,setStatusBarHidden } from 'expo-status-bar';
-import { Dimensions,StyleSheet, NativeModules, TouchableOpacity, View } from 'react-native';
+import { Dimensions,StyleSheet,Platform, TouchableOpacity, View } from 'react-native';
 import { ResizeMode } from 'expo-av'
 import VideoPlayer from 'expo-video-player'
 import * as ScreenOrientation from 'expo-screen-orientation'
-import React, { useState,useRef } from 'react';
+import React, { useState,useRef,useEffect } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import * as NavigationBar from "expo-navigation-bar";
 
 const width=Dimensions.get('window').width;
 const height=Dimensions.get('window').height;
 export default function App() {
+  const [barVisibility, setBarVisibility] = useState();
+  NavigationBar.addVisibilityListener(({ visibility }) => {
+    if (visibility === "visible") {
+      setBarVisibility(visibility);
+    }
+  });
+
+  useEffect(() => {
+    if(inFullscreen2)
+    {
+      navigationConfig();
+    }
+    else
+    {
+      navigationConfigVisible();
+    }
+  });
+  const navigationConfig = async () => {
+    // // Just incase it is not hidden
+    // NavigationBar.setBackgroundColorAsync('red');
+    NavigationBar.setVisibilityAsync("hidden");
+  };
+  const navigationConfigVisible = async () => {
+    NavigationBar.setVisibilityAsync("visible");
+  };
+
+
   const [inFullscreen, setInFullsreen] = useState(false)
   const [inFullscreen2, setInFullsreen2] = useState(false)
   const refVideo2 = useRef(0)
