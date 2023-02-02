@@ -1,6 +1,6 @@
 import * as React from 'react';
-import {useState} from 'react';
-import { View,Dimensions,ScrollView,FlatList,StyleSheet,Text,Image,Pressable } from 'react-native';
+import {useState, useEffect,useRef} from 'react';
+import { View,Dimensions,FlatList,StyleSheet,Text,Image, } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -9,15 +9,14 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import axios from 'axios';
 import { BACKGROUND_COLOR,ANDROID_AUTH_TOKEN,FIRETV_BASE_URL,SLIDER_PAGINATION_SELECTED_COLOR,SLIDER_PAGINATION_UNSELECTED_COLOR,MORE_LINK_COLOR,TAB_COLOR,HEADING_TEXT_COLOR,IMAGE_BORDER_COLOR,NORMAL_TEXT_COLOR,ACCESS_TOKEN } from '../constants';
-import { exists } from 'react-native-fs';
 
 export const ElementsText = {
     AUTOPLAY: 'AutoPlay',
 };
 export const window = Dimensions.get('window');
 const PAGE_WIDTH = window.width;
+const PAGE_HEIGHT = window.height;
 const state = {
   data: ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Ninth', 'Tenth'],
   index: 1,
@@ -25,7 +24,7 @@ const state = {
 
 
 var All=[];
-var total={};
+var Final=[];
 
 function Home({navigation}) {
     
@@ -41,19 +40,14 @@ function Home({navigation}) {
         SLIDER_PAGINATION_SELECTED_COLOR,
         SLIDER_PAGINATION_SELECTED_COLOR,
     ]);
-    const [bannerimages,setBannerImages]=useState([]);
-    const [beforetvimages,setbeforetvimages]=useState([]);
-    const [liveTv,setliveTv]=useState([]);
-    const [tvShows,settvShows]=useState([]);
-    const [continueWatching,setcontinueWatching]=useState([]);
     const [totalHomeData,settotalHomeData]=useState();
     const [isVertical, setIsVertical] = useState(false);
     const [autoPlay, setAutoPlay] = useState(true);
     const [pagingEnabled, setPagingEnabled] = useState(true);
     const [snapEnabled, setSnapEnabled] = useState(true);
-    const [totalcountPage, settotalcountPage] = useState(0);
     const progressValue = useSharedValue(0);
-    const paginationLoadCount = 5;
+    const dataFetchedRef = useRef(false);
+    const paginationLoadCount = 50;
     
     const baseOptions = ({
               vertical: false,
@@ -65,9 +59,6 @@ function Home({navigation}) {
         const url=  FIRETV_BASE_URL+"/catalog_lists/home.gzip?item_language=eng&region=IN&auth_token="+ANDROID_AUTH_TOKEN+"&access_token="+ACCESS_TOKEN+"&page="+p+"&page_size="+paginationLoadCount+"&npage_size=10";
         const resp = await fetch(url);
         const data = await resp.json();
-        
-        if(totalcountPage==0)
-        settotalcountPage(data.data.total_items_count)
         
         if(data.data.catalog_list_items.length>0)
         {
@@ -89,164 +80,74 @@ function Home({navigation}) {
                         All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url);
                     }
                 }
-                total[data.data.catalog_list_items[i].display_title]=All;
+                
+                Final.push({"friendlyId":data.data.catalog_list_items[i].friendly_id,"data":All,"layoutType":data.data.catalog_list_items[i].layout_type,"displayName":data.data.catalog_list_items[i].display_title});
                 All=[];
             }
-            settotalHomeData(total);
-            console.log(total);
         }
+
+        settotalHomeData(Final);
     }
-    loadData(0);
-    for(p=0;p<=Math.ceil(totalcountPage/paginationLoadCount);p++)
-    {
-       loadData(p);
-    }
+    const renderItem = ({item,index}) => {
+        return (
+            <View style={{backgroundColor:BACKGROUND_COLOR,flex:1,}}>
 
-    //console.log(JSON.stringify(totalHomeData));
-    return (
-    <View style={{flex:1}}>
-      <ScrollView  
-      contentContainerStyle={{ flexWrap: 'nowrap' }} 
-      style={{
-        backgroundColor:BACKGROUND_COLOR,
-        flex:1,
-      }}>
-        <View
-            style={{
-                alignItems: 'center',
-              }}
-        >
-            <Carousel
-                {...baseOptions}
-                loop
-                pagingEnabled={pagingEnabled}
-                snapEnabled={snapEnabled}
-                autoPlay={autoPlay}
-                autoPlayInterval={2000}
-                onProgressChange={(_, absoluteProgress) =>
-                    (progressValue.value = absoluteProgress)
-                }
-                mode="parallax"
-                modeConfig={{
-                    parallaxScrollingScale: 0.82,
-                    parallaxScrollingOffset: 50,
-                    parallaxAdjacentItemScale:0.82,
-                }}
-                data={bannerimages}
-                style={{top:-15,}}
-                renderItem={({ item,index }) => <Image key={index} style={styles.image} source={{uri:item}} />}
-            />
-            {!!progressValue && (
-                <View
-                    style={{
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                  width: 200,
-                                  alignSelf: 'center',
-                                  top:-30,
-                          }}
-                >
-                    {colors.map((backgroundColor, index) => {
-                        return (
-                            <PaginationItem
-                                backgroundColor={backgroundColor}
-                                animValue={progressValue}
-                                index={index}
-                                key={index}
-                                isRotate={isVertical}
-                                length={colors.length}
-                            />
-                        );
-                    })}
-                </View>
-            )}
-            
+                {item.layoutType=='top_banner' ? 
+                    <Carousel
+                    {...baseOptions}
+                    loop
+                    pagingEnabled={pagingEnabled}
+                    snapEnabled={snapEnabled}
+                    autoPlay={autoPlay}
+                    autoPlayInterval={2000}
+                    onProgressChange={(_, absoluteProgress) =>
+                        (progressValue.value = absoluteProgress)
+                    }
+                    mode="parallax"
+                    modeConfig={{
+                        parallaxScrollingScale: 0.82,
+                        parallaxScrollingOffset: 50,
+                        parallaxAdjacentItemScale:0.82,
+                    }}
+                    data={item.data}
+                    style={{top:-15,}}
+                    renderItem={({ item,index }) => <Image key={index} style={styles.image} source={{uri:item}} />}
+                />
+                : ""}
 
+                {item.layoutType=='top_banner' && !!progressValue ? 
+                    <View
+                        style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    width: 200,
+                                    alignSelf: 'center',
+                                    top:-30,
+                            }}
+                    >
+                        {colors.map((backgroundColor, index) => {
+                            return (
+                                <PaginationItem
+                                    backgroundColor={backgroundColor}
+                                    animValue={progressValue}
+                                    index={index}
+                                    key={index}
+                                    isRotate={isVertical}
+                                    length={colors.length}
+                                />
+                            );
+                        })}
+                    </View>
+                : ""}
 
-
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Continue Watching</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionHorizontal}
-                                        source={require('../assets/images/pose.png')} />
-                                        <Image
-                                        style={{width:22,height:22,position:'absolute',top:7,left:10}}
-                                        source={require('../assets/images/crown.png')} />
-                                        <Image
-                                        style={{width:26,height:26,position:'absolute',bottom:20,right:15}}
-                                        source={require('../assets/images/play.png')} />
-                                </View>
-                        }
-                    />
-
-
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>ETV Exclusives</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsVerticalScrollIndicator={true}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionBigSingle}
-                                        source={require('../assets/images/beauty.png')} />
-                                    <Image
-                                        style={{position:'absolute',width:'20%',height:'47%',left:40}}
-                                        source={require('../assets/images/premium-tag.png')} />
-
-                                </View>
-                        }
-                    />
-
-
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Before TV</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={beforetvimages}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={[styles.imageSectionHorizontal,{resizeMode: 'stretch',}]}
-                                        source={{uri:item}} />
-                                </View>
-                        }
-                    />
-
-
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Live TV</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={liveTv}
+                {item.layoutType=='tv_shows' ? 
+                <View>
+                    <View style={styles.sectionHeaderView}>
+                        <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                        <Text style={styles.sectionHeaderMore}>+MORE</Text>
+                    </View>
+                    <FlatList
+                        data={item.data}
                         keyExtractor={(x, i) => i.toString()}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
@@ -260,61 +161,17 @@ function Home({navigation}) {
                                 </View>
                         }
                     />
-
-
-
-
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>TV Shows</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            {/* <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionBigWithBorder}
-                                        source={require('../assets/images/greatescape.png')} />
-                                </View>
-                        }
-                    /> */}
-                <View style={styles.containerMargin}>
-                        <Carousel
-                        {...baseOptions}
-                        loop
-                        pagingEnabled={pagingEnabled}
-                        snapEnabled={snapEnabled}
-                        autoPlay={false}
-                        autoPlayInterval={2000}
-                        onProgressChange={(_, absoluteProgress) =>
-                            (progressValue.value = absoluteProgress)
-                        }
-                        mode="parallax"
-                        modeConfig={{
-                            parallaxScrollingScale: 0.82,
-                            parallaxScrollingOffset: 50,
-                            parallaxAdjacentItemScale:0.82,
-                        }}
-                        data={tvShows}
-                        style={{top:-15,height:190,borderRadius:18}}
-                        renderItem={({ item,index }) => <Image key={index} style={[styles.image,{height:190}]} source={{uri:item}} />}
-                    />
                 </View>
+                : "" }
 
-
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Trending Shows</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
+                {item.layoutType!='tv_shows' && item.layoutType!='top_banner' && item.layoutType!='tv_shows_banner' ? 
+                <View>
+                    <View style={styles.sectionHeaderView}>
+                        <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                        <Text style={styles.sectionHeaderMore}>+MORE</Text>
+                    </View>
+                    <FlatList
+                        data={item.data}
                         keyExtractor={(x, i) => i.toString()}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
@@ -323,270 +180,34 @@ function Home({navigation}) {
                             ({ item, index }) =>
                                 <View>
                                     <Image
-                                        style={styles.imageSectionVertical}
-                                        source={require('../assets/images/wakeupsid.jpg')} />
+                                        style={[styles.imageSectionHorizontal,{resizeMode: 'stretch',}]}
+                                        source={{uri:item}} />
                                 </View>
                         }
                     />
+                </View> : ""}
 
-
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Recommended For You</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
             </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
+          );
+    }
+    useEffect(() => {
+        if (dataFetchedRef.current) return;
+        dataFetchedRef.current = true;
+        loadData(0);
+      });
+    
+    return (
+    <View style={{flex:1}}>
+      
+      
+                    <FlatList
+                        data={totalHomeData}
                         keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionHorizontal}
-                                        source={require('../assets/images/joy.jpg')} />
-                                </View>
-                        }
+                        horizontal={false}
+                        contentContainerStyle={{ flexGrow: 1 , flexWrap: 'nowrap'}}
+                        style={{height:PAGE_HEIGHT}}
+                        renderItem={renderItem}
                     />
-
-
-
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Top Movies</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionVertical}
-                                        source={require('../assets/images/reality.png')} />
-                                </View>
-                        }
-                    />
-
-
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Family</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionVertical}
-                                        source={require('../assets/images/reality.png')} />
-                                </View>
-                        }
-                    />  
-              <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Comedy</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionVertical}
-                                        source={require('../assets/images/reality.png')} />
-                                </View>
-                        }
-                    />
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Romance</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionVertical}
-                                        source={require('../assets/images/reality.png')} />
-                                </View>
-                        }
-                    />
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Classic</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionVertical}
-                                        source={require('../assets/images/reality.png')} />
-                                </View>
-                        }
-                    />
-              <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Mythology / Folklore</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionVertical}
-                                        source={require('../assets/images/reality.png')} />
-                                </View>
-                        }
-                    />
-              <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Action / Thriller</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionVertical}
-                                        source={require('../assets/images/reality.png')} />
-                                </View>
-                        }
-                    />
-
-
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Latest News</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionHorizontal}
-                                        source={require('../assets/images/joy.jpg')} />
-                                </View>
-                        }
-                    />
-
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Explore By Channels</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionCircle}
-                                        source={require('../assets/images/etvwin.png')} />
-                                </View>
-                        }
-                    />
-
-            <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Health Fitness</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionHorizontal}
-                                        source={require('../assets/images/joy.jpg')} />
-                                </View>
-                        }
-                    />
-             
-
-             <View style={styles.sectionHeaderView}>
-                <Text style={styles.sectionHeader}>Food</Text>
-                <Text style={styles.sectionHeaderMore}>+MORE</Text>
-            </View>
-            <FlatList
-                        extraData={state.index}
-                        data={state.data}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.containerMargin}
-                        renderItem={
-                            ({ item, index }) =>
-                                <View>
-                                    <Image
-                                        style={styles.imageSectionHorizontal}
-                                        source={require('../assets/images/joy.jpg')} />
-                                </View>
-                        }
-                    />
-
-
-                        
-
-        </View>
-        </ScrollView>
 
         <View style={styles.chromeCast}>
         <FontAwesome5 name="chromecast" size={25} color="white" />
