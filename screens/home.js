@@ -51,8 +51,8 @@ function Home({navigation}) {
     
     const baseOptions = ({
               vertical: false,
-              width: PAGE_WIDTH * 0.85,
-              height: PAGE_WIDTH * 1.05,
+              width: PAGE_WIDTH * 0.9,
+              height: PAGE_WIDTH ,
           });
     
    async function loadData(p){
@@ -91,54 +91,55 @@ function Home({navigation}) {
     const renderItem = ({item,index}) => {
         return (
             <View style={{backgroundColor:BACKGROUND_COLOR,flex:1,}}>
+                <View style={{width:PAGE_WIDTH,alignContent:'center',justifyContent:'center',alignItems:'center'}}>
+                    {item.layoutType=='top_banner' ? 
+                        <Carousel
+                        {...baseOptions}
+                        loop
+                        pagingEnabled={pagingEnabled}
+                        snapEnabled={snapEnabled}
+                        autoPlay={autoPlay}
+                        autoPlayInterval={2000}
+                        onProgressChange={(_, absoluteProgress) =>
+                            (progressValue.value = absoluteProgress)
+                        }
+                        mode="parallax"
+                        modeConfig={{
+                            parallaxScrollingScale: 0.82,
+                            parallaxScrollingOffset: 50,
+                            parallaxAdjacentItemScale:0.82,
+                        }}
+                        data={item.data}
+                        style={{top:-15,}}
+                        renderItem={({ item,index }) => <Image key={index} style={styles.image} source={{uri:item}} />}
+                    />
+                    : ""}
 
-                {item.layoutType=='top_banner' ? 
-                    <Carousel
-                    {...baseOptions}
-                    loop
-                    pagingEnabled={pagingEnabled}
-                    snapEnabled={snapEnabled}
-                    autoPlay={autoPlay}
-                    autoPlayInterval={2000}
-                    onProgressChange={(_, absoluteProgress) =>
-                        (progressValue.value = absoluteProgress)
-                    }
-                    mode="parallax"
-                    modeConfig={{
-                        parallaxScrollingScale: 0.82,
-                        parallaxScrollingOffset: 50,
-                        parallaxAdjacentItemScale:0.82,
-                    }}
-                    data={item.data}
-                    style={{top:-15,}}
-                    renderItem={({ item,index }) => <Image key={index} style={styles.image} source={{uri:item}} />}
-                />
-                : ""}
-
-                {item.layoutType=='top_banner' && !!progressValue ? 
-                    <View
-                        style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    width: 200,
-                                    alignSelf: 'center',
-                                    top:-30,
-                            }}
-                    >
-                        {colors.map((backgroundColor, index) => {
-                            return (
-                                <PaginationItem
-                                    backgroundColor={backgroundColor}
-                                    animValue={progressValue}
-                                    index={index}
-                                    key={index}
-                                    isRotate={isVertical}
-                                    length={colors.length}
-                                />
-                            );
-                        })}
-                    </View>
-                : ""}
+                    {item.layoutType=='top_banner' && !!progressValue ? 
+                        <View
+                            style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        width: 200,
+                                        alignSelf: 'center',
+                                        top:-30,
+                                }}
+                        >
+                            {colors.map((backgroundColor, index) => {
+                                return (
+                                    <PaginationItem
+                                        backgroundColor={backgroundColor}
+                                        animValue={progressValue}
+                                        index={index}
+                                        key={index}
+                                        isRotate={isVertical}
+                                        length={colors.length}
+                                    />
+                                );
+                            })}
+                        </View>
+                    : ""}
+                </View>
 
                 {item.layoutType=='tv_shows' ? 
                 <View>
@@ -400,7 +401,7 @@ image: {
     right: 0,
     resizeMode: 'stretch',
     borderRadius:10,
-    height:400
+    height:420
 },
 });
 
