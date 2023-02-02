@@ -15,31 +15,15 @@ import Home from './screens/home';
 import Video from './screens/videoPlayer';
 
 const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
-const Top = createMaterialTopTabNavigator();
-const Drawer = createDrawerNavigator();
-const ref = createNavigationContainerRef();
 
-
-
-const width=Dimensions.get('window').width;
-const height=Dimensions.get('window').height;
 export default function App() {
-  useEffect(() => {
-    //BackHandler.addEventListener('hardwareBackPress', onBackPress);
-  });  
-
-  return (
-    <View style={styles.body}>
-    <NavigationContainer
-    >
+    return (
+    <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="MainHome" component={Home}  options={{}}/>
-        
+        <Stack.Screen name="MainHome" component={Home}  options={{header:()=>null,}}/>
         <Stack.Screen name="CustomeVideoPlayer" component={Video} options={{header:()=>null,}}/>
       </Stack.Navigator>
     </NavigationContainer>
-    </View>
   );
 }
 
