@@ -1,0 +1,12 @@
+export const BASE_URL="https://prod.api.etvwin.com";
+export const ANDROID_AUTH_TOKEN="xttqeMn2dYtthp8aaUr2";
+export const ACCESS_TOKEN= "Ay6KCkajdBzztJ4bptpW";
+export const FIRETV_BASE_URL ="https://firetvapi.etvwin.com";
+export const BACKGROUND_COLOR ="#00021c";
+export const SLIDER_PAGINATION_SELECTED_COLOR = "#FFC908";
+export const SLIDER_PAGINATION_UNSELECTED_COLOR = "#3a3d68";
+export const MORE_LINK_COLOR = "#FFC908";
+export const TAB_COLOR = "#7249BF";
+export const HEADING_TEXT_COLOR = "#ffffff";
+export const NORMAL_TEXT_COLOR = "#ffffff";
+export const IMAGE_BORDER_COLOR = "#6b9fd7";
