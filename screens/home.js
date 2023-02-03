@@ -8,6 +8,7 @@ import Animated, {
     useAnimatedStyle,
     useSharedValue,
 } from 'react-native-reanimated';
+import FastImage from 'react-native-fast-image';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { BACKGROUND_COLOR,ANDROID_AUTH_TOKEN,FIRETV_BASE_URL,SLIDER_PAGINATION_SELECTED_COLOR,SLIDER_PAGINATION_UNSELECTED_COLOR,MORE_LINK_COLOR,TAB_COLOR,HEADING_TEXT_COLOR,IMAGE_BORDER_COLOR,NORMAL_TEXT_COLOR,ACCESS_TOKEN } from '../constants';
 
@@ -111,7 +112,7 @@ function Home({navigation}) {
                         }}
                         data={item.data}
                         style={{top:-15,}}
-                        renderItem={({ item,index }) => <Image key={index} style={styles.image} source={{uri:item}} />}
+                        renderItem={({ item,index }) => <FastImage key={index} style={styles.image} source={{uri:item,priority: FastImage.priority.high,cache: FastImage.cacheControl.immutable,}} />}
                     />
                     : ""}
 
@@ -156,9 +157,9 @@ function Home({navigation}) {
                         renderItem={
                             ({ item, index }) =>
                                 <View>
-                                    <Image
+                                    <FastImage
                                         style={[styles.imageSectionVertical,{resizeMode: 'stretch',}]}
-                                        source={{uri:item}} />
+                                        source={{uri:item,priority: FastImage.priority.high,cache: FastImage.cacheControl.immutable,}} />
                                 </View>
                         }
                     />
@@ -180,9 +181,9 @@ function Home({navigation}) {
                         renderItem={
                             ({ item, index }) =>
                                 <View>
-                                    <Image
+                                    <FastImage
                                         style={[styles.imageSectionHorizontal,{resizeMode: 'stretch',}]}
-                                        source={{uri:item}} />
+                                        source={{uri:item,priority: FastImage.priority.high,cache: FastImage.cacheControl.immutable,}} />
                                 </View>
                         }
                     />
