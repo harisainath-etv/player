@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useState, useEffect,useRef} from 'react';
-import { View,Dimensions,FlatList,StyleSheet,Text,Image, } from 'react-native';
+import { View,Dimensions,FlatList,StyleSheet,Text,TouchableOpacity, } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -112,7 +112,7 @@ function Home({navigation}) {
                         }}
                         data={item.data}
                         style={{top:-15,}}
-                        renderItem={({ item,index }) => <FastImage key={index} style={styles.image} source={{uri:item,priority: FastImage.priority.high,cache: FastImage.cacheControl.immutable,}} />}
+                        renderItem={({ item,index }) => <TouchableOpacity onPress={()=>navigation.navigate('CustomeVideoPlayer')}><FastImage key={index} style={styles.image} source={{uri:item,priority: FastImage.priority.high,cache: FastImage.cacheControl.immutable,}} /></TouchableOpacity>}
                     />
                     : ""}
 
@@ -142,7 +142,7 @@ function Home({navigation}) {
                     : ""}
                 </View>
 
-                {item.layoutType=='tv_shows' ? 
+                {item.layoutType=='tv_shows' && item.data.length!=0? 
                 <View>
                     <View style={styles.sectionHeaderView}>
                         <Text style={styles.sectionHeader}>{item.displayName}</Text>
@@ -166,7 +166,7 @@ function Home({navigation}) {
                 </View>
                 : "" }
 
-                {item.layoutType!='tv_shows' && item.layoutType!='top_banner' && item.layoutType!='tv_shows_banner' ? 
+                {item.layoutType!='tv_shows' && item.layoutType!='top_banner' && item.layoutType!='tv_shows_banner'  && item.data.length!=0 ? 
                 <View>
                     <View style={styles.sectionHeaderView}>
                         <Text style={styles.sectionHeader}>{item.displayName}</Text>
@@ -333,7 +333,6 @@ imageSectionHorizontal: {
   marginHorizontal: 3,
   borderRadius: 10,
   marginBottom:10,
-  borderColor: IMAGE_BORDER_COLOR,
   borderWidth:1
 },
 imageSectionVertical: {

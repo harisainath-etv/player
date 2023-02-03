@@ -1,5 +1,5 @@
 import { StatusBar,setStatusBarHidden } from 'expo-status-bar';
-import { Dimensions,StyleSheet,Platform, TouchableOpacity, View, Text, PermissionsAndroid } from 'react-native';
+import { Dimensions,StyleSheet,Platform, TouchableOpacity, View, Text, PermissionsAndroid,BackHandler } from 'react-native';
 import { ResizeMode } from 'expo-av'
 import VideoPlayer from 'expo-video-player'
 import * as ScreenOrientation from 'expo-screen-orientation'
@@ -7,12 +7,15 @@ import React, { useState,useRef,useEffect } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as NavigationBar from "expo-navigation-bar";
 import RNFS from'react-native-fs';
-import ReactNativeBlobUtil from 'react-native-blob-util'
+import ReactNativeBlobUtil from 'react-native-blob-util';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { BACKGROUND_COLOR,} from '../constants';
 
 
 const width=Dimensions.get('window').width;
 const height=Dimensions.get('window').height;
-export default function Video() {
+export default function Video({navigation}) {
   const [barVisibility, setBarVisibility] = useState();
   const [state, setState] = useState({downloadProgress:0});
   const [isAndroid, setisAndroid] = useState(true);
@@ -33,6 +36,10 @@ export default function Video() {
     {
       navigationConfigVisible();
     }
+    BackHandler.addEventListener('hardwareBackPress', exitScreen);
+    // setInterval(function(){
+
+    // },2000)
   });
   const navigationConfig = async () => {
     // // Just incase it is not hidden
@@ -195,6 +202,7 @@ export default function Video() {
   const [inFullscreen2, setInFullsreen2] = useState(false)
   const refVideo2 = useRef(0)
   const [curtime, setcurtime] = useState();
+  const [prevcurtime, setprevcurtime] = useState();
  
 
  const exitScreen = async () =>{
@@ -211,87 +219,114 @@ export default function Video() {
  }
  
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={downloadFile}><Text>Download</Text></TouchableOpacity>
-      <VideoPlayer
-        videoProps={{
-          shouldPlay: true,
-          defaultControlsVisible: false,
-          resizeMode: ResizeMode.CONTAIN,
-          source: {
-            uri: url,
-          },
-          ref: refVideo2,
-        }}
-        
-        header={<View style={{
-          width:"100%",
-          }}>
-          
-          {inFullscreen2 ? 
-              <TouchableOpacity onPress={exitScreen}>
-                <Ionicons name="arrow-back" size={30} color="#ffffff" style={{marginTop:10}}/>
-              </TouchableOpacity> : 
-              <TouchableOpacity >
-                <Ionicons name="arrow-back" size={30} color="#ffffff" style={{marginTop:10}}/>
-              </TouchableOpacity>
-              }
-              
-              <View style={{width:'100%',flexDirection:'row'}}>
+    <View style={styles.mainContainer}>
+      <View style={styles.container}>
+        {/* <TouchableOpacity onPress={downloadFile}><Text>Download</Text></TouchableOpacity> */}
+        <VideoPlayer
+          videoProps={{
+            shouldPlay: true,
+            defaultControlsVisible: false,
+            resizeMode: ResizeMode.CONTAIN,
+            source: {
+              uri: url,
+            },
+            ref: refVideo2,
+            isLooping:true,
+            isMuted:false,
+            audioPan:1
+          }}
+          activityIndicator={true}
+          header={<View style={{
+            width:"100%",
+            }}>
+            
+            {inFullscreen2 ? 
+                <TouchableOpacity onPress={exitScreen}>
+                  <Ionicons name="arrow-back" size={30} color="#ffffff" style={{marginTop:10}}/>
+                </TouchableOpacity> : 
+                <TouchableOpacity  onPress={()=>navigation.goBack()}>
+                  <Ionicons name="arrow-back" size={30} color="#ffffff" style={{marginTop:10}}/>
+                </TouchableOpacity>
+                }
                 
-                <View style={{position:'absolute',
-                left: inFullscreen2 ? ((width/2)-20) : 50,
-                top: inFullscreen2 ? ((width/2)-70) : 65}}>
-                  <TouchableOpacity onPress={backward}><Ionicons name="ios-play-back-circle" size={40} color="" style={{color:"#ffffff"}}/></TouchableOpacity>
+                <View style={{width:'100%',flexDirection:'row'}}>
+                  
+                  <View style={{position:'absolute',
+                  left: inFullscreen2 ? ((width/2)-20) : 50,
+                  top: inFullscreen2 ? ((width/2)-70) : 65}}>
+                    <TouchableOpacity onPress={backward}><Ionicons name="ios-play-back-circle" size={40} color="" style={{color:"#ffffff"}}/></TouchableOpacity>
+                  </View>
+                  <View style={{position:'absolute',
+                  right:inFullscreen2 ? ((width/2)-20) : 50,
+                  top: inFullscreen2 ? ((width/2)-70) : 65}}>
+                    <TouchableOpacity onPress={forward}><Ionicons name="play-forward-circle" size={40} color="" style={{color:"#ffffff"}}/></TouchableOpacity>
+                  </View>
                 </View>
-                <View style={{position:'absolute',
-                right:inFullscreen2 ? ((width/2)-20) : 50,
-                top: inFullscreen2 ? ((width/2)-70) : 65}}>
-                  <TouchableOpacity onPress={forward}><Ionicons name="play-forward-circle" size={40} color="" style={{color:"#ffffff"}}/></TouchableOpacity>
-                </View>
-              </View>
-        
-        </View>}
-        fullscreen={{
-          inFullscreen: inFullscreen2,
-          enterFullscreen: async () => {
-            setStatusBarHidden(true, 'fade')
-            setInFullsreen2(!inFullscreen2)
-            await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_LEFT)
-            refVideo2.current.setStatusAsync({
-              shouldPlay: true,
-            })
-          },
-          exitFullscreen: async () => {
-            setStatusBarHidden(false, 'fade')
-            setInFullsreen2(!inFullscreen2)
-            await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT)
-            refVideo2.current.setStatusAsync({
-              shouldPlay: true,
-            })
-          },
-        }}
-        style={{
-          videoBackgroundColor: 'black',
-          height: inFullscreen2 ? width : 250,
-          width: inFullscreen2 ? height : width,
-        }}
-        playbackCallback={(playbackStatus) => {
-          setcurtime(playbackStatus)
-          if(inFullscreen2)
-          setInFullsreen2(inFullscreen2)
-        }}
-      />
-      <StatusBar style="auto" />
+          
+          </View>}
+          fullscreen={{
+            inFullscreen: inFullscreen2,
+            enterFullscreen: async () => {
+              setStatusBarHidden(true, 'fade')
+              setInFullsreen2(!inFullscreen2)
+              await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_LEFT)
+              refVideo2.current.setStatusAsync({
+                shouldPlay: true,
+              })
+            },
+            exitFullscreen: async () => {
+              setStatusBarHidden(false, 'fade')
+              setInFullsreen2(!inFullscreen2)
+              await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT)
+              refVideo2.current.setStatusAsync({
+                shouldPlay: true,
+              })
+            },
+          }}
+          style={{
+            videoBackgroundColor: 'black',
+            height: inFullscreen2 ? width : 250,
+            width: inFullscreen2 ? height : width,
+          }}
+          playbackCallback={(playbackStatus) => {
+            setcurtime(playbackStatus)
+            if(inFullscreen2)
+            setInFullsreen2(inFullscreen2)
+          }}
+        />
+          {!inFullscreen2 ? <View style={styles.bodyContent}>
+            <View style={styles.marginContainer}>
+              <Text style={styles.headingLabel}>Test Name Label</Text>
+              <Text style={styles.detailsText}>16 hours ago</Text>
+              <Text style={styles.detailsText}>ETV Plus</Text>
+              <Text style={styles.detailsText}>U/A 13+</Text>
+              <Text style={styles.detailsText}>Loreum Ipsum Loreum Ipsum Loreum Ipsum Loreum Ipsum </Text>
+            </View>
+            <View style={styles.options}>
+                  <View style={styles.singleoption}><MaterialCommunityIcons name="thumb-up" size={30} color="#566666"/></View>
+                  <View style={styles.singleoption}><MaterialCommunityIcons name="share-variant" size={30} color="#566666"/></View>
+                  <View style={styles.singleoption}><MaterialCommunityIcons name="download" size={30} color="#566666"/></View>
+                  <View style={styles.singleoption}><MaterialIcons name="watch-later" size={30} color="#566666"/></View>
+            </View>
+          </View>: ""}
+          
+        <StatusBar style="auto" />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  mainContainer:{flex: 1,backgroundColor:BACKGROUND_COLOR},
+  bodyContent:{backgroundColor:BACKGROUND_COLOR},
+  headingLabel:{fontSize:25,marginBottom:5,color:'#ffffff',padding:6},
+  detailsText:{fontSize:13,marginBottom:5,color:'#566666',padding:6},
+  options:{alignItems:'center',justifyContent:'center',flexDirection:'row'},
+  singleoption:{width:"25%",alignItems:'center',justifyContent:'center',borderColor:'#566666',borderWidth:1,height:55},
+  marginContainer:{marginLeft:5,marginRight:5},
 });
