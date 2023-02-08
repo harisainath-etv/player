@@ -1,3 +1,4 @@
+import { Dimensions } from 'react-native';
 export const BASE_URL="https://prod.api.etvwin.com";
 export const ANDROID_AUTH_TOKEN="xttqeMn2dYtthp8aaUr2";
 export const ACCESS_TOKEN= "Ay6KCkajdBzztJ4bptpW";
@@ -10,3 +11,5 @@ export const TAB_COLOR = "#7249BF";
 export const HEADING_TEXT_COLOR = "#ffffff";
 export const NORMAL_TEXT_COLOR = "#ffffff";
 export const IMAGE_BORDER_COLOR = "#6b9fd7";
+export const PAGE_WIDTH = Dimensions.get('window').width;
+export const PAGE_HEIGHT = Dimensions.get('window').height;
