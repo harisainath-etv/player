@@ -7,7 +7,7 @@ import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawe
 import Home from './screens/home';
 import Video from './screens/videoPlayer';
 
-// import ChromeCast from './screens/chromecast';
+import ChromeCast from './screens/chromecast';
 //import Shorts from './screens/shorts';
 const Stack = createStackNavigator();
 
@@ -36,8 +36,8 @@ export default function App() {
     return (
     <NavigationContainer>
       <Stack.Navigator>
-      {/* <Stack.Screen name="Shorts" component={Shorts}  options={{header:()=>null,}}/> */}
         <Stack.Screen name="Home" component={Home} options={{header:()=>null,}}/>
+        <Stack.Screen name="ChromeCast" component={ChromeCast}  options={{header:()=>null,}}/>
         <Stack.Screen name="CustomeVideoPlayer" component={Video} options={{header:()=>null,}}/>
       </Stack.Navigator>
     </NavigationContainer>

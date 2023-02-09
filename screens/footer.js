@@ -4,6 +4,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { PAGE_WIDTH, BACKGROUND_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR } from '../constants'
+import ChromeCast from './chromecast';
 
 export default function Footer(props) {
     const pageName = props.pageName;
@@ -76,7 +77,8 @@ export default function Footer(props) {
 
             </View>
             <View style={styles.chromeCast}>
-                <FontAwesome5 name="chromecast" size={25} color="white" />
+                <ChromeCast></ChromeCast>
+                {/* <FontAwesome5 name="chromecast" size={25} color="white" /> */}
             </View>
         </View>
     )
