@@ -253,7 +253,7 @@ function Home({ navigation, route }) {
 
 
             {/* header menu */}
-            {currentIndexValue ?
+            {currentIndexValue>=0 ?
                 <FlatList
                     data={totalMenuData}
                     initialNumToRender={8}
