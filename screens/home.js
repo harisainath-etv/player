@@ -19,6 +19,7 @@ export const ElementsText = {
 };
 
 var page = 'home';
+var selectedItem = 0;
 function Home({ navigation, route }) {
 
     const [colors, setColors] = useState([
@@ -42,6 +43,8 @@ function Home({ navigation, route }) {
     const [autoPlay, setAutoPlay] = useState(true);
     const [pagingEnabled, setPagingEnabled] = useState(true);
     const [snapEnabled, setSnapEnabled] = useState(true);
+    const [currentIndexValue, setcurrentIndexValue] = useState();
+    var menuref = useRef();
     const progressValue = useSharedValue(0);
     const dataFetchedRef = useRef(false);
     const paginationLoadCount = 50;
@@ -95,6 +98,13 @@ function Home({ navigation, route }) {
             }
         }
         settotalMenuData(TopMenu);
+        for (let p = 0; p < TopMenu.length; p++) {
+            if (TopMenu[p].friendlyId == pageName) {
+                selectedItem = p;
+                setcurrentIndexValue(selectedItem)
+            }
+        }
+        //console.log(selectedItem);
     }
 
     const renderItem = ({ item, index }) => {
@@ -232,7 +242,10 @@ function Home({ navigation, route }) {
         dataFetchedRef.current = true;
         getTopMenu();
         loadData(0);
-    });
+        if (selectedItem == "") {
+            selectedItem = 0;
+        }
+    }, []);
     return (
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR, }}>
 
@@ -240,13 +253,20 @@ function Home({ navigation, route }) {
 
 
             {/* header menu */}
+            {currentIndexValue ?
+                <FlatList
+                    data={totalMenuData}
+                    initialNumToRender={8}
+                    initialScrollIndex={currentIndexValue}
+                    renderItem={menuRender}
+                    keyExtractor={(x, i) => i.toString()}
+                    horizontal={true}
+                    ref={menuref}
+                />
+                :
+                ""
+            }
 
-            <FlatList
-                data={totalMenuData}
-                renderItem={menuRender}
-                keyExtractor={(x, i) => i.toString()}
-                horizontal={true}
-            />
 
 
             {/* body content */}
