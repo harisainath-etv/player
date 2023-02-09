@@ -8,7 +8,7 @@ import Home from './screens/home';
 import Video from './screens/videoPlayer';
 
 // import ChromeCast from './screens/chromecast';
-import Shorts from './screens/shorts';
+//import Shorts from './screens/shorts';
 const Stack = createStackNavigator();
 
 const CustomDrawer = (props) =>{
