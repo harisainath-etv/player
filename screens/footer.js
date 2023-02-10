@@ -76,10 +76,10 @@ export default function Footer(props) {
                 }
 
             </View>
-            <View style={styles.chromeCast}>
+            
                 <ChromeCast></ChromeCast>
                 {/* <FontAwesome5 name="chromecast" size={25} color="white" /> */}
-            </View>
+            
         </View>
     )
 }
@@ -88,18 +88,4 @@ const styles = StyleSheet.create({
     footerText: { color: NORMAL_TEXT_COLOR, fontSize: 12 },
     footerContainer: { width: PAGE_WIDTH, backgroundColor: BACKGROUND_COLOR, height: 50, borderTopLeftRadius: 15, borderTopRightRadius: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: "center", paddingLeft: 10, paddingRight: 10 },
     iconContainer: { justifyContent: 'center', alignItems: 'center' },
-    chromeCast: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: BACKGROUND_COLOR,
-        position: 'absolute',
-        bottom: 50,
-        right: 10,
-        borderColor: IMAGE_BORDER_COLOR,
-        borderWidth: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        alignSelf: 'flex-end'
-    },
 })
