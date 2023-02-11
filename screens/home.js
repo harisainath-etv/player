@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useState, useEffect, useRef } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, Pressable, ActivityIndicator, } from 'react-native';
+import { useState, useEffect, useRef,useCallback } from 'react';
+import { View, FlatList, StyleSheet, Text, TouchableOpacity, Pressable, ActivityIndicator,RefreshControl } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -44,6 +44,7 @@ function Home({ navigation, route }) {
     const [pagingEnabled, setPagingEnabled] = useState(true);
     const [snapEnabled, setSnapEnabled] = useState(true);
     const [currentIndexValue, setcurrentIndexValue] = useState();
+    const [refreshing, setRefreshing] = useState(false);
     var menuref = useRef();
     const progressValue = useSharedValue(0);
     const dataFetchedRef = useRef(false);
@@ -243,6 +244,19 @@ function Home({ navigation, route }) {
             </View>
         )
     }
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        setTimeout(() => {
+            getTopMenu();
+            loadData(0);
+            if (selectedItem == "") {
+                selectedItem = 0;
+            }
+            setRefreshing(false);
+        }, 2000);
+      }, []);
+    
     useEffect(() => {
         if (dataFetchedRef.current) return;
         dataFetchedRef.current = true;
@@ -282,6 +296,7 @@ function Home({ navigation, route }) {
                 horizontal={false}
                 contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap' }}
                 style={{ height: PAGE_HEIGHT }}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 renderItem={renderItem}
             /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} /></View>}
 

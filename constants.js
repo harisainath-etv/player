@@ -14,3 +14,4 @@ export const NORMAL_TEXT_COLOR = "#ffffff";
 export const IMAGE_BORDER_COLOR = "#6b9fd7";
 export const PAGE_WIDTH = Dimensions.get('window').width;
 export const PAGE_HEIGHT = Dimensions.get('window').height;
+export const NO_CAST_DEVICES = "noDevicesAvailable";
