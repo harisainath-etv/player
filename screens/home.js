@@ -18,7 +18,7 @@ export const ElementsText = {
     AUTOPLAY: 'AutoPlay',
 };
 
-var page = 'home';
+var page = 'featured-1';
 var selectedItem = 0;
 function Home({ navigation, route }) {
 
@@ -36,7 +36,7 @@ function Home({ navigation, route }) {
     ]);
     const [totalHomeData, settotalHomeData] = useState();
     const [totalMenuData, settotalMenuData] = useState();
-    { route.params ? page = route.params.pageFriendlyId : page = 'home' }
+    { route.params ? page = route.params.pageFriendlyId : page = 'featured-1' }
     // const {pageFriendlyId}=route.params;
     const [pageName, setpageName] = useState(page);
     const [isVertical, setIsVertical] = useState(false);
@@ -58,7 +58,13 @@ function Home({ navigation, route }) {
     async function loadData(p) {
         var All = [];
         var Final = [];
-        const url = FIRETV_BASE_URL + "/catalog_lists/" + pageName + ".gzip?item_language=eng&region=IN&auth_token=" + ANDROID_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
+        var definedPageName="";
+        if(pageName=='featured-1')
+        definedPageName="home";
+        else
+        definedPageName=pageName;
+
+        const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=IN&auth_token=" + ANDROID_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
         const resp = await fetch(url);
         const data = await resp.json();
         // console.log(url);
@@ -89,7 +95,7 @@ function Home({ navigation, route }) {
     async function getTopMenu() {
         var TopMenu = [];
         //fetching top menu
-        const topMenu = FIRETV_BASE_URL + "/catalog_lists/top-menu-web.gzip?nested_list_items=false&auth_token=" + ANDROID_AUTH_TOKEN + "&region=IN";
+        const topMenu = FIRETV_BASE_URL + "/catalog_lists/top-menu.gzip?nested_list_items=false&auth_token=" + ANDROID_AUTH_TOKEN + "&region=IN";
         const menuResp = await fetch(topMenu);
         const menuData = await menuResp.json();
         if (menuData.data.catalog_list_items.length > 0) {
