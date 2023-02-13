@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useState, useEffect, useRef,useCallback } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, Pressable, ActivityIndicator,RefreshControl } from 'react-native';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { View, FlatList, StyleSheet, Text, TouchableOpacity, Pressable, ActivityIndicator, RefreshControl,Dimensions } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -20,6 +20,8 @@ export const ElementsText = {
 
 var page = 'featured-1';
 var selectedItem = 0;
+var exclusiveMax = 0;
+var sliderIndex=0;
 function Home({ navigation, route }) {
 
     const [colors, setColors] = useState([
@@ -46,6 +48,7 @@ function Home({ navigation, route }) {
     const [currentIndexValue, setcurrentIndexValue] = useState();
     const [refreshing, setRefreshing] = useState(false);
     var menuref = useRef();
+    const bannerref = useRef(null);
     const progressValue = useSharedValue(0);
     const dataFetchedRef = useRef(false);
     const paginationLoadCount = 50;
@@ -59,11 +62,11 @@ function Home({ navigation, route }) {
     async function loadData(p) {
         var All = [];
         var Final = [];
-        var definedPageName="";
-        if(pageName=='featured-1')
-        definedPageName="home";
+        var definedPageName = "";
+        if (pageName == 'featured-1')
+            definedPageName = "home";
         else
-        definedPageName=pageName;
+            definedPageName = pageName;
 
         const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=IN&auth_token=" + ANDROID_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
         const resp = await fetch(url);
@@ -72,17 +75,24 @@ function Home({ navigation, route }) {
         if (data.data.catalog_list_items.length > 0) {
             for (var i = 0; i < data.data.catalog_list_items.length; i++) {
                 for (var j = 0; j < data.data.catalog_list_items[i].catalog_list_items.length; j++) {
-                    if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
-                        if (data.data.catalog_list_items[i].layout_type == "top_banner")
-                            All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url);
-                        else
-                            if (data.data.catalog_list_items[i].layout_type == "tv_shows")
+                    if (data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list) {
+                        All.push(data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image);
+                    }
+                    else {
+                        if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
+                            if (data.data.catalog_list_items[i].layout_type == "top_banner")
                                 All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url);
                             else
-                                if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
-                                    All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_16_9.url);
+                                if (data.data.catalog_list_items[i].layout_type == "tv_shows")
+                                    All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url);
                                 else
-                                    All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url);
+                                    if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
+                                        All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_16_9.url);
+                                    else
+                                        All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url);
+
+
+                        }
                     }
                 }
 
@@ -115,6 +125,8 @@ function Home({ navigation, route }) {
     }
 
     const renderItem = ({ item, index }) => {
+        if(item.layoutType == 'etv-exclusive_banner'  && item.data.length != 0)
+        exclusiveMax=(item.data.length-1);
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
 
@@ -168,6 +180,40 @@ function Home({ navigation, route }) {
                         : ""}
                 </View>
 
+                {item.layoutType == 'etv-exclusive_banner'  && item.data.length != 0 ? 
+                
+                    <View>
+                        <View style={styles.sectionHeaderView}>
+                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                            <Text style={styles.sectionHeaderMore}>+MORE</Text>
+                        </View>
+                        <FlatList
+                            data={item.data}
+                            ref={bannerref}
+                            keyExtractor={(x, i) => i.toString()}
+                            horizontal={true}
+                            pagingEnabled
+                            initialScrollIndex={2}
+                            showsHorizontalScrollIndicator={false}
+                            style={styles.containerMargin}
+                            onMomentumScrollEnd={(event) => {
+                                let slider = event.nativeEvent.contentOffset.x ? event.nativeEvent.contentOffset.x/(Dimensions.get('window')-6) : 0
+                                sliderIndex=slider;
+                              }}
+                            renderItem={
+                                ({ item, index }) =>
+                                    <View>
+                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                            <FastImage
+                                                style={[styles.imageSectionHorizontalSingle, { resizeMode: 'stretch', }]}
+                                                source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                        </TouchableOpacity>
+                                    </View>
+                            }
+                        />
+                    </View>
+                    : ""}
+
                 {item.layoutType == 'tv_shows' && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
@@ -194,7 +240,7 @@ function Home({ navigation, route }) {
                     </View>
                     : ""}
 
-                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'tv_shows_banner' && item.data.length != 0 ?
+                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
@@ -255,8 +301,12 @@ function Home({ navigation, route }) {
             }
             setRefreshing(false);
         }, 2000);
-      }, []);
-    
+    }, []);
+
+    const scrollToIndex = (index, animated) => {
+        bannerref && bannerref.current.scrollToIndex({animated,index})
+      }
+
     useEffect(() => {
         if (dataFetchedRef.current) return;
         dataFetchedRef.current = true;
@@ -265,6 +315,19 @@ function Home({ navigation, route }) {
         if (selectedItem == "") {
             selectedItem = 0;
         }
+        setInterval(function() {
+            const maxSlider = exclusiveMax
+            let nextIndex = 0
+            if (sliderIndex < maxSlider) {
+              nextIndex = sliderIndex + 1
+            }
+            if(sliderIndex>=maxSlider)
+            {
+                nextIndex=0;
+            }
+            scrollToIndex(nextIndex, true)
+            sliderIndex=nextIndex;
+          }.bind(this), 2000)
     }, []);
     return (
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR, }}>
@@ -273,7 +336,7 @@ function Home({ navigation, route }) {
 
 
             {/* header menu */}
-            {currentIndexValue>=0 ?
+            {currentIndexValue >= 0 ?
                 <FlatList
                     data={totalMenuData}
                     initialNumToRender={8}
@@ -420,6 +483,14 @@ const styles = StyleSheet.create({
     imageSectionHorizontal: {
         width: PAGE_WIDTH / 2.06,
         height: 117,
+        marginHorizontal: 3,
+        borderRadius: 10,
+        marginBottom: 10,
+        borderWidth: 1
+    },
+    imageSectionHorizontalSingle: {
+        width: PAGE_WIDTH-6 ,
+        height: 234,
         marginHorizontal: 3,
         borderRadius: 10,
         marginBottom: 10,
