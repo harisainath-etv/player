@@ -53,7 +53,7 @@ function Home({ navigation, route }) {
     const baseOptions = ({
         vertical: false,
         width: PAGE_WIDTH * 0.9,
-        height: PAGE_WIDTH,
+        height: 430,
     });
     const baseOptionsOther = ({
         vertical: false,
@@ -155,7 +155,7 @@ function Home({ navigation, route }) {
                             }}
                             data={item.data}
                             style={{ top: -15, }}
-                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage key={index} style={styles.image} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
                         />
                         : ""}
 
@@ -562,7 +562,7 @@ const styles = StyleSheet.create({
         right: 0,
         resizeMode: 'stretch',
         borderRadius: 10,
-        height: 420
+        height: 470
     },
     showsbannerimage: {
         top: 0,
