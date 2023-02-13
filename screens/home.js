@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, Pressable, ActivityIndicator, RefreshControl,Dimensions } from 'react-native';
+import { View, FlatList, StyleSheet, Text, TouchableOpacity, Pressable, ActivityIndicator, RefreshControl, } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -20,8 +20,6 @@ export const ElementsText = {
 
 var page = 'featured-1';
 var selectedItem = 0;
-var exclusiveMax = 0;
-var sliderIndex=0;
 function Home({ navigation, route }) {
 
     const [colors, setColors] = useState([
@@ -48,7 +46,6 @@ function Home({ navigation, route }) {
     const [currentIndexValue, setcurrentIndexValue] = useState();
     const [refreshing, setRefreshing] = useState(false);
     var menuref = useRef();
-    const bannerref = useRef(null);
     const progressValue = useSharedValue(0);
     const dataFetchedRef = useRef(false);
     const paginationLoadCount = 50;
@@ -57,6 +54,16 @@ function Home({ navigation, route }) {
         vertical: false,
         width: PAGE_WIDTH * 0.9,
         height: PAGE_WIDTH,
+    });
+    const baseOptionsOther = ({
+        vertical: false,
+        width: PAGE_WIDTH * 0.9,
+        height: 260,
+    });
+    const baseOptionsOtherSingle = ({
+        vertical: false,
+        width: PAGE_WIDTH*0.95,
+        height: 250,
     });
 
     async function loadData(p) {
@@ -87,7 +94,7 @@ function Home({ navigation, route }) {
                                     All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url);
                                 else
                                     if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
-                                        All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_16_9.url);
+                                        All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url);
                                     else
                                         All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url);
 
@@ -125,8 +132,6 @@ function Home({ navigation, route }) {
     }
 
     const renderItem = ({ item, index }) => {
-        if(item.layoutType == 'etv-exclusive_banner'  && item.data.length != 0)
-        exclusiveMax=(item.data.length-1);
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
 
@@ -180,37 +185,62 @@ function Home({ navigation, route }) {
                         : ""}
                 </View>
 
-                {item.layoutType == 'etv-exclusive_banner'  && item.data.length != 0 ? 
-                
-                    <View>
+                {item.layoutType == 'tv_shows_banner' ?
+                    <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
                             <Text style={styles.sectionHeaderMore}>+MORE</Text>
                         </View>
-                        <FlatList
-                            data={item.data}
-                            ref={bannerref}
-                            keyExtractor={(x, i) => i.toString()}
-                            horizontal={true}
-                            pagingEnabled
-                            initialScrollIndex={2}
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.containerMargin}
-                            onMomentumScrollEnd={(event) => {
-                                let slider = event.nativeEvent.contentOffset.x ? event.nativeEvent.contentOffset.x/(Dimensions.get('window')-6) : 0
-                                sliderIndex=slider;
-                              }}
-                            renderItem={
-                                ({ item, index }) =>
-                                    <View>
-                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
-                                            <FastImage
-                                                style={[styles.imageSectionHorizontalSingle, { resizeMode: 'stretch', }]}
-                                                source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                        </TouchableOpacity>
-                                    </View>
+                        <Carousel
+                            {...baseOptionsOther}
+                            loop
+                            pagingEnabled={pagingEnabled}
+                            snapEnabled={snapEnabled}
+                            autoPlay={autoPlay}
+                            autoPlayInterval={2000}
+                            onProgressChange={(_, absoluteProgress) =>
+                                (progressValue.value = absoluteProgress)
                             }
+                            mode="parallax"
+                            modeConfig={{
+                                parallaxScrollingScale: 0.82,
+                                parallaxScrollingOffset: 50,
+                                parallaxAdjacentItemScale: 0.82,
+                            }}
+                            data={item.data}
+                            style={{}}
+                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
                         />
+                    </View>
+                    : ""}
+
+                {item.layoutType == 'etv-exclusive_banner' && item.data.length != 0 ?
+
+                    <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={styles.sectionHeaderView}>
+                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                            <Text style={styles.sectionHeaderMore}>+MORE</Text>
+                        </View>
+                        <View style={{padding:10}}>
+                        <Carousel
+                            {...baseOptionsOtherSingle}
+                            loop
+                            pagingEnabled={pagingEnabled}
+                            snapEnabled={snapEnabled}
+                            autoPlay={autoPlay}
+                            autoPlayInterval={2000}
+                            onProgressChange={(_, absoluteProgress) =>
+                                (progressValue.value = absoluteProgress)
+                            }
+                            mode="parallax"
+                            modeConfig={{
+                                parallaxScrollingScale: 1.1,
+                            }}
+                            data={item.data}
+                            style={{}}
+                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                        />
+                        </View>
                     </View>
                     : ""}
 
@@ -303,10 +333,6 @@ function Home({ navigation, route }) {
         }, 2000);
     }, []);
 
-    const scrollToIndex = (index, animated) => {
-        bannerref && bannerref.current.scrollToIndex({animated,index})
-      }
-
     useEffect(() => {
         if (dataFetchedRef.current) return;
         dataFetchedRef.current = true;
@@ -315,19 +341,6 @@ function Home({ navigation, route }) {
         if (selectedItem == "") {
             selectedItem = 0;
         }
-        setInterval(function() {
-            const maxSlider = exclusiveMax
-            let nextIndex = 0
-            if (sliderIndex < maxSlider) {
-              nextIndex = sliderIndex + 1
-            }
-            if(sliderIndex>=maxSlider)
-            {
-                nextIndex=0;
-            }
-            scrollToIndex(nextIndex, true)
-            sliderIndex=nextIndex;
-          }.bind(this), 2000)
     }, []);
     return (
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR, }}>
@@ -489,12 +502,13 @@ const styles = StyleSheet.create({
         borderWidth: 1
     },
     imageSectionHorizontalSingle: {
-        width: PAGE_WIDTH-6 ,
-        height: 234,
+        width: PAGE_WIDTH-20,
+        height: 250,
         marginHorizontal: 3,
         borderRadius: 10,
         marginBottom: 10,
-        borderWidth: 1
+        borderWidth: 1,
+        resizeMode: 'stretch'
     },
     imageSectionVertical: {
         width: PAGE_WIDTH / 3.15,
@@ -549,6 +563,15 @@ const styles = StyleSheet.create({
         resizeMode: 'stretch',
         borderRadius: 10,
         height: 420
+    },
+    showsbannerimage: {
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        resizeMode: 'cover',
+        borderRadius: 10,
+        height: 250
     },
 });
 
