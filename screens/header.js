@@ -1,16 +1,24 @@
 import * as React from 'react';
 import { useState, } from 'react';
-import { View, TouchableOpacity, Image,StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Image, StyleSheet, ImageBackground, Text } from 'react-native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Modal from "react-native-modal";
-import { NORMAL_TEXT_COLOR,PAGE_WIDTH,PAGE_HEIGHT } from '../constants';
+import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, MORE_LINK_COLOR,SLIDER_PAGINATION_UNSELECTED_COLOR } from '../constants';
 
-export default function Header() {
+export default function Header(props) {
+    const pageName = props.pageName;
     const [isModalVisible, setModalVisible] = useState(false);
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
+    var menuArray = [{ 'iconName': 'home', 'pageName': 'Home', 'text': 'Home', 'type': 1 },
+    { 'iconName': 'television-classic', 'pageName': 'LIVE-TV', 'text': 'Live TV', 'type': 1 },
+    { 'iconName': 'bell-check', 'pageName': 'SUBSCRIPTION', 'text': 'Subscription', 'type': 1 },
+    { 'iconName': 'more', 'pageName': 'MORE', 'text': 'More', 'type': 1 },
+    { 'iconName': 'gear', 'pageName': 'Settings', 'text': 'Settings', 'type': 2 }]
+
     return (
         <View style={{}}>
             {/* Drawer Navigation Modal */}
@@ -19,9 +27,52 @@ export default function Header() {
                 animationIn="slideInLeft"
                 animationOut="slideOutLeft"
                 onBackdropPress={toggleModal}
+                backdropColor={"black"}
+                backdropOpacity={0.40}
             >
                 <View style={styles.drawerContainer}>
+                    <View>
+                        <ImageBackground
+                            source={require('../assets/images/drawer_header.png')}
+                            resizeMode="cover"
+                            style={styles.drawerHeaderImage}>
+                            <View style={{ padding: 25 }}>
+                                <Text style={styles.drawerHeaderText}>Hi Guest User!</Text>
+                                <View style={{ flexDirection: 'row', marginTop: 25 }}>
+                                    <TouchableOpacity style={{ backgroundColor: TAB_COLOR, padding: 13, borderRadius: 10, marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
+                                        <Text style={styles.drawerHeaderText}>SIGN IN</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={{ borderColor: TAB_COLOR, padding: 13, borderRadius: 10, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' }}>
+                                        <Text style={styles.drawerHeaderText}>SIGN UP</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </ImageBackground>
 
+                        <View style={{ paddingLeft: 30, marginTop: 20 }}>
+                            {menuArray.map((singleMenu) => {
+
+                                return (
+                                    <View style={styles.menuItem} key={singleMenu.pageName}>
+                                        {singleMenu.type == 1 ? <MaterialCommunityIcons name={singleMenu.iconName}
+                                            size={27}
+                                            color={pageName == singleMenu.pageName ? MORE_LINK_COLOR : NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
+                                            :
+                                            <FontAwesome name={singleMenu.iconName}
+                                                size={27}
+                                                color={pageName == singleMenu.pageName ? MORE_LINK_COLOR : NORMAL_TEXT_COLOR}></FontAwesome>}
+
+                                        <Text style={{ color: pageName == singleMenu.pageName ? MORE_LINK_COLOR : NORMAL_TEXT_COLOR,marginLeft:15,width:"85%",fontSize:17 }}>{singleMenu.text}</Text>
+                                    </View>
+
+                                )
+
+
+                            })}
+
+
+                        </View>
+                    </View>
                 </View>
             </Modal>
 
@@ -55,10 +106,13 @@ export default function Header() {
 
 
 const styles = StyleSheet.create({
-    drawerContainer:{ flex: 1, backgroundColor: '#ffffff', height: PAGE_HEIGHT, width: (PAGE_WIDTH / 1.5), left: -20, position: 'absolute' },
-    headerContainer:{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20, padding: 5 },
-    leftItems:{ width: '50%', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', },
-    rightItems:{ width: '50%', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', },
-    logoImage:{ width: 90, height: 50, resizeMode: 'contain', marginLeft: 5 },
-    subscribeImage:{ width: 100, height: 50, resizeMode: 'contain', }
+    menuItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 25, },
+    drawerHeaderText: { color: NORMAL_TEXT_COLOR, fontSize: 16, fontWeight: 'bold' },
+    drawerHeaderImage: { width: "100%", height: 170 },
+    drawerContainer: { flex: 1, backgroundColor: SIDEBAR_BACKGROUND_COLOR, height: PAGE_HEIGHT, width: (PAGE_WIDTH / 1.3), left: -20, position: 'absolute' },
+    headerContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20, padding: 5 },
+    leftItems: { width: '50%', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', },
+    rightItems: { width: '50%', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', },
+    logoImage: { width: 90, height: 50, resizeMode: 'contain', marginLeft: 5 },
+    subscribeImage: { width: 100, height: 50, resizeMode: 'contain', }
 });

@@ -5,6 +5,7 @@ export const ACCESS_TOKEN= "Ay6KCkajdBzztJ4bptpW";
 export const FIRETV_BASE_URL ="https://firetvapi.etvwin.com";
 export const BACKGROUND_COLOR ="#00021c";
 export const BACKGROUND_TRANSPARENT_COLOR ="rgba(0, 2, 28, 0.4)";
+export const SIDEBAR_BACKGROUND_COLOR = "#01031A";
 export const SLIDER_PAGINATION_SELECTED_COLOR = "#FFC908";
 export const SLIDER_PAGINATION_UNSELECTED_COLOR = "#3a3d68";
 export const MORE_LINK_COLOR = "#FFC908";

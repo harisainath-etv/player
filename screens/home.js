@@ -269,7 +269,7 @@ function Home({ navigation, route }) {
     return (
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR, }}>
 
-            <Header></Header>
+            <Header pageName="Home"></Header>
 
 
             {/* header menu */}
