@@ -62,7 +62,7 @@ function Home({ navigation, route }) {
     });
     const baseOptionsOtherSingle = ({
         vertical: false,
-        width: PAGE_WIDTH*0.95,
+        width: PAGE_WIDTH * 0.95,
         height: 250,
     });
 
@@ -221,26 +221,77 @@ function Home({ navigation, route }) {
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
                             <Text style={styles.sectionHeaderMore}>+MORE</Text>
                         </View>
-                        <View style={{padding:10}}>
-                        <Carousel
-                            {...baseOptionsOtherSingle}
-                            loop
-                            pagingEnabled={pagingEnabled}
-                            snapEnabled={snapEnabled}
-                            autoPlay={autoPlay}
-                            autoPlayInterval={2000}
-                            onProgressChange={(_, absoluteProgress) =>
-                                (progressValue.value = absoluteProgress)
-                            }
-                            mode="parallax"
-                            modeConfig={{
-                                parallaxScrollingScale: 1.1,
-                            }}
-                            data={item.data}
-                            style={{}}
-                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
-                        />
+                        <View style={{ padding: 10 }}>
+                            <Carousel
+                                {...baseOptionsOtherSingle}
+                                loop
+                                pagingEnabled={pagingEnabled}
+                                snapEnabled={snapEnabled}
+                                autoPlay={autoPlay}
+                                autoPlayInterval={2000}
+                                onProgressChange={(_, absoluteProgress) =>
+                                    (progressValue.value = absoluteProgress)
+                                }
+                                mode="parallax"
+                                modeConfig={{
+                                    parallaxScrollingScale: 1.1,
+                                }}
+                                data={item.data}
+                                style={{}}
+                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                            />
                         </View>
+                    </View>
+                    : ""}
+
+
+                {item.layoutType == 'banner' && item.data.length != 0 ?
+
+                    <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{ padding: 10 }}>
+                            <Carousel
+                                {...baseOptionsOtherSingle}
+                                loop
+                                pagingEnabled={pagingEnabled}
+                                snapEnabled={snapEnabled}
+                                autoPlay={autoPlay}
+                                autoPlayInterval={2000}
+                                onProgressChange={(_, absoluteProgress) =>
+                                    (progressValue.value = absoluteProgress)
+                                }
+                                mode="parallax"
+                                modeConfig={{
+                                    parallaxScrollingScale: 1.1,
+                                }}
+                                data={item.data}
+                                style={{}}
+                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                            />
+                        </View>
+                        {!!progressValue ?
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                width: 200,
+                                alignSelf: 'center',
+                                top: -1,
+                            }}
+                        >
+                            {colors.map((backgroundColor, index) => {
+                                return (
+                                    <PaginationItem
+                                        backgroundColor={backgroundColor}
+                                        animValue={progressValue}
+                                        index={index}
+                                        key={index}
+                                        isRotate={isVertical}
+                                        length={colors.length}
+                                    />
+                                );
+                            })}
+                        </View>
+                        : ""}
                     </View>
                     : ""}
 
@@ -262,6 +313,31 @@ function Home({ navigation, route }) {
                                         <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
                                             <FastImage
                                                 style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
+                                                resizeMode={FastImage.resizeMode.stretch}
+                                                source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                        </TouchableOpacity>
+                                    </View>
+                            }
+                        />
+                    </View>
+                    : ""}
+                
+                {item.layoutType == 'channels' && item.data.length != 0 ?
+                    <View style={{ flexDirection: 'column' }}>
+                        <FlatList
+                            data={item.data}
+                            keyExtractor={(x, i) => i.toString()}
+                            horizontal={false}
+                            showsHorizontalScrollIndicator={false}
+                            style={styles.containerMargin}
+                            numColumns={3}
+                            renderItem={
+                                ({ item, index }) =>
+                                    <View style={{ marginRight: 5, marginLeft: 5 }}>
+                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                            <FastImage
+                                                style={[styles.imageSectionCircle,]}
+                                                resizeMode={FastImage.resizeMode.stretch}
                                                 source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                         </TouchableOpacity>
                                     </View>
@@ -270,7 +346,7 @@ function Home({ navigation, route }) {
                     </View>
                     : ""}
 
-                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.data.length != 0 ?
+                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'banner' && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
@@ -288,6 +364,7 @@ function Home({ navigation, route }) {
                                         <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
                                             <FastImage
                                                 style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
+                                                resizeMode={FastImage.resizeMode.stretch}
                                                 source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                         </TouchableOpacity>
                                     </View>
@@ -299,10 +376,10 @@ function Home({ navigation, route }) {
         );
     }
     function changeTabData(pageFriendlyId) {
-        if(pageFriendlyId!='live')
-        navigation.navigate({ name: 'Home', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
+        if (pageFriendlyId != 'live')
+            navigation.navigate({ name: 'Home', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
         else
-        navigation.navigate({ name: 'OtherResponse', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
+            navigation.navigate({ name: 'OtherResponse', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
     }
     const menuRender = ({ item, index }) => {
         return (
@@ -378,7 +455,7 @@ function Home({ navigation, route }) {
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 renderItem={renderItem}
             /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} /></View>}
-            <View style={{height:10}}></View>
+            <View style={{ height: 10 }}></View>
             <Footer
                 pageName="Home"
             ></Footer>
@@ -505,7 +582,7 @@ const styles = StyleSheet.create({
         borderWidth: 1
     },
     imageSectionHorizontalSingle: {
-        width: PAGE_WIDTH-20,
+        width: PAGE_WIDTH - 20,
         height: 250,
         marginHorizontal: 3,
         borderRadius: 10,
@@ -524,11 +601,9 @@ const styles = StyleSheet.create({
     imageSectionCircle: {
         marginHorizontal: 0,
         marginBottom: 10,
-        width: PAGE_WIDTH / 4,
-        height: PAGE_WIDTH / 4,
-        borderRadius: (PAGE_WIDTH / 4) / 2,
-        borderColor: IMAGE_BORDER_COLOR,
-        borderWidth: 1
+        width: (PAGE_WIDTH / 3) - 10,
+        height: (PAGE_WIDTH / 3) - 10,
+        borderRadius: ((PAGE_WIDTH / 3) - 10) / 2,
     },
     imageSectionBig: {
         width: PAGE_WIDTH / 1.1,
