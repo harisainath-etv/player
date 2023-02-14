@@ -4,10 +4,12 @@ import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, } from 're
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Modal from "react-native-modal";
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import { useNavigation } from '@react-navigation/native';
 import { PAGE_WIDTH, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, NO_CAST_DEVICES, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR } from '../constants'
 
 export default function Footer(props) {
     const pageName = props.pageName;
+    const navigation = useNavigation();
     const [castState, setCastSate] = useState();
     const [castSet, setcastSet] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
@@ -60,10 +62,10 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>HOME</Text>
                     </View>
                     :
-                    <View style={styles.iconContainer}>
+                    <TouchableOpacity  style={styles.iconContainer} onPress={()=>navigation.navigate({ name: 'Home', params: { pageFriendlyId: 'featured-1' }, key: 'featured-1' })}>
                         <MaterialCommunityIcons name="home" size={28} color={NORMAL_TEXT_COLOR} />
                         <Text style={styles.footerText}>HOME</Text>
-                    </View>
+                    </TouchableOpacity>
 
                 }
 
@@ -86,10 +88,10 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>NEWS</Text>
                     </View>
                     :
-                    <View style={styles.iconContainer}>
+                    <TouchableOpacity style={styles.iconContainer} onPress={()=>navigation.navigate('News',{pageFriendlyId:'news'})}>
                         <MaterialCommunityIcons name="newspaper-variant-multiple-outline" size={28} color={NORMAL_TEXT_COLOR} />
                         <Text style={styles.footerText}>NEWS</Text>
-                    </View>
+                    </TouchableOpacity>
                 }
                 {pageName == 'OFFLINE' ?
 
