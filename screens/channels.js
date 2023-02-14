@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, Pressable, ActivityIndicator, RefreshControl, } from 'react-native';
+import { View, FlatList, StyleSheet, Text, TouchableOpacity, ActivityIndicator, RefreshControl,Pressable } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -20,7 +20,7 @@ export const ElementsText = {
 
 var page = 'featured-1';
 var selectedItem = 0;
-function Home({ navigation, route }) {
+function Channels({ navigation, route }) {
 
     const [colors, setColors] = useState([
         SLIDER_PAGINATION_SELECTED_COLOR,
@@ -62,7 +62,7 @@ function Home({ navigation, route }) {
     });
     const baseOptionsOtherSingle = ({
         vertical: false,
-        width: PAGE_WIDTH*0.95,
+        width: PAGE_WIDTH * 0.95,
         height: 250,
     });
 
@@ -78,38 +78,35 @@ function Home({ navigation, route }) {
         const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=IN&auth_token=" + ANDROID_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
         const resp = await fetch(url);
         const data = await resp.json();
-        // console.log(url);
         if (data.data.catalog_list_items.length > 0) {
             for (var i = 0; i < data.data.catalog_list_items.length; i++) {
-                for (var j = 0; j < data.data.catalog_list_items[i].catalog_list_items.length; j++) {
-                    if (data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list) {
-                        All.push(data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image);
+
+                if (data.data.catalog_list_items[i].media_list_in_list) {
+                    All.push(data.data.catalog_list_items[i].list_item_object.banner_image);
+                }
+                else {
+                    if(definedPageName=='channels')
+                    {
+                        if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3')) {
+                            All.push(data.data.catalog_list_items[i].thumbnails.high_4_3.url);
+                        }
                     }
-                    else {
-                        if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
-                            if (data.data.catalog_list_items[i].layout_type == "top_banner")
-                                All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url);
-                            else
-                                if (data.data.catalog_list_items[i].layout_type == "tv_shows")
-                                    All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url);
-                                else
-                                    if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
-                                        All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url);
-                                    else
-                                        All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url);
-
-
+                    else
+                    if(definedPageName=='live')
+                    {
+                        if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
+                            All.push(data.data.catalog_list_items[i].thumbnails.high_3_4.url);
                         }
                     }
                 }
-
-                Final.push({ "friendlyId": data.data.catalog_list_items[i].friendly_id, "data": All, "layoutType": data.data.catalog_list_items[i].layout_type, "displayName": data.data.catalog_list_items[i].display_title });
-                All = [];
             }
+            Final.push({ "friendlyId": "", "data": All, "layoutType": data.data.layout_type, "displayName": data.data.display_title });
+            All = [];
         }
 
         settotalHomeData(Final);
     }
+
     async function getTopMenu() {
         var TopMenu = [];
         //fetching top menu
@@ -130,7 +127,12 @@ function Home({ navigation, route }) {
         }
         //console.log(selectedItem);
     }
-
+    function changeTabData(pageFriendlyId) {
+        if(pageFriendlyId!='live')
+        navigation.navigate({ name: 'Home', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
+        else
+        navigation.navigate({ name: 'OtherResponse', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
+    }
     const renderItem = ({ item, index }) => {
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
@@ -187,10 +189,6 @@ function Home({ navigation, route }) {
 
                 {item.layoutType == 'tv_shows_banner' ?
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={styles.sectionHeaderView}>
-                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            <Text style={styles.sectionHeaderMore}>+MORE</Text>
-                        </View>
                         <Carousel
                             {...baseOptionsOther}
                             loop
@@ -217,39 +215,55 @@ function Home({ navigation, route }) {
                 {item.layoutType == 'etv-exclusive_banner' && item.data.length != 0 ?
 
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={styles.sectionHeaderView}>
-                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            <Text style={styles.sectionHeaderMore}>+MORE</Text>
+                        <View style={{ padding: 10 }}>
+                            <Carousel
+                                {...baseOptionsOtherSingle}
+                                loop
+                                pagingEnabled={pagingEnabled}
+                                snapEnabled={snapEnabled}
+                                autoPlay={autoPlay}
+                                autoPlayInterval={2000}
+                                onProgressChange={(_, absoluteProgress) =>
+                                    (progressValue.value = absoluteProgress)
+                                }
+                                mode="parallax"
+                                modeConfig={{
+                                    parallaxScrollingScale: 1.1,
+                                }}
+                                data={item.data}
+                                style={{}}
+                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                            />
                         </View>
-                        <View style={{padding:10}}>
-                        <Carousel
-                            {...baseOptionsOtherSingle}
-                            loop
-                            pagingEnabled={pagingEnabled}
-                            snapEnabled={snapEnabled}
-                            autoPlay={autoPlay}
-                            autoPlayInterval={2000}
-                            onProgressChange={(_, absoluteProgress) =>
-                                (progressValue.value = absoluteProgress)
-                            }
-                            mode="parallax"
-                            modeConfig={{
-                                parallaxScrollingScale: 1.1,
-                            }}
+                    </View>
+                    : ""}
+
+                {item.layoutType == 'channels' && item.data.length != 0 ?
+                    <View style={{ flexDirection: 'column' }}>
+                        <FlatList
                             data={item.data}
-                            style={{}}
-                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                            keyExtractor={(x, i) => i.toString()}
+                            horizontal={false}
+                            showsHorizontalScrollIndicator={false}
+                            style={styles.containerMargin}
+                            numColumns={3}
+                            renderItem={
+                                ({ item, index }) =>
+                                    <View style={{ marginRight: 5, marginLeft: 5 }}>
+                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                            <FastImage
+                                                style={[styles.imageSectionCircle,]}
+                                                resizeMode={FastImage.resizeMode.stretch}
+                                                source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                        </TouchableOpacity>
+                                    </View>
+                            }
                         />
-                        </View>
                     </View>
                     : ""}
 
                 {item.layoutType == 'tv_shows' && item.data.length != 0 ?
                     <View>
-                        <View style={styles.sectionHeaderView}>
-                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            <Text style={styles.sectionHeaderMore}>+MORE</Text>
-                        </View>
                         <FlatList
                             data={item.data}
                             keyExtractor={(x, i) => i.toString()}
@@ -270,12 +284,33 @@ function Home({ navigation, route }) {
                     </View>
                     : ""}
 
-                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.data.length != 0 ?
+
+                {item.layoutType == 'live' && item.data.length != 0 ?
                     <View>
-                        <View style={styles.sectionHeaderView}>
-                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            <Text style={styles.sectionHeaderMore}>+MORE</Text>
-                        </View>
+                        <FlatList
+                            data={item.data}
+                            keyExtractor={(x, i) => i.toString()}
+                            horizontal={false}
+                            showsHorizontalScrollIndicator={false}
+                            style={styles.containerMargin}
+                            numColumns={3}
+                            renderItem={
+                                ({ item, index }) =>
+                                    <View>
+                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                            <FastImage
+                                                style={[styles.imageSectionVertical, ]}
+                                                resizeMode={FastImage.resizeMode.stretch}
+                                                source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                        </TouchableOpacity>
+                                    </View>
+                            }
+                        />
+                    </View>
+                    : ""}
+
+                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'channels' && item.data.length != 0 ?
+                    <View>
                         <FlatList
                             data={item.data}
                             keyExtractor={(x, i) => i.toString()}
@@ -298,12 +333,6 @@ function Home({ navigation, route }) {
             </View>
         );
     }
-    function changeTabData(pageFriendlyId) {
-        if(pageFriendlyId!='live')
-        navigation.navigate({ name: 'Home', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
-        else
-        navigation.navigate({ name: 'OtherResponse', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
-    }
     const menuRender = ({ item, index }) => {
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, marginBottom: 15, padding: 5 }}>
@@ -323,7 +352,6 @@ function Home({ navigation, route }) {
             </View>
         )
     }
-
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         setTimeout(() => {
@@ -348,8 +376,7 @@ function Home({ navigation, route }) {
     return (
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR, }}>
 
-            <Header pageName="Home"></Header>
-
+            <Header pageName="TV-CHANNELS"></Header>
 
             {/* header menu */}
             {currentIndexValue >= 0 ?
@@ -366,8 +393,6 @@ function Home({ navigation, route }) {
                 ""
             }
 
-
-
             {/* body content */}
             {totalHomeData ? <FlatList
                 data={totalHomeData}
@@ -380,7 +405,7 @@ function Home({ navigation, route }) {
             /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} /></View>}
 
             <Footer
-                pageName="Home"
+                pageName="TV-CHANNELS"
             ></Footer>
             <StatusBar style="auto" />
         </View>
@@ -505,7 +530,7 @@ const styles = StyleSheet.create({
         borderWidth: 1
     },
     imageSectionHorizontalSingle: {
-        width: PAGE_WIDTH-20,
+        width: PAGE_WIDTH - 20,
         height: 250,
         marginHorizontal: 3,
         borderRadius: 10,
@@ -524,11 +549,9 @@ const styles = StyleSheet.create({
     imageSectionCircle: {
         marginHorizontal: 0,
         marginBottom: 10,
-        width: PAGE_WIDTH / 4,
-        height: PAGE_WIDTH / 4,
-        borderRadius: (PAGE_WIDTH / 4) / 2,
-        borderColor: IMAGE_BORDER_COLOR,
-        borderWidth: 1
+        width: (PAGE_WIDTH / 3) - 10,
+        height: (PAGE_WIDTH / 3) - 10,
+        borderRadius: ((PAGE_WIDTH / 3) - 10) / 2,
     },
     imageSectionBig: {
         width: PAGE_WIDTH / 1.1,
@@ -578,4 +601,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Home;
+export default Channels;

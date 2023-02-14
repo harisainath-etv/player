@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, Pressable, ActivityIndicator, RefreshControl, } from 'react-native';
+import { View, FlatList, StyleSheet, Text, TouchableOpacity, ActivityIndicator, RefreshControl, } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -45,7 +45,6 @@ function News({ navigation, route }) {
     const [snapEnabled, setSnapEnabled] = useState(true);
     const [currentIndexValue, setcurrentIndexValue] = useState();
     const [refreshing, setRefreshing] = useState(false);
-    var menuref = useRef();
     const progressValue = useSharedValue(0);
     const dataFetchedRef = useRef(false);
     const paginationLoadCount = 50;
@@ -109,26 +108,6 @@ function News({ navigation, route }) {
         }
 
         settotalHomeData(Final);
-    }
-    async function getTopMenu() {
-        var TopMenu = [];
-        //fetching top menu
-        const topMenu = FIRETV_BASE_URL + "/catalog_lists/top-menu.gzip?nested_list_items=false&auth_token=" + ANDROID_AUTH_TOKEN + "&region=IN";
-        const menuResp = await fetch(topMenu);
-        const menuData = await menuResp.json();
-        if (menuData.data.catalog_list_items.length > 0) {
-            for (var m = 0; m < menuData.data.catalog_list_items.length; m++) {
-                TopMenu.push({ "displayName": menuData.data.catalog_list_items[m].display_title.toUpperCase(), "friendlyId": menuData.data.catalog_list_items[m].friendly_id })
-            }
-        }
-        settotalMenuData(TopMenu);
-        for (let p = 0; p < TopMenu.length; p++) {
-            if (TopMenu[p].friendlyId == pageName) {
-                selectedItem = p;
-                setcurrentIndexValue(selectedItem)
-            }
-        }
-        //console.log(selectedItem);
     }
 
     const renderItem = ({ item, index }) => {
@@ -302,7 +281,6 @@ function News({ navigation, route }) {
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         setTimeout(() => {
-            getTopMenu();
             loadData(0);
             if (selectedItem == "") {
                 selectedItem = 0;
@@ -314,7 +292,7 @@ function News({ navigation, route }) {
     useEffect(() => {
         if (dataFetchedRef.current) return;
         dataFetchedRef.current = true;
-        getTopMenu();
+        
         loadData(0);
         if (selectedItem == "") {
             selectedItem = 0;
