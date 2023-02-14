@@ -378,7 +378,7 @@ function Home({ navigation, route }) {
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 renderItem={renderItem}
             /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} /></View>}
-
+            <View style={{height:10}}></View>
             <Footer
                 pageName="Home"
             ></Footer>

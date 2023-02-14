@@ -308,7 +308,7 @@ function OtherResponse({ navigation, route }) {
                     </View>
                     : ""}
 
-                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'channels' && item.data.length != 0 ?
+                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'channels' && item.layoutType != 'live' && item.data.length != 0 ?
                     <View>
                         <FlatList
                             data={item.data}
