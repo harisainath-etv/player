@@ -8,6 +8,7 @@ import Video from './screens/videoPlayer';
 import News from './screens/news';
 import OtherResponse from './screens/otherResponse';
 import Channels from './screens/channels';
+import MoreList from './screens/moreList';
 
 const Stack = createStackNavigator();
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
         <Stack.Screen name="News" component={News} options={{header:()=>null,}}/>
         <Stack.Screen name="OtherResponse" component={OtherResponse} options={{header:()=>null,}}/>
         <Stack.Screen name="Channels" component={Channels} options={{header:()=>null,}}/>
+        <Stack.Screen name="MoreList" component={MoreList} options={{header:()=>null,}}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

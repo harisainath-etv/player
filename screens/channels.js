@@ -264,7 +264,7 @@ function Channels({ navigation, route }) {
                 <View>
                 <View style={styles.sectionHeaderView}>
                     <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                    {item.data.length > 3 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                    
                 </View>
                     <View style={{ flexDirection: 'column' }}>
                         <FlatList
