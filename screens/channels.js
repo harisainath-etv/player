@@ -189,6 +189,10 @@ function Channels({ navigation, route }) {
 
                 {item.layoutType == 'tv_shows_banner' ?
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={styles.sectionHeaderView}>
+                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                            {item.data.length > 1 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                        </View>
                         <Carousel
                             {...baseOptionsOther}
                             loop
@@ -215,6 +219,10 @@ function Channels({ navigation, route }) {
                 {item.layoutType == 'etv-exclusive_banner' && item.data.length != 0 ?
 
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={styles.sectionHeaderView}>
+                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                            {item.data.length > 1 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                        </View>
                         <View style={{ padding: 10 }}>
                             <Carousel
                                 {...baseOptionsOtherSingle}
@@ -239,6 +247,11 @@ function Channels({ navigation, route }) {
                     : ""}
 
                 {item.layoutType == 'channels' && item.data.length != 0 ?
+                <View>
+                <View style={styles.sectionHeaderView}>
+                    <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                    {item.data.length > 3 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                </View>
                     <View style={{ flexDirection: 'column' }}>
                         <FlatList
                             data={item.data}
@@ -260,10 +273,15 @@ function Channels({ navigation, route }) {
                             }
                         />
                     </View>
+                    </View>
                     : ""}
 
                 {item.layoutType == 'tv_shows' && item.data.length != 0 ?
                     <View>
+                        <View style={styles.sectionHeaderView}>
+                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                            {item.data.length > 3 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                        </View>
                         <FlatList
                             data={item.data}
                             keyExtractor={(x, i) => i.toString()}
@@ -299,7 +317,7 @@ function Channels({ navigation, route }) {
                                     <View>
                                         <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
                                             <FastImage
-                                                style={[styles.imageSectionVertical, ]}
+                                                style={[styles.imageSectionVertical,]}
                                                 resizeMode={FastImage.resizeMode.stretch}
                                                 source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                         </TouchableOpacity>
@@ -309,8 +327,62 @@ function Channels({ navigation, route }) {
                     </View>
                     : ""}
 
-                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'channels' && item.data.length != 0 ?
+                {item.layoutType == 'banner' && item.data.length != 0 ?
+
+                    <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{ padding: 10 }}>
+                            <Carousel
+                                {...baseOptionsOtherSingle}
+                                loop
+                                pagingEnabled={pagingEnabled}
+                                snapEnabled={snapEnabled}
+                                autoPlay={autoPlay}
+                                autoPlayInterval={2000}
+                                onProgressChange={(_, absoluteProgress) =>
+                                    (progressValue.value = absoluteProgress)
+                                }
+                                mode="parallax"
+                                modeConfig={{
+                                    parallaxScrollingScale: 1.1,
+                                }}
+                                data={item.data}
+                                style={{}}
+                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                            />
+                        </View>
+                        {!!progressValue ?
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    width: 200,
+                                    alignSelf: 'center',
+                                    top: -1,
+                                }}
+                            >
+                                {colors.map((backgroundColor, index) => {
+                                    return (
+                                        <PaginationItem
+                                            backgroundColor={backgroundColor}
+                                            animValue={progressValue}
+                                            index={index}
+                                            key={index}
+                                            isRotate={isVertical}
+                                            length={colors.length}
+                                        />
+                                    );
+                                })}
+                            </View>
+                            : ""}
+                    </View>
+                    : ""}
+
+                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'channels' && item.layoutType != 'live' && item.layoutType != 'banner' && item.data.length != 0 ?
                     <View>
+                        <View style={styles.sectionHeaderView}>
+                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                            {item.data.length > 2 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                        </View>
                         <FlatList
                             data={item.data}
                             keyExtractor={(x, i) => i.toString()}

@@ -189,7 +189,7 @@ function Home({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            <Text style={styles.sectionHeaderMore}>+MORE</Text>
+                            {item.data.length > 1 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
                         </View>
                         <Carousel
                             {...baseOptionsOther}
@@ -219,7 +219,8 @@ function Home({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            <Text style={styles.sectionHeaderMore}>+MORE</Text>
+                            {item.data.length > 1 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            
                         </View>
                         <View style={{ padding: 10 }}>
                             <Carousel
@@ -299,7 +300,7 @@ function Home({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            <Text style={styles.sectionHeaderMore}>+MORE</Text>
+                            {item.data.length > 3 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
                         </View>
                         <FlatList
                             data={item.data}
@@ -323,6 +324,11 @@ function Home({ navigation, route }) {
                     : ""}
                 
                 {item.layoutType == 'channels' && item.data.length != 0 ?
+                    <View>
+                        <View style={styles.sectionHeaderView}>
+                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                            {item.data.length > 3 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                        </View>
                     <View style={{ flexDirection: 'column' }}>
                         <FlatList
                             data={item.data}
@@ -344,13 +350,14 @@ function Home({ navigation, route }) {
                             }
                         />
                     </View>
+                    </View>
                     : ""}
 
-                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'banner' && item.data.length != 0 ?
+                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'banner' && item.layoutType != 'channels' && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            <Text style={styles.sectionHeaderMore}>+MORE</Text>
+                            {item.data.length > 2 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
                         </View>
                         <FlatList
                             data={item.data}
