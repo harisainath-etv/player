@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, ActivityIndicator, RefreshControl, } from 'react-native';
+import { View, FlatList, StyleSheet, Text, TouchableOpacity, ActivityIndicator, RefreshControl,Image } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -9,7 +9,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, ANDROID_AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT } from '../constants';
+import { BACKGROUND_COLOR, ANDROID_AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT,VIDEO_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import Footer from './footer';
 import Header from './header';
@@ -82,20 +82,20 @@ function News({ navigation, route }) {
             for (var i = 0; i < data.data.catalog_list_items.length; i++) {
                 for (var j = 0; j < data.data.catalog_list_items[i].catalog_list_items.length; j++) {
                     if (data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list) {
-                        All.push(data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image);
+                        All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
                     }
                     else {
                         if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
                             if (data.data.catalog_list_items[i].layout_type == "top_banner")
-                                All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url);
+                                All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
                             else
-                                if (data.data.catalog_list_items[i].layout_type == "tv_shows")
-                                    All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url);
+                                if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show")
+                                    All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
                                 else
                                     if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
-                                        All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url);
+                                        All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
                                     else
-                                        All.push(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url);
+                                        All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
 
 
                         }
@@ -134,7 +134,7 @@ function News({ navigation, route }) {
                             }}
                             data={item.data}
                             style={{ top: -15, }}
-                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
                         />
                         : ""}
 
@@ -188,7 +188,7 @@ function News({ navigation, route }) {
                             }}
                             data={item.data}
                             style={{}}
-                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
                         />
                     </View>
                     : ""}
@@ -217,7 +217,7 @@ function News({ navigation, route }) {
                                 }}
                                 data={item.data}
                                 style={{}}
-                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
                             />
                         </View>
                     </View>
@@ -243,7 +243,8 @@ function News({ navigation, route }) {
                                                 <FastImage
                                                     style={[styles.imageSectionCircle,]}
                                                     resizeMode={FastImage.resizeMode.stretch}
-                                                    source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                    {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
                                             </TouchableOpacity>
                                         </View>
                                 }
@@ -252,7 +253,7 @@ function News({ navigation, route }) {
                     </View>
                     : ""}
 
-                {item.layoutType == 'tv_shows' && item.data.length != 0 ?
+                {(item.layoutType == 'tv_shows' || item.layoutType == 'show') && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
@@ -270,7 +271,8 @@ function News({ navigation, route }) {
                                         <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
                                             <FastImage
                                                 style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
-                                                source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
                                         </TouchableOpacity>
                                     </View>
                             }
@@ -297,7 +299,7 @@ function News({ navigation, route }) {
                                 }}
                                 data={item.data}
                                 style={{}}
-                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
                             />
                         </View>
                         {!!progressValue ?
@@ -326,7 +328,7 @@ function News({ navigation, route }) {
                             : ""}
                     </View>
                     : ""}
-                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'channels' && item.layoutType != 'banner' && item.data.length != 0 ?
+                {item.layoutType != 'tv_shows' && item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'channels' && item.layoutType != 'banner' && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
@@ -344,8 +346,9 @@ function News({ navigation, route }) {
                                         <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
                                             <FastImage
                                                 style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
-                                                source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                         </TouchableOpacity>
+                                        {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
                                     </View>
                             }
                         />

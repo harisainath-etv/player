@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, ActivityIndicator, RefreshControl, Pressable } from 'react-native';
+import { View, FlatList, StyleSheet, Text, TouchableOpacity, ActivityIndicator, RefreshControl, Pressable,Image } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -9,7 +9,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, ANDROID_AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT } from '../constants';
+import { BACKGROUND_COLOR, ANDROID_AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT,VIDEO_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import Footer from './footer';
 import Header from './header';
@@ -82,18 +82,18 @@ function OtherResponse({ navigation, route }) {
             for (var i = 0; i < data.data.catalog_list_items.length; i++) {
 
                 if (data.data.catalog_list_items[i].media_list_in_list) {
-                    All.push(data.data.catalog_list_items[i].list_item_object.banner_image);
+                    All.push({"uri":data.data.catalog_list_items[i].list_item_object.banner_image,"theme":data.data.catalog_list_items[i].theme});
                 }
                 else {
                     if (definedPageName == 'channels') {
                         if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3')) {
-                            All.push(data.data.catalog_list_items[i].thumbnails.high_4_3.url);
+                            All.push({"uri":data.data.catalog_list_items[i].thumbnails.high_4_3.url,"theme":data.data.catalog_list_items[i].theme});
                         }
                     }
                     else
                         if (definedPageName == 'live') {
                             if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
-                                All.push(data.data.catalog_list_items[i].thumbnails.high_3_4.url);
+                                All.push({"uri":data.data.catalog_list_items[i].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].theme});
                             }
                         }
                 }
@@ -208,7 +208,7 @@ function OtherResponse({ navigation, route }) {
                             }}
                             data={item.data}
                             style={{}}
-                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
                         />
                     </View>
                     : ""}
@@ -237,7 +237,7 @@ function OtherResponse({ navigation, route }) {
                                 }}
                                 data={item.data}
                                 style={{}}
-                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
                             />
                         </View>
                     </View>
@@ -264,7 +264,8 @@ function OtherResponse({ navigation, route }) {
                                             <FastImage
                                                 style={[styles.imageSectionCircle,]}
                                                 resizeMode={FastImage.resizeMode.stretch}
-                                                source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
                                         </TouchableOpacity>
                                     </View>
                             }
@@ -273,7 +274,7 @@ function OtherResponse({ navigation, route }) {
                     </View>
                     : ""}
 
-                {item.layoutType == 'tv_shows' && item.data.length != 0 ?
+                {(item.layoutType == 'tv_shows' || item.layoutType == 'show') && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
@@ -291,7 +292,8 @@ function OtherResponse({ navigation, route }) {
                                         <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
                                             <FastImage
                                                 style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
-                                                source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
                                         </TouchableOpacity>
                                     </View>
                             }
@@ -316,7 +318,8 @@ function OtherResponse({ navigation, route }) {
                                             <FastImage
                                                 style={[styles.imageSectionVertical,]}
                                                 resizeMode={FastImage.resizeMode.stretch}
-                                                source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
                                         </TouchableOpacity>
                                     </View>
                             }
@@ -344,7 +347,7 @@ function OtherResponse({ navigation, route }) {
                                 }}
                                 data={item.data}
                                 style={{}}
-                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
                             />
                         </View>
                         {!!progressValue ?
@@ -374,7 +377,7 @@ function OtherResponse({ navigation, route }) {
                     </View>
                     : ""}
 
-                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'channels' && item.layoutType != 'live' && item.layoutType != 'banner' && item.data.length != 0 ?
+                {item.layoutType != 'tv_shows' && item.layoutType != 'show' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'channels' && item.layoutType != 'live' && item.layoutType != 'banner' && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
@@ -392,7 +395,8 @@ function OtherResponse({ navigation, route }) {
                                         <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
                                             <FastImage
                                                 style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
-                                                source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                            {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
                                         </TouchableOpacity>
                                     </View>
                             }
