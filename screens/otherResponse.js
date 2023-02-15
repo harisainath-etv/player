@@ -70,6 +70,8 @@ function OtherResponse({ navigation, route }) {
         var All = [];
         var Final = [];
         var definedPageName = "";
+        var premiumContent = false;
+        var premiumCheckData = "";
         if (pageName == 'featured-1')
             definedPageName = "home";
         else
@@ -80,20 +82,32 @@ function OtherResponse({ navigation, route }) {
         const data = await resp.json();
         if (data.data.catalog_list_items.length > 0) {
             for (var i = 0; i < data.data.catalog_list_items.length; i++) {
+                if(data.data.catalog_list_items[i].hasOwnProperty('access_control'))
+                    {
+                        premiumCheckData = (data.data.catalog_list_items[i].access_control);
+                        if (premiumCheckData != "") {
+                            if (premiumCheckData['is_free']) {
+                                premiumContent = false;
+                            }
+                            else {
+                                premiumContent = true;
+                            }
+                        }
+                    }
 
                 if (data.data.catalog_list_items[i].media_list_in_list) {
-                    All.push({"uri":data.data.catalog_list_items[i].list_item_object.banner_image,"theme":data.data.catalog_list_items[i].theme});
+                    All.push({"uri":data.data.catalog_list_items[i].list_item_object.banner_image,"theme":data.data.catalog_list_items[i].theme,"premium":premiumContent});
                 }
                 else {
                     if (definedPageName == 'channels') {
                         if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3')) {
-                            All.push({"uri":data.data.catalog_list_items[i].thumbnails.high_4_3.url,"theme":data.data.catalog_list_items[i].theme});
+                            All.push({"uri":data.data.catalog_list_items[i].thumbnails.high_4_3.url,"theme":data.data.catalog_list_items[i].theme,"premium":premiumContent});
                         }
                     }
                     else
                         if (definedPageName == 'live') {
                             if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
-                                All.push({"uri":data.data.catalog_list_items[i].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].theme});
+                                All.push({"uri":data.data.catalog_list_items[i].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].theme,"premium":premiumContent});
                             }
                         }
                 }
@@ -266,6 +280,7 @@ function OtherResponse({ navigation, route }) {
                                                 resizeMode={FastImage.resizeMode.stretch}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                                 {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </TouchableOpacity>
                                     </View>
                             }
@@ -294,6 +309,7 @@ function OtherResponse({ navigation, route }) {
                                                 style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                                 {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </TouchableOpacity>
                                     </View>
                             }
@@ -320,6 +336,7 @@ function OtherResponse({ navigation, route }) {
                                                 resizeMode={FastImage.resizeMode.stretch}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                                 {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </TouchableOpacity>
                                     </View>
                             }
@@ -397,6 +414,7 @@ function OtherResponse({ navigation, route }) {
                                                 style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
+                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </TouchableOpacity>
                                     </View>
                             }
@@ -542,6 +560,8 @@ const PaginationItem = (props) => {
 
 
 const styles = StyleSheet.create({
+    playIcon:{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
+    crownIcon:{ position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
     Container: {
         backgroundColor: BACKGROUND_COLOR,
         textAlign: "center",

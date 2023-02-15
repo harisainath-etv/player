@@ -68,6 +68,8 @@ function News({ navigation, route }) {
     async function loadData(p) {
         var All = [];
         var Final = [];
+        var premiumContent = false;
+        var premiumCheckData = "";
         var definedPageName = "";
         if (pageName == 'featured-1')
             definedPageName = "home";
@@ -81,21 +83,33 @@ function News({ navigation, route }) {
         if (data.data.catalog_list_items.length > 0) {
             for (var i = 0; i < data.data.catalog_list_items.length; i++) {
                 for (var j = 0; j < data.data.catalog_list_items[i].catalog_list_items.length; j++) {
+                    if(data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('access_control'))
+                    {
+                        premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].access_control);
+                        if (premiumCheckData != "") {
+                            if (premiumCheckData['is_free']) {
+                                premiumContent = false;
+                            }
+                            else {
+                                premiumContent = true;
+                            }
+                        }
+                    }
                     if (data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list) {
-                        All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
+                        All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme,"premium":premiumContent});
                     }
                     else {
                         if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
                             if (data.data.catalog_list_items[i].layout_type == "top_banner")
-                                All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
+                                All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme,"premium":premiumContent});
                             else
                                 if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show")
-                                    All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
+                                    All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme,"premium":premiumContent});
                                 else
                                     if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
-                                        All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
+                                        All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme,"premium":premiumContent});
                                     else
-                                        All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
+                                        All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme,"premium":premiumContent});
 
 
                         }
@@ -245,6 +259,7 @@ function News({ navigation, route }) {
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                                     {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
+                                                    {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </TouchableOpacity>
                                         </View>
                                 }
@@ -273,6 +288,7 @@ function News({ navigation, route }) {
                                                 style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                                 {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </TouchableOpacity>
                                     </View>
                             }
@@ -349,6 +365,7 @@ function News({ navigation, route }) {
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                         </TouchableOpacity>
                                         {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
+                                        {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                     </View>
                             }
                         />
@@ -460,6 +477,8 @@ const PaginationItem = (props) => {
 
 
 const styles = StyleSheet.create({
+    playIcon:{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
+    crownIcon:{ position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
     Container: {
         backgroundColor: BACKGROUND_COLOR,
         textAlign: "center",

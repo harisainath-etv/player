@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, Pressable, ActivityIndicator, RefreshControl,Image } from 'react-native';
+import { View, FlatList, StyleSheet, Text, TouchableOpacity, Pressable, ActivityIndicator, RefreshControl, Image } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -9,7 +9,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, ANDROID_AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT,VIDEO_TYPES } from '../constants';
+import { BACKGROUND_COLOR, ANDROID_AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import Footer from './footer';
 import Header from './header';
@@ -70,6 +70,8 @@ function Home({ navigation, route }) {
         var All = [];
         var Final = [];
         var definedPageName = "";
+        var premiumContent = false;
+        var premiumCheckData = "";
         if (pageName == 'featured-1')
             definedPageName = "home";
         else
@@ -82,21 +84,33 @@ function Home({ navigation, route }) {
         if (data.data.catalog_list_items.length > 0) {
             for (var i = 0; i < data.data.catalog_list_items.length; i++) {
                 for (var j = 0; j < data.data.catalog_list_items[i].catalog_list_items.length; j++) {
+                    if(data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('access_control'))
+                    {
+                        premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].access_control);
+                        if (premiumCheckData != "") {
+                            if (premiumCheckData['is_free']) {
+                                premiumContent = false;
+                            }
+                            else {
+                                premiumContent = true;
+                            }
+                        }
+                    }
                     if (data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list) {
-                        All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
+                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent });
                     }
                     else {
                         if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
                             if (data.data.catalog_list_items[i].layout_type == "top_banner")
-                                All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
+                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent });
                             else
                                 if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show")
-                                    All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
+                                    All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent });
                                 else
                                     if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
-                                        All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
+                                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent });
                                     else
-                                        All.push({"uri":data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url,"theme":data.data.catalog_list_items[i].catalog_list_items[j].theme});
+                                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent });
 
                         }
                     }
@@ -219,7 +233,7 @@ function Home({ navigation, route }) {
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
                             {item.data.length > 1 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
-                            
+
                         </View>
                         <View style={{ padding: 10 }}>
                             <Carousel
@@ -269,33 +283,33 @@ function Home({ navigation, route }) {
                             />
                         </View>
                         {!!progressValue ?
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                width: 200,
-                                alignSelf: 'center',
-                                top: -1,
-                            }}
-                        >
-                            {colors.map((backgroundColor, index) => {
-                                return (
-                                    <PaginationItem
-                                        backgroundColor={backgroundColor}
-                                        animValue={progressValue}
-                                        index={index}
-                                        key={index}
-                                        isRotate={isVertical}
-                                        length={colors.length}
-                                    />
-                                );
-                            })}
-                        </View>
-                        : ""}
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    width: 200,
+                                    alignSelf: 'center',
+                                    top: -1,
+                                }}
+                            >
+                                {colors.map((backgroundColor, index) => {
+                                    return (
+                                        <PaginationItem
+                                            backgroundColor={backgroundColor}
+                                            animValue={progressValue}
+                                            index={index}
+                                            key={index}
+                                            isRotate={isVertical}
+                                            length={colors.length}
+                                        />
+                                    );
+                                })}
+                            </View>
+                            : ""}
                     </View>
                     : ""}
 
-                {(item.layoutType == 'tv_shows'|| item.layoutType=="show") && item.data.length != 0 ?
+                {(item.layoutType == 'tv_shows' || item.layoutType == "show") && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
@@ -316,41 +330,43 @@ function Home({ navigation, route }) {
                                                 resizeMode={FastImage.resizeMode.stretch}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                         </TouchableOpacity>
-                                        {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
+                                        {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                        {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                     </View>
                             }
                         />
                     </View>
                     : ""}
-                
+
                 {item.layoutType == 'channels' && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
                             {item.data.length > 3 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
                         </View>
-                    <View style={{ flexDirection: 'column' }}>
-                        <FlatList
-                            data={item.data}
-                            keyExtractor={(x, i) => i.toString()}
-                            horizontal={false}
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.containerMargin}
-                            numColumns={3}
-                            renderItem={
-                                ({ item, index }) =>
-                                    <View style={{ marginRight: 5, marginLeft: 5 }}>
-                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
-                                            <FastImage
-                                                style={[styles.imageSectionCircle,]}
-                                                resizeMode={FastImage.resizeMode.stretch}
-                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
-                                        </TouchableOpacity>
-                                    </View>
-                            }
-                        />
-                    </View>
+                        <View style={{ flexDirection: 'column' }}>
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={false}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                numColumns={3}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View style={{ marginRight: 5, marginLeft: 5 }}>
+                                            <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                                <FastImage
+                                                    style={[styles.imageSectionCircle,]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            </TouchableOpacity>
+                                        </View>
+                                }
+                            />
+                        </View>
                     </View>
                     : ""}
 
@@ -374,7 +390,8 @@ function Home({ navigation, route }) {
                                                 style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
                                                 resizeMode={FastImage.resizeMode.stretch}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
+                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </TouchableOpacity>
                                     </View>
                             }
@@ -530,6 +547,8 @@ const PaginationItem = (props) => {
 
 
 const styles = StyleSheet.create({
+    playIcon:{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
+    crownIcon:{ position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
     Container: {
         backgroundColor: BACKGROUND_COLOR,
         textAlign: "center",
