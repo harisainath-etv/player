@@ -106,13 +106,28 @@ function OtherResponse({ navigation, route }) {
                     }
                     else
                         if (definedPageName == 'live') {
-                            if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
-                                All.push({"uri":data.data.catalog_list_items[i].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].theme,"premium":premiumContent});
+                            
+                            
+                            if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_16_9')) {
+                                if (data.data.catalog_list_items[i].layout_type == "top_banner")
+                                    All.push({"uri":data.data.catalog_list_items[i].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].theme,"premium":premiumContent});
+                                else
+                                    if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show")
+                                        All.push({"uri":data.data.catalog_list_items[i].thumbnails.high_3_4.url,"theme":data.data.catalog_list_items[i].theme,"premium":premiumContent});
+                                    else
+                                        if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
+                                            All.push({"uri":data.data.catalog_list_items[i].thumbnails.high_4_3.url,"theme":data.data.catalog_list_items[i].theme,"premium":premiumContent});
+                                        else
+                                            All.push({"uri":data.data.catalog_list_items[i].thumbnails.high_4_3.url,"theme":data.data.catalog_list_items[i].theme,"premium":premiumContent});
+    
+    
                             }
+
+
                         }
                 }
             }
-            Final.push({ "friendlyId": "", "data": All, "layoutType": data.data.layout_type, "displayName": data.data.display_title });
+            Final.push({ "friendlyId":data.data.friendly_id, "data": All, "layoutType": data.data.layout_type, "displayName": data.data.display_title });
             All = [];
         }
 
@@ -202,7 +217,7 @@ function OtherResponse({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 1 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <Carousel
                             {...baseOptionsOther}
@@ -232,7 +247,7 @@ function OtherResponse({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 1 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <View style={{ padding: 10 }}>
                             <Carousel
@@ -261,7 +276,7 @@ function OtherResponse({ navigation, route }) {
                 <View>
                 <View style={styles.sectionHeaderView}>
                     <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                    {item.data.length > 3 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                    {item.data.length > 3 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                 </View>
                     <View style={{ flexDirection: 'column' }}>
                         <FlatList
@@ -293,7 +308,7 @@ function OtherResponse({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 3 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <FlatList
                             data={item.data}
@@ -398,7 +413,7 @@ function OtherResponse({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 2 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <FlatList
                             data={item.data}

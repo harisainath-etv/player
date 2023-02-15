@@ -182,7 +182,7 @@ function News({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 1 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <Carousel
                             {...baseOptionsOther}
@@ -212,7 +212,7 @@ function News({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 1 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <View style={{ padding: 10 }}>
                             <Carousel
@@ -240,7 +240,7 @@ function News({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 3 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <View style={{ flexDirection: 'column' }}>
                             <FlatList
@@ -272,7 +272,7 @@ function News({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 3 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <FlatList
                             data={item.data}
@@ -344,11 +344,36 @@ function News({ navigation, route }) {
                             : ""}
                     </View>
                     : ""}
-                {item.layoutType != 'tv_shows' && item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'channels' && item.layoutType != 'banner' && item.data.length != 0 ?
+                {item.layoutType == 'live' && item.data.length != 0 ?
+                    <View>
+                        <FlatList
+                            data={item.data}
+                            keyExtractor={(x, i) => i.toString()}
+                            horizontal={false}
+                            showsHorizontalScrollIndicator={false}
+                            style={styles.containerMargin}
+                            numColumns={3}
+                            renderItem={
+                                ({ item, index }) =>
+                                    <View>
+                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                            <FastImage
+                                                style={[styles.imageSectionVertical,]}
+                                                resizeMode={FastImage.resizeMode.stretch}
+                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                        </TouchableOpacity>
+                                    </View>
+                            }
+                        />
+                    </View>
+                    : ""}
+                {item.layoutType != 'tv_shows' && item.layoutType != 'show' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'channels' && item.layoutType != 'banner' && item.layoutType != 'live' && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 2 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <FlatList
                             data={item.data}

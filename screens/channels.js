@@ -114,7 +114,7 @@ function Channels({ navigation, route }) {
                     }
                 }
             }
-            Final.push({ "friendlyId": "", "data": All, "layoutType": data.data.layout_type, "displayName": data.data.display_title });
+            Final.push({ "friendlyId": data.data.friendly_id, "data": All, "layoutType": data.data.layout_type, "displayName": data.data.display_title });
             All = [];
         }
 
@@ -205,7 +205,7 @@ function Channels({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 1 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <Carousel
                             {...baseOptionsOther}
@@ -235,7 +235,7 @@ function Channels({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 1 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <View style={{ padding: 10 }}>
                             <Carousel
@@ -264,7 +264,7 @@ function Channels({ navigation, route }) {
                 <View>
                 <View style={styles.sectionHeaderView}>
                     <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                    {item.data.length > 3 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                    {item.data.length > 3 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                 </View>
                     <View style={{ flexDirection: 'column' }}>
                         <FlatList
@@ -290,11 +290,11 @@ function Channels({ navigation, route }) {
                     </View>
                     : ""}
 
-                {item.layoutType == 'tv_shows' && item.data.length != 0 ?
+                {(item.layoutType == 'tv_shows' || item.layoutType == 'show') && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 3 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <FlatList
                             data={item.data}
@@ -395,11 +395,11 @@ function Channels({ navigation, route }) {
                     </View>
                     : ""}
 
-                {item.layoutType != 'tv_shows' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'channels' && item.layoutType != 'live' && item.layoutType != 'banner' && item.data.length != 0 ?
+                {item.layoutType != 'tv_shows' && item.layoutType != 'show' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'channels' && item.layoutType != 'live' && item.layoutType != 'banner' && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 2 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <FlatList
                             data={item.data}

@@ -84,8 +84,7 @@ function Home({ navigation, route }) {
         if (data.data.catalog_list_items.length > 0) {
             for (var i = 0; i < data.data.catalog_list_items.length; i++) {
                 for (var j = 0; j < data.data.catalog_list_items[i].catalog_list_items.length; j++) {
-                    if(data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('access_control'))
-                    {
+                    if (data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('access_control')) {
                         premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].access_control);
                         if (premiumCheckData != "") {
                             if (premiumCheckData['is_free']) {
@@ -202,7 +201,7 @@ function Home({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 1 ? <TouchableOpacity style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <Carousel
                             {...baseOptionsOther}
@@ -232,7 +231,7 @@ function Home({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 1 ? <TouchableOpacity style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
 
                         </View>
                         <View style={{ padding: 10 }}>
@@ -313,7 +312,7 @@ function Home({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 3 ? <TouchableOpacity style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <FlatList
                             data={item.data}
@@ -342,7 +341,7 @@ function Home({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 3 ? <TouchableOpacity style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <View style={{ flexDirection: 'column' }}>
                             <FlatList
@@ -370,11 +369,37 @@ function Home({ navigation, route }) {
                     </View>
                     : ""}
 
-                {item.layoutType != 'tv_shows' && item.layoutType != 'show' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'banner' && item.layoutType != 'channels' && item.data.length != 0 ?
+                {item.layoutType == 'live' && item.data.length != 0 ?
+                    <View>
+                        <FlatList
+                            data={item.data}
+                            keyExtractor={(x, i) => i.toString()}
+                            horizontal={false}
+                            showsHorizontalScrollIndicator={false}
+                            style={styles.containerMargin}
+                            numColumns={3}
+                            renderItem={
+                                ({ item, index }) =>
+                                    <View>
+                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                            <FastImage
+                                                style={[styles.imageSectionVertical,]}
+                                                resizeMode={FastImage.resizeMode.stretch}
+                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                        </TouchableOpacity>
+                                    </View>
+                            }
+                        />
+                    </View>
+                    : ""}
+
+                {item.layoutType != 'tv_shows' && item.layoutType != 'show' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'banner' && item.layoutType != 'channels' && item.layoutType != 'live' && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 ? <Text style={styles.sectionHeaderMore}>+MORE</Text> : ""}
+                            {item.data.length > 2 ? <TouchableOpacity style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <FlatList
                             data={item.data}
@@ -547,8 +572,8 @@ const PaginationItem = (props) => {
 
 
 const styles = StyleSheet.create({
-    playIcon:{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
-    crownIcon:{ position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
+    playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
+    crownIcon: { position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
     Container: {
         backgroundColor: BACKGROUND_COLOR,
         textAlign: "center",
@@ -575,7 +600,7 @@ const styles = StyleSheet.create({
         color: NORMAL_TEXT_COLOR,
         textAlign: "center",
         justifyContent: "center",
-        fontFamily: 'Montserrat_500Medium',
+
         fontWeight: '600'
     },
     sectionHeaderView: {
@@ -583,20 +608,19 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         width: '100%',
         justifyContent: 'space-between',
-        fontFamily: 'Montserrat_500Medium',
+
     },
     sectionHeader: {
         color: HEADING_TEXT_COLOR,
         fontSize: 16,
         fontWeight: '400',
         left: 3,
-        fontFamily: 'Montserrat_500Medium',
+
         width: "50%"
     },
     sectionHeaderMore: {
         color: MORE_LINK_COLOR,
         right: 15,
-        fontFamily: 'Montserrat_500Medium',
         fontSize: 13,
         width: "50%",
         textAlign: 'right'
