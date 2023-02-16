@@ -9,7 +9,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, ANDROID_AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT,VIDEO_TYPES } from '../constants';
+import { BACKGROUND_COLOR, ANDROID_AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT,VIDEO_TYPES,LAYOUT_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import Footer from './footer';
 import Header from './header';
@@ -182,7 +182,7 @@ function News({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 1 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId,layoutType:LAYOUT_TYPES[0]})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <Carousel
                             {...baseOptionsOther}
@@ -212,7 +212,7 @@ function News({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 1 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId,layoutType:LAYOUT_TYPES[0]})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <View style={{ padding: 10 }}>
                             <Carousel
@@ -240,7 +240,7 @@ function News({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 3 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId,layoutType:LAYOUT_TYPES[0]})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <View style={{ flexDirection: 'column' }}>
                             <FlatList
@@ -272,7 +272,7 @@ function News({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 3 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId,layoutType:LAYOUT_TYPES[0]})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <FlatList
                             data={item.data}
@@ -373,7 +373,7 @@ function News({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 2 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId,layoutType:LAYOUT_TYPES[1]})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
                         </View>
                         <FlatList
                             data={item.data}

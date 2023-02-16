@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { BACKGROUND_COLOR, ANDROID_AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES } from '../constants';
+import { BACKGROUND_COLOR, ANDROID_AUTH_TOKEN, FIRETV_BASE_URL, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES,LAYOUT_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import Footer from './footer';
 
@@ -18,10 +18,12 @@ export const ElementsText = {
 };
 
 var page = 'featured-1';
+var layout_type = LAYOUT_TYPES[0];
 var selectedItem = 0;
 function MoreList({ navigation, route }) {
     const [totalHomeData, settotalHomeData] = useState();
     { route.params ? page = route.params.firendlyId : page = 'featured-1' }
+    { route.params ? layout_type = route.params.layoutType : layout_type = LAYOUT_TYPES[0] }
     const [pageName, setpageName] = useState(page);
     const [refreshing, setRefreshing] = useState(false);
     const dataFetchedRef = useRef(false);
@@ -58,13 +60,12 @@ function MoreList({ navigation, route }) {
                 }
                 else {
 
-                    if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_16_9')) {
-                        
-                            if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show")
+                    if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
+                            if(layout_type==LAYOUT_TYPES[0])
                                 All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent });
-
-                                else
-                                    All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent });
+                            else
+                            if(layout_type==LAYOUT_TYPES[1])
+                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent });
 
 
                     }
@@ -79,44 +80,7 @@ function MoreList({ navigation, route }) {
     const renderItem = ({ item, index }) => {
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
-
-
-
-                {item.layoutType == 'channels' && item.data.length != 0 ?
-                    <View>
-                        <View style={styles.sectionHeaderView}>
-                        <TouchableOpacity onPress={()=>navigation.goBack()}>
-                            <MaterialCommunityIcons name="keyboard-backspace" size={30} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
-                        </TouchableOpacity>
-                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                        </View>
-                        <View style={{ flexDirection: 'column' }}>
-                            <FlatList
-                                data={item.data}
-                                keyExtractor={(x, i) => i.toString()}
-                                horizontal={false}
-                                showsHorizontalScrollIndicator={false}
-                                style={styles.containerMargin}
-                                numColumns={3}
-                                renderItem={
-                                    ({ item, index }) =>
-                                        <View style={{ marginRight: 5, marginLeft: 5 }}>
-                                            <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
-                                                <FastImage
-                                                    style={[styles.imageSectionCircle,]}
-                                                    resizeMode={FastImage.resizeMode.stretch}
-                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
-                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                            </TouchableOpacity>
-                                        </View>
-                                }
-                            />
-                        </View>
-                    </View>
-                    : ""}
-
-                {(item.layoutType == 'tv_shows' || item.layoutType == 'show') && item.data.length != 0 ?
+                {layout_type==LAYOUT_TYPES[0] ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                         <TouchableOpacity onPress={()=>navigation.goBack()}>
@@ -149,7 +113,7 @@ function MoreList({ navigation, route }) {
                     : ""}
 
 
-                {item.layoutType == 'live' && item.data.length != 0 ?
+                {layout_type==LAYOUT_TYPES[1] ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                         <TouchableOpacity onPress={()=>navigation.goBack()}>
@@ -164,40 +128,6 @@ function MoreList({ navigation, route }) {
                             showsHorizontalScrollIndicator={false}
                             style={styles.containerMargin}
                             numColumns={3}
-                            renderItem={
-                                ({ item, index }) =>
-                                    <View>
-                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
-                                            <FastImage
-                                                style={[styles.imageSectionVertical,]}
-                                                resizeMode={FastImage.resizeMode.stretch}
-                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
-                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </TouchableOpacity>
-                                    </View>
-                            }
-                        />
-                    </View>
-                    : ""}
-
-
-
-                {item.layoutType != 'tv_shows' && item.layoutType != 'show' && item.layoutType != 'channels' && item.layoutType != 'live' && item.data.length != 0 ?
-                    <View>
-                        <View style={styles.sectionHeaderView}>
-                        <TouchableOpacity onPress={()=>navigation.goBack()}>
-                            <MaterialCommunityIcons name="keyboard-backspace" size={30} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
-                        </TouchableOpacity>
-                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                        </View>
-                        <FlatList
-                            data={item.data}
-                            keyExtractor={(x, i) => i.toString()}
-                            horizontal={false}
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.containerMargin}
-                            numColumns={2}
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
