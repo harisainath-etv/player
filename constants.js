@@ -2,7 +2,7 @@ import { Dimensions } from 'react-native';
 export const BASE_URL="https://prod.api.etvwin.com";
 export const ANDROID_AUTH_TOKEN="xttqeMn2dYtthp8aaUr2";
 export const ACCESS_TOKEN= "Ay6KCkajdBzztJ4bptpW";
-export const FIRETV_BASE_URL ="https://firetvapi.etvwin.com";
+export const FIRETV_BASE_URL ="http://ott-api-prod-vpc-1804679922.ap-south-1.elb.amazonaws.com/";
 export const BACKGROUND_COLOR ="#00021c";
 export const BACKGROUND_TRANSPARENT_COLOR ="rgba(0, 2, 28, 0.4)";
 export const SIDEBAR_BACKGROUND_COLOR = "#01031A";
