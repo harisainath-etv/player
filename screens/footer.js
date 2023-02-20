@@ -55,7 +55,7 @@ export default function Footer(props) {
         <View>
             <View style={styles.footerContainer}>
 
-                {pageName == 'Home' ?
+                {pageName == 'Home' || pageName=='live' ?
 
                     <View style={styles.iconContainer}>
                         <MaterialCommunityIcons name="home" size={28} color={SLIDER_PAGINATION_SELECTED_COLOR} />
@@ -75,10 +75,10 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>TV CHANNELS</Text>
                     </View>
                     :
-                    <View style={styles.iconContainer}>
+                    <TouchableOpacity style={styles.iconContainer} onPress={()=>navigation.navigate('Channels',{pageFriendlyId:'channels'})}>
                         <MaterialCommunityIcons name="television-classic" size={28} color={NORMAL_TEXT_COLOR} />
                         <Text style={styles.footerText}>TV CHANNELS</Text>
-                    </View>
+                    </TouchableOpacity>
                 }
 
                 {pageName == 'NEWS' ?
