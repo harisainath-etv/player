@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, ActivityIndicator, RefreshControl, Image } from 'react-native';
+import { useState, useEffect, useRef, } from 'react';
+import { View, FlatList, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { BACKGROUND_COLOR, ANDROID_AUTH_TOKEN, FIRETV_BASE_URL, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from './footer';
@@ -21,7 +21,6 @@ function MoreList({ navigation, route }) {
     { route.params ? page = route.params.firendlyId : page = 'featured-1' }
     { route.params ? layout_type = route.params.layoutType : layout_type = LAYOUT_TYPES[0] }
     const [pageName, setpageName] = useState(page);
-    const [refreshing, setRefreshing] = useState(false);
     const dataFetchedRef = useRef(false);
     const paginationLoadCount = 18;
     const [pagenumber, setPagenumber] = useState(0);
@@ -41,7 +40,7 @@ function MoreList({ navigation, route }) {
             else
                 definedPageName = pageName;
             const region = await AsyncStorage.getItem('country_code');
-            const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + ANDROID_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
+            const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
             const resp = await fetch(url);
             const data = await resp.json();
             setPagenumber(p + 1);
@@ -119,12 +118,6 @@ function MoreList({ navigation, route }) {
 
                 {layout_type == LAYOUT_TYPES[1] ?
                     <View>
-                        <View style={styles.sectionHeaderView}>
-                            <TouchableOpacity onPress={() => navigation.goBack()}>
-                                <MaterialCommunityIcons name="keyboard-backspace" size={30} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
-                            </TouchableOpacity>
-                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                        </View>
                         <FlatList
                             data={item.data}
                             keyExtractor={(x, i) => i.toString()}
@@ -155,17 +148,6 @@ function MoreList({ navigation, route }) {
     const loadNextData = async () => {
         loadData(pagenumber);
     }
-    const onRefresh = useCallback(() => {
-        setRefreshing(true);
-        setTimeout(() => {
-            loadData(0);
-            if (selectedItem == "") {
-                selectedItem = 0;
-            }
-            setRefreshing(false);
-        }, 2000);
-    }, []);
-
     useEffect(() => {
         if (dataFetchedRef.current) return;
         dataFetchedRef.current = true;
@@ -193,7 +175,6 @@ function MoreList({ navigation, route }) {
                 horizontal={false}
                 contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap' }}
                 style={{ height: PAGE_HEIGHT }}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 renderItem={renderItem}
             /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} /></View>}
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
