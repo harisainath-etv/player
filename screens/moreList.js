@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { View, FlatList, StyleSheet, Text, TouchableOpacity, ActivityIndicator, RefreshControl, Image } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { BACKGROUND_COLOR, ANDROID_AUTH_TOKEN, FIRETV_BASE_URL, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES,LAYOUT_TYPES } from '../constants';
+import { BACKGROUND_COLOR, ANDROID_AUTH_TOKEN, FIRETV_BASE_URL, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from './footer';
@@ -17,79 +17,86 @@ var page = 'featured-1';
 var layout_type = LAYOUT_TYPES[0];
 var selectedItem = 0;
 function MoreList({ navigation, route }) {
-    const [totalHomeData, settotalHomeData] = useState();
+    const [totalHomeData, settotalHomeData] = useState([]);
     { route.params ? page = route.params.firendlyId : page = 'featured-1' }
     { route.params ? layout_type = route.params.layoutType : layout_type = LAYOUT_TYPES[0] }
     const [pageName, setpageName] = useState(page);
     const [refreshing, setRefreshing] = useState(false);
     const dataFetchedRef = useRef(false);
-    const paginationLoadCount = 50;
+    const paginationLoadCount = 18;
+    const [pagenumber, setPagenumber] = useState(0);
+    const [displayTitle, setDisplayTitle] = useState('');
+    const [loading, setloading] = useState(true);
+    const [toload, settoload] = useState(true);
     async function loadData(p) {
-        var All = [];
-        var Final = [];
-        var definedPageName = "";
-        var premiumContent = false;
-        var premiumCheckData = "";
-        if (pageName == 'featured-1')
-            definedPageName = "home";
-        else
-            definedPageName = pageName;
-        const region = await  AsyncStorage.getItem('country_code');
-        const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region="+region+"&auth_token=" + ANDROID_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
-        const resp = await fetch(url);
-        const data = await resp.json();
-        if (data.data.catalog_list_items.length > 0) {
-            for (var i = 0; i < data.data.catalog_list_items.length; i++) {
-                if (data.data.catalog_list_items[i].hasOwnProperty('access_control')) {
-                    premiumCheckData = (data.data.catalog_list_items[i].access_control);
-                    if (premiumCheckData != "") {
-                        if (premiumCheckData['is_free']) {
-                            premiumContent = false;
-                        }
-                        else {
-                            premiumContent = true;
+        if (toload) {
+            setloading(true)
+            var All = [];
+            var Final = [];
+            var definedPageName = "";
+            var premiumContent = false;
+            var premiumCheckData = "";
+            if (pageName == 'featured-1')
+                definedPageName = "home";
+            else
+                definedPageName = pageName;
+            const region = await AsyncStorage.getItem('country_code');
+            const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + ANDROID_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
+            const resp = await fetch(url);
+            const data = await resp.json();
+            setPagenumber(p + 1);
+            if (data.data.catalog_list_items.length > 0) {
+                for (var i = 0; i < data.data.catalog_list_items.length; i++) {
+                    if (data.data.catalog_list_items[i].hasOwnProperty('access_control')) {
+                        premiumCheckData = (data.data.catalog_list_items[i].access_control);
+                        if (premiumCheckData != "") {
+                            if (premiumCheckData['is_free']) {
+                                premiumContent = false;
+                            }
+                            else {
+                                premiumContent = true;
+                            }
                         }
                     }
-                }
 
-                if (data.data.catalog_list_items[i].media_list_in_list) {
-                    All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent });
-                }
-                else {
+                    if (data.data.catalog_list_items[i].media_list_in_list) {
+                        All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent });
+                    }
+                    else {
 
-                    if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
-                            if(layout_type==LAYOUT_TYPES[0])
+                        if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
+                            if (layout_type == LAYOUT_TYPES[0])
                                 All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent });
                             else
-                            if(layout_type==LAYOUT_TYPES[1])
-                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent });
+                                if (layout_type == LAYOUT_TYPES[1])
+                                    All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent });
 
+
+                        }
 
                     }
-
                 }
+                Final.push({ "friendlyId": data.data.friendly_id, "data": All, "layoutType": data.data.layout_type, "displayName": data.data.display_title });
+                setDisplayTitle(data.data.display_title);
+                All = [];
             }
-            Final.push({ "friendlyId": data.data.friendly_id, "data": All, "layoutType": data.data.layout_type, "displayName": data.data.display_title });
-            All = [];
+            if(Final.length<=0)
+            settoload(false);
+            settotalHomeData(totalHomeData => [...totalHomeData, ...Final]);
+            setloading(false)
         }
-        settotalHomeData(Final);
     }
     const renderItem = ({ item, index }) => {
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
-                {layout_type==LAYOUT_TYPES[0] ?
+                {layout_type == LAYOUT_TYPES[0] ?
                     <View>
-                        <View style={styles.sectionHeaderView}>
-                        <TouchableOpacity onPress={()=>navigation.goBack()}>
-                            <MaterialCommunityIcons name="keyboard-backspace" size={30} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
-                        </TouchableOpacity>
-                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                        </View>
                         <FlatList
                             data={item.data}
                             keyExtractor={(x, i) => i.toString()}
                             horizontal={false}
                             numColumns={3}
+                            onEndReached={loadNextData}
                             showsHorizontalScrollIndicator={false}
                             style={styles.containerMargin}
                             renderItem={
@@ -110,18 +117,19 @@ function MoreList({ navigation, route }) {
                     : ""}
 
 
-                {layout_type==LAYOUT_TYPES[1] ?
+                {layout_type == LAYOUT_TYPES[1] ?
                     <View>
                         <View style={styles.sectionHeaderView}>
-                        <TouchableOpacity onPress={()=>navigation.goBack()}>
-                            <MaterialCommunityIcons name="keyboard-backspace" size={30} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
-                        </TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation.goBack()}>
+                                <MaterialCommunityIcons name="keyboard-backspace" size={30} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
+                            </TouchableOpacity>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
                         </View>
                         <FlatList
                             data={item.data}
                             keyExtractor={(x, i) => i.toString()}
                             horizontal={false}
+                            onEndReached={loadNextData}
                             showsHorizontalScrollIndicator={false}
                             style={styles.containerMargin}
                             numColumns={3}
@@ -144,7 +152,9 @@ function MoreList({ navigation, route }) {
             </View>
         );
     }
-
+    const loadNextData = async () => {
+        loadData(pagenumber);
+    }
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         setTimeout(() => {
@@ -159,7 +169,7 @@ function MoreList({ navigation, route }) {
     useEffect(() => {
         if (dataFetchedRef.current) return;
         dataFetchedRef.current = true;
-        loadData(0);
+        loadData(pagenumber);
         if (selectedItem == "") {
             selectedItem = 0;
         }
@@ -168,6 +178,12 @@ function MoreList({ navigation, route }) {
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR, }}>
 
 
+            <View style={styles.sectionHeaderView}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <MaterialCommunityIcons name="keyboard-backspace" size={30} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
+                </TouchableOpacity>
+                <Text style={styles.sectionHeader}>{displayTitle}</Text>
+            </View>
 
 
             {/* body content */}
@@ -180,7 +196,9 @@ function MoreList({ navigation, route }) {
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 renderItem={renderItem}
             /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} /></View>}
-
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} ></ActivityIndicator> : ""}
+            </View>
             <Footer
                 pageName={page}
             ></Footer>
@@ -218,21 +236,21 @@ const styles = StyleSheet.create({
         color: NORMAL_TEXT_COLOR,
         textAlign: "center",
         justifyContent: "center",
-        
+
         fontWeight: '600'
     },
     sectionHeaderView: {
         flexDirection: 'row',
         marginVertical: 10,
         width: '100%',
-        alignItems:'center',
-        padding:8
+        alignItems: 'center',
+        padding: 8,
     },
     sectionHeader: {
         color: HEADING_TEXT_COLOR,
         fontSize: 20,
         fontWeight: '400',
-        marginLeft:20
+        marginLeft: 20
     },
     imageSectionHorizontal: {
         width: PAGE_WIDTH / 2.06,
