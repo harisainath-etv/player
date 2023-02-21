@@ -6,6 +6,7 @@ export var AUTH_TOKEN="";
 {Platform.OS=="android" ? AUTH_TOKEN = "xttqeMn2dYtthp8aaUr2" : ""}
 {Platform.OS=="ios" ? APP_VERSION = "1.0.3" : ""}
 {Platform.OS=="ios" ? AUTH_TOKEN = "VJ8WEaqygbpYSMzBtsGz" : ""}
+export const SECRET_KEY = "2fd66b173c16e012e90e";
 export const BASE_URL="https://prod.api.etvwin.com";
 export const ACCESS_TOKEN= "Ay6KCkajdBzztJ4bptpW";
 export const FIRETV_BASE_URL ="http://ott-api-prod-vpc-1804679922.ap-south-1.elb.amazonaws.com/";
