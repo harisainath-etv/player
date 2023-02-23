@@ -9,6 +9,7 @@ import OtherResponse from './screens/otherResponse';
 import Channels from './screens/channels';
 import MoreList from './screens/moreList';
 import Splash from './screens/splash';
+import Signup from './screens/signup';
 import { BACKGROUND_COLOR } from './constants';
 import { View } from 'react-native';
 
@@ -25,6 +26,7 @@ export default function App() {
           <Stack.Screen name="OtherResponse" component={OtherResponse} options={{ header: () => null, }} />
           <Stack.Screen name="Channels" component={Channels} options={{ header: () => null, }} />
           <Stack.Screen name="MoreList" component={MoreList} options={{ header: () => null, }} />
+          <Stack.Screen name="Signup" component={Signup} options={{ header: () => null, }} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>

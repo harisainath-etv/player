@@ -5,10 +5,12 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Modal from "react-native-modal";
+import { useNavigation } from '@react-navigation/native';
 import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, MORE_LINK_COLOR, } from '../constants';
 
 export default function Header(props) {
     const pageName = props.pageName;
+    const navigation = useNavigation();
     const [isModalVisible, setModalVisible] = useState(false);
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
@@ -42,7 +44,7 @@ export default function Header(props) {
                                     <TouchableOpacity style={{ backgroundColor: TAB_COLOR, padding: 13, borderRadius: 10, marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
                                         <Text style={styles.drawerHeaderText}>SIGN IN</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={{ borderColor: TAB_COLOR, padding: 13, borderRadius: 10, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' }}>
+                                    <TouchableOpacity onPress={()=>{toggleModal();navigation.navigate('Signup');}} style={{ borderColor: TAB_COLOR, padding: 13, borderRadius: 10, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' }}>
                                         <Text style={styles.drawerHeaderText}>SIGN UP</Text>
                                     </TouchableOpacity>
                                 </View>
