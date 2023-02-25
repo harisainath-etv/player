@@ -6,7 +6,7 @@ import android.os.Bundle;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
-
+import org.devio.rn.splashscreen.SplashScreen;
 import expo.modules.ReactActivityDelegateWrapper;
 import androidx.annotation.Nullable;
 import com.google.android.gms.cast.framework.CastContext;
@@ -18,6 +18,7 @@ public class MainActivity extends ReactActivity {
     // coloring the background, status bar, and navigation bar.
     // This is required for expo-splash-screen.
     setTheme(R.style.AppTheme);
+    SplashScreen.show(this);  // here
     super.onCreate(savedInstanceState);
     try {
       // lazy load Google Cast context
