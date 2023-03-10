@@ -2,13 +2,17 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Home from './screens/home';
-import Video from './screens/videoPlayer';
+// import Video from './screens/videoPlayer';
 import News from './screens/news';
 import OtherResponse from './screens/otherResponse';
 import Channels from './screens/channels';
 import MoreList from './screens/moreList';
 import Signup from './screens/signup';
 import Login from './screens/login';
+import Shows from './screens/shows';
+import Episode from './screens/episode';
+import Calendarscreen from './screens/calendarscreen';
+// import OfflineDownload from './screens/offlineDownload';
 import { BACKGROUND_COLOR,FIRETV_BASE_URL, AUTH_TOKEN,APP_VERSION } from './constants';
 import { View,Dimensions, Platform } from 'react-native';
 import SplashScreen from 'react-native-splash-screen'
@@ -94,14 +98,18 @@ export default function App() {
     <View style={{ backgroundColor: BACKGROUND_COLOR,flex:1 }}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{presentation:'transparentModal',backgroundColor:BACKGROUND_COLOR}}>
+          {/* <Stack.Screen name="OfflineDownload" component={OfflineDownload} options={{ header: () => null, }} /> */}
           <Stack.Screen name="Home" component={Home} options={{ header: () => null, }} />
-          <Stack.Screen name="CustomeVideoPlayer" component={Video} options={{ header: () => null, }} />
+          {/* <Stack.Screen name="CustomeVideoPlayer" component={Video} options={{ header: () => null, }} /> */}
           <Stack.Screen name="News" component={News} options={{ header: () => null, }} />
           <Stack.Screen name="OtherResponse" component={OtherResponse} options={{ header: () => null, }} />
           <Stack.Screen name="Channels" component={Channels} options={{ header: () => null, }} />
           <Stack.Screen name="MoreList" component={MoreList} options={{ header: () => null, }} />
           <Stack.Screen name="Signup" component={Signup} options={{ header: () => null, }} />
           <Stack.Screen name="Login" component={Login} options={{ header: () => null, }} />
+          <Stack.Screen name="Shows" component={Shows} options={{ header: () => null, }} />
+          <Stack.Screen name="Episode" component={Episode} options={{ header: () => null, }} />
+          <Stack.Screen name="Calendarscreen" component={Calendarscreen} options={{ header: () => null, }} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>
