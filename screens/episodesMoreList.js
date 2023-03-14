@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, } from 'react';
 import { View, FlatList, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
+import { BACKGROUND_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from './footer';
@@ -38,7 +38,6 @@ function EpisodesMoreList({ navigation, route }) {
             var premiumCheckData = "";
                 definedPageName = pageName;
             const region = await AsyncStorage.getItem('country_code');
-            //const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
             const url = pageName + "&item_language=eng&region=" + region +"&access_token="+ ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
             const resp = await fetch(url);
             const data = await resp.json();
