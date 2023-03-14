@@ -9,7 +9,7 @@ import FastImage from 'react-native-fast-image';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { useFocusEffect } from '@react-navigation/native';
 import NormalHeader from './normalHeader';
-import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES,MORE_LINK_COLOR,LAYOUT_TYPES } from '../constants';
+import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES } from '../constants';
 
 export default function Shows({ navigation, route }) {
     const [toggle, setToggle] = useState(false);
@@ -92,7 +92,7 @@ export default function Shows({ navigation, route }) {
 
                 mainArr.push({ 'name': response.data.data.subcategories[0].episodetype_tags[e].name, 'display_title': response.data.data.subcategories[0].episodetype_tags[e].display_title, 'item_type': response.data.data.subcategories[0].episodetype_tags[e].item_type, 'subcategoryurl': subcategoryurl })
             }
-            // typesList.push({ 'name': 'related', 'display_title': 'Related', 'item_type': 'show' })
+            mainArr.push({ 'name': 'related', 'display_title': 'Related Shows', 'item_type': 'show', 'subcategoryurl': relatedurlPath })
             //console.log(JSON.stringify(mainArr));
             setSubcategoryList(mainArr);
         }).catch(error => { })
@@ -107,6 +107,21 @@ export default function Shows({ navigation, route }) {
     useEffect(() => {
         getThumbnailImages()
     }, [subcategoryImages])
+    function dynamicSort(property) {
+        var sortOrder = 1;
+        if (property[0] === "-") {
+            sortOrder = -1;
+            property = property.substr(1);
+        }
+        return function (a, b) {
+            /* next line works with strings and numbers, 
+             * and you may want to customize it to your needs
+             */
+            var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+            return result * sortOrder;
+        }
+    }
+
     const getThumbnailImages = async () => {
 
         if (subcategoryImages.length == 0) {
@@ -116,9 +131,14 @@ export default function Shows({ navigation, route }) {
                     const thumnailData = await fetch(resp.subcategoryurl);
                     const subcatDataDetails = await thumnailData.json();
                     for (var s = 0; s < subcatDataDetails.data.items.length; s++) {
-                        subcategorydata.push({ 'thumbnail': subcatDataDetails.data.items[s].thumbnails.high_4_3.url, 'title': subcatDataDetails.data.items[s].title, 'date': subcatDataDetails.data.items[s].release_date_uts, 'premium': subcatDataDetails.data.items[s].access_control.is_free, 'theme': subcatDataDetails.data.items[s].theme })
+                        {
+                            VIDEO_TYPES.includes(resp.item_type) ?
+                                subcategorydata.push({ 'thumbnail': subcatDataDetails.data.items[s].thumbnails.high_4_3.url, 'title': subcatDataDetails.data.items[s].title, 'date': subcatDataDetails.data.items[s].release_date_uts, 'premium': subcatDataDetails.data.items[s].access_control.is_free, 'theme': subcatDataDetails.data.items[s].theme, 'seo_url': subcatDataDetails.data.items[s].seo_url })
+                                :
+                                subcategorydata.push({ 'thumbnail': subcatDataDetails.data.items[s].thumbnails.high_3_4.url, 'title': subcatDataDetails.data.items[s].title, 'date': subcatDataDetails.data.items[s].release_date_uts, 'premium': subcatDataDetails.data.items[s].access_control.is_free, 'theme': subcatDataDetails.data.items[s].theme, 'seo_url': subcatDataDetails.data.items[s].seo_url })
+                        }
                     }
-                    totalData.push({ 'name': resp.name, 'display_title': resp.display_title, 'item_type': resp.item_type, 'thumbnails': subcategorydata,'friendlyId':resp.subcategoryurl })
+                    totalData.push({ 'name': resp.name, 'display_title': resp.display_title, 'item_type': resp.item_type, 'thumbnails': subcategorydata, 'friendlyId': resp.subcategoryurl })
                     setsubcategoryImages([...subcategoryImages, totalData])
                 })
             }
@@ -133,28 +153,38 @@ export default function Shows({ navigation, route }) {
                 {item.map((subcat, i) => {
                     return (
                         <View style={{}} key={i}>
-                            <View>
-                                <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10 }} key={i}>{subcat.display_title}</Text>
-                                <TouchableOpacity style={{ position:'absolute',right:30 }} onPress={() => navigation.navigate('EpisodesMoreList', { firendlyId: subcat.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity>
-                            </View>
+                            {subcat.thumbnails.length > 0 ?
+                                <View>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10 }} key={i}>{subcat.display_title}</Text>
+                                    {subcat.name != 'related' ? <TouchableOpacity style={{ position: 'absolute', right: 30 }} onPress={() => navigation.navigate('EpisodesMoreList', { firendlyId: subcat.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+
+                                </View> : ""}
+
                             <FlatList
                                 data={subcat.thumbnails}
                                 horizontal={true}
                                 keyExtractor={(x, i) => i.toString()}
                                 renderItem={(items, index) => {
-                                    var episodeDate = new Date(items.item.date * 1000).toISOString().slice(0, 19).replace('T', ' ');
-                                    var splittedDate = episodeDate.split(" ");
-                                    var dateArray = splittedDate[0].split("-");
+                                    if (subcat.display_title == 'Episodes') {
+                                        var episodeDate = new Date(items.item.date * 1000).toISOString().slice(0, 19).replace('T', ' ');
+                                        var splittedDate = episodeDate.split(" ");
+                                        var dateArray = splittedDate[0].split("-");
+                                    }
                                     return (
                                         <View style={{ marginBottom: 10 }} key={index}>
                                             <View>
-                                                <FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(items.item.theme) ?
+                                                    <FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                    :
+                                                    <TouchableOpacity onPress={()=>navigation.navigate({name:'Shows',params:{seoUrl:items.item.seo_url},key:{index}})}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionVertical} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>
+                                                }
+
                                                 {VIDEO_TYPES.includes(items.item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
                                                 {!items.item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </View>
-                                            <View>
+                                            <View style={VIDEO_TYPES.includes(items.item.theme) ? {width:PAGE_WIDTH / 2.06} : ""}>
                                                 {subcat.display_title == 'Episodes' ?
-                                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5 }}>{items.item.title} | {dateArray[2]}-{dateArray[1]}-{dateArray[0]}</Text></View> : ""
+                                                    <View style={{ justifyContent: 'center',  }}><Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5 ,fontSize:12}}>{items.item.title} | {dateArray[2]}-{dateArray[1]}-{dateArray[0]}</Text></View> : ""
                                                 }
                                             </View>
                                         </View>
@@ -257,5 +287,13 @@ const styles = StyleSheet.create({
         color: MORE_LINK_COLOR,
         fontSize: 13,
         textAlign: 'right'
+    },
+    imageSectionVertical: {
+        width: PAGE_WIDTH / 3.15,
+        height: 170,
+        marginHorizontal: 3,
+        borderRadius: 10,
+        marginBottom: 10,
+
     },
 });
