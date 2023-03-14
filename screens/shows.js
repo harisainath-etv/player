@@ -1,5 +1,5 @@
 import { StatusBar, } from 'expo-status-bar';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, Image } from 'react-native';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Rating, AirbnbRating } from 'react-native-ratings';
@@ -9,7 +9,7 @@ import FastImage from 'react-native-fast-image';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { useFocusEffect } from '@react-navigation/native';
 import NormalHeader from './normalHeader';
-import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH } from '../constants';
+import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES,MORE_LINK_COLOR,LAYOUT_TYPES } from '../constants';
 
 export default function Shows({ navigation, route }) {
     const [toggle, setToggle] = useState(false);
@@ -116,9 +116,9 @@ export default function Shows({ navigation, route }) {
                     const thumnailData = await fetch(resp.subcategoryurl);
                     const subcatDataDetails = await thumnailData.json();
                     for (var s = 0; s < subcatDataDetails.data.items.length; s++) {
-                        subcategorydata.push({ 'thumbnail': subcatDataDetails.data.items[s].thumbnails.high_4_3.url, 'title': subcatDataDetails.data.items[s].title, 'date': subcatDataDetails.data.items[s].release_date_uts })
+                        subcategorydata.push({ 'thumbnail': subcatDataDetails.data.items[s].thumbnails.high_4_3.url, 'title': subcatDataDetails.data.items[s].title, 'date': subcatDataDetails.data.items[s].release_date_uts, 'premium': subcatDataDetails.data.items[s].access_control.is_free, 'theme': subcatDataDetails.data.items[s].theme })
                     }
-                    totalData.push({ 'name': resp.name, 'display_title': resp.display_title, 'item_type': resp.item_type, 'thumbnails': subcategorydata })
+                    totalData.push({ 'name': resp.name, 'display_title': resp.display_title, 'item_type': resp.item_type, 'thumbnails': subcategorydata,'friendlyId':resp.subcategoryurl })
                     setsubcategoryImages([...subcategoryImages, totalData])
                 })
             }
@@ -133,25 +133,32 @@ export default function Shows({ navigation, route }) {
                 {item.map((subcat, i) => {
                     return (
                         <View style={{}} key={i}>
-                            <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10 }} key={i}>{subcat.display_title}</Text>
+                            <View>
+                                <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10 }} key={i}>{subcat.display_title}</Text>
+                                <TouchableOpacity style={{ position:'absolute',right:30 }} onPress={() => navigation.navigate('EpisodesMoreList', { firendlyId: subcat.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity>
+                            </View>
                             <FlatList
                                 data={subcat.thumbnails}
                                 horizontal={true}
                                 keyExtractor={(x, i) => i.toString()}
                                 renderItem={(items, index) => {
                                     var episodeDate = new Date(items.item.date * 1000).toISOString().slice(0, 19).replace('T', ' ');
-                                    var splittedDate = episodeDate.split(" ");     
-                                    var dateArray=splittedDate[0].split("-");                     
+                                    var splittedDate = episodeDate.split(" ");
+                                    var dateArray = splittedDate[0].split("-");
                                     return (
                                         <View style={{ marginBottom: 10 }} key={index}>
-                                            <FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                            {subcat.display_title == 'Episodes' ?
-                                                <View style={{justifyContent:'center',alignItems:'center'}}><Text style={{ color: NORMAL_TEXT_COLOR,marginLeft:5 }}>{items.item.title} | {dateArray[2]}-{dateArray[1]}-{dateArray[0]}</Text></View> : ""
-                                            }
-
+                                            <View>
+                                                <FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(items.item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                {!items.item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            </View>
+                                            <View>
+                                                {subcat.display_title == 'Episodes' ?
+                                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5 }}>{items.item.title} | {dateArray[2]}-{dateArray[1]}-{dateArray[0]}</Text></View> : ""
+                                                }
+                                            </View>
                                         </View>
                                     )
-                                    episodeDate="";
                                 }}
                             ></FlatList>
                         </View>
@@ -224,6 +231,8 @@ export default function Shows({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
+    playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
+    crownIcon: { position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
     container: {
         backgroundColor: BACKGROUND_COLOR,
         alignItems: 'center',
@@ -243,5 +252,10 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 10,
         borderWidth: 1
+    },
+    sectionHeaderMore: {
+        color: MORE_LINK_COLOR,
+        fontSize: 13,
+        textAlign: 'right'
     },
 });
