@@ -116,7 +116,7 @@ export default function Shows({ navigation, route }) {
                     const thumnailData = await fetch(resp.subcategoryurl);
                     const subcatDataDetails = await thumnailData.json();
                     for (var s = 0; s < subcatDataDetails.data.items.length; s++) {
-                        subcategorydata.push({ 'thumbnail': subcatDataDetails.data.items[s].thumbnails.high_4_3.url, 'title': subcatDataDetails.data.items[s].title, 'date': subcatDataDetails.data.items[s].published_date })
+                        subcategorydata.push({ 'thumbnail': subcatDataDetails.data.items[s].thumbnails.high_4_3.url, 'title': subcatDataDetails.data.items[s].title, 'date': subcatDataDetails.data.items[s].release_date_uts })
                     }
                     totalData.push({ 'name': resp.name, 'display_title': resp.display_title, 'item_type': resp.item_type, 'thumbnails': subcategorydata })
                     setsubcategoryImages([...subcategoryImages, totalData])
@@ -132,17 +132,26 @@ export default function Shows({ navigation, route }) {
 
                 {item.map((subcat, i) => {
                     return (
-                        <View>
-                            <Text style={{ color: NORMAL_TEXT_COLOR }} key={i}>{subcat.display_title}</Text>
+                        <View style={{}} key={i}>
+                            <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10 }} key={i}>{subcat.display_title}</Text>
                             <FlatList
                                 data={subcat.thumbnails}
                                 horizontal={true}
+                                keyExtractor={(x, i) => i.toString()}
                                 renderItem={(items, index) => {
+                                    var episodeDate = new Date(items.item.date * 1000).toISOString().slice(0, 19).replace('T', ' ');
+                                    var splittedDate = episodeDate.split(" ");     
+                                    var dateArray=splittedDate[0].split("-");                     
                                     return (
-                                        <View>
+                                        <View style={{ marginBottom: 10 }} key={index}>
                                             <FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                            {subcat.display_title == 'Episodes' ?
+                                                <View style={{justifyContent:'center',alignItems:'center'}}><Text style={{ color: NORMAL_TEXT_COLOR,marginLeft:5 }}>{items.item.title} | {dateArray[2]}-{dateArray[1]}-{dateArray[0]}</Text></View> : ""
+                                            }
+
                                         </View>
                                     )
+                                    episodeDate="";
                                 }}
                             ></FlatList>
                         </View>
@@ -198,14 +207,14 @@ export default function Shows({ navigation, route }) {
                         <Text style={{ fontSize: 18, color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}> FILTER BY DATE</Text>
                     </TouchableOpacity>
                     <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', alignContent: 'flex-start', width: '100%' }}>
-                        
-                            {/* <Text style={{color:NORMAL_TEXT_COLOR}}>{JSON.stringify(subcategoryImages)}</Text> */}
-                            {subcategoryImages ? <FlatList
-                                data={subcategoryImages}
-                                renderItem={renderSubcat}
-                                keyExtractor={(x, i) => i.toString()}
-                            /> : ""}
-                        
+
+                        {/* <Text style={{color:NORMAL_TEXT_COLOR}}>{JSON.stringify(subcategoryImages)}</Text> */}
+                        {subcategoryImages ? <FlatList
+                            data={subcategoryImages}
+                            renderItem={renderSubcat}
+                            keyExtractor={(x, i) => i.toString()}
+                        /> : ""}
+
                     </View>
                 </View>
             </ScrollView>
