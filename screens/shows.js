@@ -1,5 +1,5 @@
 import { StatusBar, } from 'expo-status-bar';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, Image } from 'react-native';
+import { StyleSheet, View, Text, Pressable, ScrollView, FlatList, Image } from 'react-native';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Rating, AirbnbRating } from 'react-native-ratings';
@@ -156,7 +156,7 @@ export default function Shows({ navigation, route }) {
                             {subcat.thumbnails.length > 0 ?
                                 <View>
                                     <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10 }} key={i}>{subcat.display_title}</Text>
-                                    {subcat.name != 'related' ? <TouchableOpacity style={{ position: 'absolute', right: 30 }} onPress={() => navigation.navigate('EpisodesMoreList', { firendlyId: subcat.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                                    {subcat.name != 'related' ? <Pressable style={{ position: 'absolute', right: 30 }} onPress={() => navigation.navigate('EpisodesMoreList', { firendlyId: subcat.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
 
                                 </View> : ""}
 
@@ -176,7 +176,7 @@ export default function Shows({ navigation, route }) {
                                                 {VIDEO_TYPES.includes(items.item.theme) ?
                                                     <FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                                     :
-                                                    <TouchableOpacity onPress={()=>navigation.navigate({name:'Shows',params:{seoUrl:items.item.seo_url},key:{index}})}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionVertical} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>
+                                                    <Pressable onPress={()=>navigation.navigate({name:'Shows',params:{seoUrl:items.item.seo_url},key:{index}})}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionVertical} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>
                                                 }
 
                                                 {VIDEO_TYPES.includes(items.item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
@@ -231,18 +231,18 @@ export default function Shows({ navigation, route }) {
                             </View>
                             <View style={styles.singleoption}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></View>
                             <View style={styles.singleoption}>
-                                <TouchableOpacity onPress={() => { setToggle(!toggle) }}>
+                                <Pressable onPress={() => { setToggle(!toggle) }}>
                                     {toggle ? <MaterialCommunityIcons name="toggle-switch" size={40} color={NORMAL_TEXT_COLOR} /> : <MaterialCommunityIcons name="toggle-switch-off" size={40} color={NORMAL_TEXT_COLOR} />}
-                                </TouchableOpacity>
+                                </Pressable>
                             </View>
                         </View>
 
                     </View>
 
-                    <TouchableOpacity onPress={() => navigation.navigate('Calendarscreen')} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', padding: 20 }}>
+                    <Pressable onPress={() => navigation.navigate('Calendarscreen')} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', padding: 20 }}>
                         <MaterialCommunityIcons name="calendar-month" size={40} color={NORMAL_TEXT_COLOR} />
                         <Text style={{ fontSize: 18, color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}> FILTER BY DATE</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                     <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', alignContent: 'flex-start', width: '100%' }}>
 
                         {/* <Text style={{color:NORMAL_TEXT_COLOR}}>{JSON.stringify(subcategoryImages)}</Text> */}

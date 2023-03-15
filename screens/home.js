@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, Pressable, ActivityIndicator, RefreshControl, Image } from 'react-native';
+import { View, FlatList, StyleSheet, Text, Pressable, ActivityIndicator, RefreshControl, Image } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -169,12 +169,12 @@ function Home({ navigation, route }) {
                             }}
                             data={item.data}
                             style={{ top: -15, }}
-                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => {
+                            renderItem={({ item, index }) => <Pressable onPress={() => {
                                 {
                                     VIDEO_TYPES.includes(item.theme) ?
                                     navigation.navigate('Episode',{seoUrl:item.seoUrl}) : navigation.navigate('Shows',{seoUrl:item.seoUrl})
                                 }
-                            }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                            }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
                         : ""}
 
@@ -208,7 +208,7 @@ function Home({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <TouchableOpacity style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <Carousel
                             {...baseOptionsOther}
@@ -228,12 +228,12 @@ function Home({ navigation, route }) {
                             }}
                             data={item.data}
                             style={{}}
-                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => {
+                            renderItem={({ item, index }) => <Pressable onPress={() => {
                                 {
                                     VIDEO_TYPES.includes(item.theme) ?
                                     navigation.navigate('Episode',{seoUrl:item.seoUrl}) : navigation.navigate('Shows',{seoUrl:item.seoUrl})
                                 }
-                            }}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                            }}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
                     </View>
                     : ""}
@@ -243,7 +243,7 @@ function Home({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <TouchableOpacity style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
 
                         </View>
                         <View style={{ padding: 10 }}>
@@ -263,12 +263,12 @@ function Home({ navigation, route }) {
                                 }}
                                 data={item.data}
                                 style={{}}
-                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => {
+                                renderItem={({ item, index }) => <Pressable onPress={() => {
                                     {
                                         VIDEO_TYPES.includes(item.theme) ?
                                         navigation.navigate('Episode',{seoUrl:item.seoUrl}) : navigation.navigate('Shows',{seoUrl:item.seoUrl})
                                     }
-                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
                         </View>
                     </View>
@@ -295,12 +295,12 @@ function Home({ navigation, route }) {
                                 }}
                                 data={item.data}
                                 style={{}}
-                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => {
+                                renderItem={({ item, index }) => <Pressable onPress={() => {
                                     {
                                         VIDEO_TYPES.includes(item.theme) ?
                                         navigation.navigate('Episode',{seoUrl:item.seoUrl}) : navigation.navigate('Shows',{seoUrl:item.seoUrl})
                                     }
-                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
                         </View>
                         {!!progressValue ?
@@ -334,7 +334,7 @@ function Home({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <TouchableOpacity style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <FlatList
                             data={item.data}
@@ -345,7 +345,7 @@ function Home({ navigation, route }) {
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
-                                        <TouchableOpacity onPress={() => {
+                                        <Pressable onPress={() => {
                                             {
                                                 VIDEO_TYPES.includes(item.theme) ?
                                                 navigation.navigate('Episode',{seoUrl:item.seoUrl}) : navigation.navigate('Shows',{seoUrl:item.seoUrl})
@@ -355,7 +355,7 @@ function Home({ navigation, route }) {
                                                 style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
                                                 resizeMode={FastImage.resizeMode.stretch}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                        </TouchableOpacity>
+                                        </Pressable>
                                         {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
                                         {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                     </View>
@@ -368,7 +368,7 @@ function Home({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <TouchableOpacity style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <View style={{ flexDirection: 'column' }}>
                             <FlatList
@@ -381,7 +381,7 @@ function Home({ navigation, route }) {
                                 renderItem={
                                     ({ item, index }) =>
                                         <View style={{ marginRight: 5, marginLeft: 5 }}>
-                                            <TouchableOpacity onPress={() => {
+                                            <Pressable onPress={() => {
                                                 {
                                                     VIDEO_TYPES.includes(item.theme) ?
                                                     navigation.navigate('Episode',{seoUrl:item.seoUrl}) : navigation.navigate('Shows',{seoUrl:item.seoUrl})
@@ -393,7 +393,7 @@ function Home({ navigation, route }) {
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                                 {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                            </TouchableOpacity>
+                                            </Pressable>
                                         </View>
                                 }
                             />
@@ -413,7 +413,7 @@ function Home({ navigation, route }) {
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
-                                        <TouchableOpacity onPress={() => {
+                                        <Pressable onPress={() => {
                                             {
                                                 VIDEO_TYPES.includes(item.theme) ?
                                                 navigation.navigate('Episode',{seoUrl:item.seoUrl}) : navigation.navigate('Shows',{seoUrl:item.seoUrl})
@@ -425,7 +425,7 @@ function Home({ navigation, route }) {
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </TouchableOpacity>
+                                        </Pressable>
                                     </View>
                             }
                         />
@@ -436,7 +436,7 @@ function Home({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 ? <TouchableOpacity style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <FlatList
                             data={item.data}
@@ -447,7 +447,7 @@ function Home({ navigation, route }) {
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
-                                        <TouchableOpacity onPress={() => {
+                                        <Pressable onPress={() => {
                                             {
                                                 VIDEO_TYPES.includes(item.theme) ?
                                                 navigation.navigate('Episode',{seoUrl:item.seoUrl}) : navigation.navigate('Shows',{seoUrl:item.seoUrl})
@@ -459,7 +459,7 @@ function Home({ navigation, route }) {
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </TouchableOpacity>
+                                        </Pressable>
                                     </View>
                             }
                         />
