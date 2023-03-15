@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, ActivityIndicator, RefreshControl,Pressable } from 'react-native';
+import { View, FlatList, StyleSheet, Text, ActivityIndicator, RefreshControl, Pressable } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -9,7 +9,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT,VIDEO_TYPES,LAYOUT_TYPES } from '../constants';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from './footer';
@@ -77,42 +77,39 @@ function Channels({ navigation, route }) {
             definedPageName = "home";
         else
             definedPageName = pageName;
-        const region = await  AsyncStorage.getItem('country_code');
-        const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region="+region+"&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
+        const region = await AsyncStorage.getItem('country_code');
+        const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
         const resp = await fetch(url);
         const data = await resp.json();
         if (data.data.catalog_list_items.length > 0) {
             for (var i = 0; i < data.data.catalog_list_items.length; i++) {
-                if(data.data.catalog_list_items[i].hasOwnProperty('access_control'))
-                    {
-                        premiumCheckData = (data.data.catalog_list_items[i].access_control);
-                        if (premiumCheckData != "") {
-                            if (premiumCheckData['is_free']) {
-                                premiumContent = false;
-                            }
-                            else {
-                                premiumContent = true;
-                            }
+                if (data.data.catalog_list_items[i].hasOwnProperty('access_control')) {
+                    premiumCheckData = (data.data.catalog_list_items[i].access_control);
+                    if (premiumCheckData != "") {
+                        if (premiumCheckData['is_free']) {
+                            premiumContent = false;
+                        }
+                        else {
+                            premiumContent = true;
                         }
                     }
+                }
 
                 if (data.data.catalog_list_items[i].media_list_in_list) {
-                    All.push({"uri":data.data.catalog_list_items[i].list_item_object.banner_image,"premium":premiumContent});
+                    All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url });
                 }
                 else {
-                    if(definedPageName=='channels')
-                    {
+                    if (definedPageName == 'channels') {
                         if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3')) {
-                            All.push({"uri":data.data.catalog_list_items[i].thumbnails.high_4_3.url,"premium":premiumContent});
+                            All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url });
                         }
                     }
                     else
-                    if(definedPageName=='live')
-                    {
-                        if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
-                            All.push({"uri":data.data.catalog_list_items[i].thumbnails.high_3_4.url,"premium":premiumContent});
+                        if (definedPageName == 'live') {
+                            if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
+                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url });
+                            }
                         }
-                    }
                 }
             }
             Final.push({ "friendlyId": data.data.friendly_id, "data": All, "layoutType": data.data.layout_type, "displayName": data.data.display_title });
@@ -124,9 +121,9 @@ function Channels({ navigation, route }) {
 
     async function getTopMenu() {
         var TopMenu = [];
-        const region = await  AsyncStorage.getItem('country_code');
+        const region = await AsyncStorage.getItem('country_code');
         //fetching top menu
-        const topMenu = FIRETV_BASE_URL + "/catalog_lists/top-menu.gzip?nested_list_items=false&auth_token=" + AUTH_TOKEN + "&region="+region;
+        const topMenu = FIRETV_BASE_URL + "/catalog_lists/top-menu.gzip?nested_list_items=false&auth_token=" + AUTH_TOKEN + "&region=" + region;
         const menuResp = await fetch(topMenu);
         const menuData = await menuResp.json();
         if (menuData.data.catalog_list_items.length > 0) {
@@ -144,10 +141,10 @@ function Channels({ navigation, route }) {
         //console.log(selectedItem);
     }
     function changeTabData(pageFriendlyId) {
-        if(pageFriendlyId!='live')
-        navigation.navigate({ name: 'Home', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
+        if (pageFriendlyId != 'live')
+            navigation.navigate({ name: 'Home', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
         else
-        navigation.navigate({ name: 'OtherResponse', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
+            navigation.navigate({ name: 'OtherResponse', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
     }
     const renderItem = ({ item, index }) => {
         return (
@@ -173,7 +170,12 @@ function Channels({ navigation, route }) {
                             }}
                             data={item.data}
                             style={{ top: -15, }}
-                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                            renderItem={({ item, index }) => <Pressable onPress={() => {
+                                {
+                                    VIDEO_TYPES.includes(item.theme) ?
+                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                }
+                            }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
                         : ""}
 
@@ -207,7 +209,7 @@ function Channels({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId,layoutType:LAYOUT_TYPES[0]})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <Carousel
                             {...baseOptionsOther}
@@ -227,7 +229,12 @@ function Channels({ navigation, route }) {
                             }}
                             data={item.data}
                             style={{}}
-                            renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                            renderItem={({ item, index }) => <Pressable onPress={() => {
+                                {
+                                    VIDEO_TYPES.includes(item.theme) ?
+                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                }
+                            }}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
                     </View>
                     : ""}
@@ -237,7 +244,7 @@ function Channels({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId,layoutType:LAYOUT_TYPES[0]})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <View style={{ padding: 10 }}>
                             <Carousel
@@ -256,39 +263,49 @@ function Channels({ navigation, route }) {
                                 }}
                                 data={item.data}
                                 style={{}}
-                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                                renderItem={({ item, index }) => <Pressable onPress={() => {
+                                    {
+                                        VIDEO_TYPES.includes(item.theme) ?
+                                            navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                    }
+                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
                         </View>
                     </View>
                     : ""}
 
                 {item.layoutType == 'channels' && item.data.length != 0 ?
-                <View>
-                <View style={styles.sectionHeaderView}>
-                    <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                    
-                </View>
-                    <View style={{ flexDirection: 'column' }}>
-                        <FlatList
-                            data={item.data}
-                            keyExtractor={(x, i) => i.toString()}
-                            horizontal={false}
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.containerMargin}
-                            numColumns={3}
-                            renderItem={
-                                ({ item, index }) =>
-                                    <View style={{ marginRight: 5, marginLeft: 5 }}>
-                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
-                                            <FastImage
-                                                style={[styles.imageSectionCircle,]}
-                                                resizeMode={FastImage.resizeMode.stretch}
-                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                        </TouchableOpacity>
-                                    </View>
-                            }
-                        />
-                    </View>
+                    <View>
+                        <View style={styles.sectionHeaderView}>
+                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
+
+                        </View>
+                        <View style={{ flexDirection: 'column' }}>
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={false}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                numColumns={3}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View style={{ marginRight: 5, marginLeft: 5 }}>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    VIDEO_TYPES.includes(item.theme) ?
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                }
+                                            }}>
+                                                <FastImage
+                                                    style={[styles.imageSectionCircle,]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                            </Pressable>
+                                        </View>
+                                }
+                            />
+                        </View>
                     </View>
                     : ""}
 
@@ -296,7 +313,7 @@ function Channels({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId,layoutType:LAYOUT_TYPES[0]})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <FlatList
                             data={item.data}
@@ -307,13 +324,18 @@ function Channels({ navigation, route }) {
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
-                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                        <Pressable onPress={() => {
+                                            {
+                                                VIDEO_TYPES.includes(item.theme) ?
+                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            }
+                                        }}>
                                             <FastImage
                                                 style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
-                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </TouchableOpacity>
+                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                        </Pressable>
                                     </View>
                             }
                         />
@@ -333,14 +355,19 @@ function Channels({ navigation, route }) {
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
-                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                        <Pressable onPress={() => {
+                                            {
+                                                VIDEO_TYPES.includes(item.theme) ?
+                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            }
+                                        }}>
                                             <FastImage
                                                 style={[styles.imageSectionVertical,]}
                                                 resizeMode={FastImage.resizeMode.stretch}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
-                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </TouchableOpacity>
+                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                        </Pressable>
                                     </View>
                             }
                         />
@@ -367,7 +394,12 @@ function Channels({ navigation, route }) {
                                 }}
                                 data={item.data}
                                 style={{}}
-                                renderItem={({ item, index }) => <TouchableOpacity onPress={() => navigation.navigate('CustomeVideoPlayer')}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></TouchableOpacity>}
+                                renderItem={({ item, index }) => <Pressable onPress={() => {
+                                    {
+                                        VIDEO_TYPES.includes(item.theme) ?
+                                            navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                    }
+                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
                         </View>
                         {!!progressValue ?
@@ -401,7 +433,7 @@ function Channels({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 ? <TouchableOpacity  style={{width:"100%"}} onPress={() => navigation.navigate('MoreList',{firendlyId:item.friendlyId,layoutType:LAYOUT_TYPES[1]})}><Text style={styles.sectionHeaderMore}>+MORE</Text></TouchableOpacity> : ""}
+                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <FlatList
                             data={item.data}
@@ -412,13 +444,18 @@ function Channels({ navigation, route }) {
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
-                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                        <Pressable onPress={() => {
+                                            {
+                                                VIDEO_TYPES.includes(item.theme) ?
+                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            }
+                                        }}>
                                             <FastImage
                                                 style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme)  ? <Image source={require('../assets/images/play.png')} style={{position:'absolute',width:30,height:30,right:10,bottom:15}}></Image> : ""}
-                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </TouchableOpacity>
+                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                        </Pressable>
                                     </View>
                             }
                         />

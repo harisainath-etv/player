@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { View, FlatList, StyleSheet, Text, ActivityIndicator, Image, Pressable } from 'react-native';
 import FastImage from 'react-native-fast-image';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { BACKGROUND_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from './footer';
-
+import NormalHeader from './normalHeader';
 
 export const ElementsText = {
     AUTOPLAY: 'AutoPlay',
@@ -36,9 +35,9 @@ function EpisodesMoreList({ navigation, route }) {
             var definedPageName = "";
             var premiumContent = false;
             var premiumCheckData = "";
-                definedPageName = pageName;
+            definedPageName = pageName;
             const region = await AsyncStorage.getItem('country_code');
-            const url = pageName + "&item_language=eng&region=" + region +"&access_token="+ ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
+            const url = pageName + "&item_language=eng&region=" + region + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
             const resp = await fetch(url);
             const data = await resp.json();
             setPagenumber(p + 1);
@@ -57,16 +56,16 @@ function EpisodesMoreList({ navigation, route }) {
                     }
 
                     if (data.data.items[i].media_list_in_list) {
-                        All.push({ "uri": data.data.items[i].list_item_object.banner_image, "theme": data.data.items[i].theme, "premium": premiumContent });
+                        All.push({ "uri": data.data.items[i].list_item_object.banner_image, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url });
                     }
                     else {
 
                         if (data.data.items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.items[i].thumbnails.hasOwnProperty('high_3_4')) {
                             if (layout_type == LAYOUT_TYPES[0])
-                                All.push({ "uri": data.data.items[i].thumbnails.high_3_4.url, "theme": data.data.items[i].theme, "premium": premiumContent });
+                                All.push({ "uri": data.data.items[i].thumbnails.high_3_4.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url });
                             else
                                 if (layout_type == LAYOUT_TYPES[1])
-                                    All.push({ "uri": data.data.items[i].thumbnails.high_4_3.url, "theme": data.data.items[i].theme, "premium": premiumContent });
+                                    All.push({ "uri": data.data.items[i].thumbnails.high_4_3.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url });
 
 
                         }
@@ -78,8 +77,8 @@ function EpisodesMoreList({ navigation, route }) {
                 All = [];
             }
 
-            if(Final.length<=0)
-            settoload(false);
+            if (Final.length <= 0)
+                settoload(false);
             settotalHomeData(totalHomeData => [...totalHomeData, ...Final]);
             setloading(false)
         }
@@ -100,14 +99,19 @@ function EpisodesMoreList({ navigation, route }) {
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
-                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                        <Pressable onPress={() => {
+                                            {
+                                                VIDEO_TYPES.includes(item.theme) ?
+                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            }
+                                        }}>
                                             <FastImage
                                                 resizeMode={FastImage.resizeMode.stretch}
                                                 style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </TouchableOpacity>
+                                        </Pressable>
                                     </View>
                             }
                         />
@@ -128,14 +132,19 @@ function EpisodesMoreList({ navigation, route }) {
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
-                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                        <Pressable onPress={() => {
+                                            {
+                                                VIDEO_TYPES.includes(item.theme) ?
+                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            }
+                                        }}>
                                             <FastImage
                                                 resizeMode={FastImage.resizeMode.stretch}
                                                 style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </TouchableOpacity>
+                                        </Pressable>
                                     </View>
                             }
                         />
@@ -160,9 +169,7 @@ function EpisodesMoreList({ navigation, route }) {
 
 
             <View style={styles.sectionHeaderView}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <MaterialCommunityIcons name="keyboard-backspace" size={30} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
-                </TouchableOpacity>
+            <NormalHeader></NormalHeader>
                 <Text style={styles.sectionHeader}>{displayTitle}</Text>
             </View>
 
@@ -221,10 +228,8 @@ const styles = StyleSheet.create({
     },
     sectionHeaderView: {
         flexDirection: 'row',
-        marginVertical: 10,
         width: '100%',
         alignItems: 'center',
-        padding: 8,
     },
     sectionHeader: {
         color: HEADING_TEXT_COLOR,

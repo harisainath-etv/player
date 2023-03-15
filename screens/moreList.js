@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { View, FlatList, StyleSheet, Text, ActivityIndicator, Image, Pressable } from 'react-native';
 import FastImage from 'react-native-fast-image';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from './footer';
+import NormalHeader from './normalHeader';
 
 
 export const ElementsText = {
@@ -59,16 +59,16 @@ function MoreList({ navigation, route }) {
                     }
 
                     if (data.data.catalog_list_items[i].media_list_in_list) {
-                        All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent });
+                        All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url  });
                     }
                     else {
 
                         if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
                             if (layout_type == LAYOUT_TYPES[0])
-                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent });
+                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url   });
                             else
                                 if (layout_type == LAYOUT_TYPES[1])
-                                    All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent });
+                                    All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url   });
 
 
                         }
@@ -101,14 +101,19 @@ function MoreList({ navigation, route }) {
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
-                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                        <Pressable onPress={() => {
+                                    {
+                                        VIDEO_TYPES.includes(item.theme) ?
+                                        navigation.navigate('Episode',{seoUrl:item.seoUrl}) : navigation.navigate('Shows',{seoUrl:item.seoUrl})
+                                    }
+                                }}>
                                             <FastImage
                                                 resizeMode={FastImage.resizeMode.stretch}
                                                 style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </TouchableOpacity>
+                                        </Pressable>
                                     </View>
                             }
                         />
@@ -129,14 +134,19 @@ function MoreList({ navigation, route }) {
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
-                                        <TouchableOpacity onPress={() => navigation.navigate(ChromeCast)}>
+                                        <Pressable onPress={() => {
+                                    {
+                                        VIDEO_TYPES.includes(item.theme) ?
+                                        navigation.navigate('Episode',{seoUrl:item.seoUrl}) : navigation.navigate('Shows',{seoUrl:item.seoUrl})
+                                    }
+                                }}>
                                             <FastImage
                                                 resizeMode={FastImage.resizeMode.stretch}
                                                 style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </TouchableOpacity>
+                                        </Pressable>
                                     </View>
                             }
                         />
@@ -161,9 +171,7 @@ function MoreList({ navigation, route }) {
 
 
             <View style={styles.sectionHeaderView}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <MaterialCommunityIcons name="keyboard-backspace" size={30} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
-                </TouchableOpacity>
+                <NormalHeader></NormalHeader>
                 <Text style={styles.sectionHeader}>{displayTitle}</Text>
             </View>
 
@@ -222,10 +230,8 @@ const styles = StyleSheet.create({
     },
     sectionHeaderView: {
         flexDirection: 'row',
-        marginVertical: 10,
         width: '100%',
         alignItems: 'center',
-        padding: 8,
     },
     sectionHeader: {
         color: HEADING_TEXT_COLOR,
