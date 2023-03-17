@@ -56,16 +56,16 @@ function EpisodesMoreList({ navigation, route }) {
                     }
 
                     if (data.data.items[i].media_list_in_list) {
-                        All.push({ "uri": data.data.items[i].list_item_object.banner_image, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url });
+                        All.push({ "uri": data.data.items[i].list_item_object.banner_image, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist":data.data.items[i].media_list_in_list });
                     }
                     else {
 
                         if (data.data.items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.items[i].thumbnails.hasOwnProperty('high_3_4')) {
                             if (layout_type == LAYOUT_TYPES[0])
-                                All.push({ "uri": data.data.items[i].thumbnails.high_3_4.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url });
+                                All.push({ "uri": data.data.items[i].thumbnails.high_3_4.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist":data.data.items[i].media_list_in_list });
                             else
                                 if (layout_type == LAYOUT_TYPES[1])
-                                    All.push({ "uri": data.data.items[i].thumbnails.high_4_3.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url });
+                                    All.push({ "uri": data.data.items[i].thumbnails.high_4_3.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist":data.data.items[i].media_list_in_list });
 
 
                         }
@@ -101,6 +101,9 @@ function EpisodesMoreList({ navigation, route }) {
                                     <View>
                                         <Pressable onPress={() => {
                                             {
+                                                item.medialistinlist ?
+                                                    navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                                    :
                                                 VIDEO_TYPES.includes(item.theme) ?
                                                     navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
@@ -134,6 +137,9 @@ function EpisodesMoreList({ navigation, route }) {
                                     <View>
                                         <Pressable onPress={() => {
                                             {
+                                                item.medialistinlist ?
+                                                    navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                                    :
                                                 VIDEO_TYPES.includes(item.theme) ?
                                                     navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
