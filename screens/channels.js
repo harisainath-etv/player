@@ -96,18 +96,20 @@ function Channels({ navigation, route }) {
                 }
 
                 if (data.data.catalog_list_items[i].media_list_in_list) {
-                    All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist":data.data.catalog_list_items[i].media_list_in_list });
+                    var splitted = data.data.catalog_list_items[i].seo_url.split("/");
+                    var friendlyId = splitted[splitted.length - 1];
+                    All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list,"friendlyId":friendlyId });
                 }
                 else {
                     if (definedPageName == 'channels') {
                         if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3')) {
-                            All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist":data.data.catalog_list_items[i].media_list_in_list });
+                            All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list,"friendlyId":"" });
                         }
                     }
                     else
                         if (definedPageName == 'live') {
                             if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
-                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist":data.data.catalog_list_items[i].media_list_in_list });
+                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list,"friendlyId":"" });
                             }
                         }
                 }
@@ -173,10 +175,10 @@ function Channels({ navigation, route }) {
                             renderItem={({ item, index }) => <Pressable onPress={() => {
                                 {
                                     item.medialistinlist ?
-                                        navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                        navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                         :
-                                    VIDEO_TYPES.includes(item.theme) ?
-                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                        VIDEO_TYPES.includes(item.theme) ?
+                                            navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                 }
                             }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
@@ -235,10 +237,10 @@ function Channels({ navigation, route }) {
                             renderItem={({ item, index }) => <Pressable onPress={() => {
                                 {
                                     item.medialistinlist ?
-                                        navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                        navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                         :
-                                    VIDEO_TYPES.includes(item.theme) ?
-                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                        VIDEO_TYPES.includes(item.theme) ?
+                                            navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                 }
                             }}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
@@ -272,10 +274,10 @@ function Channels({ navigation, route }) {
                                 renderItem={({ item, index }) => <Pressable onPress={() => {
                                     {
                                         item.medialistinlist ?
-                                            navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                            navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                             :
-                                        VIDEO_TYPES.includes(item.theme) ?
-                                            navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            VIDEO_TYPES.includes(item.theme) ?
+                                                navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -303,10 +305,10 @@ function Channels({ navigation, route }) {
                                             <Pressable onPress={() => {
                                                 {
                                                     item.medialistinlist ?
-                                                        navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                                        navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                         :
-                                                    VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                                 }
                                             }}>
                                                 <FastImage
@@ -339,10 +341,10 @@ function Channels({ navigation, route }) {
                                         <Pressable onPress={() => {
                                             {
                                                 item.medialistinlist ?
-                                                    navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                                    navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
-                                                VIDEO_TYPES.includes(item.theme) ?
-                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                    VIDEO_TYPES.includes(item.theme) ?
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage
@@ -373,10 +375,10 @@ function Channels({ navigation, route }) {
                                         <Pressable onPress={() => {
                                             {
                                                 item.medialistinlist ?
-                                                    navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                                    navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
-                                                VIDEO_TYPES.includes(item.theme) ?
-                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                    VIDEO_TYPES.includes(item.theme) ?
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage
@@ -415,10 +417,10 @@ function Channels({ navigation, route }) {
                                 renderItem={({ item, index }) => <Pressable onPress={() => {
                                     {
                                         item.medialistinlist ?
-                                            navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                            navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                             :
-                                        VIDEO_TYPES.includes(item.theme) ?
-                                            navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            VIDEO_TYPES.includes(item.theme) ?
+                                                navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -468,10 +470,10 @@ function Channels({ navigation, route }) {
                                         <Pressable onPress={() => {
                                             {
                                                 item.medialistinlist ?
-                                                    navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                                    navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
-                                                VIDEO_TYPES.includes(item.theme) ?
-                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                    VIDEO_TYPES.includes(item.theme) ?
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage
