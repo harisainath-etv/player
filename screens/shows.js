@@ -1,5 +1,5 @@
 import { StatusBar, } from 'expo-status-bar';
-import { StyleSheet, View, Text, Pressable, ScrollView, FlatList, Image } from 'react-native';
+import { StyleSheet, View, Text, Pressable, ScrollView, FlatList, Image, LogBox } from 'react-native';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Rating, AirbnbRating } from 'react-native-ratings';
@@ -8,10 +8,12 @@ import axios from 'axios';
 import FastImage from 'react-native-fast-image';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { useFocusEffect } from '@react-navigation/native';
+import Modal from "react-native-modal";
 import NormalHeader from './normalHeader';
-import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES } from '../constants';
-
+import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR } from '../constants';
+var indexValue=0;
 export default function Shows({ navigation, route }) {
+    var { seoUrl,selectTitle,ind } = route.params;
     const [toggle, setToggle] = useState(false);
     const [title, setTitle] = useState();
     const [thumbnail, setThumbnail] = useState();
@@ -20,54 +22,59 @@ export default function Shows({ navigation, route }) {
     const [contentRating, setContentRating] = useState();
     const [displayGenres, setDisplayGenres] = useState();
     const [description, setDescription] = useState();
-    const [subcategorySeoUrl, setSubcategorySeoUrl] = useState();
+    {ind ? indexValue=ind : indexValue=0 };
+    const [subcategorySeoUrl, setSubcategorySeoUrl] = useState(indexValue);
     const [episodeTypeTags, setEpisodeTypeTags] = useState();
     const [relatedUrl, setRelatedUrl] = useState();
     const [subcategoryList, setSubcategoryList] = useState([])
     const [subcategoryImages, setsubcategoryImages] = useState([])
+    const [seasons, setSeasons] = useState([])
+    const [isModalVisible, setModalVisible] = useState(false);
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
     var totalData = [];
-
-    const { seoUrl } = route.params;
     const [seourl, setSeourl] = useState(seoUrl);
     const filterItems = (stringNeeded, arrayvalues) => {
         let query = stringNeeded.toLowerCase();
         return arrayvalues.filter(item => item.toLowerCase().indexOf(query) >= 0);
     }
-
+    
     const loadData = async () => {
         const baseUrl = FIRETV_BASE_URL;
         var splittedData = seourl.split("/");
         splittedData = splittedData.filter(function (e) { return e });
-        const checkSeason = filterItems('season', splittedData);
-        const checkTvShow = filterItems('tv-shows', splittedData);
-        const checkNews = filterItems('news', splittedData);
         const checkShow = filterItems('show', splittedData);
         const region = await AsyncStorage.getItem('country_code');
         var urlPath = "";
 
-        if (splittedData.length == 4 && checkSeason.length > 0) {
+        if (splittedData.length == 4 && splittedData[2] == 'season') {
             urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/subcategories/" + splittedData[2] + "/episodes/" + splittedData[3];
         }
-        else if (checkTvShow.length > 0) {
-            if (splittedData[2] == "" || splittedData[2] == null || splittedData[3] == 'undefined')
+        else if (splittedData[0] == 'tv-shows') {
+            if (splittedData[3] == "" || splittedData[3] == null || splittedData[3] == 'undefined')
                 urlPath = baseUrl + "catalogs/" + splittedData[0] + "/episodes/" + splittedData[1];
             else
-                urlPath = baseUrl + "catalogs/" + splittedData[0] + "/episodes/" + splittedData[2];
+                urlPath = baseUrl + "catalogs/" + splittedData[0] + "/episodes/" + splittedData[4];
         }
-        else if (checkNews.length > 0) {
+        else if (splittedData[0] == 'news') {
             urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/episodes/" + splittedData[2];
         }
         else if (checkShow.length > 0 && splittedData.length == 3) {
             urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/episodes/" + splittedData[2];
         }
         else {
+            if(splittedData.length == 2)
             urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1];
+            if(splittedData.length == 3)
+            urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1]+"/"+splittedData[2];
+            if(splittedData.length == 4)
+            urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1]+"/"+splittedData[2]+"/"+splittedData[3];
         }
 
         var relatedurlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/related.gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
 
         const url = urlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
-
         await axios.get(url).then(response => {
             setTitle(response.data.data.title);
             setThumbnail(response.data.data.last_episode.thumbnails.high_4_3.url);
@@ -76,24 +83,23 @@ export default function Shows({ navigation, route }) {
             setContentRating(response.data.data.cbfc_rating);
             setDisplayGenres(response.data.data.display_genres.join(","));
             setDescription(response.data.data.description);
-            setSubcategorySeoUrl(response.data.data.subcategories[0].seo_url);
-            setEpisodeTypeTags(response.data.data.subcategories[0].episodetype_tags)
+            setEpisodeTypeTags(response.data.data.subcategories[subcategorySeoUrl].episodetype_tags);
             setRelatedUrl(relatedurlPath);
+            setSeasons(response.data.data.subcategories);
             var mainArr = [];
-            for (var e = 0; e < response.data.data.subcategories[0].episodetype_tags.length; e++) {
+            for (var e = 0; e < response.data.data.subcategories[subcategorySeoUrl].episodetype_tags.length; e++) {
                 var subcategorySplit = "";
                 var subcategoryurlPath = "";
                 var subcategoryurl = "";
-                subcategorySplit = response.data.data.subcategories[0].seo_url.split("/");
+                subcategorySplit = response.data.data.subcategories[subcategorySeoUrl].seo_url.split("/");
                 subcategorySplit = subcategorySplit.filter(function (e) { return e });
 
                 subcategoryurlPath = baseUrl + "catalogs/" + subcategorySplit[0] + "/items/" + subcategorySplit[1] + "/subcategories/" + subcategorySplit[3] + "/episodes";
-                subcategoryurl = subcategoryurlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region + "&episode_type=" + response.data.data.subcategories[0].episodetype_tags[e].name;
+                subcategoryurl = subcategoryurlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region + "&episode_type=" + response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name;
 
-                mainArr.push({ 'name': response.data.data.subcategories[0].episodetype_tags[e].name, 'display_title': response.data.data.subcategories[0].episodetype_tags[e].display_title, 'item_type': response.data.data.subcategories[0].episodetype_tags[e].item_type, 'subcategoryurl': subcategoryurl })
+                mainArr.push({ 'name': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name, 'display_title': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].display_title, 'item_type': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].item_type, 'subcategoryurl': subcategoryurl })
             }
             mainArr.push({ 'name': 'related', 'display_title': 'Related Shows', 'item_type': 'show', 'subcategoryurl': relatedurlPath })
-            //console.log(JSON.stringify(mainArr));
             setSubcategoryList(mainArr);
         }).catch(error => { })
     }
@@ -106,21 +112,10 @@ export default function Shows({ navigation, route }) {
 
     useEffect(() => {
         getThumbnailImages()
+        LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+        LogBox.ignoreLogs(['Encountered two children with the same key']);
     }, [subcategoryImages])
-    function dynamicSort(property) {
-        var sortOrder = 1;
-        if (property[0] === "-") {
-            sortOrder = -1;
-            property = property.substr(1);
-        }
-        return function (a, b) {
-            /* next line works with strings and numbers, 
-             * and you may want to customize it to your needs
-             */
-            var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
-            return result * sortOrder;
-        }
-    }
+
 
     const getThumbnailImages = async () => {
 
@@ -144,6 +139,10 @@ export default function Shows({ navigation, route }) {
             }
         }
     }
+    const movetoscreen = (seo_url,ind,title) =>{
+        toggleModal()
+        navigation.navigate({ name: 'Shows', params: { seoUrl: seo_url,selectTitle:title,ind:ind }, key: { ind } })
+    }
     getThumbnailImages()
     function renderSubcat({ item }) {
 
@@ -152,10 +151,10 @@ export default function Shows({ navigation, route }) {
 
                 {item.map((subcat, i) => {
                     return (
-                        <View style={{}} key={i}>
+                        <View style={{}} key={'main'+i}>
                             {subcat.thumbnails.length > 0 ?
                                 <View>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10 }} key={i}>{subcat.display_title}</Text>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10 }} key={'heading'+i}>{subcat.display_title}</Text>
                                     {subcat.name != 'related' ? <Pressable style={{ position: 'absolute', right: 30 }} onPress={() => navigation.navigate('EpisodesMoreList', { firendlyId: subcat.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
 
                                 </View> : ""}
@@ -171,20 +170,20 @@ export default function Shows({ navigation, route }) {
                                         var dateArray = splittedDate[0].split("-");
                                     }
                                     return (
-                                        <View style={{ marginBottom: 10 }} key={index}>
+                                        <View style={{ marginBottom: 10 }} key={'innerkey'+index}>
                                             <View>
                                                 {VIDEO_TYPES.includes(items.item.theme) ?
-                                                    <FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                    <FastImage resizeMode={FastImage.resizeMode.stretch} key={'image'+index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                                     :
-                                                    <Pressable onPress={()=>navigation.navigate({name:'Shows',params:{seoUrl:items.item.seo_url},key:{index}})}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionVertical} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>
+                                                    <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.stretch} key={'image'+index} style={styles.imageSectionVertical} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>
                                                 }
 
                                                 {VIDEO_TYPES.includes(items.item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
                                                 {!items.item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </View>
-                                            <View style={VIDEO_TYPES.includes(items.item.theme) ? {width:PAGE_WIDTH / 2.06} : ""}>
+                                            <View style={VIDEO_TYPES.includes(items.item.theme) ? { width: PAGE_WIDTH / 2.06 } : ""}>
                                                 {subcat.display_title == 'Episodes' ?
-                                                    <View style={{ justifyContent: 'center',  }}><Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5 ,fontSize:12}}>{items.item.title} | {dateArray[2]}-{dateArray[1]}-{dateArray[0]}</Text></View> : ""
+                                                    <View style={{ justifyContent: 'center', }}><Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 12 }}>{items.item.title} | {dateArray[2]}-{dateArray[1]}-{dateArray[0]}</Text></View> : ""
                                                 }
                                             </View>
                                         </View>
@@ -210,6 +209,10 @@ export default function Shows({ navigation, route }) {
                         }}
                     >
                         <FastImage resizeMode={FastImage.resizeMode.stretch} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={{ width: '100%', height: 270 }}></FastImage>
+                        {seasons.length>1 ? <View style={{ position: 'absolute', backgroundColor: 'rgba(0, 0, 0, 0.7)', height: 50, width: '100%', bottom: 0, justifyContent: 'center',padding:5 }}>
+                            <Pressable onPress={() => setModalVisible(true)}><Text style={{color:NORMAL_TEXT_COLOR,fontSize:16}}>{selectTitle ? selectTitle : "Select Season"} <MaterialCommunityIcons name="chevron-double-down" size={20} color={NORMAL_TEXT_COLOR}/></Text></Pressable>
+                        </View> : ""}
+                        
                     </View>
 
                     <View style={styles.bodyContent}>
@@ -255,6 +258,27 @@ export default function Shows({ navigation, route }) {
                     </View>
                 </View>
             </ScrollView>
+            <Modal
+                isVisible={isModalVisible}
+                testID={'modal'}
+                animationIn="slideInDown"
+                animationOut="slideOutDown"
+                onBackdropPress={toggleModal}
+                backdropColor={"black"}
+                backdropOpacity={0.40}
+            >
+                <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR }}>
+                    {seasons.map((season,ind) => {
+                        return (
+                            <Pressable key={'seasons'+ind} onPress={()=>movetoscreen(season.seo_url,ind,season.title)}>
+                                <View style={{padding:13,borderBottomColor:IMAGE_BORDER_COLOR,borderBottomWidth:0.5}}>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR }}>{season.title}</Text>
+                                </View>
+                            </Pressable>
+                        )
+                    })}
+                </View>
+            </Modal>
             <StatusBar style="auto" />
         </View>
     );
