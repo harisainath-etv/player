@@ -96,18 +96,18 @@ function Channels({ navigation, route }) {
                 }
 
                 if (data.data.catalog_list_items[i].media_list_in_list) {
-                    All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url });
+                    All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist":data.data.catalog_list_items[i].media_list_in_list });
                 }
                 else {
                     if (definedPageName == 'channels') {
                         if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3')) {
-                            All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url });
+                            All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist":data.data.catalog_list_items[i].media_list_in_list });
                         }
                     }
                     else
                         if (definedPageName == 'live') {
                             if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
-                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url });
+                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist":data.data.catalog_list_items[i].media_list_in_list });
                             }
                         }
                 }
@@ -172,6 +172,9 @@ function Channels({ navigation, route }) {
                             style={{ top: -15, }}
                             renderItem={({ item, index }) => <Pressable onPress={() => {
                                 {
+                                    item.medialistinlist ?
+                                        navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                        :
                                     VIDEO_TYPES.includes(item.theme) ?
                                         navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                 }
@@ -231,6 +234,9 @@ function Channels({ navigation, route }) {
                             style={{}}
                             renderItem={({ item, index }) => <Pressable onPress={() => {
                                 {
+                                    item.medialistinlist ?
+                                        navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                        :
                                     VIDEO_TYPES.includes(item.theme) ?
                                         navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                 }
@@ -265,6 +271,9 @@ function Channels({ navigation, route }) {
                                 style={{}}
                                 renderItem={({ item, index }) => <Pressable onPress={() => {
                                     {
+                                        item.medialistinlist ?
+                                            navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                            :
                                         VIDEO_TYPES.includes(item.theme) ?
                                             navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                     }
@@ -293,6 +302,9 @@ function Channels({ navigation, route }) {
                                         <View style={{ marginRight: 5, marginLeft: 5 }}>
                                             <Pressable onPress={() => {
                                                 {
+                                                    item.medialistinlist ?
+                                                        navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                                        :
                                                     VIDEO_TYPES.includes(item.theme) ?
                                                         navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                                 }
@@ -326,6 +338,9 @@ function Channels({ navigation, route }) {
                                     <View>
                                         <Pressable onPress={() => {
                                             {
+                                                item.medialistinlist ?
+                                                    navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                                    :
                                                 VIDEO_TYPES.includes(item.theme) ?
                                                     navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
@@ -357,6 +372,9 @@ function Channels({ navigation, route }) {
                                     <View>
                                         <Pressable onPress={() => {
                                             {
+                                                item.medialistinlist ?
+                                                    navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                                    :
                                                 VIDEO_TYPES.includes(item.theme) ?
                                                     navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
@@ -396,6 +414,9 @@ function Channels({ navigation, route }) {
                                 style={{}}
                                 renderItem={({ item, index }) => <Pressable onPress={() => {
                                     {
+                                        item.medialistinlist ?
+                                            navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                            :
                                         VIDEO_TYPES.includes(item.theme) ?
                                             navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                     }
@@ -446,6 +467,9 @@ function Channels({ navigation, route }) {
                                     <View>
                                         <Pressable onPress={() => {
                                             {
+                                                item.medialistinlist ?
+                                                    navigation.navigate('MediaList', { seoUrl: item.seoUrl })
+                                                    :
                                                 VIDEO_TYPES.includes(item.theme) ?
                                                     navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
