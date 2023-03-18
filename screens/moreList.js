@@ -57,20 +57,22 @@ function MoreList({ navigation, route }) {
                             }
                         }
                     }
-
+                    var displayTitle=data.data.catalog_list_items[i].title
+                    if(displayTitle.length>19)
+                    displayTitle = displayTitle.substr(0, 19) + "\u2026";
                     if (data.data.catalog_list_items[i].media_list_in_list) {
                         var splitted = data.data.catalog_list_items[i].seo_url.split("/");
                         var friendlyId = splitted[splitted.length-1];
-                        All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist":data.data.catalog_list_items[i].media_list_in_list,"friendlyId":friendlyId  });
+                        All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist":data.data.catalog_list_items[i].media_list_in_list,"friendlyId":friendlyId,"displayTitle":"" });
                     }
                     else {
 
                         if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
                             if (layout_type == LAYOUT_TYPES[0])
-                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist":data.data.catalog_list_items[i].media_list_in_list,"friendlyId":""   });
+                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist":data.data.catalog_list_items[i].media_list_in_list,"friendlyId":"","displayTitle":""    });
                             else
                                 if (layout_type == LAYOUT_TYPES[1])
-                                    All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist":data.data.catalog_list_items[i].media_list_in_list,"friendlyId":""   });
+                                    All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist":data.data.catalog_list_items[i].media_list_in_list,"friendlyId":"","displayTitle":displayTitle    });
 
 
                         }
@@ -135,10 +137,10 @@ function MoreList({ navigation, route }) {
                             onEndReached={loadNextData}
                             showsHorizontalScrollIndicator={false}
                             style={styles.containerMargin}
-                            numColumns={3}
+                            numColumns={2}
                             renderItem={
                                 ({ item, index }) =>
-                                    <View>
+                                    <View  style={{width: PAGE_WIDTH / 2.06,}}>
                                         <Pressable onPress={() => {
                                     {
                                         item.medialistinlist ?
@@ -155,6 +157,7 @@ function MoreList({ navigation, route }) {
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </Pressable>
+                                        <Text style={{color:NORMAL_TEXT_COLOR,alignSelf:'center',marginBottom:20}}>{item.displayTitle}</Text>
                                     </View>
                             }
                         />
