@@ -10,10 +10,10 @@ import ReadMore from '@fawazahmed/react-native-read-more';
 import { useFocusEffect } from '@react-navigation/native';
 import Modal from "react-native-modal";
 import NormalHeader from './normalHeader';
-import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR } from '../constants';
-var indexValue=0;
+import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR, DETAILS_TEXT_COLOR, DARKED_BORDER_COLOR } from '../constants';
+var indexValue = 0;
 export default function Shows({ navigation, route }) {
-    var { seoUrl,selectTitle,ind } = route.params;
+    var { seoUrl, selectTitle, ind } = route.params;
     const [toggle, setToggle] = useState(false);
     const [title, setTitle] = useState();
     const [thumbnail, setThumbnail] = useState();
@@ -22,7 +22,7 @@ export default function Shows({ navigation, route }) {
     const [contentRating, setContentRating] = useState();
     const [displayGenres, setDisplayGenres] = useState();
     const [description, setDescription] = useState();
-    {ind ? indexValue=ind : indexValue=0 };
+    { ind ? indexValue = ind : indexValue = 0 };
     const [subcategorySeoUrl, setSubcategorySeoUrl] = useState(indexValue);
     const [episodeTypeTags, setEpisodeTypeTags] = useState();
     const [relatedUrl, setRelatedUrl] = useState();
@@ -39,16 +39,17 @@ export default function Shows({ navigation, route }) {
         let query = stringNeeded.toLowerCase();
         return arrayvalues.filter(item => item.toLowerCase().indexOf(query) >= 0);
     }
-    
+
     const loadData = async () => {
         const baseUrl = FIRETV_BASE_URL;
         var splittedData = seourl.split("/");
         splittedData = splittedData.filter(function (e) { return e });
         const checkShow = filterItems('show', splittedData);
+        const checkSeason = filterItems('season', splittedData);
         const region = await AsyncStorage.getItem('country_code');
         var urlPath = "";
 
-        if (splittedData.length == 4 && splittedData[2] == 'season') {
+        if (splittedData.length == 4 && checkSeason.length>0) {
             urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/subcategories/" + splittedData[2] + "/episodes/" + splittedData[3];
         }
         else if (splittedData[0] == 'tv-shows') {
@@ -64,12 +65,12 @@ export default function Shows({ navigation, route }) {
             urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/episodes/" + splittedData[2];
         }
         else {
-            if(splittedData.length == 2)
-            urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1];
-            if(splittedData.length == 3)
-            urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1]+"/"+splittedData[2];
-            if(splittedData.length == 4)
-            urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1]+"/"+splittedData[2]+"/"+splittedData[3];
+            if (splittedData.length == 2)
+                urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1];
+            if (splittedData.length == 3)
+                urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/" + splittedData[2];
+            if (splittedData.length == 4)
+                urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/" + splittedData[2] + "/" + splittedData[3];
         }
 
         var relatedurlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/related.gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
@@ -139,9 +140,9 @@ export default function Shows({ navigation, route }) {
             }
         }
     }
-    const movetoscreen = (seo_url,ind,title) =>{
+    const movetoscreen = (seo_url, ind, title) => {
         toggleModal()
-        navigation.navigate({ name: 'Shows', params: { seoUrl: seo_url,selectTitle:title,ind:ind }, key: { ind } })
+        navigation.navigate({ name: 'Shows', params: { seoUrl: seo_url, selectTitle: title, ind: ind }, key: { ind } })
     }
     getThumbnailImages()
     function renderSubcat({ item }) {
@@ -151,10 +152,10 @@ export default function Shows({ navigation, route }) {
 
                 {item.map((subcat, i) => {
                     return (
-                        <View style={{}} key={'main'+i}>
+                        <View style={{}} key={'main' + i}>
                             {subcat.thumbnails.length > 0 ?
                                 <View>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10 }} key={'heading'+i}>{subcat.display_title}</Text>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10 }} key={'heading' + i}>{subcat.display_title}</Text>
                                     {subcat.name != 'related' ? <Pressable style={{ position: 'absolute', right: 30 }} onPress={() => navigation.navigate('EpisodesMoreList', { firendlyId: subcat.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
 
                                 </View> : ""}
@@ -170,12 +171,12 @@ export default function Shows({ navigation, route }) {
                                         var dateArray = splittedDate[0].split("-");
                                     }
                                     return (
-                                        <View style={{ marginBottom: 10 }} key={'innerkey'+index}>
+                                        <View style={{ marginBottom: 10 }} key={'innerkey' + index}>
                                             <View>
                                                 {VIDEO_TYPES.includes(items.item.theme) ?
-                                                    <FastImage resizeMode={FastImage.resizeMode.stretch} key={'image'+index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                    <FastImage resizeMode={FastImage.resizeMode.stretch} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                                     :
-                                                    <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.stretch} key={'image'+index} style={styles.imageSectionVertical} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>
+                                                    <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.stretch} key={'image' + index} style={styles.imageSectionVertical} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>
                                                 }
 
                                                 {VIDEO_TYPES.includes(items.item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
@@ -210,12 +211,12 @@ export default function Shows({ navigation, route }) {
                     >
                         <Pressable>
                             <FastImage resizeMode={FastImage.resizeMode.stretch} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={{ width: '100%', height: 270 }}></FastImage>
-                            <MaterialCommunityIcons name="play-circle-outline" size={60} color={NORMAL_TEXT_COLOR} style={{position:'absolute',right:((PAGE_WIDTH/2-20)),top:100,}}/>
+                            <MaterialCommunityIcons name="play-circle-outline" size={60} color={NORMAL_TEXT_COLOR} style={{ position: 'absolute', right: ((PAGE_WIDTH / 2 - 20)), top: 100, }} />
                         </Pressable>
-                        {seasons.length>1 ? <View style={{ position: 'absolute', backgroundColor: 'rgba(0, 0, 0, 0.7)', height: 50, width: '100%', bottom: 0, justifyContent: 'center',padding:5 }}>
-                            <Pressable onPress={() => setModalVisible(true)}><Text style={{color:NORMAL_TEXT_COLOR,fontSize:16}}>{selectTitle ? selectTitle : "Select Season"} <MaterialCommunityIcons name="chevron-double-down" size={20} color={NORMAL_TEXT_COLOR}/></Text></Pressable>
+                        {seasons.length > 1 ? <View style={{ position: 'absolute', backgroundColor: 'rgba(0, 0, 0, 0.7)', height: 50, width: '100%', bottom: 0, justifyContent: 'center', padding: 5 }}>
+                            <Pressable onPress={() => setModalVisible(true)}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>{selectTitle ? selectTitle : "Select Season"} <MaterialCommunityIcons name="chevron-double-down" size={20} color={NORMAL_TEXT_COLOR} /></Text></Pressable>
                         </View> : ""}
-                        
+
                     </View>
 
                     <View style={styles.bodyContent}>
@@ -271,10 +272,10 @@ export default function Shows({ navigation, route }) {
                 backdropOpacity={0.40}
             >
                 <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR }}>
-                    {seasons.map((season,ind) => {
+                    {seasons.map((season, ind) => {
                         return (
-                            <Pressable key={'seasons'+ind} onPress={()=>movetoscreen(season.seo_url,ind,season.title)}>
-                                <View style={{padding:13,borderBottomColor:IMAGE_BORDER_COLOR,borderBottomWidth:0.5}}>
+                            <Pressable key={'seasons' + ind} onPress={() => movetoscreen(season.seo_url, ind, season.title)}>
+                                <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5 }}>
                                     <Text style={{ color: NORMAL_TEXT_COLOR }}>{season.title}</Text>
                                 </View>
                             </Pressable>
@@ -297,10 +298,10 @@ const styles = StyleSheet.create({
     },
     mainContainer: { flex: 1, backgroundColor: BACKGROUND_COLOR },
     bodyContent: { backgroundColor: BACKGROUND_COLOR },
-    headingLabel: { fontSize: 25, marginBottom: 5, color: '#ffffff', padding: 6 },
-    detailsText: { fontSize: 13, marginBottom: 5, color: '#b1cccc', padding: 6 },
+    headingLabel: { fontSize: 25, marginBottom: 5, color: NORMAL_TEXT_COLOR, padding: 6 },
+    detailsText: { fontSize: 13, marginBottom: 5, color: DETAILS_TEXT_COLOR, padding: 6 },
     options: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
-    singleoption: { width: "33.33%", alignItems: 'center', justifyContent: 'center', borderColor: '#343636', borderWidth: 1, height: 55 },
+    singleoption: { width: "33.33%", alignItems: 'center', justifyContent: 'center', borderColor: DARKED_BORDER_COLOR, borderWidth: 1, height: 55 },
     marginContainer: { marginLeft: 5, marginRight: 5 },
     imageSectionHorizontal: {
         width: PAGE_WIDTH / 2.06,
