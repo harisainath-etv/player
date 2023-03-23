@@ -208,7 +208,10 @@ export default function Shows({ navigation, route }) {
                             width: PAGE_WIDTH,
                         }}
                     >
-                        <FastImage resizeMode={FastImage.resizeMode.stretch} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={{ width: '100%', height: 270 }}></FastImage>
+                        <Pressable>
+                            <FastImage resizeMode={FastImage.resizeMode.stretch} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={{ width: '100%', height: 270 }}></FastImage>
+                            <MaterialCommunityIcons name="play-circle-outline" size={60} color={NORMAL_TEXT_COLOR} style={{position:'absolute',right:((PAGE_WIDTH/2-20)),top:100,}}/>
+                        </Pressable>
                         {seasons.length>1 ? <View style={{ position: 'absolute', backgroundColor: 'rgba(0, 0, 0, 0.7)', height: 50, width: '100%', bottom: 0, justifyContent: 'center',padding:5 }}>
                             <Pressable onPress={() => setModalVisible(true)}><Text style={{color:NORMAL_TEXT_COLOR,fontSize:16}}>{selectTitle ? selectTitle : "Select Season"} <MaterialCommunityIcons name="chevron-double-down" size={20} color={NORMAL_TEXT_COLOR}/></Text></Pressable>
                         </View> : ""}

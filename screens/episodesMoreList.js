@@ -54,20 +54,23 @@ function EpisodesMoreList({ navigation, route }) {
                             }
                         }
                     }
+                    var displayTitle = data.data.items[i].title
+                    if (displayTitle.length > 19)
+                        displayTitle = displayTitle.substr(0, 19) + "\u2026";
 
                     if (data.data.items[i].media_list_in_list) {
                         var splitted = data.data.items[i].seo_url.split("/");
-                        var friendlyId = splitted[splitted.length-1];
-                        All.push({ "uri": data.data.items[i].list_item_object.banner_image, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist":data.data.items[i].media_list_in_list,"friendlyId":friendlyId });
+                        var friendlyId = splitted[splitted.length - 1];
+                        All.push({ "uri": data.data.items[i].list_item_object.banner_image, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist": data.data.items[i].media_list_in_list, "friendlyId": friendlyId,"displayTitle":displayTitle });
                     }
                     else {
 
                         if (data.data.items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.items[i].thumbnails.hasOwnProperty('high_3_4')) {
                             if (layout_type == LAYOUT_TYPES[0])
-                                All.push({ "uri": data.data.items[i].thumbnails.high_3_4.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist":data.data.items[i].media_list_in_list,"friendlyId":"" });
+                                All.push({ "uri": data.data.items[i].thumbnails.high_3_4.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist": data.data.items[i].media_list_in_list, "friendlyId": "","displayTitle":displayTitle });
                             else
                                 if (layout_type == LAYOUT_TYPES[1])
-                                    All.push({ "uri": data.data.items[i].thumbnails.high_4_3.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist":data.data.items[i].media_list_in_list,"friendlyId":"" });
+                                    All.push({ "uri": data.data.items[i].thumbnails.high_4_3.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist": data.data.items[i].media_list_in_list, "friendlyId": "","displayTitle":displayTitle });
 
 
                         }
@@ -106,8 +109,8 @@ function EpisodesMoreList({ navigation, route }) {
                                                 item.medialistinlist ?
                                                     navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
-                                                VIDEO_TYPES.includes(item.theme) ?
-                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                    VIDEO_TYPES.includes(item.theme) ?
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage
@@ -136,14 +139,14 @@ function EpisodesMoreList({ navigation, route }) {
                             numColumns={3}
                             renderItem={
                                 ({ item, index }) =>
-                                    <View>
+                                    <View style={{ width: PAGE_WIDTH / 2.06, }}>
                                         <Pressable onPress={() => {
                                             {
                                                 item.medialistinlist ?
                                                     navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
-                                                VIDEO_TYPES.includes(item.theme) ?
-                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                    VIDEO_TYPES.includes(item.theme) ?
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage
@@ -153,6 +156,7 @@ function EpisodesMoreList({ navigation, route }) {
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </Pressable>
+                                        <Text style={{color:NORMAL_TEXT_COLOR,alignSelf:'center',marginBottom:20}}>{item.displayTitle}</Text>
                                     </View>
                             }
                         />
@@ -177,7 +181,7 @@ function EpisodesMoreList({ navigation, route }) {
 
 
             <View style={styles.sectionHeaderView}>
-            <NormalHeader></NormalHeader>
+                <NormalHeader></NormalHeader>
                 <Text style={styles.sectionHeader}>{displayTitle}</Text>
             </View>
 
