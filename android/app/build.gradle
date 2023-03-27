@@ -283,6 +283,8 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.10'
     implementation project(':react-native-background-downloader')
+    implementation project(':react-native-video')
+    implementation "androidx.appcompat:appcompat:1.0.0"
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";

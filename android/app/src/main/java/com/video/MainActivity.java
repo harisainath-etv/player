@@ -11,8 +11,21 @@ import expo.modules.ReactActivityDelegateWrapper;
 import androidx.annotation.Nullable;
 import com.google.android.gms.cast.framework.CastContext;
 import com.eko.RNBackgroundDownloaderPackage;
+import android.content.Intent;
+import android.content.res.Configuration;
+
 
 public class MainActivity extends ReactActivity {
+
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+      super.onConfigurationChanged(newConfig);
+      Intent intent = new Intent("onConfigurationChanged");
+      intent.putExtra("newConfig", newConfig);
+      this.sendBroadcast(intent);
+  }
+
+
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     // Set the theme to AppTheme BEFORE onCreate to support 
