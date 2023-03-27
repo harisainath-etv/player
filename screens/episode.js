@@ -12,6 +12,7 @@ import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
 import Video from 'react-native-video';
 import Orientation from 'react-native-orientation-locker';
+import NormalHeader from './normalHeader';
 var currentTimestamp = Math.floor(Date.now() / 1000).toString();
 var sessionId = Math.random().toString(20).slice(2);
 
@@ -80,6 +81,7 @@ export default function Episode({ navigation, route }) {
         urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/" + splittedData[2] + "/" + splittedData[3];
     }
     const url = urlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
+    //console.log(url);
     await axios.get(url).then(response => {
       setTitle(response.data.data.title);
       setChannel(response.data.data.channel_object.name);
@@ -155,6 +157,7 @@ export default function Episode({ navigation, route }) {
   }
   return (
     <View style={styles.mainContainer}>
+      <NormalHeader></NormalHeader>
       <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
         <View style={styles.container}>
           {playUrl ?
@@ -183,11 +186,19 @@ export default function Episode({ navigation, route }) {
             </TouchableWithoutFeedback>
 
             :
+            
+            <View style={{ width: PAGE_WIDTH, height: 270, backgroundColor: "#000000", justifyContent: 'center', alignItems: 'center', flexDirection:'row' }}>
+              
+            <TouchableOpacity onPress={()=>navigation.navigate('Login')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>LOGIN</Text></TouchableOpacity>
 
-            <View style={{ width: PAGE_WIDTH, height: 270, backgroundColor: "#000000", justifyContent: 'center', alignItems: 'center' }}>
-              <ActivityIndicator size={'large'} color={"#ffffff"}></ActivityIndicator>
+            <TouchableOpacity onPress={()=>navigation.navigate('Signup')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>SIGN UP</Text></TouchableOpacity>
+
             </View>
+
           }
+          {playUrl=="" ? <View style={{ width: PAGE_WIDTH, height: 270, backgroundColor: "#000000", justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size={'large'} color={"#ffffff"}></ActivityIndicator>
+            </View> : ""}
 
           {!fullscreen ? <View style={styles.bodyContent}>
             <View style={styles.marginContainer}>
@@ -247,4 +258,5 @@ const styles = StyleSheet.create({
   options: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
   singleoption: { width: "25%", alignItems: 'center', justifyContent: 'center', borderColor: DARKED_BORDER_COLOR, borderWidth: 1, height: 55 },
   marginContainer: { marginLeft: 5, marginRight: 5 },
+  button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 10, borderRadius: 20,marginRight:10 },
 });
