@@ -1,20 +1,19 @@
-import { StatusBar, setStatusBarHidden } from 'expo-status-bar';
-import { StyleSheet, View, Text, ScrollView, Platform, TouchableOpacity, PermissionsAndroid, BackHandler } from 'react-native';
-import React, { useEffect, useState, useRef } from 'react';
-import { ResizeMode } from 'expo-av'
-import VideoPlayer from 'expo-video-player'
-import * as ScreenOrientation from 'expo-screen-orientation'
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { setStatusBarHidden } from 'expo-status-bar';
+import { StyleSheet, View, Text, ScrollView, Platform, TouchableOpacity, PermissionsAndroid, TouchableWithoutFeedback, BackHandler, ActivityIndicator, Pressable, StatusBar } from 'react-native';
+import React, { useEffect, useState, createRef } from 'react';
 import * as NavigationBar from "expo-navigation-bar";
-import RNFS from 'react-native-fs';
-import ReactNativeBlobUtil from 'react-native-blob-util';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Feather from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR } from '../constants';
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, } from '../constants';
 import axios from 'axios';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
+import Video from 'react-native-video';
+import Orientation from 'react-native-orientation-locker';
+var currentTimestamp = Math.floor(Date.now() / 1000).toString();
+var sessionId = Math.random().toString(20).slice(2);
 
 export default function Episode({ navigation, route }) {
   const { seoUrl } = route.params;
@@ -28,25 +27,12 @@ export default function Episode({ navigation, route }) {
   const [contentRating, setContentRating] = useState();
   const [displayGenres, setDisplayGenres] = useState();
   const [description, setDescription] = useState();
-  const [contentId, setContentId] = useState();
-  const [catalogId, setCatalogId] = useState();
+  const [playUrl, setPlayUrl] = useState();
+  const [fullscreen,setFullscreen] = useState(false);
+  const [play,setPlay] = useState(true);
 
-
-  const [barVisibility, setBarVisibility] = useState();
-  const [state, setState] = useState({ downloadProgress: 0 });
-  const [isAndroid, setisAndroid] = useState(true);
-  const [startTime, setstartTime] = useState();
-  const [inFullscreen, setInFullsreen] = useState(false)
-  const [inFullscreen2, setInFullsreen2] = useState(false)
-  const refVideo2 = useRef(0)
-  const [curtime, setcurtime] = useState();
-  const [prevcurtime, setprevcurtime] = useState();
-
-  NavigationBar.addVisibilityListener(({ visibility }) => {
-    if (visibility === "visible") {
-      setBarVisibility(visibility);
-    }
-  });
+  const videoRef = createRef();
+  const [state, setState] = useState({showControls: true});
 
   const navigationConfig = async () => {
     // // Just incase it is not hidden
@@ -57,17 +43,10 @@ export default function Episode({ navigation, route }) {
     NavigationBar.setVisibilityAsync("visible");
   };
   const exitScreen = async () => {
-    setStatusBarHidden(false, 'fade')
-    setInFullsreen2(!inFullscreen2)
-    await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT)
-  }
-  const forward = () => {
-    refVideo2.current.playFromPositionAsync(+curtime.positionMillis + +10000)
+    StatusBar.setHidden(false)
+    {fullscreen ? handleFullscreen() : navigation.goBack()}
   }
 
-  const backward = () => {
-    refVideo2.current.playFromPositionAsync(+curtime.positionMillis - +10000)
-  }
   const loadData = async () => {
     const baseUrl = FIRETV_BASE_URL;
     var splittedData = seourl.split("/");
@@ -86,12 +65,12 @@ export default function Episode({ navigation, route }) {
       else
         urlPath = baseUrl + "catalogs/" + splittedData[0] + "/episodes/" + splittedData[4];
     }
-    else if (splittedData[0] == 'news') {
+    else if (splittedData[0] == 'news' || splittedData.length == 3) {
       urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/episodes/" + splittedData[2];
     }
-    else if (checkShow.length > 0 && splittedData.length == 3) {
-      urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/episodes/" + splittedData[2];
-    }
+    // else if (checkShow.length > 0 && splittedData.length == 3) {
+    //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/episodes/" + splittedData[2];
+    // }
     else {
       if (splittedData.length == 2)
         urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1];
@@ -108,41 +87,38 @@ export default function Episode({ navigation, route }) {
       setContentRating(response.data.data.cbfc_rating);
       setDisplayGenres(response.data.data.display_genres.join(","));
       setDescription(response.data.data.description);
-      setContentId(response.data.data.content_id);
-      setCatalogId(response.data.data.catalog_id);
-    }).catch(error => { })
+      // setContentId(response.data.data.content_id);
+      // setCatalogId(response.data.data.catalog_id);
 
-    var currentTimestamp = Math.floor(Date.now() / 1000);
-    var sessionId = Math.random().toString(36).slice(2);
-    var md5String = stringMd5(catalogId+contentId+sessionId+currentTimestamp+SECRET_KEY);
-    await axios.post(FIRETV_BASE_URL + "v2/users/get_all_details", {
-      catalog_id: catalogId,
-      content_id: contentId,
-      category: "",
-      region: region,
-      auth_token: AUTH_TOKEN,
-      access_token: ACCESS_TOKEN,
-      id: sessionId,
-      ts: currentTimestamp,
-      md5: md5String
-  }, {
-      headers: {
-          'Accept': 'application/json',
+      var md5String = stringMd5(response.data.data.catalog_id + response.data.data.content_id + "" + currentTimestamp + SECRET_KEY)
+
+      axios.post(FIRETV_BASE_URL + "v2/users/get_all_details", {
+        catalog_id: response.data.data.catalog_id,
+        content_id: response.data.data.content_id,
+        category: "",
+        region: region,
+        auth_token: VIDEO_AUTH_TOKEN,
+        access_token: ACCESS_TOKEN,
+        id: "",
+        ts: currentTimestamp,
+        md5: md5String
+      }, {
+        headers: {
           'Content-Type': 'application/json',
-      }
-  })
-      .then(response => {
-          console.log(response.data.data);
-          console.log(response.data.data.play_url.saranyu.url);
-      }).catch(error => {
-          
-      }
-      );
+        }
+      })
+        .then(response => {
+          setPlayUrl(response.data.data.stream_info.preview.adaptive_url);
+        }).catch(error => {
+          console.log(JSON.stringify(error.response.data));
+        }
+        )
 
+    }).catch(error => { })
   }
   useEffect(() => {
     loadData()
-    if (inFullscreen2) {
+    if (fullscreen) {
       navigationConfig();
     }
     else {
@@ -150,89 +126,70 @@ export default function Episode({ navigation, route }) {
     }
     BackHandler.addEventListener('hardwareBackPress', exitScreen);
   })
-  const url="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+  function handleFullscreen() {
+    Orientation.getOrientation((orientation)=> {
+      console.log(orientation);
+      console.log(fullscreen);
+      if(orientation === 'LANDSCAPE-LEFT' || orientation === 'LANDSCAPE-RIGHT')
+      {
+        setFullscreen(false);
+        StatusBar.setHidden(false)
+        Orientation.lockToPortrait();
+        return true;
+      }
+      else
+      if(orientation === 'PORTRAIT' || orientation === 'UNKNOWN' || orientation === '')
+      {
+        setFullscreen(true);
+        StatusBar.setHidden(true)
+        Orientation.lockToLandscapeLeft();
+        return true;
+      }
+    })
+  }
+  function showControls() {
+    state.showControls
+      ? setState({ ...state, showControls: false })
+      : setState({ ...state, showControls: true });
+      setTimeout(function (){setState({ ...state, showControls: false })},5000)
+  }
   return (
     <View style={styles.mainContainer}>
       <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
         <View style={styles.container}>
-          <VideoPlayer
-            videoProps={{
-              shouldPlay: true,
-              defaultControlsVisible: false,
-              resizeMode: ResizeMode.CONTAIN,
-              source: {
-                uri: url,
-              },
-              ref: refVideo2,
-              isLooping: true,
-              isMuted: false,
-              audioPan: 1
-            }}
-            activityIndicator={true}
-            header={<View style={{
-              width: "100%",
-            }}>
-
-              {inFullscreen2 ?
-                <TouchableOpacity onPress={exitScreen}>
-                  <Ionicons name="arrow-back" size={30} color="#ffffff" style={{ marginTop: 10 }} />
-                </TouchableOpacity> :
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                  <Ionicons name="arrow-back" size={30} color="#ffffff" style={{ marginTop: 10 }} />
-                </TouchableOpacity>
-              }
-
-              <View style={{ width: '100%', flexDirection: 'row' }}>
-
-                <View style={{
-                  position: 'absolute',
-                  left: inFullscreen2 ? ((PAGE_WIDTH / 2) - 20) : 50,
-                  top: inFullscreen2 ? ((PAGE_WIDTH / 2) - 70) : 65
-                }}>
-                  <TouchableOpacity onPress={backward}><Ionicons name="ios-play-back-circle" size={40} color="" style={{ color: "#ffffff" }} /></TouchableOpacity>
-                </View>
-                <View style={{
-                  position: 'absolute',
-                  right: inFullscreen2 ? ((PAGE_WIDTH / 2) - 20) : 50,
-                  top: inFullscreen2 ? ((PAGE_WIDTH / 2) - 70) : 65
-                }}>
-                  <TouchableOpacity onPress={forward}><Ionicons name="play-forward-circle" size={40} color="" style={{ color: "#ffffff" }} /></TouchableOpacity>
-                </View>
+          {playUrl ?
+            <TouchableWithoutFeedback onPress={showControls}>
+              <View>
+                <Video
+                  ref={videoRef}
+                  source={{ uri: playUrl }}
+                  controls={true}
+                  paused={!play}
+                  playInBackground={false}
+                  volume={1}
+                  fullscreen={true}
+                  ignoreSilentSwitch="ignore"
+                  style={fullscreen ? styles.fullscreenVideo : styles.video}
+                />
+                {state.showControls && (
+                    <TouchableOpacity
+                      onPress={handleFullscreen}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      style={styles.fullscreenButton}>
+                      {fullscreen ? <Feather name="minimize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather> : <Feather name="maximize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather>}
+                    </TouchableOpacity>
+                )}
               </View>
+            </TouchableWithoutFeedback>
 
-            </View>}
-            fullscreen={{
-              inFullscreen: inFullscreen2,
-              enterFullscreen: async () => {
-                setStatusBarHidden(true, 'fade')
-                setInFullsreen2(!inFullscreen2)
-                await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_LEFT)
-                refVideo2.current.setStatusAsync({
-                  shouldPlay: true,
-                })
-              },
-              exitFullscreen: async () => {
-                setStatusBarHidden(false, 'fade')
-                setInFullsreen2(!inFullscreen2)
-                await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT)
-                refVideo2.current.setStatusAsync({
-                  shouldPlay: true,
-                })
-              },
-            }}
-            style={{
-              videoBackgroundColor: 'black',
-              height: inFullscreen2 ? PAGE_WIDTH : 250,
-              width: inFullscreen2 ? PAGE_HEIGHT : PAGE_WIDTH,
-            }}
-            playbackCallback={(playbackStatus) => {
-              setcurtime(playbackStatus)
-              if (inFullscreen2)
-                setInFullsreen2(inFullscreen2)
-            }}
-          />
+            :
 
-          {!inFullscreen2 ? <View style={styles.bodyContent}>
+            <View style={{ width: PAGE_WIDTH, height: 270, backgroundColor: "#000000", justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size={'large'} color={"#ffffff"}></ActivityIndicator>
+            </View>
+          }
+
+          {!fullscreen ? <View style={styles.bodyContent}>
             <View style={styles.marginContainer}>
               <Text style={styles.headingLabel}>{title}</Text>
               <Text style={styles.detailsText}>{channel}</Text>
@@ -266,6 +223,22 @@ const styles = StyleSheet.create({
     backgroundColor: BACKGROUND_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  video: {
+    height: 270,
+    width: PAGE_WIDTH,
+    backgroundColor: 'black',
+  },
+  fullscreenVideo: {
+    height: PAGE_WIDTH,
+    width: PAGE_HEIGHT,
+    backgroundColor: 'black',
+  },
+  fullscreenButton: {
+    position:'absolute',
+    right:20,
+    top:20,
+    paddingRight: 10,
   },
   mainContainer: { flex: 1, backgroundColor: BACKGROUND_COLOR },
   bodyContent: { backgroundColor: BACKGROUND_COLOR },

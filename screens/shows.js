@@ -58,12 +58,12 @@ export default function Shows({ navigation, route }) {
             else
                 urlPath = baseUrl + "catalogs/" + splittedData[0] + "/episodes/" + splittedData[4];
         }
-        else if (splittedData[0] == 'news') {
+        else if (splittedData[0] == 'news' || splittedData.length == 3) {
             urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/episodes/" + splittedData[2];
-        }
-        else if (checkShow.length > 0 && splittedData.length == 3) {
-            urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/episodes/" + splittedData[2];
-        }
+          }
+          // else if (checkShow.length > 0 && splittedData.length == 3) {
+          //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/episodes/" + splittedData[2];
+          // }
         else {
             if (splittedData.length == 2)
                 urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1];
