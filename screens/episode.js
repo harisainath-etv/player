@@ -9,8 +9,9 @@ import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLO
 import axios from 'axios';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
-import Video from 'react-native-video';
 import Orientation from 'react-native-orientation-locker';
+import Video from 'react-native-video';
+
 var currentTimestamp = Math.floor(Date.now() / 1000).toString();
 var sessionId = Math.random().toString(20).slice(2);
 
@@ -175,6 +176,7 @@ export default function Episode({ navigation, route }) {
       : setState({ ...state, showControls: true });
     setTimeout(function () { setState({ ...state, showControls: false }) }, 5000)
   }
+  
   return (
     <View style={styles.mainContainer}>
       <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
@@ -184,19 +186,21 @@ export default function Episode({ navigation, route }) {
               <View>
                 <Video
                   ref={videoRef}
-                  source={{ uri: playUrl }}
+                  source={{ uri: playUrl, type: 'm3u8' }}
                   controls={true}
                   paused={!play}
                   playInBackground={false}
                   volume={1}
-                  fullscreen={true}
-                  ignoreSilentSwitch="ignore"
+                  bufferConfig={{
+                    minBufferMs:250000,
+                    maxBufferMs:500000,
+                  }}
                   style={fullscreen ? styles.fullscreenVideo : styles.video}
                 />
                 {state.showControls && (
                   <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50 }}>
                     <TouchableOpacity
-                      onPress={() => { fullscreen ? handleFullscreen() : navigation.goBack() }}
+                      onPress={() => { fullscreen ? handleFullscreen() : navigation.navigate("Home") }}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                       style={styles.navigationBack}>
                       <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
@@ -225,7 +229,7 @@ export default function Episode({ navigation, route }) {
               </TouchableOpacity>
               {loading ? <ActivityIndicator size={'large'} color={"#ffffff"}></ActivityIndicator> :
 
-                <View>
+                <View style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
                   <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>LOGIN</Text></TouchableOpacity>
 
                   <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>SIGN UP</Text></TouchableOpacity>

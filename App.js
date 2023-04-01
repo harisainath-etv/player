@@ -99,7 +99,6 @@ export default function App() {
     <View style={{ backgroundColor: BACKGROUND_COLOR,flex:1 }}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{presentation:'transparentModal',backgroundColor:BACKGROUND_COLOR}}>
-          {/* <Stack.Screen name="OfflineDownload" component={OfflineDownload} options={{ header: () => null, }} /> */}
           <Stack.Screen name="Home" component={Home} options={{ header: () => null, }} />
           {/* <Stack.Screen name="CustomeVideoPlayer" component={Video} options={{ header: () => null, }} /> */}
           <Stack.Screen name="News" component={News} options={{ header: () => null, }} />
