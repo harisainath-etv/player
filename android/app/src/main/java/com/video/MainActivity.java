@@ -10,7 +10,6 @@ import org.devio.rn.splashscreen.SplashScreen;
 import expo.modules.ReactActivityDelegateWrapper;
 import androidx.annotation.Nullable;
 import com.google.android.gms.cast.framework.CastContext;
-import com.eko.RNBackgroundDownloaderPackage;
 import android.content.Intent;
 import android.content.res.Configuration;
 

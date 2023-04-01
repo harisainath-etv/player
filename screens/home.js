@@ -12,6 +12,7 @@ import FastImage from 'react-native-fast-image';
 import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StackActions } from '@react-navigation/native';
 import Footer from './footer';
 import Header from './header';
 
@@ -52,7 +53,7 @@ function Home({ navigation, route }) {
     var menuref = useRef();
     const progressValue = useSharedValue(0);
     const dataFetchedRef = useRef(false);
-    const paginationLoadCount = 5;
+    const paginationLoadCount = 10;
 
     const baseOptions = ({
         vertical: false,
@@ -241,7 +242,7 @@ function Home({ navigation, route }) {
                                         navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                         :
                                         VIDEO_TYPES.includes(item.theme) ?
-                                            navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                        navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                 }
 
                             }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
@@ -304,7 +305,7 @@ function Home({ navigation, route }) {
                                         navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                         :
                                         VIDEO_TYPES.includes(item.theme) ?
-                                            navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                        navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                 }
                             }}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
@@ -342,7 +343,7 @@ function Home({ navigation, route }) {
                                             navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -377,7 +378,7 @@ function Home({ navigation, route }) {
                                             navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -430,7 +431,7 @@ function Home({ navigation, route }) {
                                                     navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                    navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage
@@ -469,7 +470,7 @@ function Home({ navigation, route }) {
                                                         navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                        navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                                 }
                                             }}>
                                                 <FastImage
@@ -504,7 +505,7 @@ function Home({ navigation, route }) {
                                                     navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                    navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage
@@ -541,7 +542,7 @@ function Home({ navigation, route }) {
                                                     navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                        navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage

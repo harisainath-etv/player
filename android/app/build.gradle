@@ -230,6 +230,8 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
@@ -282,8 +284,7 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.10'
-    implementation project(':react-native-background-downloader')
-    implementation project(':react-native-video')
+    implementation project(path: ":react-native-video")
     implementation "androidx.appcompat:appcompat:1.0.0"
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
