@@ -11,9 +11,8 @@ import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
 import Orientation from 'react-native-orientation-locker';
 import Video from 'react-native-video';
-
-var currentTimestamp = Math.floor(Date.now() / 1000).toString();
-var sessionId = Math.random().toString(20).slice(2);
+import VideoPlayer from 'react-native-reanimated-player';
+import { StackActions } from '@react-navigation/native';
 
 export default function Episode({ navigation, route }) {
   const { seoUrl, theme } = route.params;
@@ -106,7 +105,8 @@ export default function Episode({ navigation, route }) {
           setDescription(response.data.data.description);
         // setContentId(response.data.data.content_id);
         // setCatalogId(response.data.data.catalog_id);
-
+        var currentTimestamp = Math.floor(Date.now() / 1000).toString();
+        var sessionId = Math.random().toString(20).slice(2);
         var md5String = stringMd5(response.data.data.catalog_id + response.data.data.content_id + "" + currentTimestamp + SECRET_KEY)
         //console.log(response.data.data.content_id);
         axios.post(FIRETV_BASE_URL + "v2/users/get_all_details", {
@@ -176,14 +176,34 @@ export default function Episode({ navigation, route }) {
       : setState({ ...state, showControls: true });
     setTimeout(function () { setState({ ...state, showControls: false }) }, 5000)
   }
-  
+
   return (
     <View style={styles.mainContainer}>
       <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
         <View style={styles.container}>
           {playUrl ?
             <TouchableWithoutFeedback onPress={showControls}>
-              <View>
+              <View style={{ flex: 1 }}>
+                {/* <VideoPlayer
+                  source={{uri:playUrl}}
+                  headerTitle={'Title in full screen mode'}
+                  onTapBack={() => {
+                    { fullscreen ? handleFullscreen() : navigation.dispatch(StackActions.replace('Home', {})) }
+                  }}
+                  // onTapMore={() => {
+                  //   alert('onTapMore');
+                  // }}
+                  onPausedChange={state => {
+                    setPlay(state);
+                  }}
+                  videoHeight={300}
+                  videoDefaultHeight={300}
+                  paused={!play}
+                  isFullScreen={fullscreen}
+                  style={fullscreen ? styles.fullscreenVideo : styles.video}
+                  onEnterFullscreen={()=>{setFullscreen(true);StatusBar.setHidden(true)}}
+                  onExitFullscreen={()=>{setFullscreen(false);StatusBar.setHidden(false)}}
+                /> */}
                 <Video
                   ref={videoRef}
                   source={{ uri: playUrl, type: 'm3u8' }}
@@ -192,15 +212,16 @@ export default function Episode({ navigation, route }) {
                   playInBackground={false}
                   volume={1}
                   bufferConfig={{
-                    minBufferMs:250000,
-                    maxBufferMs:500000,
+                    minBufferMs: 250000,
+                    maxBufferMs: 500000,
                   }}
+                  resizeMode='cover'
                   style={fullscreen ? styles.fullscreenVideo : styles.video}
                 />
                 {state.showControls && (
                   <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50 }}>
                     <TouchableOpacity
-                      onPress={() => { fullscreen ? handleFullscreen() : navigation.navigate("Home") }}
+                      onPress={() => { fullscreen ? handleFullscreen() : navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' })) }}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                       style={styles.navigationBack}>
                       <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
@@ -229,7 +250,7 @@ export default function Episode({ navigation, route }) {
               </TouchableOpacity>
               {loading ? <ActivityIndicator size={'large'} color={"#ffffff"}></ActivityIndicator> :
 
-                <View style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
+                <View style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
                   <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>LOGIN</Text></TouchableOpacity>
 
                   <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>SIGN UP</Text></TouchableOpacity>
