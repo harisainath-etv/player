@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
 import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, ACCESS_TOKEN } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StackActions } from '@react-navigation/native';
 
 export default function Signup({ navigation }) {
     const [name, setName] = useState('');
@@ -88,7 +89,7 @@ export default function Signup({ navigation }) {
 
                 <View style={styles.header}>
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Sign Up</Text>
-                    <TouchableOpacity style={{ position: 'absolute', right: 20, }} onPress={() => navigation.navigate('Home')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>SKIP</Text></TouchableOpacity>
+                    <TouchableOpacity style={{ position: 'absolute', right: 20, }} onPress={() => navigation.dispatch(StackActions.replace('Home',{ pageFriendlyId: 'featured-1' } ))}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>SKIP</Text></TouchableOpacity>
                 </View>
 
                 <View style={styles.body}>

@@ -239,10 +239,10 @@ function Home({ navigation, route }) {
                             renderItem={({ item, index }) => <Pressable onPress={() => {
                                 {
                                     item.medialistinlist ?
-                                        navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
+                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                         :
                                         VIDEO_TYPES.includes(item.theme) ?
-                                        navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                        navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                 }
 
                             }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
@@ -279,7 +279,7 @@ function Home({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
+                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <Carousel
                             {...baseOptionsOther}
@@ -302,10 +302,10 @@ function Home({ navigation, route }) {
                             renderItem={({ item, index }) => <Pressable onPress={() => {
                                 {
                                     item.medialistinlist ?
-                                        navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
+                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                         :
                                         VIDEO_TYPES.includes(item.theme) ?
-                                        navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                        navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                 }
                             }}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
@@ -317,7 +317,7 @@ function Home({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
+                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
 
                         </View>
                         <View style={{ padding: 10 }}>
@@ -340,10 +340,10 @@ function Home({ navigation, route }) {
                                 renderItem={({ item, index }) => <Pressable onPress={() => {
                                     {
                                         item.medialistinlist ?
-                                            navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
+                                            navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                            navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -375,10 +375,10 @@ function Home({ navigation, route }) {
                                 renderItem={({ item, index }) => <Pressable onPress={() => {
                                     {
                                         item.medialistinlist ?
-                                            navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
+                                            navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                            navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -414,7 +414,7 @@ function Home({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
+                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <FlatList
                             data={item.data}
@@ -428,10 +428,10 @@ function Home({ navigation, route }) {
                                         <Pressable onPress={() => {
                                             {
                                                 item.medialistinlist ?
-                                                    navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
+                                                    navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                    navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                    navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                             }
                                         }}>
                                             <FastImage
@@ -451,7 +451,7 @@ function Home({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
+                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <View style={{ flexDirection: 'column' }}>
                             <FlatList
@@ -467,10 +467,10 @@ function Home({ navigation, route }) {
                                             <Pressable onPress={() => {
                                                 {
                                                     item.medialistinlist ?
-                                                        navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                        navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                                 }
                                             }}>
                                                 <FastImage
@@ -502,10 +502,10 @@ function Home({ navigation, route }) {
                                         <Pressable onPress={() => {
                                             {
                                                 item.medialistinlist ?
-                                                    navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
+                                                    navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                    navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                    navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                             }
                                         }}>
                                             <FastImage
@@ -525,7 +525,7 @@ function Home({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
+                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <FlatList
                             data={item.data}
@@ -539,10 +539,10 @@ function Home({ navigation, route }) {
                                         <Pressable onPress={() => {
                                             {
                                                 item.medialistinlist ?
-                                                    navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
+                                                    navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                        navigation.dispatch(StackActions.replace('Episode',{ seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                             }
                                         }}>
                                             <FastImage
@@ -563,9 +563,9 @@ function Home({ navigation, route }) {
     }
     function changeTabData(pageFriendlyId) {
         if (pageFriendlyId != 'live')
-            navigation.navigate({ name: 'Home', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
+            navigation.dispatch(StackActions.replace({ name: 'Home', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId }))
         else
-            navigation.navigate({ name: 'OtherResponse', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
+            navigation.dispatch(StackActions.replace({ name: 'OtherResponse', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId }))
     }
     const menuRender = ({ item, index }) => {
         return (

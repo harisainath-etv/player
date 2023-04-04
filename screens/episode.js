@@ -215,7 +215,7 @@ export default function Episode({ navigation, route }) {
                     minBufferMs: 250000,
                     maxBufferMs: 500000,
                   }}
-                  resizeMode='cover'
+                  resizeMode={fullscreen ? 'cover' : 'none'}
                   style={fullscreen ? styles.fullscreenVideo : styles.video}
                 />
                 {state.showControls && (
