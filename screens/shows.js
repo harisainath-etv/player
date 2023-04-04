@@ -30,6 +30,7 @@ export default function Shows({ navigation, route }) {
     const [subcategoryImages, setsubcategoryImages] = useState([])
     const [seasons, setSeasons] = useState([])
     const [isModalVisible, setModalVisible] = useState(false);
+    const [episodeSeoUrl, setEpisodeSeoUrl] = useState();
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -44,12 +45,13 @@ export default function Shows({ navigation, route }) {
         const baseUrl = FIRETV_BASE_URL;
         var splittedData = seourl.split("/");
         splittedData = splittedData.filter(function (e) { return e });
-        const checkShow = filterItems('show', splittedData);
         const checkSeason = filterItems('season', splittedData);
+        const checkTvShow = filterItems('tv-shows', splittedData);
+        const checkNews = filterItems('news', splittedData);
+        const checkShow = filterItems('show', splittedData);
         const region = await AsyncStorage.getItem('country_code');
         var urlPath = "";
-
-        if (splittedData.length == 4 && checkSeason.length>0) {
+        if (splittedData.length == 4 && checkSeason.length > 0 && checkShow.length==0) {
             urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/subcategories/" + splittedData[2] + "/episodes/" + splittedData[3];
         }
         else if (splittedData[0] == 'tv-shows') {
@@ -60,10 +62,10 @@ export default function Shows({ navigation, route }) {
         }
         else if (splittedData[0] == 'news' || splittedData.length == 3) {
             urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/episodes/" + splittedData[2];
-          }
-          // else if (checkShow.length > 0 && splittedData.length == 3) {
-          //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/episodes/" + splittedData[2];
-          // }
+        }
+        // else if (checkShow.length > 0 && splittedData.length == 3) {
+        //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/episodes/" + splittedData[2];
+        // }
         else {
             if (splittedData.length == 2)
                 urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1];
@@ -79,6 +81,7 @@ export default function Shows({ navigation, route }) {
         await axios.get(url).then(response => {
             setTitle(response.data.data.title);
             setThumbnail(response.data.data.last_episode.thumbnails.high_4_3.url);
+            setEpisodeSeoUrl(response.data.data.last_episode.seo_url);
             setUserRating(Math.round(response.data.data.average_user_rating));
             setChannel(response.data.data.channel_object.name);
             setContentRating(response.data.data.cbfc_rating);
@@ -174,7 +177,9 @@ export default function Shows({ navigation, route }) {
                                         <View style={{ marginBottom: 10 }} key={'innerkey' + index}>
                                             <View>
                                                 {VIDEO_TYPES.includes(items.item.theme) ?
-                                                    <FastImage resizeMode={FastImage.resizeMode.stretch} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                    <Pressable onPress={() => navigation.navigate({ name: 'Episode', params: { seoUrl: items.item.seo_url }, key: { index } })}>
+                                                        <FastImage resizeMode={FastImage.resizeMode.stretch} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                    </Pressable>
                                                     :
                                                     <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.stretch} key={'image' + index} style={styles.imageSectionVertical} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>
                                                 }
@@ -209,7 +214,7 @@ export default function Shows({ navigation, route }) {
                             width: PAGE_WIDTH,
                         }}
                     >
-                        <Pressable>
+                        <Pressable onPress={() => navigation.navigate('Episode', { seoUrl: episodeSeoUrl, theme: 'video' })}>
                             <FastImage resizeMode={FastImage.resizeMode.stretch} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={{ width: '100%', height: 270 }}></FastImage>
                             <MaterialCommunityIcons name="play-circle-outline" size={60} color={NORMAL_TEXT_COLOR} style={{ position: 'absolute', right: ((PAGE_WIDTH / 2 - 20)), top: 100, }} />
                         </Pressable>

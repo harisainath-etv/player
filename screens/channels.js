@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Text, ActivityIndicator, RefreshControl, Pressable } from 'react-native';
+import { View, FlatList, StyleSheet, Text, ActivityIndicator, RefreshControl, Pressable, Image } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -485,7 +485,7 @@ function Channels({ navigation, route }) {
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </Pressable>
-                                        <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center',marginBottom:20 }}>{item.displayTitle}</Text>
+                                        <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center', marginBottom: 20 }}>{item.displayTitle}</Text>
                                     </View>
                             }
                         />

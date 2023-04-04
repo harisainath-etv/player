@@ -4,7 +4,7 @@ import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, } from 're
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Modal from "react-native-modal";
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, StackActions } from '@react-navigation/native';
 import { PAGE_WIDTH, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, NO_CAST_DEVICES, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR } from '../constants'
 
 export default function Footer(props) {
@@ -62,7 +62,7 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>HOME</Text>
                     </View>
                     :
-                    <TouchableOpacity  style={styles.iconContainer} onPress={()=>navigation.navigate({ name: 'Home', params: { pageFriendlyId: 'featured-1' }, key: 'featured-1' })}>
+                    <TouchableOpacity  style={styles.iconContainer} onPress={()=>navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}>
                         <MaterialCommunityIcons name="home" size={28} color={NORMAL_TEXT_COLOR} />
                         <Text style={styles.footerText}>HOME</Text>
                     </TouchableOpacity>
@@ -75,7 +75,7 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>TV CHANNELS</Text>
                     </View>
                     :
-                    <TouchableOpacity style={styles.iconContainer} onPress={()=>navigation.navigate('Channels',{pageFriendlyId:'channels'})}>
+                    <TouchableOpacity style={styles.iconContainer} onPress={()=>navigation.dispatch(StackActions.replace('Channels', { pageFriendlyId:'channels' })) }>
                         <MaterialCommunityIcons name="television-classic" size={28} color={NORMAL_TEXT_COLOR} />
                         <Text style={styles.footerText}>TV CHANNELS</Text>
                     </TouchableOpacity>
@@ -88,7 +88,7 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>NEWS</Text>
                     </View>
                     :
-                    <TouchableOpacity style={styles.iconContainer} onPress={()=>navigation.navigate('News',{pageFriendlyId:'news'})}>
+                    <TouchableOpacity style={styles.iconContainer} onPress={()=>navigation.dispatch(StackActions.replace('News', { pageFriendlyId:'news' }))}>
                         <MaterialCommunityIcons name="newspaper-variant-multiple-outline" size={28} color={NORMAL_TEXT_COLOR} />
                         <Text style={styles.footerText}>NEWS</Text>
                     </TouchableOpacity>
