@@ -51,7 +51,6 @@ export default function Shows({ navigation, route }) {
         const checkShow = filterItems('show', splittedData);
         const region = await AsyncStorage.getItem('country_code');
         var urlPath = "";
-        console.log(seourl);
         if (splittedData.length == 4 && checkSeason.length > 0 && checkShow.length==0) {
             urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/subcategories/" + splittedData[2] + "/episodes/" + splittedData[3];
         }

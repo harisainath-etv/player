@@ -248,7 +248,7 @@ export default function Episode({ navigation, route }) {
             <View style={{ width: PAGE_WIDTH, height: 270, backgroundColor: "#000000", justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
 
               <TouchableOpacity
-                onPress={() => { fullscreen ? handleFullscreen() : navigation.goBack() }}
+                onPress={() => { fullscreen ? handleFullscreen() : checkgoback() }}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 style={styles.navigationBack}>
                 <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>

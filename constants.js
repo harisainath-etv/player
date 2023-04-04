@@ -27,5 +27,5 @@ export const DARKED_BORDER_COLOR = "#343636";
 export const PAGE_WIDTH = Dimensions.get('window').width;
 export const PAGE_HEIGHT = Dimensions.get('window').height;
 export const NO_CAST_DEVICES = "noDevicesAvailable";
-export const VIDEO_TYPES = ["show_episode","video","episode","videolist","movie"];
+export const VIDEO_TYPES = ["show_episode","video","episode","videolist","movie","livetv"];
 export const LAYOUT_TYPES = ["Vertical","Horizontal"];
