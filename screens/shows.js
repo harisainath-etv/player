@@ -45,12 +45,14 @@ export default function Shows({ navigation, route }) {
         const baseUrl = FIRETV_BASE_URL;
         var splittedData = seourl.split("/");
         splittedData = splittedData.filter(function (e) { return e });
-        const checkShow = filterItems('show', splittedData);
         const checkSeason = filterItems('season', splittedData);
+        const checkTvShow = filterItems('tv-shows', splittedData);
+        const checkNews = filterItems('news', splittedData);
+        const checkShow = filterItems('show', splittedData);
         const region = await AsyncStorage.getItem('country_code');
         var urlPath = "";
-
-        if (splittedData.length == 4 && checkSeason.length > 0) {
+        console.log(seourl);
+        if (splittedData.length == 4 && checkSeason.length > 0 && checkShow.length==0) {
             urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/subcategories/" + splittedData[2] + "/episodes/" + splittedData[3];
         }
         else if (splittedData[0] == 'tv-shows') {
