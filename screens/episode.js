@@ -176,7 +176,12 @@ export default function Episode({ navigation, route }) {
       : setState({ ...state, showControls: true });
     setTimeout(function () { setState({ ...state, showControls: false }) }, 5000)
   }
-
+  const checkgoback = () =>{
+    if(navigation.canGoBack())
+    navigation.goBack()
+    else
+    navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+  }
   return (
     <View style={styles.mainContainer}>
       <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
@@ -221,7 +226,7 @@ export default function Episode({ navigation, route }) {
                 {state.showControls && (
                   <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50 }}>
                     <TouchableOpacity
-                      onPress={() => { fullscreen ? handleFullscreen() : navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' })) }}
+                      onPress={() => { fullscreen ? handleFullscreen() : checkgoback() }}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                       style={styles.navigationBack}>
                       <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>

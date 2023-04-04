@@ -4,6 +4,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR } from '../constants';
+import { StackActions } from '@react-navigation/native';
 
 export default function NormalHeader() {
     
@@ -14,7 +15,12 @@ export default function NormalHeader() {
             <View style={styles.headerContainer}>
                 <View style={styles.leftItems}>
 
-                <TouchableOpacity  onPress={()=>navigation.goBack()}>
+                <TouchableOpacity  onPress={()=>{
+                    if(navigation.canGoBack())
+                    navigation.goBack()
+                    else
+                    navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+                    }}>
                   <Ionicons name="arrow-back" size={30} color="#ffffff" style={{marginTop:10}}/>
                 </TouchableOpacity>
                 </View>

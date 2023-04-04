@@ -563,9 +563,9 @@ function Home({ navigation, route }) {
     }
     function changeTabData(pageFriendlyId) {
         if (pageFriendlyId != 'live')
-            navigation.dispatch(StackActions.replace({ name: 'Home', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId }))
+            navigation.dispatch(StackActions.replace('Home',{ pageFriendlyId: pageFriendlyId }))
         else
-            navigation.dispatch(StackActions.replace({ name: 'OtherResponse', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId }))
+            navigation.dispatch(StackActions.replace('OtherResponse',{ pageFriendlyId: pageFriendlyId }))
     }
     const menuRender = ({ item, index }) => {
         return (
