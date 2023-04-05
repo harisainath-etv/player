@@ -229,6 +229,8 @@ function Home({ navigation, route }) {
                                 (progressValue.value = absoluteProgress)
                             }
                             mode="parallax"
+                            windowSize={3}
+                            panGestureHandlerProps={{activeOffsetX:[-10,10]}}
                             modeConfig={{
                                 parallaxScrollingScale: 0.82,
                                 parallaxScrollingOffset: 50,
@@ -292,6 +294,8 @@ function Home({ navigation, route }) {
                                 (progressValue.value = absoluteProgress)
                             }
                             mode="parallax"
+                            windowSize={3}
+                            panGestureHandlerProps={{activeOffsetX:[-10,10]}}
                             modeConfig={{
                                 parallaxScrollingScale: 0.82,
                                 parallaxScrollingOffset: 50,
@@ -332,6 +336,8 @@ function Home({ navigation, route }) {
                                     (progressValue.value = absoluteProgress)
                                 }
                                 mode="parallax"
+                                windowSize={3}
+                                panGestureHandlerProps={{activeOffsetX:[-10,10]}}
                                 modeConfig={{
                                     parallaxScrollingScale: 1.1,
                                 }}
@@ -367,6 +373,8 @@ function Home({ navigation, route }) {
                                     (progressValue.value = absoluteProgress)
                                 }
                                 mode="parallax"
+                                windowSize={3}
+                                panGestureHandlerProps={{activeOffsetX:[-10,10]}}
                                 modeConfig={{
                                     parallaxScrollingScale: 1.1,
                                 }}
