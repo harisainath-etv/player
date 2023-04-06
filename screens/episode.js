@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, ScrollView, Platform, TouchableOpacity, PermissionsAndroid, TouchableWithoutFeedback, BackHandler, ActivityIndicator, Pressable, StatusBar } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, TouchableWithoutFeedback, BackHandler, ActivityIndicator, Pressable, StatusBar } from 'react-native';
 import React, { useEffect, useState, createRef } from 'react';
 import * as NavigationBar from "expo-navigation-bar";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -11,8 +11,9 @@ import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
 import Orientation from 'react-native-orientation-locker';
 import Video from 'react-native-video';
-import VideoPlayer from 'react-native-reanimated-player';
 import { StackActions } from '@react-navigation/native';
+import RNFS from 'react-native-fs';
+import RNBackgroundDownloader from 'react-native-background-downloader';
 
 export default function Episode({ navigation, route }) {
   const { seoUrl, theme } = route.params;
@@ -27,9 +28,16 @@ export default function Episode({ navigation, route }) {
   const [displayGenres, setDisplayGenres] = useState();
   const [description, setDescription] = useState();
   const [playUrl, setPlayUrl] = useState("");
+  const [onlineplayUrl, setOnlinePlayUrl] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [play, setPlay] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [offlineUrl, setOfflineUrl] = useState("");
+  const [offlineDownloadUrl, setofflineDownloadUrl] = useState("");
+  //0 - not downloaded, 1-downloaded, 2-downloading
+  const [downloadedStatus, setDownloadedStatus] = useState(0)
+  const [taskdownloading, settaskdownloading] = useState();
+  const [pauseDownload, setPauseDownload] = useState(false);
 
   const videoRef = createRef();
   const [state, setState] = useState({ showControls: true });
@@ -95,6 +103,7 @@ export default function Episode({ navigation, route }) {
       // console.log(url);
       await axios.get(url).then(response => {
         setTitle(response.data.data.title);
+        setOfflineUrl(response.data.data.play_url.saranyu.url);
         if (response.data.data.hasOwnProperty('channel_object'))
           setChannel(response.data.data.channel_object.name);
         if (response.data.data.hasOwnProperty('cbfc_rating'))
@@ -125,12 +134,16 @@ export default function Episode({ navigation, route }) {
           }
         })
           .then(response => {
-            if (response.data.data.stream_info.adaptive_url != "")
-              setPlayUrl(response.data.data.stream_info.adaptive_url);
-            else
-              if (response.data.data.stream_info.preview.adaptive_url != "")
-                setPlayUrl(response.data.data.stream_info.preview.adaptive_url);
-
+            checkOfflineDownload();
+            if (onlineplayUrl == false) {
+              if (response.data.data.stream_info.adaptive_url != "") {
+                setPlayUrl(response.data.data.stream_info.adaptive_url);
+              }
+              else
+                if (response.data.data.stream_info.preview.adaptive_url != "") {
+                  setPlayUrl(response.data.data.stream_info.preview.adaptive_url);
+                }
+            }
             setLoading(false);
           }).catch(error => {
             console.log(JSON.stringify(error.response.data));
@@ -142,6 +155,33 @@ export default function Episode({ navigation, route }) {
         setLoading(false);
       })
     }
+  }
+  const checkOfflineDownload = async () => {
+
+    if (offlineUrl != "") {
+      var splittedOfflineUrl = offlineUrl.split("/");
+      var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/' + splittedOfflineUrl[splittedOfflineUrl.length - 1] + ".ts";
+      if (await RNFS.exists(downloaddirectory)) {
+        console.log(downloadpercent);
+        var downloadpercent = await AsyncStorage.getItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1]);
+        if (downloadpercent == '100') {
+          setDownloadedStatus(1)
+          setPlayUrl(downloaddirectory)
+          setOnlinePlayUrl(true)
+        }
+        else if (downloadpercent != "" || downloadpercent != null) {
+          setDownloadedStatus(2)
+          setOnlinePlayUrl(false)
+          setPauseDownload(true);
+        }
+        else {
+          setDownloadedStatus(0)
+          setOnlinePlayUrl(false)
+          setPauseDownload(false);
+        }
+      }
+    }
+
   }
   useEffect(() => {
     loadData()
@@ -176,11 +216,98 @@ export default function Episode({ navigation, route }) {
       : setState({ ...state, showControls: true });
     setTimeout(function () { setState({ ...state, showControls: false }) }, 5000)
   }
-  const checkgoback = () =>{
-    if(navigation.canGoBack())
-    navigation.goBack()
+  const checkgoback = () => {
+    if (navigation.canGoBack())
+      navigation.goBack()
     else
-    navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+      navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+  }
+  const downloadFile = async () => {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      {
+        title: 'Download File',
+        message:
+          'Need App Access To Download Files',
+        buttonPositive: 'OK',
+      },
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      if (offlineUrl != "") {
+        var splittedOfflineUrl = offlineUrl.split("/");
+        var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
+        console.log(downloaddirectory);
+        if (await RNFS.exists(downloaddirectory)) {
+          //setDownloadedStatus(1)
+        }
+        else {
+          RNFS.mkdir(downloaddirectory)
+        }
+        var offlinedownloadapi = offlineUrl + "?service_id=6&play_url=yes&protocol=http_pd&us=745d7e9f1e37ca27fdffbebfe8a99877";
+        await axios.get(offlinedownloadapi).then(response => {
+          console.log(JSON.stringify(response.data.playback_urls[3].playback_url));
+          setofflineDownloadUrl(response.data.playback_urls[3].playback_url);
+          AsyncStorage.setItem('download_url' + splittedOfflineUrl[splittedOfflineUrl.length - 1], offlineDownloadUrl);
+          AsyncStorage.setItem('download_path' + splittedOfflineUrl[splittedOfflineUrl.length - 1], `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts`);
+          settaskdownloading(
+            RNBackgroundDownloader.download({
+              id: splittedOfflineUrl[splittedOfflineUrl.length - 1],
+              url: offlineDownloadUrl,
+              destination: `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts`
+            }).begin((expectedBytes) => {
+              setDownloadedStatus(2)
+              console.log(`Going to download ${expectedBytes} bytes!`);
+            }).progress((percent) => {
+              AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(percent * 100));
+              console.log(`Downloaded: ${percent * 100}%`);
+            }).done(() => {
+              AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(1 * 100));
+              setDownloadedStatus(1)
+              console.log('Download is done!');
+            }).error((error) => {
+              console.log('Download canceled due to error: ', error);
+            })
+          )
+        }).catch(error => { })
+
+      }
+
+    }
+    else {
+      alert("Please give access to download files.");
+    }
+  }
+  const deleteDownload = async () => {
+
+    Alert.alert('Delete File', 'Please confirm to delete the file from offline.', [
+      {
+        text: 'Cancel',
+        onPress: () => { },
+        style: 'cancel',
+      },
+      {
+        text: 'OK', onPress: async () => {
+          console.log('OK Pressed')
+
+          var splittedOfflineUrl = offlineUrl.split("/");
+          var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/' + splittedOfflineUrl[splittedOfflineUrl.length - 1] + ".ts";
+          if (await RNFS.exists(downloaddirectory)) {
+            await RNFS.unlink(downloaddirectory)
+            setDownloadedStatus(0)
+          }
+
+
+        }
+      },
+    ]);
+  }
+  const pauseDownloadAction = async () => {
+    taskdownloading.pause();
+    setPauseDownload(true);
+  }
+  const resumeDownloadAction = async () => {
+    taskdownloading.resume();
+    setPauseDownload(false);
   }
   return (
     <View style={styles.mainContainer}>
@@ -189,29 +316,9 @@ export default function Episode({ navigation, route }) {
           {playUrl ?
             <TouchableWithoutFeedback onPress={showControls}>
               <View style={{ flex: 1 }}>
-                {/* <VideoPlayer
-                  source={{uri:playUrl}}
-                  headerTitle={'Title in full screen mode'}
-                  onTapBack={() => {
-                    { fullscreen ? handleFullscreen() : navigation.dispatch(StackActions.replace('Home', {})) }
-                  }}
-                  // onTapMore={() => {
-                  //   alert('onTapMore');
-                  // }}
-                  onPausedChange={state => {
-                    setPlay(state);
-                  }}
-                  videoHeight={300}
-                  videoDefaultHeight={300}
-                  paused={!play}
-                  isFullScreen={fullscreen}
-                  style={fullscreen ? styles.fullscreenVideo : styles.video}
-                  onEnterFullscreen={()=>{setFullscreen(true);StatusBar.setHidden(true)}}
-                  onExitFullscreen={()=>{setFullscreen(false);StatusBar.setHidden(false)}}
-                /> */}
                 <Video
                   ref={videoRef}
-                  source={{ uri: playUrl, type: 'm3u8' }}
+                  source={{ uri: playUrl }}
                   controls={true}
                   paused={!play}
                   playInBackground={false}
@@ -279,12 +386,23 @@ export default function Episode({ navigation, route }) {
               </ReadMore>
             </View>
 
-            <View style={styles.options}>
-              <View style={styles.singleoption}><MaterialCommunityIcons name="thumb-up" size={30} color={NORMAL_TEXT_COLOR} /></View>
-              <View style={styles.singleoption}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></View>
-              <View style={styles.singleoption}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></View>
-              <View style={styles.singleoption}><MaterialIcons name="watch-later" size={30} color={NORMAL_TEXT_COLOR} /></View>
-            </View>
+            {!loading ?
+              <View style={styles.options}>
+                <View style={styles.singleoption}><MaterialCommunityIcons name="thumb-up" size={30} color={NORMAL_TEXT_COLOR} /></View>
+                <View style={styles.singleoption}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></View>
+                <View style={styles.singleoption}>
+                  {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                  {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                  {downloadedStatus == 2 ?
+
+                    pauseDownload ? <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+
+                    : ""}
+
+                </View>
+                <View style={styles.singleoption}><MaterialIcons name="watch-later" size={30} color={NORMAL_TEXT_COLOR} /></View>
+              </View>
+              : ""}
           </View> : ""}
 
           <StatusBar style="auto" />
