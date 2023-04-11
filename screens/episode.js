@@ -38,6 +38,7 @@ export default function Episode({ navigation, route }) {
   const [downloadedStatus, setDownloadedStatus] = useState(0)
   const [taskdownloading, settaskdownloading] = useState();
   const [pauseDownload, setPauseDownload] = useState(false);
+  const [thumbnailImage,setThumbnailImage] = useState("");
 
   const videoRef = createRef();
   const [state, setState] = useState({ showControls: true });
@@ -112,6 +113,8 @@ export default function Episode({ navigation, route }) {
           setDisplayGenres(response.data.data.display_genres.join(","));
         if (response.data.data.hasOwnProperty('description'))
           setDescription(response.data.data.description);
+        if (response.data.data.hasOwnProperty('thumbnails'))
+        setThumbnailImage(response.data.data.thumbnails.high_4_3.url);
         // setContentId(response.data.data.content_id);
         // setCatalogId(response.data.data.catalog_id);
         var currentTimestamp = Math.floor(Date.now() / 1000).toString();
@@ -233,7 +236,7 @@ export default function Episode({ navigation, route }) {
       },
     );
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      if (offlineUrl != "") {
+      // if (offlineUrl != "") {
         var splittedOfflineUrl = offlineUrl.split("/");
         var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
         console.log(downloaddirectory);
@@ -241,7 +244,8 @@ export default function Episode({ navigation, route }) {
           //setDownloadedStatus(1)
         }
         else {
-          RNFS.mkdir(downloaddirectory)
+          RNFS.mkdir(downloaddirectory);
+          downloadFile();
         }
         var offlinedownloadapi = offlineUrl + "?service_id=6&play_url=yes&protocol=http_pd&us=745d7e9f1e37ca27fdffbebfe8a99877";
         await axios.get(offlinedownloadapi).then(response => {
@@ -249,6 +253,8 @@ export default function Episode({ navigation, route }) {
           setofflineDownloadUrl(response.data.playback_urls[3].playback_url);
           AsyncStorage.setItem('download_url' + splittedOfflineUrl[splittedOfflineUrl.length - 1], offlineDownloadUrl);
           AsyncStorage.setItem('download_path' + splittedOfflineUrl[splittedOfflineUrl.length - 1], `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts`);
+          AsyncStorage.setItem('download_title' + splittedOfflineUrl[splittedOfflineUrl.length - 1], title);
+          AsyncStorage.setItem('download_thumbnail' + splittedOfflineUrl[splittedOfflineUrl.length - 1], thumbnailImage);
           settaskdownloading(
             RNBackgroundDownloader.download({
               id: splittedOfflineUrl[splittedOfflineUrl.length - 1],
@@ -268,9 +274,10 @@ export default function Episode({ navigation, route }) {
               console.log('Download canceled due to error: ', error);
             })
           )
+
         }).catch(error => { })
 
-      }
+      // }
 
     }
     else {
@@ -395,7 +402,7 @@ export default function Episode({ navigation, route }) {
                   {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
                   {downloadedStatus == 2 ?
 
-                    pauseDownload ? <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                    pauseDownload ? <Pressable onPress={()=>navigation.navigate('Offline')}><MaterialCommunityIcons name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : <Pressable onPress={()=>navigation.navigate('Offline')}><MaterialCommunityIcons name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
 
                     : ""}
 

@@ -13,6 +13,7 @@ import Shows from './screens/shows';
 import Episode from './screens/episode';
 import Calendarscreen from './screens/calendarscreen';
 import EpisodesMoreList from './screens/episodesMoreList';
+import Offline from './screens/offline';
 // import OfflineDownload from './screens/offlineDownload';
 import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION } from './constants';
 import { View, Dimensions, Platform } from 'react-native';
@@ -111,6 +112,7 @@ export default function App() {
           <Stack.Screen name="Episode" component={Episode} options={{ header: () => null, }} />
           <Stack.Screen name="Calendarscreen" component={Calendarscreen} options={{ header: () => null, }} />
           <Stack.Screen name="EpisodesMoreList" component={EpisodesMoreList} options={{ header: () => null, }} />
+          <Stack.Screen name="Offline" component={Offline} options={{ header: () => null, }} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>

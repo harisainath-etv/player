@@ -100,10 +100,10 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>OFFLINE</Text>
                     </View>
                     :
-                    <View style={styles.iconContainer}>
+                    <TouchableOpacity style={styles.iconContainer} onPress={()=>navigation.dispatch(StackActions.replace('Offline', { pageFriendlyId:'Offline' }))}>
                         <MaterialCommunityIcons name="download" size={28} color={NORMAL_TEXT_COLOR} />
                         <Text style={styles.footerText}>OFFLINE</Text>
-                    </View>
+                    </TouchableOpacity>
                 }
                 {pageName == 'WATCH-LATER' ?
 

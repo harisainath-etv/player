@@ -615,36 +615,11 @@ function Home({ navigation, route }) {
         dataFetchedRef.current = true;
         getTopMenu();
         loadData(pagenumber);
-        downloadPendingOfflineVideos();
         if (selectedItem == "") {
             selectedItem = 0;
         }
     }, []);
-    const downloadPendingOfflineVideos = async () => {
-
-        let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
-        console.log(JSON.stringify(lostTasks));
-        for (let task of lostTasks) {
-            let downloadUrl = await AsyncStorage.getItem('download_url' + task.id);
-            let downloadDestination = await AsyncStorage.getItem('download_path' + task.id);
-            //console.log(`Task ${task.id} was found!`);
-            RNBackgroundDownloader.download({
-                id: task.id,
-                url: downloadUrl,
-                destination: downloadDestination
-            }).begin(expectedBytes => {
-                //console.log('Expected: ' + expectedBytes);
-            }).progress((percent) => {
-                AsyncStorage.setItem('download_' + task.id, JSON.stringify(percent * 100));
-                //console.log(`Downloaded: ${percent * 100}%`);
-            }).done(() => {
-                AsyncStorage.setItem('download_' + task.id, JSON.stringify(1 * 100));
-                //console.log('Downlaod is done!');
-            }).error((error) => {
-                //console.log('Download canceled due to error: ', error);
-            });
-        }
-    }
+    
     const memoizedValue = useMemo(() => renderItem, [totalHomeData]);
 
     return (
