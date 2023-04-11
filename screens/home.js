@@ -13,6 +13,7 @@ import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECT
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
+import RNBackgroundDownloader from 'react-native-background-downloader';
 import Footer from './footer';
 import Header from './header';
 
@@ -229,6 +230,8 @@ function Home({ navigation, route }) {
                                 (progressValue.value = absoluteProgress)
                             }
                             mode="parallax"
+                            windowSize={3}
+                            panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
                             modeConfig={{
                                 parallaxScrollingScale: 0.82,
                                 parallaxScrollingOffset: 50,
@@ -292,6 +295,8 @@ function Home({ navigation, route }) {
                                 (progressValue.value = absoluteProgress)
                             }
                             mode="parallax"
+                            windowSize={3}
+                            panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
                             modeConfig={{
                                 parallaxScrollingScale: 0.82,
                                 parallaxScrollingOffset: 50,
@@ -332,6 +337,8 @@ function Home({ navigation, route }) {
                                     (progressValue.value = absoluteProgress)
                                 }
                                 mode="parallax"
+                                windowSize={3}
+                                panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
                                 modeConfig={{
                                     parallaxScrollingScale: 1.1,
                                 }}
@@ -367,6 +374,8 @@ function Home({ navigation, route }) {
                                     (progressValue.value = absoluteProgress)
                                 }
                                 mode="parallax"
+                                windowSize={3}
+                                panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
                                 modeConfig={{
                                     parallaxScrollingScale: 1.1,
                                 }}
@@ -610,7 +619,7 @@ function Home({ navigation, route }) {
             selectedItem = 0;
         }
     }, []);
-
+    
     const memoizedValue = useMemo(() => renderItem, [totalHomeData]);
 
     return (
