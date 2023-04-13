@@ -8,22 +8,33 @@ import Footer from './footer';
 import RNFetchBlob from 'react-native-fetch-blob';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import RNFS from 'react-native-fs';
+import { StackActions } from '@react-navigation/native';
+import { BACKGROUND_TRANSPARENT_COLOR } from '../constants';
+import Header from './header';
 var pendingTasks = [];
 var AllTasks = [];
-export default function Offline() {
+export default function Offline({navigation}) {
   const [offlineVideo, setOfflineVideos] = useState();
-  const [downloadTitle, setDownloadTitle] = useState();
-  const [downloadThumbnail, setDownloadThumbnail] = useState();
-  const [downloadPercent, setDownloadPercent] = useState();
-  const [downloadUrl, setDownloadUrl] = useState();
-  const [downloadedStatus, setDownloadedStatus] = useState(0);
-  const [onlineplayUrl, setOnlinePlayUrl] = useState(false);
-  const [pauseDownload, setPauseDownload] = useState(false);
-  const [downloadDestination, setDownloadDestination] = useState(false);
-  const [state, setState] = useState({});
   const dataFetchedRef = useRef(false);
 
   const downloadedVideos = async () => {
+    let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
+    console.log(JSON.stringify(lostTasks));
+    for (let task of lostTasks) {
+        task.begin(expectedBytes => {
+          //console.log('Expected: ' + expectedBytes);
+        }).progress((percent) => {
+          AsyncStorage.setItem('download_' + task.id, JSON.stringify(percent * 100));
+          //console.log(`Downloaded: ${percent * 100}%`);
+        }).done(() => {
+          AsyncStorage.setItem('download_' + task.id, JSON.stringify(1 * 100));
+          //console.log('Downlaod is done!');
+        }).error((error) => {
+          //console.log('Download canceled due to error: ', error);
+        });
+      
+    }
+
     var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
     let files = await RNFetchBlob.fs.ls(downloaddirectory);
     for (var i = 0; i < files.length; i++) {
@@ -34,7 +45,9 @@ export default function Offline() {
       var downloadtitle = await AsyncStorage.getItem('download_title' + taskid);
       var downloadthumbnail = await AsyncStorage.getItem('download_thumbnail' + taskid);
       var downloadpercent = await AsyncStorage.getItem('download_' + taskid);
-      pendingTasks.push({ 'task': taskid, 'downloadurl': downloadurl, 'downloadpath': downloadpath, 'downloadtitle': downloadtitle, 'downloadthumbnail': downloadthumbnail, 'downloadpercent': downloadpercent })
+      var downloadseourl = await AsyncStorage.getItem('download_seourl' + taskid);
+      var downloadtheme = await AsyncStorage.getItem('download_theme' + taskid);
+      pendingTasks.push({ 'task': taskid, 'downloadurl': downloadurl, 'downloadpath': downloadpath, 'downloadtitle': downloadtitle, 'downloadthumbnail': downloadthumbnail, 'downloadpercent': downloadpercent,'downloadseourl':downloadseourl,'downloadtheme':downloadtheme })
     }
     AllTasks.push({ "data": pendingTasks })
     pendingTasks = [];
@@ -53,7 +66,7 @@ export default function Offline() {
         text: 'OK', onPress: async () => {
           console.log('OK Pressed')
           let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
-          var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/' + taskid + ".ts";
+          var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/' + taskid + ".ts.download";
           for (let task of lostTasks) {
             if (task.id == taskid) {
               task.stop();
@@ -67,8 +80,24 @@ export default function Offline() {
       },
     ]);
   }
-
-
+  const pauseDownloadAction = async (taskid, downloadurl, downloaddestination) => {
+    let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
+    for (let task of lostTasks) {
+      if (taskid == task.id) {
+        task.pause();
+      }
+    }
+    downloadedVideos()
+  }
+  const resumeDownloadAction = async (taskid, downloadurl, downloaddestination) => {
+    let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
+    for (let task of lostTasks) {
+      if (taskid == task.id) {
+        task.resume();
+      }
+    }
+    downloadedVideos()
+  }
   const videosRender = (item) => {
     var downloadstatus = 0;
     var pausedownload = false;
@@ -86,23 +115,25 @@ export default function Offline() {
 
     return (
 
-      <View style={{ borderColor: DARKED_BORDER_COLOR, borderRadius: 15, borderWidth: 1, width: "99%",marginBottom:10 }}>
+      <View style={{ borderColor: DARKED_BORDER_COLOR, borderRadius: 15, borderWidth: 1, width: "99%", marginBottom: 10 }}>
         <View style={{ flexDirection: 'row', width: "100%" }}>
           {item.item.downloadthumbnail ?
             <Pressable style={{ width: "35%", marginRight: 10, justifyContent: 'center', alignItems: 'center' }}>
+              
+
               <FastImage
                 style={{ width: "100%", height: 80, left: 0, borderRadius: 15, }}
                 source={{ uri: item.item.downloadthumbnail, priority: FastImage.priority.high }}
                 resizeMode={FastImage.resizeMode.stretch}
               />
+              {downloadstatus!=1 ? <Pressable style={{width: "100%", height: 80, left: 0, borderRadius: 15,position:'absolute',backgroundColor:BACKGROUND_TRANSPARENT_COLOR,justifyContent:'center',alignItems:'center'}} onPress={()=>navigation.dispatch(StackActions.replace('Episode',{seoUrl:item.item.downloadseourl,theme:item.item.downloadtheme}))}><View><MaterialCommunityIcons name='progress-download'  size={30} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons></View></Pressable> : ""}
               <View style={{ position: 'absolute' }}>
-                {downloadstatus == 0 ? <Pressable><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
-                {downloadstatus == 1 ? <Pressable><MaterialCommunityIcons name="play-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
-                {downloadstatus == 2 ?
+                {downloadstatus == 1 ? <Pressable onPress={()=>navigation.dispatch(StackActions.replace('Episode',{seoUrl:item.item.downloadseourl,theme:item.item.downloadtheme}))}><MaterialCommunityIcons name="play-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                {/* {downloadstatus == 2 ?
 
-                  pausedownload ? <Pressable><MaterialCommunityIcons name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : <Pressable><MaterialCommunityIcons name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                  pausedownload ? <Pressable><MaterialCommunityIcons onPress={() => resumeDownloadAction(item.item.task, item.item.downloadurl, item.item.downloadpath)} name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : <Pressable><MaterialCommunityIcons onPress={() => pauseDownloadAction(item.item.task, item.item.downloadurl, item.item.downloadpath)} name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
 
-                  : ""}
+                  : ""} */}
               </View>
             </Pressable>
             : ""}
@@ -121,12 +152,13 @@ export default function Offline() {
     )
   }
   useEffect(() => {
-    if (dataFetchedRef.current) return;
-    dataFetchedRef.current = true;
+    // if (dataFetchedRef.current) return;
+    // dataFetchedRef.current = true;
     downloadedVideos();
   })
   return (
     <View style={styles.mainContainer}>
+      <Header pageName="OFFLINE"></Header>
       <View style={{ padding: 10 }}>
         <Text style={{ color: NORMAL_TEXT_COLOR }}>Offline Downloads</Text>
         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
