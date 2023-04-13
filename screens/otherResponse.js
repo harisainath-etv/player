@@ -553,7 +553,7 @@ function OtherResponse({ navigation, route }) {
     return (
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR, }}>
 
-            <Header pageName="TV-CHANNELS"></Header>
+            <Header pageName="LIVE-TV"></Header>
 
             {/* header menu */}
             {currentIndexValue >= 0 ?

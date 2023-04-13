@@ -16,11 +16,11 @@ export default function Header(props) {
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
-    var menuArray = [{ 'iconName': 'home', 'pageName': 'Home', 'text': 'Home', 'type': 1 },
-    { 'iconName': 'television-classic', 'pageName': 'LIVE-TV', 'text': 'Live TV', 'type': 1 },
-    { 'iconName': 'bell-check', 'pageName': 'SUBSCRIPTION', 'text': 'Subscription', 'type': 1 },
-    { 'iconName': 'more', 'pageName': 'MORE', 'text': 'More', 'type': 1 },
-    { 'iconName': 'gear', 'pageName': 'Settings', 'text': 'Settings', 'type': 2 }]
+    var menuArray = [{ 'iconName': 'home', 'pageName': 'Home', 'text': 'Home', 'type': 1,'pageFriendlyId':'featured-1','navigateTo':'Home' },
+    { 'iconName': 'television-classic', 'pageName': 'LIVE-TV', 'text': 'Live TV', 'type': 1,'pageFriendlyId':'live','navigateTo':'OtherResponse' },
+    { 'iconName': 'bell-check', 'pageName': 'SUBSCRIPTION', 'text': 'Subscription', 'type': 1,'pageFriendlyId':'','navigateTo':'' },
+    { 'iconName': 'more', 'pageName': 'MORE', 'text': 'More', 'type': 1,'pageFriendlyId':'','navigateTo':'' },
+    { 'iconName': 'gear', 'pageName': 'Settings', 'text': 'Settings', 'type': 2,'pageFriendlyId':'','navigateTo':'' }]
 
     return (
         <View style={{}}>
@@ -56,7 +56,7 @@ export default function Header(props) {
                             {menuArray.map((singleMenu) => {
 
                                 return (
-                                    <View style={styles.menuItem} key={singleMenu.pageName}>
+                                    <Pressable onPress={()=>navigation.dispatch(StackActions.replace(singleMenu.navigateTo,{pageFriendlyId:singleMenu.pageFriendlyId}))} style={styles.menuItem} key={singleMenu.pageName}>
                                         {singleMenu.type == 1 ? <MaterialCommunityIcons name={singleMenu.iconName}
                                             size={27}
                                             color={pageName == singleMenu.pageName ? MORE_LINK_COLOR : NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
@@ -66,7 +66,7 @@ export default function Header(props) {
                                                 color={pageName == singleMenu.pageName ? MORE_LINK_COLOR : NORMAL_TEXT_COLOR}></FontAwesome>}
 
                                         <Text style={{ color: pageName == singleMenu.pageName ? MORE_LINK_COLOR : NORMAL_TEXT_COLOR,marginLeft:15,width:"85%",fontSize:17 }}>{singleMenu.text}</Text>
-                                    </View>
+                                    </Pressable>
 
                                 )
 
