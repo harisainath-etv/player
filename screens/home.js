@@ -73,7 +73,6 @@ function Home({ navigation, route }) {
     });
 
     async function loadData(p) {
-
         if (toload && !loading) {
             setloading(true)
 
@@ -91,92 +90,92 @@ function Home({ navigation, route }) {
             const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
             const resp = await fetch(url);
             const data = await resp.json();
-            //console.log(url);
             setPagenumber(p + 1);
             if (data.data.catalog_list_items.length > 0) {
                 for (var i = 0; i < data.data.catalog_list_items.length; i++) {
-                    for (var j = 0; j < data.data.catalog_list_items[i].catalog_list_items.length; j++) {
+                    if (data.data.catalog_list_items[i].hasOwnProperty('catalog_list_items')) {
+                        for (var j = 0; j < data.data.catalog_list_items[i].catalog_list_items.length; j++) {
 
-
-                        if (data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('access_control')) {
-                            premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].access_control);
-                            if (premiumCheckData != "") {
-                                if (premiumCheckData['is_free']) {
-                                    premiumContent = false;
-                                }
-                                else {
-                                    premiumContent = true;
+                            if (data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('access_control')) {
+                                premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].access_control);
+                                if (premiumCheckData != "") {
+                                    if (premiumCheckData['is_free']) {
+                                        premiumContent = false;
+                                    }
+                                    else {
+                                        premiumContent = true;
+                                    }
                                 }
                             }
-                        }
-                        var displayTitle = data.data.catalog_list_items[i].catalog_list_items[j].title
-                        if (displayTitle.length > 19)
-                            displayTitle = displayTitle.substr(0, 19) + "\u2026";
-                        if (data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list) {
-                            var splitted = data.data.catalog_list_items[i].catalog_list_items[j].seo_url.split("/");
-                            var friendlyId = splitted[splitted.length - 1];
-                            All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
-                        }
-                        else {
-                            if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
-                                if (data.data.catalog_list_items[i].layout_type == "top_banner")
-                                    All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": "" });
-                                else
-                                    if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show")
-                                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                            var displayTitle = data.data.catalog_list_items[i].catalog_list_items[j].title
+                            if (displayTitle.length > 19)
+                                displayTitle = displayTitle.substr(0, 19) + "\u2026";
+                            if (data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list) {
+                                var splitted = data.data.catalog_list_items[i].catalog_list_items[j].seo_url.split("/");
+                                var friendlyId = splitted[splitted.length - 1];
+                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
+                            }
+                            else {
+                                if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
+                                    if (data.data.catalog_list_items[i].layout_type == "top_banner")
+                                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": "" });
                                     else
-                                        if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
-                                            All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                        if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show")
+                                            All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
                                         else
-                                            All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
-
-                            }
-                        }
-
-
-                        if (data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('catalog_list_items')) {
-
-
-                            for (var k = 0; k < data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items.length; k++) {
-
-                                if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].hasOwnProperty('access_control')) {
-                                    premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].access_control);
-                                    if (premiumCheckData != "") {
-                                        if (premiumCheckData['is_free']) {
-                                            premiumContent = false;
-                                        }
-                                        else {
-                                            premiumContent = true;
-                                        }
-                                    }
-                                }
-                                var displayTitle = data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].title
-                                if (displayTitle.length > 19)
-                                    displayTitle = displayTitle.substr(0, 19) + "\u2026";
-                                if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list) {
-                                    var splitted = data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url.split("/");
-                                    var friendlyId = splitted[splitted.length - 1];
-                                    internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
-                                }
-                                else {
-                                    if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_16_9')) {
-                                        if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "top_banner")
-                                            internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": "" });
-                                        else
-                                            if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "tv_shows" || data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "show")
-                                                internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                            if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
                                             else
-                                                if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "tv_shows_banner")
-                                                    internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
-                                                else
-                                                    internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
 
-                                    }
                                 }
                             }
-                            Final.push({ "friendlyId": data.data.catalog_list_items[i].catalog_list_items[j].friendly_id, "data": internalAll, "layoutType": data.data.catalog_list_items[i].catalog_list_items[j].layout_type, "displayName": data.data.catalog_list_items[i].catalog_list_items[j].display_title });
-                            internalAll = [];
 
+
+                            if (data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('catalog_list_items')) {
+
+
+                                for (var k = 0; k < data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items.length; k++) {
+
+                                    if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].hasOwnProperty('access_control')) {
+                                        premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].access_control);
+                                        if (premiumCheckData != "") {
+                                            if (premiumCheckData['is_free']) {
+                                                premiumContent = false;
+                                            }
+                                            else {
+                                                premiumContent = true;
+                                            }
+                                        }
+                                    }
+                                    var displayTitle = data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].title
+                                    if (displayTitle.length > 19)
+                                        displayTitle = displayTitle.substr(0, 19) + "\u2026";
+                                    if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list) {
+                                        var splitted = data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url.split("/");
+                                        var friendlyId = splitted[splitted.length - 1];
+                                        internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
+                                    }
+                                    else {
+                                        if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_16_9')) {
+                                            if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "top_banner")
+                                                internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": "" });
+                                            else
+                                                if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "tv_shows" || data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "show")
+                                                    internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                else
+                                                    if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "tv_shows_banner")
+                                                        internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                    else
+                                                        internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+
+                                        }
+                                    }
+                                }
+                                Final.push({ "friendlyId": data.data.catalog_list_items[i].catalog_list_items[j].friendly_id, "data": internalAll, "layoutType": data.data.catalog_list_items[i].catalog_list_items[j].layout_type, "displayName": data.data.catalog_list_items[i].catalog_list_items[j].display_title });
+                                internalAll = [];
+
+                            }
                         }
                     }
 
@@ -194,17 +193,17 @@ function Home({ navigation, route }) {
         console.log(JSON.stringify(lostTasks));
         for (let task of lostTasks) {
             task.begin(expectedBytes => {
-              //console.log('Expected: ' + expectedBytes);
+                //console.log('Expected: ' + expectedBytes);
             }).progress((percent) => {
-              AsyncStorage.setItem('download_' + task.id, JSON.stringify(percent * 100));
-              //console.log(`Downloaded: ${percent * 100}%`);
+                AsyncStorage.setItem('download_' + task.id, JSON.stringify(percent * 100));
+                //console.log(`Downloaded: ${percent * 100}%`);
             }).done(() => {
-              AsyncStorage.setItem('download_' + task.id, JSON.stringify(1 * 100));
-              //console.log('Downlaod is done!');
+                AsyncStorage.setItem('download_' + task.id, JSON.stringify(1 * 100));
+                //console.log('Downlaod is done!');
             }).error((error) => {
-              //console.log('Download canceled due to error: ', error);
+                //console.log('Download canceled due to error: ', error);
             });
-          
+
         }
     }
     async function getTopMenu() {
@@ -635,7 +634,7 @@ function Home({ navigation, route }) {
             selectedItem = 0;
         }
     }, []);
-    
+
     const memoizedValue = useMemo(() => renderItem, [totalHomeData]);
 
     return (
