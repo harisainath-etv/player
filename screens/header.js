@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, } from 'react';
-import { View, TouchableOpacity, Image, StyleSheet, ImageBackground, Text } from 'react-native';
+import { View, TouchableOpacity, Image, StyleSheet, ImageBackground, Text, Pressable } from 'react-native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';

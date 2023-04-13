@@ -190,6 +190,22 @@ function Home({ navigation, route }) {
             settotalHomeData((totalHomeData) => [...totalHomeData, ...Final]);
             setloading(false)
         }
+        let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
+        console.log(JSON.stringify(lostTasks));
+        for (let task of lostTasks) {
+            task.begin(expectedBytes => {
+              //console.log('Expected: ' + expectedBytes);
+            }).progress((percent) => {
+              AsyncStorage.setItem('download_' + task.id, JSON.stringify(percent * 100));
+              //console.log(`Downloaded: ${percent * 100}%`);
+            }).done(() => {
+              AsyncStorage.setItem('download_' + task.id, JSON.stringify(1 * 100));
+              //console.log('Downlaod is done!');
+            }).error((error) => {
+              //console.log('Download canceled due to error: ', error);
+            });
+          
+        }
     }
     async function getTopMenu() {
         var TopMenu = [];
