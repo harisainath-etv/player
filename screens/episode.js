@@ -14,6 +14,8 @@ import Video from 'react-native-video';
 import { StackActions } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import RNBackgroundDownloader from 'react-native-background-downloader';
+// import VideoViewAndroid from '../components/VideoViewAndroid';
+// import VideoViewIos from '../components/VideoViewIos';
 
 export default function Episode({ navigation, route }) {
   const { seoUrl, theme } = route.params;
@@ -262,7 +264,6 @@ export default function Episode({ navigation, route }) {
         AsyncStorage.setItem('download_thumbnail' + splittedOfflineUrl[splittedOfflineUrl.length - 1], thumbnailImage);
         AsyncStorage.setItem('download_seourl' + splittedOfflineUrl[splittedOfflineUrl.length - 1], seourl)
         
-        
         let tasks = RNBackgroundDownloader.download({
           id: splittedOfflineUrl[splittedOfflineUrl.length - 1],
           url: offlineDownloadUrl,
@@ -281,7 +282,7 @@ export default function Episode({ navigation, route }) {
           console.log('Download canceled due to error: ', error);
         })
         settaskdownloading(tasks);
-        AsyncStorage.setItem('download_task'+splittedOfflineUrl[splittedOfflineUrl.length - 1],JSON.stringify(tasks));
+        AsyncStorage.setItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(tasks));
 
       }).catch(error => { })
 
@@ -292,7 +293,7 @@ export default function Episode({ navigation, route }) {
       alert("Please give access to download files.");
     }
   }
-  
+
   const deleteDownload = async () => {
 
     Alert.alert('Delete File', 'Please confirm to delete the file from offline.', [
@@ -318,7 +319,7 @@ export default function Episode({ navigation, route }) {
     ]);
   }
   const pauseDownloadAction = async () => {
-     taskdownloading.pause();
+    taskdownloading.pause();
     setPauseDownload(true);
   }
   const resumeDownloadAction = async () => {
@@ -326,6 +327,19 @@ export default function Episode({ navigation, route }) {
     setPauseDownload(false);
   }
 
+  const onAdsLoaded = () => {
+    setTimeout(() => {
+      videoRef.startAds();
+    }, 10000);
+  }
+
+  const onAdStarted = () => {
+    setPlay(true);
+  }
+
+  const onAdsComplete = () => {
+    setPlay(false);
+  }
 
 
   return (
@@ -335,12 +349,26 @@ export default function Episode({ navigation, route }) {
           {playUrl ?
             <TouchableWithoutFeedback onPress={showControls}>
               <View style={{ flex: 1 }}>
+                {/* <View
+                  style={{
+                    height: 270,
+                    width: PAGE_WIDTH,
+                    backgroundColor: "grey",
+                  }}
+                >
+                  <VideoViewAndroid
+                    url={playUrl}
+                    adTag="https://pubads.g.doubleclick.net/gampad/ads?slotname=/21769336530/ETV_APP_MIDROLL\u0026sz=480x361|480x360\u0026unviewed_position_start=1\u0026env=instream\u0026gdfp_req=1\u0026ad_rule=0\u0026output=xml_vast4\u0026description_url=https://preprod.etvwin.com\u0026vad_type=linear\u0026vpos=midroll\u0026pod=1\u0026min_ad_duration=0\u0026max_ad_duration=999000\u0026ppos=1\u0026lip=true\u0026npa=false\u0026kfa=0\u0026tfcd=0\u0026wta=1\u0026npa=0"
+                  />
+                </View> */}
+                
                 <Video
                   ref={videoRef}
                   source={{ uri: playUrl }}
                   controls={true}
                   paused={!play}
                   playInBackground={false}
+                  adTagUrl="https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_preroll_skippable&sz=640x480&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator="
                   volume={1}
                   bufferConfig={{
                     minBufferMs: 250000,
