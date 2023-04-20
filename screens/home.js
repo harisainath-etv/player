@@ -23,6 +23,7 @@ export const ElementsText = {
 
 var page = 'featured-1';
 var selectedItem = 0;
+var popup =  false;
 function Home({ navigation, route }) {
 
     const [colors, setColors] = useState([
@@ -40,6 +41,7 @@ function Home({ navigation, route }) {
     const [totalHomeData, settotalHomeData] = useState([]);
     const [totalMenuData, settotalMenuData] = useState();
     { route.params ? page = route.params.pageFriendlyId : page = 'featured-1' }
+    { route.params ? popup = route.params.popup : popup = false }
     // const {pageFriendlyId}=route.params;
     const [pageName, setpageName] = useState(page);
     const [isVertical, setIsVertical] = useState(false);

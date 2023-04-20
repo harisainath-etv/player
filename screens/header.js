@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, } from 'react';
+import { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Image, StyleSheet, ImageBackground, Text, Pressable } from 'react-native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -8,19 +8,57 @@ import Modal from "react-native-modal";
 import { useNavigation } from '@react-navigation/native';
 import { StackActions } from '@react-navigation/native';
 import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, MORE_LINK_COLOR, } from '../constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Header(props) {
     const pageName = props.pageName;
     const navigation = useNavigation();
     const [isModalVisible, setModalVisible] = useState(false);
+    const [login, setLogin] = useState(false);
+    const [name, setName] = useState("");
+    const [profilePic, setProfilePic] = useState();
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
-    var menuArray = [{ 'iconName': 'home', 'pageName': 'Home', 'text': 'Home', 'type': 1,'pageFriendlyId':'featured-1','navigateTo':'Home' },
-    { 'iconName': 'television-classic', 'pageName': 'LIVE-TV', 'text': 'Live TV', 'type': 1,'pageFriendlyId':'live','navigateTo':'OtherResponse' },
-    { 'iconName': 'bell-check', 'pageName': 'SUBSCRIPTION', 'text': 'Subscription', 'type': 1,'pageFriendlyId':'','navigateTo':'' },
-    { 'iconName': 'more', 'pageName': 'MORE', 'text': 'More', 'type': 1,'pageFriendlyId':'','navigateTo':'' },
-    { 'iconName': 'gear', 'pageName': 'Settings', 'text': 'Settings', 'type': 2,'pageFriendlyId':'','navigateTo':'' }]
+    var menuArray = [{}];
+    {
+        !login ?
+            menuArray = [{ 'iconName': 'home', 'pageName': 'Home', 'text': 'Home', 'type': 1, 'pageFriendlyId': 'featured-1', 'navigateTo': 'Home' },
+            { 'iconName': 'television-classic', 'pageName': 'LIVE-TV', 'text': 'Live TV', 'type': 1, 'pageFriendlyId': 'live', 'navigateTo': 'OtherResponse' },
+            { 'iconName': 'bell-check', 'pageName': 'SUBSCRIPTION', 'text': 'Subscription', 'type': 1, 'pageFriendlyId': '', 'navigateTo': '' },
+            { 'iconName': 'more', 'pageName': 'MORE', 'text': 'More', 'type': 1, 'pageFriendlyId': '', 'navigateTo': '' },
+            { 'iconName': 'gear', 'pageName': 'Settings', 'text': 'Settings', 'type': 2, 'pageFriendlyId': '', 'navigateTo': '' }]
+
+            :
+
+            menuArray = [{ 'iconName': 'home', 'pageName': 'Home', 'text': 'Home', 'type': 1, 'pageFriendlyId': 'featured-1', 'navigateTo': 'Home' },
+            { 'iconName': 'television-classic', 'pageName': 'LIVE-TV', 'text': 'Live TV', 'type': 1, 'pageFriendlyId': 'live', 'navigateTo': 'OtherResponse' },
+            { 'iconName': 'bell-check', 'pageName': 'SUBSCRIPTION', 'text': 'Subscription', 'type': 1, 'pageFriendlyId': '', 'navigateTo': '' },
+
+            { 'iconName': 'download', 'pageName': 'OFFLINE', 'text': 'Offline Videos', 'type': 1, 'pageFriendlyId': '', 'navigateTo': 'Offline' },
+            { 'iconName': 'television-play', 'pageName': 'TV', 'text': 'Activate TV', 'type': 1, 'pageFriendlyId': '', 'navigateTo': '' },
+            { 'iconName': 'sticker-plus', 'pageName': 'WATCH-LATER', 'text': 'Watch Later', 'type': 1, 'pageFriendlyId': '', 'navigateTo': '' },
+
+            { 'iconName': 'more', 'pageName': 'MORE', 'text': 'More', 'type': 1, 'pageFriendlyId': '', 'navigateTo': '' },
+            { 'iconName': 'gear', 'pageName': 'Settings', 'text': 'Settings', 'type': 2, 'pageFriendlyId': '', 'navigateTo': '' }]
+
+    }
+
+    const loadData = async () => {
+        const firstname = await AsyncStorage.getItem('firstname');
+        const profile_pic = await AsyncStorage.getItem('profile_pic');
+        if (firstname != "" && firstname != null)
+        {
+            setLogin(true)
+            setName(firstname);
+        }
+        if (profile_pic != "" && profile_pic != null)
+            setProfilePic(profile_pic)
+    }
+
+    useEffect(() => {
+        loadData();
+    })
 
     return (
         <View style={{}}>
@@ -35,28 +73,39 @@ export default function Header(props) {
             >
                 <View style={styles.drawerContainer}>
                     <View>
-                        <ImageBackground
-                            source={require('../assets/images/drawer_header.png')}
-                            resizeMode="cover"
-                            style={styles.drawerHeaderImage}>
-                            <View style={{ padding: 25 }}>
-                                <Text style={styles.drawerHeaderText}>Hi Guest User!</Text>
-                                <View style={{ flexDirection: 'row', marginTop: 25 }}>
-                                    <TouchableOpacity onPress={()=>{toggleModal();navigation.navigate('Login', { });}} style={{ backgroundColor: TAB_COLOR, padding: 13, borderRadius: 10, marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={styles.drawerHeaderText}>SIGN IN</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={()=>{toggleModal();navigation.navigate('Signup', { });}} style={{ borderColor: TAB_COLOR, padding: 13, borderRadius: 10, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={styles.drawerHeaderText}>SIGN UP</Text>
-                                    </TouchableOpacity>
+                        {!login ?
+                            <ImageBackground
+                                source={require('../assets/images/drawer_header.png')}
+                                resizeMode="cover"
+                                style={styles.drawerHeaderImage}>
+                                <View style={{ padding: 25 }}>
+                                    <Text style={styles.drawerHeaderText}>Hi Guest User!</Text>
+                                    <View style={{ flexDirection: 'row', marginTop: 25 }}>
+                                        <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Login', {})); }} style={{ backgroundColor: TAB_COLOR, padding: 13, borderRadius: 10, marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
+                                            <Text style={styles.drawerHeaderText}>SIGN IN</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Signup', {})); }} style={{ borderColor: TAB_COLOR, padding: 13, borderRadius: 10, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' }}>
+                                            <Text style={styles.drawerHeaderText}>SIGN UP</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
-                            </View>
-                        </ImageBackground>
+                            </ImageBackground>
+                            :
+                            <ImageBackground
+                                source={{uri: profilePic}}
+                                resizeMode="cover"
+                                style={styles.drawerHeaderImage}>
+                                <View style={{ padding: 25 }}>
+                                    <Text style={styles.drawerHeaderText}>Hi {name}</Text>
+                                </View>
+                            </ImageBackground>
+                        }
 
                         <View style={{ paddingLeft: 30, marginTop: 20 }}>
                             {menuArray.map((singleMenu) => {
 
                                 return (
-                                    <Pressable onPress={()=>navigation.dispatch(StackActions.replace(singleMenu.navigateTo,{pageFriendlyId:singleMenu.pageFriendlyId}))} style={styles.menuItem} key={singleMenu.pageName}>
+                                    <Pressable onPress={() => navigation.dispatch(StackActions.replace(singleMenu.navigateTo, { pageFriendlyId: singleMenu.pageFriendlyId }))} style={styles.menuItem} key={singleMenu.pageName}>
                                         {singleMenu.type == 1 ? <MaterialCommunityIcons name={singleMenu.iconName}
                                             size={27}
                                             color={pageName == singleMenu.pageName ? MORE_LINK_COLOR : NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
@@ -65,7 +114,7 @@ export default function Header(props) {
                                                 size={27}
                                                 color={pageName == singleMenu.pageName ? MORE_LINK_COLOR : NORMAL_TEXT_COLOR}></FontAwesome>}
 
-                                        <Text style={{ color: pageName == singleMenu.pageName ? MORE_LINK_COLOR : NORMAL_TEXT_COLOR,marginLeft:15,width:"85%",fontSize:17 }}>{singleMenu.text}</Text>
+                                        <Text style={{ color: pageName == singleMenu.pageName ? MORE_LINK_COLOR : NORMAL_TEXT_COLOR, marginLeft: 15, width: "85%", fontSize: 17 }}>{singleMenu.text}</Text>
                                     </Pressable>
 
                                 )

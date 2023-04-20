@@ -76,6 +76,7 @@ export default function Episode({ navigation, route }) {
       const checkEvent = filterItems('event', splittedData);
       const region = await AsyncStorage.getItem('country_code');
       var urlPath = "";
+      var sessionId= await AsyncStorage.getItem('session');
       if (splittedData.length == 4 && checkChannel == 0) {
         urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/subcategories/" + splittedData[2] + "/episodes/" + splittedData[3];
       }
@@ -124,9 +125,8 @@ export default function Episode({ navigation, route }) {
         // setContentId(response.data.data.content_id);
         // setCatalogId(response.data.data.catalog_id);
         var currentTimestamp = Math.floor(Date.now() / 1000).toString();
-        var sessionId = Math.random().toString(20).slice(2);
-        var md5String = stringMd5(response.data.data.catalog_id + response.data.data.content_id + "" + currentTimestamp + SECRET_KEY)
-        //console.log(response.data.data.content_id);
+       
+        var md5String = stringMd5(response.data.data.catalog_id + response.data.data.content_id + sessionId + currentTimestamp + SECRET_KEY)
         axios.post(FIRETV_BASE_URL + "v2/users/get_all_details", {
           catalog_id: response.data.data.catalog_id,
           content_id: response.data.data.content_id,
@@ -134,7 +134,7 @@ export default function Episode({ navigation, route }) {
           region: region,
           auth_token: VIDEO_AUTH_TOKEN,
           access_token: ACCESS_TOKEN,
-          id: "",
+          id: sessionId,
           ts: currentTimestamp,
           md5: md5String
         }, {
@@ -368,12 +368,14 @@ export default function Episode({ navigation, route }) {
                   controls={true}
                   paused={!play}
                   playInBackground={false}
-                  adTagUrl="https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_preroll_skippable&sz=640x480&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator="
+                  // adTagUrl="https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_preroll_skippable&sz=640x480&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator="
                   volume={1}
                   bufferConfig={{
-                    minBufferMs: 250000,
-                    maxBufferMs: 500000,
+                    minBufferMs: 1000000,
+                    maxBufferMs: 2000000,
+                    bufferForPlaybackMs: 7000
                   }}
+                  rate={1.0}
                   resizeMode={fullscreen ? 'cover' : 'none'}
                   style={fullscreen ? styles.fullscreenVideo : styles.video}
                 />
