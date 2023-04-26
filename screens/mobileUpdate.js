@@ -2,8 +2,9 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressa
 import React, { useState } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
-import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR } from '../constants'
+import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL_STAGING, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StackActions } from '@react-navigation/native';
 
 export default function MobileUpdate({ navigation }) {
     const [Mobile, setMobile] = useState('');
@@ -17,8 +18,26 @@ export default function MobileUpdate({ navigation }) {
         if (Mobile.trim() == "") { setMobileError("Please enter your mobile number."); return true; } else setMobileError("");
         if (Mobile.trim().length != 10) { setMobileError("Please enter a valid mobile number."); return true; } else setMobileError("");
 
-        await AsyncStorage.setItem("updateMobile",Mobile);
-        navigation.navigate('Otp',{'otpkey':'updateMobile'});
+        await AsyncStorage.setItem("updateMobile","0091"+Mobile);
+        const region = await AsyncStorage.getItem('country_code');
+        const session_id = await AsyncStorage.getItem('session');
+        console.log(FIRETV_BASE_URL_STAGING + "users/"+session_id+"/generate_mobile_otp ");
+        axios.post(FIRETV_BASE_URL_STAGING + "users/"+session_id+"/generate_mobile_otp ", {
+            auth_token: AUTH_TOKEN,
+            profile: { region: region, type: "msisdn",user_id:"0091"+Mobile}
+        }, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        }).then(updatesresp=>{
+                    setMobileError("")
+                    navigation.dispatch(StackActions.replace('Otp',{'otpkey':'updateMobile'}));
+                
+        }).catch(updateerror=>{
+            setMobileError(updateerror.response.data.error.message)
+        })
+
     }
     
     return (

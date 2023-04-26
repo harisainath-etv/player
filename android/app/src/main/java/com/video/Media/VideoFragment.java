@@ -72,7 +72,7 @@ public class VideoFragment extends Fragment {
     }
 
     private void releasePlayer() {
-        adsLoader.setPlayer(null);
+        //adsLoader.setPlayer(null);
         playerView.setPlayer(null);
         if(player!=null) player.release();
         player = null;
@@ -98,13 +98,13 @@ public class VideoFragment extends Fragment {
         MediaSourceFactory mediaSourceFactory =
                 new DefaultMediaSourceFactory(dataSourceFactory)
                         //new DefaultHlsExtractorFactory(dataSourceFactory)
-                        .setAdsLoaderProvider(unusedAdTagUri -> adsLoader)
+                       // .setAdsLoaderProvider(unusedAdTagUri -> adsLoader)
                         .setAdViewProvider(playerView);
 
         // Create a SimpleExoPlayer and set it as the player for content and ads.
         player = new SimpleExoPlayer.Builder(requireContext()).setMediaSourceFactory(mediaSourceFactory).build();
         playerView.setPlayer(player);
-        adsLoader.setPlayer(player);
+        //adsLoader.setPlayer(player);
 
         MediaItem mediaItem;
 
@@ -153,6 +153,6 @@ public class VideoFragment extends Fragment {
             playerView.onPause();
         }
         releasePlayer();
-        adsLoader.release();
+        //adsLoader.release();
     }
 }

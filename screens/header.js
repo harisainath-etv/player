@@ -46,8 +46,9 @@ export default function Header(props) {
 
     const loadData = async () => {
         const firstname = await AsyncStorage.getItem('firstname');
+        const session = await AsyncStorage.getItem('session');
         const profile_pic = await AsyncStorage.getItem('profile_pic');
-        if (firstname != "" && firstname != null)
+        if (session != "" && session != null)
         {
             setLogin(true)
             setName(firstname);

@@ -15,19 +15,13 @@ export default function Login({ navigation }) {
     const [EmailError, setEmailError] = useState('');
     const [newpasswordError, setnewpasswordError] = useState('');
     const [otpError, setOtpError] = useState('');
+    const [emailRegError, setemailRegError] = useState('');
 
     const [signinError, setsigninError] = useState('');
     const [signinSuccess, setsigninSuccess] = useState('');
     const [selected, setSelected] = useState('mobile');
-    function CheckPassword(inputtxt) {
-        var decimal = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/;
-        if (inputtxt.match(decimal)) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
+    const [popup,setpopup] = useState(false);
+
     function ValidateEmail(input) {
         var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
         if (input.match(validRegex))
@@ -42,7 +36,7 @@ export default function Login({ navigation }) {
 
         await AsyncStorage.setItem("loginMobile", "0091"+Mobile);
         const region = await AsyncStorage.getItem('country_code');
-        axios.post(FIRETV_BASE_URL_STAGING + "users/generate_otp", {
+        axios.post(FIRETV_BASE_URL_STAGING + "users/generate_signin_otp", {
             auth_token: AUTH_TOKEN,
             user: { user_id: "0091"+Mobile, region: region, type: "msisdn" }
         }, {
@@ -52,7 +46,7 @@ export default function Login({ navigation }) {
             }
         })
             .then(response => {
-                //console.log(JSON.stringify(response));
+                console.log(JSON.stringify(response.data));
                 if(response.data.status_code==200)
                 {
                     setOtpError("")
@@ -74,12 +68,66 @@ export default function Login({ navigation }) {
         if (newpassword.trim() == "") { setnewpasswordError("Please enter your password."); return true; } else setnewpasswordError("");
         if (ValidateEmail(email)) {
             setEmailError("");
-            if (CheckPassword(newpassword)) {
-                navigation.navigate('MobileUpdate')
-            }
-            else {
-                setnewpasswordError("Password should be minimum of 8 digits and it should have at least one lowercase letter, one uppercase letter, one numeric digit, and one special character."); return true;
-            }
+            //if (CheckPassword(newpassword)) {
+                const region = await AsyncStorage.getItem('country_code');
+                axios.post(FIRETV_BASE_URL_STAGING + "users/sign_in", {
+                    auth_token: AUTH_TOKEN,
+                    user: { email_id: email, region: region, password: newpassword }
+                }, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    }
+                }).then(response=>{
+                    setemailRegError("");
+                    AsyncStorage.setItem('add_profile',JSON.stringify(response.data.data.add_profile))
+                    AsyncStorage.setItem('first_time_login',JSON.stringify(response.data.data.first_time_login))
+                    AsyncStorage.setItem('firstname',response.data.data.profile_obj.firstname)
+                    AsyncStorage.setItem('is_device_limit_status',JSON.stringify(response.data.data.is_device_limit_status))
+                    AsyncStorage.setItem('lastname',JSON.stringify(response.data.data.profile_obj.lastname))
+                    AsyncStorage.setItem('login_type',response.data.data.login_type)
+                    //AsyncStorage.setItem('mobile_number',response.data.data.mobile_number)
+                    AsyncStorage.setItem('mobile_number',"")
+                    AsyncStorage.setItem('default_profile',response.data.data.profile_obj.default_profile)
+                    AsyncStorage.setItem('profile_id',response.data.data.profile_obj.profile_id)
+                    AsyncStorage.setItem('region',response.data.data.profile_obj.region)
+                    AsyncStorage.setItem('profile_pic',response.data.data.profile_pic)
+                    AsyncStorage.setItem('session',response.data.data.session)
+                    AsyncStorage.setItem('user_id',response.data.data.user_id)
+                    AsyncStorage.setItem('email_id',response.data.data.email_id)
+                    axios.get(FIRETV_BASE_URL_STAGING + "users/"+response.data.data.session+"/account.gzip?auth_token="+AUTH_TOKEN).then(resp=>{
+                        AsyncStorage.setItem('address',resp.data.data.address)
+                        AsyncStorage.setItem('age',resp.data.data.age)
+                        AsyncStorage.setItem('birthdate',resp.data.data.birthdate)
+                        AsyncStorage.setItem('email_id',resp.data.data.email_id)
+                        AsyncStorage.setItem('ext_account_email_id',resp.data.data.ext_account_email_id)
+                        AsyncStorage.setItem('ext_user_id',resp.data.data.ext_user_id)
+                        AsyncStorage.setItem('firstname',resp.data.data.firstname)
+                        AsyncStorage.setItem('gender',resp.data.data.gender)
+                        AsyncStorage.setItem('is_mobile_verify',JSON.stringify(resp.data.data.is_mobile_verify))
+                        AsyncStorage.setItem('lastname',JSON.stringify(resp.data.data.lastname))
+                        AsyncStorage.setItem('login_type',resp.data.data.login_type)
+                        //AsyncStorage.setItem('mobile_number',resp.data.data.mobile_number)
+                        AsyncStorage.setItem('mobile_number',"")
+                        AsyncStorage.setItem('primary_id',resp.data.data.primary_id)
+                        AsyncStorage.setItem('profile_pic',resp.data.data.profile_pic)
+                        AsyncStorage.setItem('user_email_id',resp.data.data.user_email_id)
+                        AsyncStorage.setItem('user_id',resp.data.data.user_id)
+                        setpopup(false)
+                        navigation.dispatch(StackActions.replace('Home',{pageFriendlyId:'featured-1',popup:popup}))
+        
+                        }).catch(err=>{
+                            alert("Error in fetching account details. Please try again later.")
+                        })
+
+                    //navigation.navigate('MobileUpdate')
+                }).catch(error=>{
+                    setemailRegError(error.response.data.error.message);
+                })
+           // }
+           // else {
+           //     setnewpasswordError("Password should be minimum of 8 digits and it should have at least one lowercase letter, one uppercase letter, one numeric digit, and one special character."); return true;
+           // }
         }
         else {
             setEmailError("Please enter a valid email id."); return true;
@@ -129,6 +177,9 @@ export default function Login({ navigation }) {
                     :
 
                     <View style={styles.body}>
+                        <View style={{justifyContent:'center',alignItems:'center'}}>
+                        <Text style={styles.errormessage}>{emailRegError}</Text>
+                        </View>
                         <TextInput onChangeText={setEmail} value={email} style={styles.textinput} placeholder="Email Id*" placeholderTextColor={NORMAL_TEXT_COLOR} />
                         <Text style={styles.errormessage}>{EmailError}</Text>
 

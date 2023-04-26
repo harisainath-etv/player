@@ -18,8 +18,7 @@ export default function Otp({ navigation, route }) {
     const [otp6, setotp6] = useState();
     const [seconds, setSeconds] = useState(60);
     const [otpError, setOtpError] = useState('');
-    const [popup,setpopup] = useState(false);
-
+    
     const getData = async () => {
         var loginMobile = await AsyncStorage.getItem(otpkey);
         setLoginRegisterMobile(loginMobile.substring(4,14));
@@ -35,10 +34,13 @@ export default function Otp({ navigation, route }) {
     })
     const verifyOtp = async () =>{
         const region = await AsyncStorage.getItem('country_code');
-        const loginMobile = await AsyncStorage.getItem('loginMobile');
+        const loginMobile = await AsyncStorage.getItem(otpkey);
+        const session_id = await AsyncStorage.getItem('session');
+        if(otpkey=="loginMobile" || otpkey=="signupMobile")
+        {
         axios.post(FIRETV_BASE_URL_STAGING + "users/verify_otp", {
             auth_token: AUTH_TOKEN,
-            user: { action: "signin", region: region, type: "msisdn", key: otp1+otp2+otp3+otp4+otp5+otp6, user_id:loginMobile}
+            user: { action: "signin", region: region, type: "msisdn", key: otp1+otp2+otp3+otp4+otp5+otp6, user_id:loginMobile,mobile_number:loginMobile}
         }, {
             headers: {
                 'Accept': 'application/json',
@@ -50,7 +52,7 @@ export default function Otp({ navigation, route }) {
                 AsyncStorage.setItem('first_time_login',JSON.stringify(response.data.data.first_time_login))
                 AsyncStorage.setItem('firstname',response.data.data.profile_obj.firstname)
                 AsyncStorage.setItem('is_device_limit_status',JSON.stringify(response.data.data.is_device_limit_status))
-                AsyncStorage.setItem('lastname',response.data.data.profile_obj.lastname)
+                AsyncStorage.setItem('lastname',JSON.stringify(response.data.data.profile_obj.lastname))
                 AsyncStorage.setItem('login_type',response.data.data.login_type)
                 AsyncStorage.setItem('mobile_number',response.data.data.mobile_number)
                 AsyncStorage.setItem('default_profile',response.data.data.profile_obj.default_profile)
@@ -76,11 +78,7 @@ export default function Otp({ navigation, route }) {
                 AsyncStorage.setItem('profile_pic',resp.data.data.profile_pic)
                 AsyncStorage.setItem('user_email_id',resp.data.data.user_email_id)
                 AsyncStorage.setItem('user_id',resp.data.data.user_id)
-                if(otpkey=='loginMobile')
-                setpopup(false)
-                else
-                setpopup(true)
-                navigation.dispatch(StackActions.replace('Home',{pageFriendlyId:'featured-1',popup:popup}))
+                navigation.dispatch(StackActions.replace('Home',{pageFriendlyId:'featured-1',popup:false}))
 
                 }).catch(err=>{
                     alert("Error in fetching account details. Please try again later.")
@@ -93,6 +91,74 @@ export default function Otp({ navigation, route }) {
                 setOtpError(error.response.data.error.message)
             }
             );
+        }
+        else
+        if(otpkey=="updateMobile")
+        {
+            console.log(JSON.stringify({ action: "update_mobile", region: region, type: "msisdn", key: otp1+otp2+otp3+otp4+otp5+otp6, user_id:loginMobile,mobile_number:loginMobile,session_id:session_id}));
+            axios.post(FIRETV_BASE_URL_STAGING + "users/verify_otp", {
+                auth_token: AUTH_TOKEN,
+                user: { action: "update_mobile", region: region, type: "msisdn", key: otp1+otp2+otp3+otp4+otp5+otp6, user_id:loginMobile,mobile_number:loginMobile,session_id:session_id}
+            }, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => {
+                    AsyncStorage.setItem('add_profile',JSON.stringify(response.data.data.add_profile))
+                    AsyncStorage.setItem('first_time_login',JSON.stringify(response.data.data.first_time_login))
+                    AsyncStorage.setItem('firstname',response.data.data.profile_obj.firstname)
+                    AsyncStorage.setItem('is_device_limit_status',JSON.stringify(response.data.data.is_device_limit_status))
+                    AsyncStorage.setItem('lastname',JSON.stringify(response.data.data.profile_obj.lastname))
+                    AsyncStorage.setItem('login_type',response.data.data.login_type)
+                    AsyncStorage.setItem('mobile_number',response.data.data.mobile_number)
+                    AsyncStorage.setItem('default_profile',response.data.data.profile_obj.default_profile)
+                    AsyncStorage.setItem('profile_id',response.data.data.profile_obj.profile_id)
+                    AsyncStorage.setItem('region',response.data.data.profile_obj.region)
+                    AsyncStorage.setItem('profile_pic',response.data.data.profile_pic)
+                    AsyncStorage.setItem('session',response.data.data.session)
+                    AsyncStorage.setItem('user_id',response.data.data.user_id)
+                    axios.get(FIRETV_BASE_URL_STAGING + "users/"+response.data.data.session+"/account.gzip?auth_token="+AUTH_TOKEN).then(resp=>{
+                    AsyncStorage.setItem('address',resp.data.data.address)
+                    AsyncStorage.setItem('age',resp.data.data.age)
+                    AsyncStorage.setItem('birthdate',resp.data.data.birthdate)
+                    AsyncStorage.setItem('email_id',resp.data.data.email_id)
+                    AsyncStorage.setItem('ext_account_email_id',resp.data.data.ext_account_email_id)
+                    AsyncStorage.setItem('ext_user_id',resp.data.data.ext_user_id)
+                    AsyncStorage.setItem('firstname',resp.data.data.firstname)
+                    AsyncStorage.setItem('gender',resp.data.data.gender)
+                    AsyncStorage.setItem('is_mobile_verify',JSON.stringify(resp.data.data.is_mobile_verify))
+                    AsyncStorage.setItem('lastname',JSON.stringify(resp.data.data.lastname))
+                    AsyncStorage.setItem('login_type',resp.data.data.login_type)
+                    AsyncStorage.setItem('mobile_number',resp.data.data.mobile_number)
+                    AsyncStorage.setItem('primary_id',resp.data.data.primary_id)
+                    AsyncStorage.setItem('profile_pic',resp.data.data.profile_pic)
+                    AsyncStorage.setItem('user_email_id',resp.data.data.user_email_id)
+                    AsyncStorage.setItem('user_id',resp.data.data.user_id)
+                    navigation.dispatch(StackActions.replace('Home',{pageFriendlyId:'featured-1',popup:true}))
+                    }).catch(err=>{
+                        alert("Error in fetching account details. Please try again later.")
+                    })
+    
+                }).catch(error => {
+                    //console.log(error.response.status);
+                    //console.log(error.response.headers);
+                    setOtpError(error.response.data.error.message)
+                }
+                );
+        }
+    }
+    const gobacknavigation = (key) =>{
+        if(key=="loginMobile")
+        {
+            navigation.navigate('Login');
+        }
+        else
+        if(key=="updateMobile")
+        {
+            navigation.navigate('MobileUpdate');
+        }
     }
     return (
         <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
@@ -100,7 +166,7 @@ export default function Otp({ navigation, route }) {
 
                 <View style={styles.header}>
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>OTP Verification</Text>
-                    <TouchableOpacity style={{ position: 'absolute', left: 20, }} onPress={() => navigation.navigate('Login')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}> <MaterialCommunityIcons name="less-than" size={25} color={SLIDER_PAGINATION_SELECTED_COLOR} /> </Text></TouchableOpacity>
+                    <TouchableOpacity style={{ position: 'absolute', left: 20, }} onPress={()=>gobacknavigation(otpkey)}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}> <MaterialCommunityIcons name="less-than" size={25} color={SLIDER_PAGINATION_SELECTED_COLOR} /> </Text></TouchableOpacity>
                 </View>
 
                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
