@@ -51,6 +51,7 @@ export default function Episode({ navigation, route }) {
   const [contentId, setContentId] = useState();
   const [catalogId, setCatalogId] = useState();
   const [watchlatercontent, setwatchlatercontent] = useState();
+  const [likecontent, setlikecontent] = useState();
   const [shareUrl, setShareUrl] = useState()
 
 
@@ -134,6 +135,11 @@ export default function Episode({ navigation, route }) {
         AsyncStorage.getItem("watchLater_" + contentId).then(resp => {
           if (resp != "" && resp != null)
             setwatchlatercontent(true);
+        }).catch(erro => { })
+        AsyncStorage.getItem("like_" + contentId).then(resp => {
+          console.log(resp);
+          if (resp != "" && resp != null)
+            setlikecontent(true);
         }).catch(erro => { })
         var currentTimestamp = Math.floor(Date.now() / 1000).toString();
         //console.log(sessionId);
@@ -366,7 +372,42 @@ export default function Episode({ navigation, route }) {
       alert("Unable to add to watchlist. Please try again later.");
     })
   }
-  const shareOptions = async () =>{
+  const likeContent = async () => {
+    var sessionId = await AsyncStorage.getItem('session');
+    await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/like", {
+      listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true" },
+      auth_token: VIDEO_AUTH_TOKEN,
+      access_token: ACCESS_TOKEN,
+
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    }).then(response => {
+      AsyncStorage.setItem("like_" + contentId, contentId);
+      setlikecontent(true);
+    }).catch(error => {
+      alert("Unable to like the content. Please try again later.");
+    })
+  }
+  const deleteLike = async (catalog_id, contentId) => {
+    var sessionId = await AsyncStorage.getItem('session');
+    var region = await AsyncStorage.getItem('country_code');
+    await axios.get(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/like/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region+'&content_id='+contentId+'&catalog_id='+catalog_id).then(response => {
+      //console.log(JSON.stringify(response.data.data.items[0]));
+        axios.delete(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/like/listitems/" + response.data.data.items[0].listitem_id + "?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(resp => {
+          AsyncStorage.removeItem('like_' + contentId)
+          setlikecontent(false);
+        }).catch(err => { })
+
+     
+  }).catch(error => {
+      //console.log(JSON.stringify(error.response.data));
+  })
+
+  }
+
+  const shareOptions = async () => {
     const shareOptions = {
       title: title,
       failOnCancel: false,
@@ -487,7 +528,13 @@ export default function Episode({ navigation, route }) {
 
             {!loading ?
               <View style={styles.options}>
-                <View style={styles.singleoption}><MaterialCommunityIcons name="thumb-up" size={30} color={NORMAL_TEXT_COLOR} /></View>
+                <View style={styles.singleoption}>
+                  {!likecontent ?
+                    <Pressable onPress={likeContent}><MaterialIcons name="thumb-up-off-alt" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                    :
+                    <Pressable onPress={()=>deleteLike(catalogId,contentId)}><MaterialIcons name="thumb-up" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                  }
+                </View>
 
                 <View style={styles.singleoption}>
                   <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>

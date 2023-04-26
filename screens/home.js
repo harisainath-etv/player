@@ -219,7 +219,13 @@ function Home({ navigation, route }) {
             var allkeys= await AsyncStorage.getAllKeys();
             for(let a=0;a<allkeys.length;a++)
             {
+                //checking for watchlater content
                 if(allkeys[a].includes("watchLater_"))
+                {
+                    await AsyncStorage.removeItem(allkeys[a]);
+                }
+                //checking for like content
+                if(allkeys[a].includes("like_"))
                 {
                     await AsyncStorage.removeItem(allkeys[a]);
                 }
@@ -227,6 +233,7 @@ function Home({ navigation, route }) {
             var sessionId = await AsyncStorage.getItem('session');
             var region = await AsyncStorage.getItem('country_code');
             if (sessionId != null && sessionId != "") {
+                //setting watch later content
                 await axios.get(FIRETV_BASE_URL_STAGING + "/users/" + sessionId + "/playlists/watchlater/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(response => {
 
                     for (var i = 0; i < response.data.data.items.length; i++) {
@@ -235,7 +242,19 @@ function Home({ navigation, route }) {
                 }).catch(error => {
                     //console.log(JSON.stringify(error.response.data));
                 })
+
+                //setting like content
+                await axios.get(FIRETV_BASE_URL_STAGING + "/users/" + sessionId + "/playlists/like/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(response => {
+
+                    for (var i = 0; i < response.data.data.items.length; i++) {
+                        AsyncStorage.setItem("like_" + response.data.data.items[i].content_id, response.data.data.items[i].content_id);
+                    }
+                }).catch(error => {
+                    //console.log(JSON.stringify(error.response.data));
+                })
             }
+
+            //like content
 
         }
     }
