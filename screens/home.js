@@ -9,11 +9,12 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import RNBackgroundDownloader from 'react-native-background-downloader';
+import axios from 'axios';
 import Footer from './footer';
 import Header from './header';
 
@@ -23,6 +24,7 @@ export const ElementsText = {
 
 var page = 'featured-1';
 var selectedItem = 0;
+var popup = false;
 function Home({ navigation, route }) {
 
     const [colors, setColors] = useState([
@@ -40,6 +42,7 @@ function Home({ navigation, route }) {
     const [totalHomeData, settotalHomeData] = useState([]);
     const [totalMenuData, settotalMenuData] = useState();
     { route.params ? page = route.params.pageFriendlyId : page = 'featured-1' }
+    { route.params ? popup = route.params.popup : popup = false }
     // const {pageFriendlyId}=route.params;
     const [pageName, setpageName] = useState(page);
     const [isVertical, setIsVertical] = useState(false);
@@ -73,74 +76,37 @@ function Home({ navigation, route }) {
     });
 
     async function loadData(p) {
+        const mobile = await AsyncStorage.getItem('mobile_number');
+        const session = await AsyncStorage.getItem('session');
+        if ((mobile == "" || mobile == null) && (session != "" && session != null)) {
+            navigation.dispatch(StackActions.replace('MobileUpdate', {}));
+        }
+        else {
+            if (toload && !loading) {
+                setloading(true)
 
-        if (toload && !loading) {
-            setloading(true)
+                var All = [];
+                var internalAll = [];
+                var Final = [];
+                var definedPageName = "";
+                var premiumContent = false;
+                var premiumCheckData = "";
+                if (pageName == 'featured-1')
+                    definedPageName = "home";
+                else
+                    definedPageName = pageName;
+                const region = await AsyncStorage.getItem('country_code');
+                const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
+                const resp = await fetch(url);
+                const data = await resp.json();
+                setPagenumber(p + 1);
+                if (data.data.catalog_list_items.length > 0) {
+                    for (var i = 0; i < data.data.catalog_list_items.length; i++) {
+                        if (data.data.catalog_list_items[i].hasOwnProperty('catalog_list_items')) {
+                            for (var j = 0; j < data.data.catalog_list_items[i].catalog_list_items.length; j++) {
 
-            var All = [];
-            var internalAll = [];
-            var Final = [];
-            var definedPageName = "";
-            var premiumContent = false;
-            var premiumCheckData = "";
-            if (pageName == 'featured-1')
-                definedPageName = "home";
-            else
-                definedPageName = pageName;
-            const region = await AsyncStorage.getItem('country_code');
-            const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
-            const resp = await fetch(url);
-            const data = await resp.json();
-            //console.log(url);
-            setPagenumber(p + 1);
-            if (data.data.catalog_list_items.length > 0) {
-                for (var i = 0; i < data.data.catalog_list_items.length; i++) {
-                    for (var j = 0; j < data.data.catalog_list_items[i].catalog_list_items.length; j++) {
-
-
-                        if (data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('access_control')) {
-                            premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].access_control);
-                            if (premiumCheckData != "") {
-                                if (premiumCheckData['is_free']) {
-                                    premiumContent = false;
-                                }
-                                else {
-                                    premiumContent = true;
-                                }
-                            }
-                        }
-                        var displayTitle = data.data.catalog_list_items[i].catalog_list_items[j].title
-                        if (displayTitle.length > 19)
-                            displayTitle = displayTitle.substr(0, 19) + "\u2026";
-                        if (data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list) {
-                            var splitted = data.data.catalog_list_items[i].catalog_list_items[j].seo_url.split("/");
-                            var friendlyId = splitted[splitted.length - 1];
-                            All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
-                        }
-                        else {
-                            if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
-                                if (data.data.catalog_list_items[i].layout_type == "top_banner")
-                                    All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": "" });
-                                else
-                                    if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show")
-                                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
-                                    else
-                                        if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
-                                            All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
-                                        else
-                                            All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
-
-                            }
-                        }
-
-
-                        if (data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('catalog_list_items')) {
-
-
-                            for (var k = 0; k < data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items.length; k++) {
-
-                                if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].hasOwnProperty('access_control')) {
-                                    premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].access_control);
+                                if (data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('access_control')) {
+                                    premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].access_control);
                                     if (premiumCheckData != "") {
                                         if (premiumCheckData['is_free']) {
                                             premiumContent = false;
@@ -150,61 +116,127 @@ function Home({ navigation, route }) {
                                         }
                                     }
                                 }
-                                var displayTitle = data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].title
+                                var displayTitle = data.data.catalog_list_items[i].catalog_list_items[j].title
                                 if (displayTitle.length > 19)
                                     displayTitle = displayTitle.substr(0, 19) + "\u2026";
-                                if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list) {
-                                    var splitted = data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url.split("/");
+                                if (data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list) {
+                                    var splitted = data.data.catalog_list_items[i].catalog_list_items[j].seo_url.split("/");
                                     var friendlyId = splitted[splitted.length - 1];
-                                    internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
+                                    All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
                                 }
                                 else {
-                                    if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_16_9')) {
-                                        if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "top_banner")
-                                            internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": "" });
+                                    if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
+                                        if (data.data.catalog_list_items[i].layout_type == "top_banner")
+                                            All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": "" });
                                         else
-                                            if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "tv_shows" || data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "show")
-                                                internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                            if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show")
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
                                             else
-                                                if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "tv_shows_banner")
-                                                    internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
+                                                    All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
                                                 else
-                                                    internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                    All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
 
                                     }
                                 }
+
+
+                                if (data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('catalog_list_items')) {
+
+
+                                    for (var k = 0; k < data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items.length; k++) {
+
+                                        if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].hasOwnProperty('access_control')) {
+                                            premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].access_control);
+                                            if (premiumCheckData != "") {
+                                                if (premiumCheckData['is_free']) {
+                                                    premiumContent = false;
+                                                }
+                                                else {
+                                                    premiumContent = true;
+                                                }
+                                            }
+                                        }
+                                        var displayTitle = data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].title
+                                        if (displayTitle.length > 19)
+                                            displayTitle = displayTitle.substr(0, 19) + "\u2026";
+                                        if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list) {
+                                            var splitted = data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url.split("/");
+                                            var friendlyId = splitted[splitted.length - 1];
+                                            internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
+                                        }
+                                        else {
+                                            if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_16_9')) {
+                                                if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "top_banner")
+                                                    internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": "" });
+                                                else
+                                                    if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "tv_shows" || data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "show")
+                                                        internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                    else
+                                                        if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "tv_shows_banner")
+                                                            internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                        else
+                                                            internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+
+                                            }
+                                        }
+                                    }
+                                    Final.push({ "friendlyId": data.data.catalog_list_items[i].catalog_list_items[j].friendly_id, "data": internalAll, "layoutType": data.data.catalog_list_items[i].catalog_list_items[j].layout_type, "displayName": data.data.catalog_list_items[i].catalog_list_items[j].display_title });
+                                    internalAll = [];
+
+                                }
                             }
-                            Final.push({ "friendlyId": data.data.catalog_list_items[i].catalog_list_items[j].friendly_id, "data": internalAll, "layoutType": data.data.catalog_list_items[i].catalog_list_items[j].layout_type, "displayName": data.data.catalog_list_items[i].catalog_list_items[j].display_title });
-                            internalAll = [];
-
                         }
-                    }
 
-                    Final.push({ "friendlyId": data.data.catalog_list_items[i].friendly_id, "data": All, "layoutType": data.data.catalog_list_items[i].layout_type, "displayName": data.data.catalog_list_items[i].display_title });
-                    All = [];
+                        Final.push({ "friendlyId": data.data.catalog_list_items[i].friendly_id, "data": All, "layoutType": data.data.catalog_list_items[i].layout_type, "displayName": data.data.catalog_list_items[i].display_title });
+                        All = [];
+                    }
+                }
+                if (Final.length <= 0)
+                    settoload(false);
+                //settotalHomeData(Final);
+                settotalHomeData((totalHomeData) => [...totalHomeData, ...Final]);
+                setloading(false)
+            }
+            //offline downloads
+            let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
+            for (let task of lostTasks) {
+                task.begin(expectedBytes => {
+                    //console.log('Expected: ' + expectedBytes);
+                }).progress((percent) => {
+                    AsyncStorage.setItem('download_' + task.id, JSON.stringify(percent * 100));
+                    //console.log(`Downloaded: ${percent * 100}%`);
+                }).done(() => {
+                    AsyncStorage.setItem('download_' + task.id, JSON.stringify(1 * 100));
+                    //console.log('Downlaod is done!');
+                }).error((error) => {
+                    //console.log('Download canceled due to error: ', error);
+                });
+
+            }
+
+            //watchlater content
+            var allkeys= await AsyncStorage.getAllKeys();
+            for(let a=0;a<allkeys.length;a++)
+            {
+                if(allkeys[a].includes("watchLater_"))
+                {
+                    await AsyncStorage.removeItem(allkeys[a]);
                 }
             }
-            if (Final.length <= 0)
-                settoload(false);
-            //settotalHomeData(Final);
-            settotalHomeData((totalHomeData) => [...totalHomeData, ...Final]);
-            setloading(false)
-        }
-        let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
-        console.log(JSON.stringify(lostTasks));
-        for (let task of lostTasks) {
-            task.begin(expectedBytes => {
-              //console.log('Expected: ' + expectedBytes);
-            }).progress((percent) => {
-              AsyncStorage.setItem('download_' + task.id, JSON.stringify(percent * 100));
-              //console.log(`Downloaded: ${percent * 100}%`);
-            }).done(() => {
-              AsyncStorage.setItem('download_' + task.id, JSON.stringify(1 * 100));
-              //console.log('Downlaod is done!');
-            }).error((error) => {
-              //console.log('Download canceled due to error: ', error);
-            });
-          
+            var sessionId = await AsyncStorage.getItem('session');
+            var region = await AsyncStorage.getItem('country_code');
+            if (sessionId != null && sessionId != "") {
+                await axios.get(FIRETV_BASE_URL_STAGING + "/users/" + sessionId + "/playlists/watchlater/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(response => {
+
+                    for (var i = 0; i < response.data.data.items.length; i++) {
+                        AsyncStorage.setItem("watchLater_" + response.data.data.items[i].content_id, response.data.data.items[i].content_id);
+                    }
+                }).catch(error => {
+                    //console.log(JSON.stringify(error.response.data));
+                })
+            }
+
         }
     }
     async function getTopMenu() {
@@ -635,7 +667,7 @@ function Home({ navigation, route }) {
             selectedItem = 0;
         }
     }, []);
-    
+
     const memoizedValue = useMemo(() => renderItem, [totalHomeData]);
 
     return (

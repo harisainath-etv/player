@@ -76,7 +76,7 @@ function Channels({ navigation, route }) {
         if (pageName == 'featured-1')
             definedPageName = "home";
         else
-            definedPageName = pageName;
+            definedPageName = "live";
         const region = await AsyncStorage.getItem('country_code');
         const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
         const resp = await fetch(url);
@@ -101,19 +101,34 @@ function Channels({ navigation, route }) {
                 if (data.data.catalog_list_items[i].media_list_in_list) {
                     var splitted = data.data.catalog_list_items[i].seo_url.split("/");
                     var friendlyId = splitted[splitted.length - 1];
-                    All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
+                    All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list,"friendlyId":friendlyId, "displayTitle": ""  });
                 }
                 else {
                     if (definedPageName == 'channels') {
                         if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3')) {
-                            All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                            All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list,"friendlyId":"", "displayTitle": ""  });
                         }
                     }
                     else
                         if (definedPageName == 'live') {
-                            if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
-                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": "", "displayTitle": "" });
+
+
+                            if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_16_9')) {
+                                if (data.data.catalog_list_items[i].layout_type == "top_banner")
+                                    All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list,"friendlyId":"", "displayTitle": ""  });
+                                else
+                                    if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show")
+                                        All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list,"friendlyId":"", "displayTitle": ""  });
+                                    else
+                                        if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
+                                            All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list,"friendlyId":"", "displayTitle": ""  });
+                                        else
+                                            All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list,"friendlyId":"", "displayTitle": displayTitle  });
+
+
                             }
+
+
                         }
                 }
             }
@@ -123,7 +138,12 @@ function Channels({ navigation, route }) {
 
         settotalHomeData(Final);
     }
-
+    function changeTabData(pageFriendlyId) {
+        if (pageFriendlyId != 'live')
+            navigation.navigate({ name: 'Home', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
+        else
+            navigation.navigate({ name: 'OtherResponse', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
+    }
     async function getTopMenu() {
         var TopMenu = [];
         const region = await AsyncStorage.getItem('country_code');
@@ -144,12 +164,6 @@ function Channels({ navigation, route }) {
             }
         }
         //console.log(selectedItem);
-    }
-    function changeTabData(pageFriendlyId) {
-        if (pageFriendlyId != 'live')
-            navigation.navigate({ name: 'Home', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
-        else
-            navigation.navigate({ name: 'OtherResponse', params: { pageFriendlyId: pageFriendlyId }, key: pageFriendlyId })
     }
     const renderItem = ({ item, index }) => {
         return (
@@ -183,7 +197,7 @@ function Channels({ navigation, route }) {
                                         VIDEO_TYPES.includes(item.theme) ?
                                             navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                 }
-                            }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
+                            }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
                         : ""}
 
@@ -287,12 +301,11 @@ function Channels({ navigation, route }) {
                         </View>
                     </View>
                     : ""}
-
                 {item.layoutType == 'channels' && item.data.length != 0 ?
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-
+                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <View style={{ flexDirection: 'column' }}>
                             <FlatList
@@ -310,14 +323,14 @@ function Channels({ navigation, route }) {
                                                     item.medialistinlist ?
                                                         navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                         :
-                                                        VIDEO_TYPES.includes(item.theme) ?
-                                                            navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl })
                                                 }
                                             }}>
                                                 <FastImage
                                                     style={[styles.imageSectionCircle,]}
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                
                                             </Pressable>
                                         </View>
                                 }
@@ -365,6 +378,11 @@ function Channels({ navigation, route }) {
 
                 {item.layoutType == 'live' && item.data.length != 0 ?
                     <View>
+                    <View style={styles.sectionHeaderView}>
+                        <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                        {/* {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""} */}
+                    </View>
+                    <View style={{ flexDirection: 'column' }}>
                         <FlatList
                             data={item.data}
                             keyExtractor={(x, i) => i.toString()}
@@ -374,27 +392,26 @@ function Channels({ navigation, route }) {
                             numColumns={3}
                             renderItem={
                                 ({ item, index }) =>
-                                    <View>
+                                    <View style={{ marginRight: 5, marginLeft: 5 }}>
                                         <Pressable onPress={() => {
                                             {
                                                 item.medialistinlist ?
                                                     navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
-                                                    VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage
-                                                style={[styles.imageSectionVertical,]}
-                                                resizeMode={FastImage.resizeMode.stretch}
+                                                style={[styles.imageSectionCircle,]}
+                                                resizeMode={FastImage.resizeMode.cover}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
-                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            
                                         </Pressable>
                                     </View>
                             }
                         />
                     </View>
+                </View>
                     : ""}
 
                 {item.layoutType == 'banner' && item.data.length != 0 ?
@@ -485,7 +502,7 @@ function Channels({ navigation, route }) {
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </Pressable>
-                                        <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center', marginBottom: 20 }}>{item.displayTitle}</Text>
+                                        <Text style={{color:NORMAL_TEXT_COLOR,alignSelf:'center',marginBottom:20}}>{item.displayTitle}</Text>
                                     </View>
                             }
                         />
@@ -537,7 +554,7 @@ function Channels({ navigation, route }) {
     return (
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR, }}>
 
-            <Header pageName="TV-CHANNELS"></Header>
+            <Header pageName="LIVE-TV"></Header>
 
             {/* header menu */}
             {currentIndexValue >= 0 ?
@@ -630,6 +647,8 @@ const PaginationItem = (props) => {
 
 
 const styles = StyleSheet.create({
+    playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
+    crownIcon: { position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
     Container: {
         backgroundColor: BACKGROUND_COLOR,
         textAlign: "center",

@@ -14,7 +14,9 @@ import Episode from './screens/episode';
 import Calendarscreen from './screens/calendarscreen';
 import EpisodesMoreList from './screens/episodesMoreList';
 import Offline from './screens/offline';
-// import OfflineDownload from './screens/offlineDownload';
+import Otp from './screens/otp';
+import MobileUpdate from './screens/mobileUpdate';
+import WatchLater from './screens/watchLater';
 import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION } from './constants';
 import { View, Dimensions, Platform } from 'react-native';
 import SplashScreen from 'react-native-splash-screen'
@@ -113,6 +115,9 @@ export default function App() {
           <Stack.Screen name="Calendarscreen" component={Calendarscreen} options={{ header: () => null, }} />
           <Stack.Screen name="EpisodesMoreList" component={EpisodesMoreList} options={{ header: () => null, }} />
           <Stack.Screen name="Offline" component={Offline} options={{ header: () => null, }} />
+          <Stack.Screen name="Otp" component={Otp} options={{ header: () => null, }} />
+          <Stack.Screen name="MobileUpdate" component={MobileUpdate} options={{ header: () => null, }} />
+          <Stack.Screen name="WatchLater" component={WatchLater} options={{ header: () => null, }} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>

@@ -14,6 +14,8 @@ import Video from 'react-native-video';
 import { StackActions } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import RNBackgroundDownloader from 'react-native-background-downloader';
+// import VideoViewAndroid from '../components/VideoViewAndroid';
+// import VideoViewIos from '../components/VideoViewIos';
 
 export default function Episode({ navigation, route }) {
   const { seoUrl, theme } = route.params;
@@ -40,9 +42,14 @@ export default function Episode({ navigation, route }) {
   const [taskdownloading, settaskdownloading] = useState();
   const [pauseDownload, setPauseDownload] = useState(false);
   const [thumbnailImage, setThumbnailImage] = useState("");
-
+  const [preview, setPreview] = useState(false);
+  const [loggedin, setloggedin] = useState(false);
+  const [showupgrade, setshowupgrade] = useState(false);
   const videoRef = createRef();
   const [state, setState] = useState({ showControls: true, progress: 0, isPaused: false, });
+  const [contentId,setContentId] = useState();
+  const [catalogId,setCatalogId] = useState();
+  const [watchlatercontent,setwatchlatercontent] = useState();
   const [downloadFileTask, setdownloadFileTask] = useState()
 
 
@@ -74,6 +81,7 @@ export default function Episode({ navigation, route }) {
       const checkEvent = filterItems('event', splittedData);
       const region = await AsyncStorage.getItem('country_code');
       var urlPath = "";
+      var sessionId = await AsyncStorage.getItem('session');
       if (splittedData.length == 4 && checkChannel == 0) {
         urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/subcategories/" + splittedData[2] + "/episodes/" + splittedData[3];
       }
@@ -104,8 +112,8 @@ export default function Episode({ navigation, route }) {
         //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/" + splittedData[2] + "/" + splittedData[3];
       }
       const url = urlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
-      // console.log(seourl);
-      // console.log(url);
+      //  console.log(seourl);
+      //  console.log(url);
       await axios.get(url).then(response => {
         setTitle(response.data.data.title);
         setOfflineUrl(response.data.data.play_url.saranyu.url);
@@ -119,12 +127,19 @@ export default function Episode({ navigation, route }) {
           setDescription(response.data.data.description);
         if (response.data.data.hasOwnProperty('thumbnails'))
           setThumbnailImage(response.data.data.thumbnails.high_4_3.url);
-        // setContentId(response.data.data.content_id);
-        // setCatalogId(response.data.data.catalog_id);
+        setContentId(response.data.data.content_id);
+        setCatalogId(response.data.data.catalog_id);
+        AsyncStorage.getItem("watchLater_"+contentId).then(resp=>{
+          if(resp!="" && resp!=null)
+          setwatchlatercontent(true);
+        }).catch(erro=>{})
         var currentTimestamp = Math.floor(Date.now() / 1000).toString();
-        var sessionId = Math.random().toString(20).slice(2);
-        var md5String = stringMd5(response.data.data.catalog_id + response.data.data.content_id + "" + currentTimestamp + SECRET_KEY)
-        //console.log(response.data.data.content_id);
+        //console.log(sessionId);
+        if (sessionId != null)
+          setloggedin(true);
+        if (sessionId == null)
+          sessionId = "";
+        var md5String = stringMd5(response.data.data.catalog_id + response.data.data.content_id + sessionId + currentTimestamp + SECRET_KEY)
         axios.post(FIRETV_BASE_URL + "v2/users/get_all_details", {
           catalog_id: response.data.data.catalog_id,
           content_id: response.data.data.content_id,
@@ -132,7 +147,7 @@ export default function Episode({ navigation, route }) {
           region: region,
           auth_token: VIDEO_AUTH_TOKEN,
           access_token: ACCESS_TOKEN,
-          id: "",
+          id: sessionId,
           ts: currentTimestamp,
           md5: md5String
         }, {
@@ -149,6 +164,7 @@ export default function Episode({ navigation, route }) {
               else
                 if (response.data.data.stream_info.preview.adaptive_url != "") {
                   setPlayUrl(response.data.data.stream_info.preview.adaptive_url);
+                  setPreview(true);
                 }
             }
             setLoading(false);
@@ -169,10 +185,10 @@ export default function Episode({ navigation, route }) {
       var splittedOfflineUrl = offlineUrl.split("/");
       var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/' + splittedOfflineUrl[splittedOfflineUrl.length - 1] + ".ts.download";
       if (await RNFS.exists(downloaddirectory)) {
-        console.log(downloadpercent);
+        //console.log(downloadpercent);
         var downloadpercent = await AsyncStorage.getItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1]);
         var downloadtask = await AsyncStorage.getItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1]);
-        console.log(downloadtask);
+        //console.log(downloadtask);
         if (downloadtask != "" || downloadtask != null)
           settaskdownloading(downloadtask);
         if (downloadpercent == '100') {
@@ -261,8 +277,7 @@ export default function Episode({ navigation, route }) {
         AsyncStorage.setItem('download_title' + splittedOfflineUrl[splittedOfflineUrl.length - 1], title);
         AsyncStorage.setItem('download_thumbnail' + splittedOfflineUrl[splittedOfflineUrl.length - 1], thumbnailImage);
         AsyncStorage.setItem('download_seourl' + splittedOfflineUrl[splittedOfflineUrl.length - 1], seourl)
-        
-        
+
         let tasks = RNBackgroundDownloader.download({
           id: splittedOfflineUrl[splittedOfflineUrl.length - 1],
           url: offlineDownloadUrl,
@@ -281,7 +296,7 @@ export default function Episode({ navigation, route }) {
           console.log('Download canceled due to error: ', error);
         })
         settaskdownloading(tasks);
-        AsyncStorage.setItem('download_task'+splittedOfflineUrl[splittedOfflineUrl.length - 1],JSON.stringify(tasks));
+        AsyncStorage.setItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(tasks));
 
       }).catch(error => { })
 
@@ -292,7 +307,7 @@ export default function Episode({ navigation, route }) {
       alert("Please give access to download files.");
     }
   }
-  
+
   const deleteDownload = async () => {
 
     Alert.alert('Delete File', 'Please confirm to delete the file from offline.', [
@@ -303,7 +318,7 @@ export default function Episode({ navigation, route }) {
       },
       {
         text: 'OK', onPress: async () => {
-          console.log('OK Pressed')
+          //console.log('OK Pressed')
 
           var splittedOfflineUrl = offlineUrl.split("/");
           var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/' + splittedOfflineUrl[splittedOfflineUrl.length - 1] + ".ts.download";
@@ -318,23 +333,72 @@ export default function Episode({ navigation, route }) {
     ]);
   }
   const pauseDownloadAction = async () => {
-     taskdownloading.pause();
+    taskdownloading.pause();
     setPauseDownload(true);
   }
   const resumeDownloadAction = async () => {
     taskdownloading.resume();
     setPauseDownload(false);
   }
+  const checkpreviewContent = async () => {
+    if (preview) {
+      setshowupgrade(true);
+    }
+  }
+  const watchLater = async () =>{
+    var sessionId = await AsyncStorage.getItem('session');
+    await axios.post(FIRETV_BASE_URL + "users/"+sessionId+"/playlists/watchlater", {
+      listitem: {catalog_id: catalogId,content_id: contentId},
+      auth_token: VIDEO_AUTH_TOKEN,
+      access_token: ACCESS_TOKEN,
+      
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    }).then(response=>{
+      alert("Added to watchlist");
+      AsyncStorage.setItem("watchLater_"+contentId,contentId);
+      setwatchlatercontent(true);
+    }).catch(error=>{
+      alert("Unable to add to watchlist. Please try again later.");
+    })
+  }
+  // const onAdsLoaded = () => {
+  //   setTimeout(() => {
+  //     videoRef.startAds();
+  //   }, 10000);
+  // }
 
+  // const onAdStarted = () => {
+  //   setPlay(true);
+  // }
+
+  // const onAdsComplete = () => {
+  //   setPlay(false);
+  // }
 
 
   return (
     <View style={styles.mainContainer}>
       <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
         <View style={styles.container}>
-          {playUrl ?
+          {playUrl != "" && playUrl != null && !showupgrade ?
             <TouchableWithoutFeedback onPress={showControls}>
               <View style={{ flex: 1 }}>
+                {/* <View
+                  style={{
+                    height: 270,
+                    width: PAGE_WIDTH,
+                    backgroundColor: "grey",
+                  }}
+                >
+                  <VideoViewAndroid
+                    url={playUrl}
+                    adTag="https://pubads.g.doubleclick.net/gampad/ads?slotname=/21769336530/ETV_APP_MIDROLL\u0026sz=480x361|480x360\u0026unviewed_position_start=1\u0026env=instream\u0026gdfp_req=1\u0026ad_rule=0\u0026output=xml_vast4\u0026description_url=https://preprod.etvwin.com\u0026vad_type=linear\u0026vpos=midroll\u0026pod=1\u0026min_ad_duration=0\u0026max_ad_duration=999000\u0026ppos=1\u0026lip=true\u0026npa=false\u0026kfa=0\u0026tfcd=0\u0026wta=1\u0026npa=0"
+                  />
+                </View> */}
+
                 <Video
                   ref={videoRef}
                   source={{ uri: playUrl }}
@@ -343,11 +407,14 @@ export default function Episode({ navigation, route }) {
                   playInBackground={false}
                   volume={1}
                   bufferConfig={{
-                    minBufferMs: 250000,
-                    maxBufferMs: 500000,
+                    minBufferMs: 1000000,
+                    maxBufferMs: 2000000,
+                    bufferForPlaybackMs: 7000
                   }}
+                  rate={1.0}
                   resizeMode={fullscreen ? 'cover' : 'none'}
                   style={fullscreen ? styles.fullscreenVideo : styles.video}
+                  onEnd={checkpreviewContent}
                 />
                 {state.showControls && (
                   <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50 }}>
@@ -381,11 +448,14 @@ export default function Episode({ navigation, route }) {
               </TouchableOpacity>
               {loading ? <ActivityIndicator size={'large'} color={"#ffffff"}></ActivityIndicator> :
 
-                <View style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
-                  <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>LOGIN</Text></TouchableOpacity>
+                loggedin ? <TouchableOpacity onPress={() => navigation.navigate('Subscribe')} style={[styles.button, { width: 200 }]}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Upgrade / Subscribe</Text></TouchableOpacity>
+                  :
+                  <View style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>LOGIN</Text></TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>SIGN UP</Text></TouchableOpacity>
-                </View>
+                    <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>SIGN UP</Text></TouchableOpacity>
+                  </View>
+
               }
             </View>
 
@@ -409,17 +479,32 @@ export default function Episode({ navigation, route }) {
               <View style={styles.options}>
                 <View style={styles.singleoption}><MaterialCommunityIcons name="thumb-up" size={30} color={NORMAL_TEXT_COLOR} /></View>
                 <View style={styles.singleoption}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></View>
+                {passedtheme != 'live' && passedtheme != 'livetv' ?
+                  <View style={styles.singleoption}>
+                    {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                    {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                    {downloadedStatus == 2 ?
+
+                      pauseDownload ? <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+
+                      : ""}
+
+                  </View>
+                  :
+                  <View style={styles.singleoption}>
+                    <MaterialCommunityIcons name="download" size={30} color={DARKED_BORDER_COLOR} />
+                  </View>
+                }
+
                 <View style={styles.singleoption}>
-                  {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
-                  {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
-                  {downloadedStatus == 2 ?
-
-                    pauseDownload ? <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
-
-                    : ""}
-
+                  
+                    {!watchlatercontent ? 
+                    <Pressable onPress={watchLater}><MaterialIcons name="watch-later" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                    :
+                    <Pressable onPress={()=>{navigation.dispatch(StackActions.replace('WatchLater'))}}><MaterialIcons name="watch-later" size={30} color={DARKED_BORDER_COLOR} /></Pressable>
+                    }
+                  
                 </View>
-                <View style={styles.singleoption}><MaterialIcons name="watch-later" size={30} color={NORMAL_TEXT_COLOR} /></View>
               </View>
               : ""}
           </View> : ""}
