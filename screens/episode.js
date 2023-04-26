@@ -14,6 +14,7 @@ import Video from 'react-native-video';
 import { StackActions } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import RNBackgroundDownloader from 'react-native-background-downloader';
+import Share from 'react-native-share';
 // import VideoViewAndroid from '../components/VideoViewAndroid';
 // import VideoViewIos from '../components/VideoViewIos';
 
@@ -47,10 +48,10 @@ export default function Episode({ navigation, route }) {
   const [showupgrade, setshowupgrade] = useState(false);
   const videoRef = createRef();
   const [state, setState] = useState({ showControls: true, progress: 0, isPaused: false, });
-  const [contentId,setContentId] = useState();
-  const [catalogId,setCatalogId] = useState();
-  const [watchlatercontent,setwatchlatercontent] = useState();
-  const [downloadFileTask, setdownloadFileTask] = useState()
+  const [contentId, setContentId] = useState();
+  const [catalogId, setCatalogId] = useState();
+  const [watchlatercontent, setwatchlatercontent] = useState();
+  const [shareUrl, setShareUrl] = useState()
 
 
 
@@ -117,6 +118,7 @@ export default function Episode({ navigation, route }) {
       await axios.get(url).then(response => {
         setTitle(response.data.data.title);
         setOfflineUrl(response.data.data.play_url.saranyu.url);
+        setShareUrl(response.data.data.dynamic_url);
         if (response.data.data.hasOwnProperty('channel_object'))
           setChannel(response.data.data.channel_object.name);
         if (response.data.data.hasOwnProperty('cbfc_rating'))
@@ -129,10 +131,10 @@ export default function Episode({ navigation, route }) {
           setThumbnailImage(response.data.data.thumbnails.high_4_3.url);
         setContentId(response.data.data.content_id);
         setCatalogId(response.data.data.catalog_id);
-        AsyncStorage.getItem("watchLater_"+contentId).then(resp=>{
-          if(resp!="" && resp!=null)
-          setwatchlatercontent(true);
-        }).catch(erro=>{})
+        AsyncStorage.getItem("watchLater_" + contentId).then(resp => {
+          if (resp != "" && resp != null)
+            setwatchlatercontent(true);
+        }).catch(erro => { })
         var currentTimestamp = Math.floor(Date.now() / 1000).toString();
         //console.log(sessionId);
         if (sessionId != null)
@@ -345,24 +347,32 @@ export default function Episode({ navigation, route }) {
       setshowupgrade(true);
     }
   }
-  const watchLater = async () =>{
+  const watchLater = async () => {
     var sessionId = await AsyncStorage.getItem('session');
-    await axios.post(FIRETV_BASE_URL + "users/"+sessionId+"/playlists/watchlater", {
-      listitem: {catalog_id: catalogId,content_id: contentId},
+    await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchlater", {
+      listitem: { catalog_id: catalogId, content_id: contentId },
       auth_token: VIDEO_AUTH_TOKEN,
       access_token: ACCESS_TOKEN,
-      
+
     }, {
       headers: {
         'Content-Type': 'application/json',
       }
-    }).then(response=>{
+    }).then(response => {
       alert("Added to watchlist");
-      AsyncStorage.setItem("watchLater_"+contentId,contentId);
+      AsyncStorage.setItem("watchLater_" + contentId, contentId);
       setwatchlatercontent(true);
-    }).catch(error=>{
+    }).catch(error => {
       alert("Unable to add to watchlist. Please try again later.");
     })
+  }
+  const shareOptions = async () =>{
+    const shareOptions = {
+      title: title,
+      failOnCancel: false,
+      urls: [shareUrl],
+    };
+    const ShareResponse = await Share.open(shareOptions);
   }
   // const onAdsLoaded = () => {
   //   setTimeout(() => {
@@ -478,7 +488,11 @@ export default function Episode({ navigation, route }) {
             {!loading ?
               <View style={styles.options}>
                 <View style={styles.singleoption}><MaterialCommunityIcons name="thumb-up" size={30} color={NORMAL_TEXT_COLOR} /></View>
-                <View style={styles.singleoption}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></View>
+
+                <View style={styles.singleoption}>
+                  <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                </View>
+
                 {passedtheme != 'live' && passedtheme != 'livetv' ?
                   <View style={styles.singleoption}>
                     {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
@@ -497,13 +511,13 @@ export default function Episode({ navigation, route }) {
                 }
 
                 <View style={styles.singleoption}>
-                  
-                    {!watchlatercontent ? 
+
+                  {!watchlatercontent ?
                     <Pressable onPress={watchLater}><MaterialIcons name="watch-later" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
                     :
-                    <Pressable onPress={()=>{navigation.dispatch(StackActions.replace('WatchLater'))}}><MaterialIcons name="watch-later" size={30} color={DARKED_BORDER_COLOR} /></Pressable>
-                    }
-                  
+                    <Pressable onPress={() => { navigation.dispatch(StackActions.replace('WatchLater')) }}><MaterialIcons name="watch-later" size={30} color={DARKED_BORDER_COLOR} /></Pressable>
+                  }
+
                 </View>
               </View>
               : ""}
