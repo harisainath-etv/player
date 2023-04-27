@@ -10,7 +10,7 @@ import ReadMore from '@fawazahmed/react-native-read-more';
 import { useFocusEffect } from '@react-navigation/native';
 import Modal from "react-native-modal";
 import NormalHeader from './normalHeader';
-import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR, DETAILS_TEXT_COLOR, DARKED_BORDER_COLOR } from '../constants';
+import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR, DETAILS_TEXT_COLOR, DARKED_BORDER_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN } from '../constants';
 var indexValue = 0;
 export default function Shows({ navigation, route }) {
     var { seoUrl, selectTitle, ind } = route.params;
@@ -31,6 +31,8 @@ export default function Shows({ navigation, route }) {
     const [seasons, setSeasons] = useState([])
     const [isModalVisible, setModalVisible] = useState(false);
     const [episodeSeoUrl, setEpisodeSeoUrl] = useState();
+    const [contentId, setContentId] = useState();
+    const [catalogId, setCatalogId] = useState();
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -50,8 +52,9 @@ export default function Shows({ navigation, route }) {
         const checkNews = filterItems('news', splittedData);
         const checkShow = filterItems('show', splittedData);
         const region = await AsyncStorage.getItem('country_code');
+        const sessionId = await AsyncStorage.getItem('session');
         var urlPath = "";
-        if (splittedData.length == 4 && checkSeason.length > 0 && checkShow.length==0) {
+        if (splittedData.length == 4 && checkSeason.length > 0 && checkShow.length == 0) {
             urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/subcategories/" + splittedData[2] + "/episodes/" + splittedData[3];
         }
         else if (splittedData[0] == 'tv-shows') {
@@ -90,6 +93,18 @@ export default function Shows({ navigation, route }) {
             setEpisodeTypeTags(response.data.data.subcategories[subcategorySeoUrl].episodetype_tags);
             setRelatedUrl(relatedurlPath);
             setSeasons(response.data.data.subcategories);
+            setContentId(response.data.data.content_id);
+            setCatalogId(response.data.data.catalog_id);
+
+            if (sessionId != "" && sessionId != null) {
+                //console.log(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite/listitems.gzip?catalog_id=" + response.data.data.content_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region);
+                axios.get(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite/listitems.gzip?catalog_id=" + response.data.data.catalog_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region).then(followresp=>{
+                    setToggle(true)
+                }).catch(followerror=>{
+                    setToggle(false)
+                })
+            }
+
             var mainArr = [];
             for (var e = 0; e < response.data.data.subcategories[subcategorySeoUrl].episodetype_tags.length; e++) {
                 var subcategorySplit = "";
@@ -202,6 +217,44 @@ export default function Shows({ navigation, route }) {
             </View>
         )
     }
+    const followContent = async () => {
+
+        var sessionId = await AsyncStorage.getItem('session');
+        await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite", {
+            listitem: { catalog_id: catalogId, content_id: contentId },
+            auth_token: VIDEO_AUTH_TOKEN,
+            access_token: ACCESS_TOKEN,
+
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(response => {
+            //console.log(JSON.stringify(response.data));
+            setToggle(true)
+        }).catch(error => {
+            alert("Unable to follow the content. Please try again later.");
+        })
+
+    }
+    const unfollowContent = async () => {
+        var sessionId = await AsyncStorage.getItem('session');
+        var region = await AsyncStorage.getItem('country_code');
+
+        await axios.get(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/favourite/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region + '&content_id=' + contentId + '&catalog_id=' + catalogId).then(response => {
+            //console.log(JSON.stringify(response.data.data.items[0]));
+            axios.delete(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/favourite/listitems/" + response.data.data.items[0].listitem_id + "?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(resp => {
+                //console.log(JSON.stringify(resp.data));
+                setToggle(false)
+            }).catch(err => { })
+        }).catch(error => {
+            //console.log(JSON.stringify(error.response.data));
+        })
+
+        //Delete fcm topic for notification
+        // await axios.get(FIRETV_BASE_URL + "/delete_fcm_topic?auth_token="+VIDEO_AUTH_TOKEN+"&access_token="+ACCESS_TOKEN+"&region="+region+"&token=null&topic=tvshow_"+contentId).then(respo=>{}).catch(erro=>{})
+
+    }
 
     return (
         <View style={styles.mainContainer}>
@@ -243,9 +296,13 @@ export default function Shows({ navigation, route }) {
                             </View>
                             <View style={styles.singleoption}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></View>
                             <View style={styles.singleoption}>
-                                <Pressable onPress={() => { setToggle(!toggle) }}>
-                                    {toggle ? <MaterialCommunityIcons name="toggle-switch" size={40} color={NORMAL_TEXT_COLOR} /> : <MaterialCommunityIcons name="toggle-switch-off" size={40} color={NORMAL_TEXT_COLOR} />}
-                                </Pressable>
+
+                                {toggle ?
+                                    <Pressable onPress={unfollowContent}><MaterialCommunityIcons name="toggle-switch" size={40} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                    :
+                                    <Pressable onPress={followContent}><MaterialCommunityIcons name="toggle-switch-off" size={40} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                }
+
                             </View>
                         </View>
 

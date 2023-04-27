@@ -438,7 +438,6 @@ export default function Episode({ navigation, route }) {
     hours = String(hours).padStart(2, '0');
     minutes = String(minutes).padStart(2, '0');
     var timestamp = hours + ":" + minutes + ":" + seconds;
-    console.log(timestamp);
     var sessionId = await AsyncStorage.getItem('session');
     if (sessionId != "" && sessionId != null && timestamp!="" && timestamp!=null) {
       await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchhistory", {
