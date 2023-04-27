@@ -9,6 +9,7 @@ import FastImage from 'react-native-fast-image';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { useFocusEffect } from '@react-navigation/native';
 import Modal from "react-native-modal";
+import Share from 'react-native-share';
 import NormalHeader from './normalHeader';
 import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR, DETAILS_TEXT_COLOR, DARKED_BORDER_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN } from '../constants';
 var indexValue = 0;
@@ -33,6 +34,7 @@ export default function Shows({ navigation, route }) {
     const [episodeSeoUrl, setEpisodeSeoUrl] = useState();
     const [contentId, setContentId] = useState();
     const [catalogId, setCatalogId] = useState();
+    const [shareUrl, setShareUrl] = useState()
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -95,6 +97,7 @@ export default function Shows({ navigation, route }) {
             setSeasons(response.data.data.subcategories);
             setContentId(response.data.data.content_id);
             setCatalogId(response.data.data.catalog_id);
+            setShareUrl(response.data.data.dynamic_url);
 
             if (sessionId != "" && sessionId != null) {
                 //console.log(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite/listitems.gzip?catalog_id=" + response.data.data.content_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region);
@@ -255,6 +258,14 @@ export default function Shows({ navigation, route }) {
         // await axios.get(FIRETV_BASE_URL + "/delete_fcm_topic?auth_token="+VIDEO_AUTH_TOKEN+"&access_token="+ACCESS_TOKEN+"&region="+region+"&token=null&topic=tvshow_"+contentId).then(respo=>{}).catch(erro=>{})
 
     }
+    const shareOptions = async () => {
+        const shareOptions = {
+          title: title,
+          failOnCancel: false,
+          urls: [shareUrl],
+        };
+        const ShareResponse = await Share.open(shareOptions);
+      }
 
     return (
         <View style={styles.mainContainer}>
@@ -294,7 +305,8 @@ export default function Shows({ navigation, route }) {
                             <View style={styles.singleoption}>
                                 <AirbnbRating showRating={false} count={5} defaultRating={userRating} size={18} />
                             </View>
-                            <View style={styles.singleoption}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></View>
+                            <View style={styles.singleoption}>
+                            <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable></View>
                             <View style={styles.singleoption}>
 
                                 {toggle ?
