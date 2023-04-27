@@ -1,5 +1,5 @@
 import { StatusBar, } from 'expo-status-bar';
-import { StyleSheet, View, Text, Pressable, ScrollView, FlatList, Image, LogBox } from 'react-native';
+import { StyleSheet, View, Text, Pressable, ScrollView, FlatList, Image, LogBox, Alert, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Rating, AirbnbRating } from 'react-native-ratings';
@@ -9,6 +9,7 @@ import FastImage from 'react-native-fast-image';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { useFocusEffect } from '@react-navigation/native';
 import Modal from "react-native-modal";
+import Share from 'react-native-share';
 import NormalHeader from './normalHeader';
 import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR, DETAILS_TEXT_COLOR, DARKED_BORDER_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN } from '../constants';
 var indexValue = 0;
@@ -33,6 +34,9 @@ export default function Shows({ navigation, route }) {
     const [episodeSeoUrl, setEpisodeSeoUrl] = useState();
     const [contentId, setContentId] = useState();
     const [catalogId, setCatalogId] = useState();
+    const [shareUrl, setShareUrl] = useState();
+    const [ratingdone, setratingdone] = useState(false);
+    const [loading, setLoading] = useState(true);
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -44,6 +48,7 @@ export default function Shows({ navigation, route }) {
     }
 
     const loadData = async () => {
+        setLoading(true);
         const baseUrl = FIRETV_BASE_URL;
         var splittedData = seourl.split("/");
         splittedData = splittedData.filter(function (e) { return e });
@@ -95,13 +100,20 @@ export default function Shows({ navigation, route }) {
             setSeasons(response.data.data.subcategories);
             setContentId(response.data.data.content_id);
             setCatalogId(response.data.data.catalog_id);
+            setShareUrl(response.data.data.dynamic_url);
 
             if (sessionId != "" && sessionId != null) {
                 //console.log(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite/listitems.gzip?catalog_id=" + response.data.data.content_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region);
-                axios.get(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite/listitems.gzip?catalog_id=" + response.data.data.catalog_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region).then(followresp=>{
+                axios.get(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite/listitems.gzip?catalog_id=" + response.data.data.catalog_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region).then(followresp => {
                     setToggle(true)
-                }).catch(followerror=>{
+                }).catch(followerror => {
                     setToggle(false)
+                })
+
+                axios.get(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/user_ratings/listitems.gzip?catalog_id=" + response.data.data.catalog_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region).then(followresp => {
+                    setratingdone(true);
+                }).catch(followerror => {
+                    setratingdone(false);
                 })
             }
 
@@ -121,6 +133,8 @@ export default function Shows({ navigation, route }) {
             mainArr.push({ 'name': 'related', 'display_title': 'Related Shows', 'item_type': 'show', 'subcategoryurl': relatedurlPath })
             setSubcategoryList(mainArr);
         }).catch(error => { })
+
+        setLoading(false);
     }
 
     useFocusEffect(
@@ -255,9 +269,56 @@ export default function Shows({ navigation, route }) {
         // await axios.get(FIRETV_BASE_URL + "/delete_fcm_topic?auth_token="+VIDEO_AUTH_TOKEN+"&access_token="+ACCESS_TOKEN+"&region="+region+"&token=null&topic=tvshow_"+contentId).then(respo=>{}).catch(erro=>{})
 
     }
+    const shareOptions = async () => {
+        const shareOptions = {
+            title: title,
+            failOnCancel: false,
+            urls: [shareUrl],
+        };
+        const ShareResponse = await Share.open(shareOptions);
+    }
+    const updateRating = async (rate) => {
+        Alert.alert('Rating', 'Your rating is ' + rate + '. Please confirm', [
+            {
+                text: 'Cancel',
+                onPress: () => console.log('Cancel Pressed'),
+                style: 'cancel',
+            },
+            {
+                text: 'OK', onPress: async () => {
 
+
+                    var sessionId = await AsyncStorage.getItem('session');
+                    if (sessionId != "" && sessionId != null) {
+                        await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/user_ratings", {
+                            listitem: { catalog_id: catalogId, content_id: contentId, user_ratings: rate },
+                            auth_token: VIDEO_AUTH_TOKEN,
+                            access_token: ACCESS_TOKEN,
+                            user_id: sessionId,
+                            list_type: "user_ratings"
+
+                        }, {
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        }).then(response => {
+                            console.log(JSON.stringify(response.data));
+                            setratingdone(true);
+                        }).catch(error => {
+                            alert("Unable to rate the content. Please try again later.");
+                            setratingdone(false);
+                        })
+                    }
+
+                }
+            },
+        ]);
+
+    }
     return (
         <View style={styles.mainContainer}>
+            {loading? <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><ActivityIndicator color={NORMAL_TEXT_COLOR} size={'large'}></ActivityIndicator></View> :
+            <View style={{flex:1}}>
             <NormalHeader></NormalHeader>
             <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
                 <View style={styles.container}>
@@ -291,10 +352,29 @@ export default function Shows({ navigation, route }) {
                             </ReadMore>
                         </View>
                         <View style={styles.options}>
+
                             <View style={styles.singleoption}>
-                                <AirbnbRating showRating={false} count={5} defaultRating={userRating} size={18} />
+                                {ratingdone ?
+                                    <View>
+                                        <AirbnbRating onFinishRating={rate => updateRating(rate)}
+                                            showRating={false}
+                                            count={5}
+                                            defaultRating={userRating}
+                                            size={18} />
+                                            <Pressable onPress={()=>alert('You have already rated the content.')} style={{width:'100%',height:"100%",position:'absolute'}}></Pressable>
+                                    </View>
+
+                                    :
+                                    <AirbnbRating onFinishRating={rate => updateRating(rate)}
+                                        showRating={false}
+                                        count={5}
+                                        defaultRating={userRating}
+                                        size={18} />
+                                }
                             </View>
-                            <View style={styles.singleoption}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></View>
+
+                            <View style={styles.singleoption}>
+                                <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable></View>
                             <View style={styles.singleoption}>
 
                                 {toggle ?
@@ -346,6 +426,8 @@ export default function Shows({ navigation, route }) {
                 </View>
             </Modal>
             <StatusBar style="auto" />
+            </View>
+                }
         </View>
     );
 }
