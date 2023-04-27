@@ -1,5 +1,5 @@
 import { StatusBar, } from 'expo-status-bar';
-import { StyleSheet, View, Text, Pressable, ScrollView, FlatList, Image, LogBox, Alert } from 'react-native';
+import { StyleSheet, View, Text, Pressable, ScrollView, FlatList, Image, LogBox, Alert, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Rating, AirbnbRating } from 'react-native-ratings';
@@ -36,6 +36,7 @@ export default function Shows({ navigation, route }) {
     const [catalogId, setCatalogId] = useState();
     const [shareUrl, setShareUrl] = useState();
     const [ratingdone, setratingdone] = useState(false);
+    const [loading, setLoading] = useState(true);
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -47,6 +48,7 @@ export default function Shows({ navigation, route }) {
     }
 
     const loadData = async () => {
+        setLoading(true);
         const baseUrl = FIRETV_BASE_URL;
         var splittedData = seourl.split("/");
         splittedData = splittedData.filter(function (e) { return e });
@@ -131,6 +133,8 @@ export default function Shows({ navigation, route }) {
             mainArr.push({ 'name': 'related', 'display_title': 'Related Shows', 'item_type': 'show', 'subcategoryurl': relatedurlPath })
             setSubcategoryList(mainArr);
         }).catch(error => { })
+
+        setLoading(false);
     }
 
     useFocusEffect(
@@ -313,6 +317,8 @@ export default function Shows({ navigation, route }) {
     }
     return (
         <View style={styles.mainContainer}>
+            {loading? <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><ActivityIndicator color={NORMAL_TEXT_COLOR} size={'large'}></ActivityIndicator></View> :
+            <View style={{flex:1}}>
             <NormalHeader></NormalHeader>
             <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
                 <View style={styles.container}>
@@ -420,6 +426,8 @@ export default function Shows({ navigation, route }) {
                 </View>
             </Modal>
             <StatusBar style="auto" />
+            </View>
+                }
         </View>
     );
 }
