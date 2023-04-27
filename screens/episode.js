@@ -393,17 +393,17 @@ export default function Episode({ navigation, route }) {
   const deleteLike = async (catalog_id, contentId) => {
     var sessionId = await AsyncStorage.getItem('session');
     var region = await AsyncStorage.getItem('country_code');
-    await axios.get(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/like/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region+'&content_id='+contentId+'&catalog_id='+catalog_id).then(response => {
+    await axios.get(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/like/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region + '&content_id=' + contentId + '&catalog_id=' + catalog_id).then(response => {
       //console.log(JSON.stringify(response.data.data.items[0]));
-        axios.delete(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/like/listitems/" + response.data.data.items[0].listitem_id + "?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(resp => {
-          AsyncStorage.removeItem('like_' + contentId)
-          setlikecontent(false);
-        }).catch(err => { })
+      axios.delete(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/like/listitems/" + response.data.data.items[0].listitem_id + "?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(resp => {
+        AsyncStorage.removeItem('like_' + contentId)
+        setlikecontent(false);
+      }).catch(err => { })
 
-     
-  }).catch(error => {
+
+    }).catch(error => {
       //console.log(JSON.stringify(error.response.data));
-  })
+    })
 
   }
 
@@ -428,6 +428,35 @@ export default function Episode({ navigation, route }) {
   // const onAdsComplete = () => {
   //   setPlay(false);
   // }
+  const toHoursAndMinutes = async (totalSeconds) => {
+    const totalMinutes = Math.floor(totalSeconds / 60);
+
+    var seconds = totalSeconds % 60;
+    var hours = Math.floor(totalMinutes / 60);
+    var minutes = totalMinutes % 60;
+    seconds = String(seconds).padStart(2, '0');
+    hours = String(hours).padStart(2, '0');
+    minutes = String(minutes).padStart(2, '0');
+    var timestamp = hours + ":" + minutes + ":" + seconds;
+    console.log(timestamp);
+    var sessionId = await AsyncStorage.getItem('session');
+    if (sessionId != "" && sessionId != null && timestamp!="" && timestamp!=null) {
+      await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchhistory", {
+        listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true" },
+        auth_token: VIDEO_AUTH_TOKEN,
+        access_token: ACCESS_TOKEN,
+        play_back_status: "playing",
+        play_back_time: timestamp
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }).then(response => {
+        console.log(JSON.stringify(response.data));
+      }).catch(error => {
+      })
+    }
+  }
 
 
   return (
@@ -466,6 +495,12 @@ export default function Episode({ navigation, route }) {
                   resizeMode={fullscreen ? 'cover' : 'none'}
                   style={fullscreen ? styles.fullscreenVideo : styles.video}
                   onEnd={checkpreviewContent}
+                  playWhenInactive={false}
+                  progressUpdateInterval={30000}
+                  onProgress={play => {
+                    var milliseconds = play.currentTime;
+                    toHoursAndMinutes(Math.floor(milliseconds));
+                  }}
                 />
                 {state.showControls && (
                   <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50 }}>
@@ -532,7 +567,7 @@ export default function Episode({ navigation, route }) {
                   {!likecontent ?
                     <Pressable onPress={likeContent}><MaterialIcons name="thumb-up-off-alt" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
                     :
-                    <Pressable onPress={()=>deleteLike(catalogId,contentId)}><MaterialIcons name="thumb-up" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                    <Pressable onPress={() => deleteLike(catalogId, contentId)}><MaterialIcons name="thumb-up" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
                   }
                 </View>
 
