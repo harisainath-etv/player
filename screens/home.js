@@ -180,10 +180,25 @@ function Home({ navigation, route }) {
 
                                             }
                                         }
+                                        
                                     }
                                     Final.push({ "friendlyId": data.data.catalog_list_items[i].catalog_list_items[j].friendly_id, "data": internalAll, "layoutType": data.data.catalog_list_items[i].catalog_list_items[j].layout_type, "displayName": data.data.catalog_list_items[i].catalog_list_items[j].display_title });
                                     internalAll = [];
 
+                                }
+                            }
+                            if(data.data.catalog_list_items[i].layout_type=="continue_watching")
+                            {
+                                var sessionId = await AsyncStorage.getItem('session');
+                                if (sessionId != "" && sessionId != null) {
+                                axios.get(FIRETV_BASE_URL + "users/"+sessionId+"/playlists/watchhistory/listitems.gzip?&auth_token="+VIDEO_AUTH_TOKEN+"&access_token="+ACCESS_TOKEN+"&item_language=eng&region="+region).then(resp=>{
+                                    
+                                    for(var c=0;c<resp.data.data.items.length;c++)
+                                    {
+                                    All.push({ "uri": resp.data.data.items[c].thumbnails.high_4_3.url, "theme": resp.data.data.items[c].theme, "premium": false, "seoUrl": resp.data.data.items[c].seo_url, "medialistinlist": false, "friendlyId": "", "displayTitle": resp.data.data.items[c].title });
+                                    }
+
+                                }).catch(err=>{})
                                 }
                             }
                         }
