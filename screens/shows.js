@@ -1,5 +1,5 @@
 import { StatusBar, } from 'expo-status-bar';
-import { StyleSheet, View, Text, Pressable, ScrollView, FlatList, Image, LogBox } from 'react-native';
+import { StyleSheet, View, Text, Pressable, ScrollView, FlatList, Image, LogBox, Alert } from 'react-native';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Rating, AirbnbRating } from 'react-native-ratings';
@@ -34,7 +34,8 @@ export default function Shows({ navigation, route }) {
     const [episodeSeoUrl, setEpisodeSeoUrl] = useState();
     const [contentId, setContentId] = useState();
     const [catalogId, setCatalogId] = useState();
-    const [shareUrl, setShareUrl] = useState()
+    const [shareUrl, setShareUrl] = useState();
+    const [ratingdone, setratingdone] = useState(false);
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -101,10 +102,16 @@ export default function Shows({ navigation, route }) {
 
             if (sessionId != "" && sessionId != null) {
                 //console.log(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite/listitems.gzip?catalog_id=" + response.data.data.content_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region);
-                axios.get(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite/listitems.gzip?catalog_id=" + response.data.data.catalog_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region).then(followresp=>{
+                axios.get(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite/listitems.gzip?catalog_id=" + response.data.data.catalog_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region).then(followresp => {
                     setToggle(true)
-                }).catch(followerror=>{
+                }).catch(followerror => {
                     setToggle(false)
+                })
+
+                axios.get(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/user_ratings/listitems.gzip?catalog_id=" + response.data.data.catalog_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region).then(followresp => {
+                    setratingdone(true);
+                }).catch(followerror => {
+                    setratingdone(false);
                 })
             }
 
@@ -260,13 +267,50 @@ export default function Shows({ navigation, route }) {
     }
     const shareOptions = async () => {
         const shareOptions = {
-          title: title,
-          failOnCancel: false,
-          urls: [shareUrl],
+            title: title,
+            failOnCancel: false,
+            urls: [shareUrl],
         };
         const ShareResponse = await Share.open(shareOptions);
-      }
+    }
+    const updateRating = async (rate) => {
+        Alert.alert('Rating', 'Your rating is ' + rate + '. Please confirm', [
+            {
+                text: 'Cancel',
+                onPress: () => console.log('Cancel Pressed'),
+                style: 'cancel',
+            },
+            {
+                text: 'OK', onPress: async () => {
 
+
+                    var sessionId = await AsyncStorage.getItem('session');
+                    if (sessionId != "" && sessionId != null) {
+                        await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/user_ratings", {
+                            listitem: { catalog_id: catalogId, content_id: contentId, user_ratings: rate },
+                            auth_token: VIDEO_AUTH_TOKEN,
+                            access_token: ACCESS_TOKEN,
+                            user_id: sessionId,
+                            list_type: "user_ratings"
+
+                        }, {
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        }).then(response => {
+                            console.log(JSON.stringify(response.data));
+                            setratingdone(true);
+                        }).catch(error => {
+                            alert("Unable to rate the content. Please try again later.");
+                            setratingdone(false);
+                        })
+                    }
+
+                }
+            },
+        ]);
+
+    }
     return (
         <View style={styles.mainContainer}>
             <NormalHeader></NormalHeader>
@@ -302,11 +346,29 @@ export default function Shows({ navigation, route }) {
                             </ReadMore>
                         </View>
                         <View style={styles.options}>
+
                             <View style={styles.singleoption}>
-                                <AirbnbRating showRating={false} count={5} defaultRating={userRating} size={18} />
+                                {ratingdone ?
+                                    <View>
+                                        <AirbnbRating onFinishRating={rate => updateRating(rate)}
+                                            showRating={false}
+                                            count={5}
+                                            defaultRating={userRating}
+                                            size={18} />
+                                            <Pressable onPress={()=>alert('You have already rated the content.')} style={{width:'100%',height:"100%",position:'absolute'}}></Pressable>
+                                    </View>
+
+                                    :
+                                    <AirbnbRating onFinishRating={rate => updateRating(rate)}
+                                        showRating={false}
+                                        count={5}
+                                        defaultRating={userRating}
+                                        size={18} />
+                                }
                             </View>
+
                             <View style={styles.singleoption}>
-                            <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable></View>
+                                <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable></View>
                             <View style={styles.singleoption}>
 
                                 {toggle ?
