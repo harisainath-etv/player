@@ -36,8 +36,8 @@ export default function Header(props) {
             { 'iconName': 'bell-check', 'pageName': 'SUBSCRIPTION', 'text': 'Subscription', 'type': 1, 'pageFriendlyId': '', 'navigateTo': '' },
 
             { 'iconName': 'download', 'pageName': 'OFFLINE', 'text': 'Offline Videos', 'type': 1, 'pageFriendlyId': '', 'navigateTo': 'Offline' },
-            { 'iconName': 'television-play', 'pageName': 'TV', 'text': 'Activate TV', 'type': 1, 'pageFriendlyId': '', 'navigateTo': '' },
-            { 'iconName': 'sticker-plus', 'pageName': 'WATCH-LATER', 'text': 'Watch Later', 'type': 1, 'pageFriendlyId': '', 'navigateTo': '' },
+            { 'iconName': 'television-play', 'pageName': 'TV', 'text': 'Activate TV', 'type': 1, 'pageFriendlyId': '', 'navigateTo': 'ActivateTv' },
+            { 'iconName': 'sticker-plus', 'pageName': 'WATCH-LATER', 'text': 'Watch Later', 'type': 1, 'pageFriendlyId': '', 'navigateTo': 'WatchLater' },
 
             { 'iconName': 'more', 'pageName': 'MORE', 'text': 'More', 'type': 1, 'pageFriendlyId': '', 'navigateTo': '' },
             { 'iconName': 'gear', 'pageName': 'Settings', 'text': 'Settings', 'type': 2, 'pageFriendlyId': '', 'navigateTo': '' }]
