@@ -7,7 +7,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Modal from "react-native-modal";
 import { useNavigation } from '@react-navigation/native';
 import { StackActions } from '@react-navigation/native';
-import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, MORE_LINK_COLOR, } from '../constants';
+import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, MORE_LINK_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Header(props) {
@@ -16,6 +16,8 @@ export default function Header(props) {
     const [isModalVisible, setModalVisible] = useState(false);
     const [login, setLogin] = useState(false);
     const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [mobile, setMobile] = useState("");
     const [profilePic, setProfilePic] = useState();
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
@@ -46,15 +48,20 @@ export default function Header(props) {
 
     const loadData = async () => {
         const firstname = await AsyncStorage.getItem('firstname');
+        const email = await AsyncStorage.getItem('email_id');
+        const mobile_number = await AsyncStorage.getItem('mobile_number');
         const session = await AsyncStorage.getItem('session');
         const profile_pic = await AsyncStorage.getItem('profile_pic');
-        if (session != "" && session != null)
-        {
+        if (session != "" && session != null) {
             setLogin(true)
             setName(firstname);
+            setEmail(email);
+            setMobile(mobile_number);
         }
         if (profile_pic != "" && profile_pic != null)
             setProfilePic(profile_pic)
+
+        console.log(profile_pic);
     }
 
     useEffect(() => {
@@ -92,14 +99,39 @@ export default function Header(props) {
                                 </View>
                             </ImageBackground>
                             :
-                            <ImageBackground
-                                source={{uri: profilePic}}
-                                resizeMode="cover"
-                                style={styles.drawerHeaderImage}>
-                                <View style={{ padding: 25 }}>
-                                    <Text style={styles.drawerHeaderText}>Hi {name}</Text>
-                                </View>
-                            </ImageBackground>
+                            profilePic != "" && profilePic != null ?
+                                <ImageBackground
+                                    source={{ uri: profilePic }}
+                                    resizeMode="cover"
+                                    style={styles.drawerHeaderImage}>
+                                    <View style={{ padding: 25 }}>
+                                        <Text style={styles.drawerHeaderText}>Hi {name}</Text>
+                                    </View>
+                                </ImageBackground>
+                                :
+                                <ImageBackground
+                                    source={require('../assets/images/usericon.png')}
+                                    resizeMode="center"
+                                    style={styles.drawerHeaderImage}>
+                                    <View style={{ padding: 25, height: 170, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%" }}>
+
+
+                                        <Pressable style={{ bottom: 0, position: 'absolute', left: 35, flexDirection: 'row' }}>
+                                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                                <Text style={styles.drawerHeaderText}>Hi {name}</Text>
+                                                {email != "" && email != null ?
+                                                    <Text style={styles.drawerHeaderText}>{email}</Text>
+                                                    :
+                                                    ""}
+                                            </View>
+                                            <View style={{ justifyContent: 'center', alignItems: 'center', marginLeft: 15 }}>
+                                                <MaterialCommunityIcons name='greater-than' color={SLIDER_PAGINATION_SELECTED_COLOR} size={18}></MaterialCommunityIcons>
+                                            </View>
+                                        </Pressable>
+
+
+                                    </View>
+                                </ImageBackground>
                         }
 
                         <View style={{ paddingLeft: 30, marginTop: 20 }}>
@@ -160,7 +192,7 @@ export default function Header(props) {
 
 const styles = StyleSheet.create({
     menuItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 25, },
-    drawerHeaderText: { color: NORMAL_TEXT_COLOR, fontSize: 16, fontWeight: 'bold' },
+    drawerHeaderText: { color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: 'bold' },
     drawerHeaderImage: { width: "100%", height: 170 },
     drawerContainer: { flex: 1, backgroundColor: SIDEBAR_BACKGROUND_COLOR, height: PAGE_HEIGHT, width: (PAGE_WIDTH / 1.3), left: -20, position: 'absolute' },
     headerContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20, padding: 5 },
