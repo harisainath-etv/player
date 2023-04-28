@@ -191,15 +191,18 @@ function Home({ navigation, route }) {
                             {
                                 var sessionId = await AsyncStorage.getItem('session');
                                 if (sessionId != "" && sessionId != null) {
-                                axios.get(FIRETV_BASE_URL + "users/"+sessionId+"/playlists/watchhistory/listitems.gzip?&auth_token="+VIDEO_AUTH_TOKEN+"&access_token="+ACCESS_TOKEN+"&item_language=eng&region="+region).then(resp=>{
+                                    const continueresp = await fetch(FIRETV_BASE_URL + "users/"+sessionId+"/playlists/watchhistory/listitems.gzip?&auth_token="+VIDEO_AUTH_TOKEN+"&access_token="+ACCESS_TOKEN+"&item_language=eng&region="+region);
+                                    const continuedata = await continueresp.json();
                                     
-                                    for(var c=0;c<resp.data.data.items.length;c++)
+                                    for(var c=0;c<continuedata.data.items.length;c++)
                                     {
-                                    All.push({ "uri": resp.data.data.items[c].thumbnails.high_4_3.url, "theme": resp.data.data.items[c].theme, "premium": false, "seoUrl": resp.data.data.items[c].seo_url, "medialistinlist": false, "friendlyId": "", "displayTitle": resp.data.data.items[c].title });
+                                    All.push({ "uri": continuedata.data.items[c].thumbnails.high_4_3.url, "theme": continuedata.data.items[c].theme, "premium": false, "seoUrl": continuedata.data.items[c].seo_url, "medialistinlist": false, "friendlyId": "", "displayTitle": continuedata.data.items[c].title });
                                     }
 
-                                }).catch(err=>{})
+                               
                                 }
+
+                               // console.log(JSON.stringify(All));
                             }
                         }
 

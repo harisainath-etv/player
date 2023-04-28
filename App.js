@@ -18,6 +18,8 @@ import Otp from './screens/otp';
 import MobileUpdate from './screens/mobileUpdate';
 import WatchLater from './screens/watchLater';
 import ActivateTv from './screens/activateTv';
+import More from './screens/more';
+import Webview from './screens/WebView';
 import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION } from './constants';
 import { View, Dimensions, Platform } from 'react-native';
 import SplashScreen from 'react-native-splash-screen'
@@ -120,6 +122,8 @@ export default function App() {
           <Stack.Screen name="MobileUpdate" component={MobileUpdate} options={{ header: () => null, }} />
           <Stack.Screen name="WatchLater" component={WatchLater} options={{ header: () => null, }} />
           <Stack.Screen name="ActivateTv" component={ActivateTv} options={{ header: () => null, }} />
+          <Stack.Screen name="More" component={More} options={{ header: () => null, }} />
+          <Stack.Screen name="Webview" component={Webview} options={{ header: () => null, }} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>
