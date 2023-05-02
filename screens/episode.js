@@ -5,7 +5,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, } from '../constants';
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, } from '../constants';
 import axios from 'axios';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
@@ -15,6 +15,7 @@ import { StackActions } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import RNBackgroundDownloader from 'react-native-background-downloader';
 import Share from 'react-native-share';
+import Modal from "react-native-modal";
 // import VideoViewAndroid from '../components/VideoViewAndroid';
 // import VideoViewIos from '../components/VideoViewIos';
 
@@ -37,7 +38,6 @@ export default function Episode({ navigation, route }) {
   const [play, setPlay] = useState(true);
   const [loading, setLoading] = useState(false);
   const [offlineUrl, setOfflineUrl] = useState("");
-  const [offlineDownloadUrl, setofflineDownloadUrl] = useState("");
   //0 - not downloaded, 1-downloaded, 2-downloading
   const [downloadedStatus, setDownloadedStatus] = useState(0)
   const [taskdownloading, settaskdownloading] = useState();
@@ -53,7 +53,12 @@ export default function Episode({ navigation, route }) {
   const [watchlatercontent, setwatchlatercontent] = useState();
   const [likecontent, setlikecontent] = useState();
   const [shareUrl, setShareUrl] = useState()
-
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [prefrence, setPreference] = useState([]);
+  const [isresumeDownloading, setIsresumeDownloading] = useState(false);
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
 
 
   const navigationConfig = async () => {
@@ -137,7 +142,7 @@ export default function Episode({ navigation, route }) {
             setwatchlatercontent(true);
         }).catch(erro => { })
         AsyncStorage.getItem("like_" + contentId).then(resp => {
-          console.log(resp);
+          //console.log(resp);
           if (resp != "" && resp != null)
             setlikecontent(true);
         }).catch(erro => { })
@@ -177,7 +182,7 @@ export default function Episode({ navigation, route }) {
             }
             setLoading(false);
           }).catch(error => {
-            console.log(JSON.stringify(error.response.data));
+            //console.log(JSON.stringify(error.response.data));
             setLoading(false);
           }
           )
@@ -186,6 +191,11 @@ export default function Episode({ navigation, route }) {
         setLoading(false);
       })
     }
+
+    //ofline downloads
+    let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
+    if (lostTasks.length > 0)
+      setIsresumeDownloading(true);
   }
   const checkOfflineDownload = async () => {
 
@@ -258,62 +268,76 @@ export default function Episode({ navigation, route }) {
       navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
   }
   const downloadFile = async () => {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-      {
-        title: 'Download File',
-        message:
-          'Need App Access To Download Files',
-        buttonPositive: 'OK',
-      },
-    );
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      // if (offlineUrl != "") {
-      var splittedOfflineUrl = offlineUrl.split("/");
-      var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
-      if (await RNFS.exists(downloaddirectory)) {
-        //setDownloadedStatus(1)
-      }
-      else {
-        RNFS.mkdir(downloaddirectory);
-      }
-      var offlinedownloadapi = offlineUrl + "?service_id=6&play_url=yes&protocol=http_pd&us=745d7e9f1e37ca27fdffbebfe8a99877";
-      await axios.get(offlinedownloadapi).then(response => {
-        setofflineDownloadUrl(response.data.playback_urls[3].playback_url);
-        AsyncStorage.setItem('download_url' + splittedOfflineUrl[splittedOfflineUrl.length - 1], offlineDownloadUrl);
-        AsyncStorage.setItem('download_path' + splittedOfflineUrl[splittedOfflineUrl.length - 1], `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts.download`);
-        AsyncStorage.setItem('download_title' + splittedOfflineUrl[splittedOfflineUrl.length - 1], title);
-        AsyncStorage.setItem('download_thumbnail' + splittedOfflineUrl[splittedOfflineUrl.length - 1], thumbnailImage);
-        AsyncStorage.setItem('download_seourl' + splittedOfflineUrl[splittedOfflineUrl.length - 1], seourl)
-
-        let tasks = RNBackgroundDownloader.download({
-          id: splittedOfflineUrl[splittedOfflineUrl.length - 1],
-          url: offlineDownloadUrl,
-          destination: `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts.download`
-        }).begin((expectedBytes) => {
-          setDownloadedStatus(2)
-          console.log(`Going to download ${expectedBytes} bytes!`);
-        }).progress((percent) => {
-          AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(percent * 100));
-          console.log(`Downloaded: ${percent * 100}%`);
-        }).done(() => {
-          AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(1 * 100));
-          setDownloadedStatus(1)
-          console.log('Download is done!');
-        }).error((error) => {
-          console.log('Download canceled due to error: ', error);
-        })
-        settaskdownloading(tasks);
-        AsyncStorage.setItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(tasks));
-
-      }).catch(error => { })
-
-      // }
-
+    if (!loggedin) {
+      navigation.dispatch(StackActions.replace("Login"));
     }
     else {
-      alert("Please give access to download files.");
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Download File',
+          message:
+            'Need App Access To Download Files',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        // if (offlineUrl != "") {
+        var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
+        var offlineprefrences = [];
+        if (await RNFS.exists(downloaddirectory)) {
+          //setDownloadedStatus(1)
+        }
+        else {
+          RNFS.mkdir(downloaddirectory);
+        }
+        var offlinedownloadapi = offlineUrl + "?service_id=6&play_url=yes&protocol=http_pd&us=745d7e9f1e37ca27fdffbebfe8a99877";
+        await axios.get(offlinedownloadapi).then(response => {
+          for (let o = 0; o < response.data.playback_urls.length; o++) {
+            offlineprefrences.push({ "display_name": response.data.playback_urls[o].display_name, "playback_url": response.data.playback_urls[o].playback_url, "offlineUrl": offlineUrl, "downloaddirectory": downloaddirectory })
+          }
+          setPreference(offlineprefrences);
+          toggleModal()
+        }).catch(error => { })
+
+        // }
+
+      }
+      else {
+        alert("Please give access to download files.");
+      }
     }
+  }
+
+  const startDownloading = async (playback_url, offlineUrl, downloaddirectory) => {
+    var splittedOfflineUrl = offlineUrl.split("/");
+    AsyncStorage.setItem('download_url' + splittedOfflineUrl[splittedOfflineUrl.length - 1], playback_url);
+    AsyncStorage.setItem('download_path' + splittedOfflineUrl[splittedOfflineUrl.length - 1], `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts.download`);
+    AsyncStorage.setItem('download_title' + splittedOfflineUrl[splittedOfflineUrl.length - 1], title);
+    AsyncStorage.setItem('download_thumbnail' + splittedOfflineUrl[splittedOfflineUrl.length - 1], thumbnailImage);
+    AsyncStorage.setItem('download_seourl' + splittedOfflineUrl[splittedOfflineUrl.length - 1], seourl)
+
+    let tasks = RNBackgroundDownloader.download({
+      id: splittedOfflineUrl[splittedOfflineUrl.length - 1],
+      url: playback_url,
+      destination: `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts.download`
+    }).begin((expectedBytes) => {
+      setDownloadedStatus(2)
+      console.log(`Going to download ${expectedBytes} bytes!`);
+      toggleModal()
+    }).progress((percent) => {
+      AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(percent * 100));
+      console.log(`Downloaded: ${percent * 100}%`);
+    }).done(() => {
+      AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(1 * 100));
+      setDownloadedStatus(1)
+      console.log('Download is done!');
+    }).error((error) => {
+      console.log('Download canceled due to error: ', error);
+    })
+    settaskdownloading(tasks);
+    AsyncStorage.setItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(tasks));
+    navigation.dispatch(StackActions.replace('Offline'));
   }
 
   const deleteDownload = async () => {
@@ -334,8 +358,7 @@ export default function Episode({ navigation, route }) {
             await RNFS.unlink(downloaddirectory)
             setDownloadedStatus(0)
           }
-
-
+          navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
         }
       },
     ]);
@@ -354,41 +377,51 @@ export default function Episode({ navigation, route }) {
     }
   }
   const watchLater = async () => {
-    var sessionId = await AsyncStorage.getItem('session');
-    await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchlater", {
-      listitem: { catalog_id: catalogId, content_id: contentId },
-      auth_token: VIDEO_AUTH_TOKEN,
-      access_token: ACCESS_TOKEN,
+    if (!loggedin) {
+      navigation.dispatch(StackActions.replace("Login"));
+    }
+    else {
+      var sessionId = await AsyncStorage.getItem('session');
+      await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchlater", {
+        listitem: { catalog_id: catalogId, content_id: contentId },
+        auth_token: VIDEO_AUTH_TOKEN,
+        access_token: ACCESS_TOKEN,
 
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    }).then(response => {
-      alert("Added to watchlist");
-      AsyncStorage.setItem("watchLater_" + contentId, contentId);
-      setwatchlatercontent(true);
-    }).catch(error => {
-      alert("Unable to add to watchlist. Please try again later.");
-    })
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }).then(response => {
+        alert("Added to watchlist");
+        AsyncStorage.setItem("watchLater_" + contentId, contentId);
+        setwatchlatercontent(true);
+      }).catch(error => {
+        alert("Unable to add to watchlist. Please try again later.");
+      })
+    }
   }
   const likeContent = async () => {
-    var sessionId = await AsyncStorage.getItem('session');
-    await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/like", {
-      listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true" },
-      auth_token: VIDEO_AUTH_TOKEN,
-      access_token: ACCESS_TOKEN,
+    if (!loggedin) {
+      navigation.dispatch(StackActions.replace("Login"));
+    }
+    else {
+      var sessionId = await AsyncStorage.getItem('session');
+      await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/like", {
+        listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true" },
+        auth_token: VIDEO_AUTH_TOKEN,
+        access_token: ACCESS_TOKEN,
 
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    }).then(response => {
-      AsyncStorage.setItem("like_" + contentId, contentId);
-      setlikecontent(true);
-    }).catch(error => {
-      alert("Unable to like the content. Please try again later.");
-    })
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }).then(response => {
+        AsyncStorage.setItem("like_" + contentId, contentId);
+        setlikecontent(true);
+      }).catch(error => {
+        alert("Unable to like the content. Please try again later.");
+      })
+    }
   }
   const deleteLike = async (catalog_id, contentId) => {
     var sessionId = await AsyncStorage.getItem('session');
@@ -439,7 +472,7 @@ export default function Episode({ navigation, route }) {
     minutes = String(minutes).padStart(2, '0');
     var timestamp = hours + ":" + minutes + ":" + seconds;
     var sessionId = await AsyncStorage.getItem('session');
-    if (sessionId != "" && sessionId != null && timestamp!="" && timestamp!=null) {
+    if (sessionId != "" && sessionId != null && timestamp != "" && timestamp != null) {
       await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchhistory", {
         listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true" },
         auth_token: VIDEO_AUTH_TOKEN,
@@ -451,7 +484,7 @@ export default function Episode({ navigation, route }) {
           'Content-Type': 'application/json',
         }
       }).then(response => {
-        console.log(JSON.stringify(response.data));
+        //console.log(JSON.stringify(response.data));
       }).catch(error => {
       })
     }
@@ -580,7 +613,16 @@ export default function Episode({ navigation, route }) {
                     {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
                     {downloadedStatus == 2 ?
 
-                      pauseDownload ? <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                      pauseDownload ?
+                        isresumeDownloading ?
+                          <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                          :
+                          <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                        :
+                        isresumeDownloading ?
+                          <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                          :
+                          <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
 
                       : ""}
 
@@ -603,6 +645,33 @@ export default function Episode({ navigation, route }) {
               </View>
               : ""}
           </View> : ""}
+
+
+          <Modal
+            isVisible={isModalVisible}
+            testID={'modal'}
+            animationIn="slideInDown"
+            animationOut="slideOutDown"
+            onBackdropPress={toggleModal}
+            backdropColor={"black"}
+            backdropOpacity={0.40}
+          >
+            <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR }}>
+              {prefrence.map((pref, ind) => {
+                return (
+                  pref.display_name != "" ?
+                    <TouchableOpacity key={'pref' + ind} onPress={() => { startDownloading(pref.playback_url, pref.offlineUrl, pref.downloaddirectory) }}>
+                      <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5 }}>
+                        <Text style={{ color: NORMAL_TEXT_COLOR }}>{pref.display_name}</Text>
+                      </View>
+                    </TouchableOpacity>
+                    :
+                    ""
+                )
+              })}
+            </View>
+          </Modal>
+
 
           <StatusBar style="auto" />
         </View>
