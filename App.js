@@ -21,6 +21,7 @@ import ActivateTv from './screens/activateTv';
 import More from './screens/more';
 import Webview from './screens/WebView';
 import SearchCalendarEpisodes from './screens/searchCalendarEpisodes';
+import Search from './screens/search';
 import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION } from './constants';
 import { View, Dimensions, Platform } from 'react-native';
 import SplashScreen from 'react-native-splash-screen'
@@ -126,6 +127,7 @@ export default function App() {
           <Stack.Screen name="More" component={More} options={{ header: () => null, }} />
           <Stack.Screen name="Webview" component={Webview} options={{ header: () => null, }} />
           <Stack.Screen name="SearchCalendarEpisodes" component={SearchCalendarEpisodes} options={{ header: () => null, }} />
+          <Stack.Screen name="Search" component={Search} options={{ header: () => null, }} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>
