@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import FastImage from 'react-native-fast-image';
 import ReadMore from '@fawazahmed/react-native-read-more';
-import { useFocusEffect } from '@react-navigation/native';
+import { StackActions, useFocusEffect } from '@react-navigation/native';
 import Modal from "react-native-modal";
 import Share from 'react-native-share';
 import NormalHeader from './normalHeader';
@@ -37,6 +37,7 @@ export default function Shows({ navigation, route }) {
     const [shareUrl, setShareUrl] = useState();
     const [ratingdone, setratingdone] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [episodeUrl, setEpisodeUrl] = useState("");
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -127,7 +128,9 @@ export default function Shows({ navigation, route }) {
 
                 subcategoryurlPath = baseUrl + "catalogs/" + subcategorySplit[0] + "/items/" + subcategorySplit[1] + "/subcategories/" + subcategorySplit[3] + "/episodes";
                 subcategoryurl = subcategoryurlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region + "&episode_type=" + response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name;
-
+                if (response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name == 'episode') {
+                    setEpisodeUrl(baseUrl + "catalogs/" + subcategorySplit[0] + "/items/" + subcategorySplit[1]+"/episodes.gzip");
+                }
                 mainArr.push({ 'name': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name, 'display_title': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].display_title, 'item_type': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].item_type, 'subcategoryurl': subcategoryurl })
             }
             mainArr.push({ 'name': 'related', 'display_title': 'Related Shows', 'item_type': 'show', 'subcategoryurl': relatedurlPath })
@@ -234,21 +237,26 @@ export default function Shows({ navigation, route }) {
     const followContent = async () => {
 
         var sessionId = await AsyncStorage.getItem('session');
-        await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite", {
-            listitem: { catalog_id: catalogId, content_id: contentId },
-            auth_token: VIDEO_AUTH_TOKEN,
-            access_token: ACCESS_TOKEN,
+        if (sessionId != "" && sessionId != null) {
+            await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite", {
+                listitem: { catalog_id: catalogId, content_id: contentId },
+                auth_token: VIDEO_AUTH_TOKEN,
+                access_token: ACCESS_TOKEN,
 
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        }).then(response => {
-            //console.log(JSON.stringify(response.data));
-            setToggle(true)
-        }).catch(error => {
-            alert("Unable to follow the content. Please try again later.");
-        })
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(response => {
+                //console.log(JSON.stringify(response.data));
+                setToggle(true)
+            }).catch(error => {
+                alert("Unable to follow the content. Please try again later.");
+            })
+        }
+        else {
+            navigation.dispatch(StackActions.replace('Login'))
+        }
 
     }
     const unfollowContent = async () => {
@@ -309,6 +317,9 @@ export default function Shows({ navigation, route }) {
                             setratingdone(false);
                         })
                     }
+                    else {
+                        navigation.dispatch(StackActions.replace('Login'))
+                    }
 
                 }
             },
@@ -317,117 +328,117 @@ export default function Shows({ navigation, route }) {
     }
     return (
         <View style={styles.mainContainer}>
-            {loading? <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><ActivityIndicator color={NORMAL_TEXT_COLOR} size={'large'}></ActivityIndicator></View> :
-            <View style={{flex:1}}>
-            <NormalHeader></NormalHeader>
-            <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
-                <View style={styles.container}>
-                    <View
-                        style={{
-                            height: 270,
-                            width: PAGE_WIDTH,
-                        }}
-                    >
-                        <Pressable onPress={() => navigation.navigate('Episode', { seoUrl: episodeSeoUrl, theme: 'video' })}>
-                            <FastImage resizeMode={FastImage.resizeMode.stretch} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={{ width: '100%', height: 270 }}></FastImage>
-                            <MaterialCommunityIcons name="play-circle-outline" size={60} color={NORMAL_TEXT_COLOR} style={{ position: 'absolute', right: ((PAGE_WIDTH / 2 - 20)), top: 100, }} />
-                        </Pressable>
-                        {seasons.length > 1 ? <View style={{ position: 'absolute', backgroundColor: 'rgba(0, 0, 0, 0.7)', height: 50, width: '100%', bottom: 0, justifyContent: 'center', padding: 5 }}>
-                            <Pressable onPress={() => setModalVisible(true)}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>{selectTitle ? selectTitle : "Select Season"} <MaterialCommunityIcons name="chevron-double-down" size={20} color={NORMAL_TEXT_COLOR} /></Text></Pressable>
-                        </View> : ""}
+            {loading ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator color={NORMAL_TEXT_COLOR} size={'large'}></ActivityIndicator></View> :
+                <View style={{ flex: 1 }}>
+                    <NormalHeader></NormalHeader>
+                    <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
+                        <View style={styles.container}>
+                            <View
+                                style={{
+                                    height: 270,
+                                    width: PAGE_WIDTH,
+                                }}
+                            >
+                                <Pressable onPress={() => navigation.navigate('Episode', { seoUrl: episodeSeoUrl, theme: 'video' })}>
+                                    <FastImage resizeMode={FastImage.resizeMode.stretch} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={{ width: '100%', height: 270 }}></FastImage>
+                                    <MaterialCommunityIcons name="play-circle-outline" size={60} color={NORMAL_TEXT_COLOR} style={{ position: 'absolute', right: ((PAGE_WIDTH / 2 - 20)), top: 100, }} />
+                                </Pressable>
+                                {seasons.length > 1 ? <View style={{ position: 'absolute', backgroundColor: 'rgba(0, 0, 0, 0.7)', height: 50, width: '100%', bottom: 0, justifyContent: 'center', padding: 5 }}>
+                                    <Pressable onPress={() => setModalVisible(true)}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>{selectTitle ? selectTitle : "Select Season"} <MaterialCommunityIcons name="chevron-double-down" size={20} color={NORMAL_TEXT_COLOR} /></Text></Pressable>
+                                </View> : ""}
 
-                    </View>
-
-                    <View style={styles.bodyContent}>
-                        <View style={styles.marginContainer}>
-                            <Text style={styles.headingLabel}>{title}</Text>
-                            <Text style={styles.detailsText}>{channel}</Text>
-                            <View style={{ flexDirection: 'row' }}>
-                                <Text style={styles.detailsText}>{contentRating}</Text>
-                                <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', borderRightColor: TAB_COLOR, borderWidth: 2 }]}></Text>
-                                <Text style={[styles.detailsText, { borderWidth: 1, borderStyle: 'dashed', borderColor: TAB_COLOR, marginLeft: 10, borderRadius: 10 }]}>{displayGenres}</Text>
                             </View>
-                            <ReadMore numberOfLines={3} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
-                                <Text style={styles.detailsText}>{description}</Text>
-                            </ReadMore>
-                        </View>
-                        <View style={styles.options}>
 
-                            <View style={styles.singleoption}>
-                                {ratingdone ?
-                                    <View>
-                                        <AirbnbRating onFinishRating={rate => updateRating(rate)}
-                                            showRating={false}
-                                            count={5}
-                                            defaultRating={userRating}
-                                            size={18} />
-                                            <Pressable onPress={()=>alert('You have already rated the content.')} style={{width:'100%',height:"100%",position:'absolute'}}></Pressable>
+                            <View style={styles.bodyContent}>
+                                <View style={styles.marginContainer}>
+                                    <Text style={styles.headingLabel}>{title}</Text>
+                                    <Text style={styles.detailsText}>{channel}</Text>
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text style={styles.detailsText}>{contentRating}</Text>
+                                        <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', borderRightColor: TAB_COLOR, borderWidth: 2 }]}></Text>
+                                        <Text style={[styles.detailsText, { borderWidth: 1, borderStyle: 'dashed', borderColor: TAB_COLOR, marginLeft: 10, borderRadius: 10 }]}>{displayGenres}</Text>
+                                    </View>
+                                    <ReadMore numberOfLines={3} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
+                                        <Text style={styles.detailsText}>{description}</Text>
+                                    </ReadMore>
+                                </View>
+                                <View style={styles.options}>
+
+                                    <View style={styles.singleoption}>
+                                        {ratingdone ?
+                                            <View>
+                                                <AirbnbRating onFinishRating={rate => updateRating(rate)}
+                                                    showRating={false}
+                                                    count={5}
+                                                    defaultRating={userRating}
+                                                    size={18} />
+                                                <Pressable onPress={() => alert('You have already rated the content.')} style={{ width: '100%', height: "100%", position: 'absolute' }}></Pressable>
+                                            </View>
+
+                                            :
+                                            <AirbnbRating onFinishRating={rate => updateRating(rate)}
+                                                showRating={false}
+                                                count={5}
+                                                defaultRating={userRating}
+                                                size={18} />
+                                        }
                                     </View>
 
-                                    :
-                                    <AirbnbRating onFinishRating={rate => updateRating(rate)}
-                                        showRating={false}
-                                        count={5}
-                                        defaultRating={userRating}
-                                        size={18} />
-                                }
+                                    <View style={styles.singleoption}>
+                                        <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable></View>
+                                    <View style={styles.singleoption}>
+
+                                        {toggle ?
+                                            <Pressable onPress={unfollowContent}><MaterialCommunityIcons name="toggle-switch" size={40} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                            :
+                                            <Pressable onPress={followContent}><MaterialCommunityIcons name="toggle-switch-off" size={40} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                        }
+
+                                    </View>
+                                </View>
+
                             </View>
 
-                            <View style={styles.singleoption}>
-                                <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable></View>
-                            <View style={styles.singleoption}>
+                            <Pressable onPress={() => navigation.navigate('Calendarscreen',{episodeUrl:episodeUrl})} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', padding: 20 }}>
+                                <MaterialCommunityIcons name="calendar-month" size={40} color={NORMAL_TEXT_COLOR} />
+                                <Text style={{ fontSize: 18, color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}> FILTER BY DATE</Text>
+                            </Pressable>
+                            <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', alignContent: 'flex-start', width: '100%' }}>
 
-                                {toggle ?
-                                    <Pressable onPress={unfollowContent}><MaterialCommunityIcons name="toggle-switch" size={40} color={NORMAL_TEXT_COLOR} /></Pressable>
-                                    :
-                                    <Pressable onPress={followContent}><MaterialCommunityIcons name="toggle-switch-off" size={40} color={NORMAL_TEXT_COLOR} /></Pressable>
-                                }
+                                {/* <Text style={{color:NORMAL_TEXT_COLOR}}>{JSON.stringify(subcategoryImages)}</Text> */}
+                                {subcategoryImages ? <FlatList
+                                    data={subcategoryImages}
+                                    renderItem={renderSubcat}
+                                    keyExtractor={(x, i) => i.toString()}
+                                /> : ""}
 
                             </View>
                         </View>
-
-                    </View>
-
-                    <Pressable onPress={() => navigation.navigate('Calendarscreen')} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', padding: 20 }}>
-                        <MaterialCommunityIcons name="calendar-month" size={40} color={NORMAL_TEXT_COLOR} />
-                        <Text style={{ fontSize: 18, color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}> FILTER BY DATE</Text>
-                    </Pressable>
-                    <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', alignContent: 'flex-start', width: '100%' }}>
-
-                        {/* <Text style={{color:NORMAL_TEXT_COLOR}}>{JSON.stringify(subcategoryImages)}</Text> */}
-                        {subcategoryImages ? <FlatList
-                            data={subcategoryImages}
-                            renderItem={renderSubcat}
-                            keyExtractor={(x, i) => i.toString()}
-                        /> : ""}
-
-                    </View>
+                    </ScrollView>
+                    <Modal
+                        isVisible={isModalVisible}
+                        testID={'modal'}
+                        animationIn="slideInDown"
+                        animationOut="slideOutDown"
+                        onBackdropPress={toggleModal}
+                        backdropColor={"black"}
+                        backdropOpacity={0.40}
+                    >
+                        <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR }}>
+                            {seasons.map((season, ind) => {
+                                return (
+                                    <Pressable key={'seasons' + ind} onPress={() => movetoscreen(season.seo_url, ind, season.title)}>
+                                        <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5 }}>
+                                            <Text style={{ color: NORMAL_TEXT_COLOR }}>{season.title}</Text>
+                                        </View>
+                                    </Pressable>
+                                )
+                            })}
+                        </View>
+                    </Modal>
+                    <StatusBar style="auto" />
                 </View>
-            </ScrollView>
-            <Modal
-                isVisible={isModalVisible}
-                testID={'modal'}
-                animationIn="slideInDown"
-                animationOut="slideOutDown"
-                onBackdropPress={toggleModal}
-                backdropColor={"black"}
-                backdropOpacity={0.40}
-            >
-                <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR }}>
-                    {seasons.map((season, ind) => {
-                        return (
-                            <Pressable key={'seasons' + ind} onPress={() => movetoscreen(season.seo_url, ind, season.title)}>
-                                <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5 }}>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR }}>{season.title}</Text>
-                                </View>
-                            </Pressable>
-                        )
-                    })}
-                </View>
-            </Modal>
-            <StatusBar style="auto" />
-            </View>
-                }
+            }
         </View>
     );
 }
