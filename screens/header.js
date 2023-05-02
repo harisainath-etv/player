@@ -61,7 +61,7 @@ export default function Header(props) {
         if (profile_pic != "" && profile_pic != null)
             setProfilePic(profile_pic)
 
-        console.log(profile_pic);
+        //console.log(profile_pic);
     }
 
     useEffect(() => {

@@ -13,26 +13,27 @@ import { BACKGROUND_TRANSPARENT_COLOR } from '../constants';
 import Header from './header';
 var pendingTasks = [];
 var AllTasks = [];
-export default function Offline({navigation}) {
+export default function Offline({ navigation }) {
   const [offlineVideo, setOfflineVideos] = useState();
+  const [pauseDownload, setPauseDownload] = useState(false);
   const dataFetchedRef = useRef(false);
 
   const downloadedVideos = async () => {
     let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
-    console.log(JSON.stringify(lostTasks));
+    //console.log(JSON.stringify(lostTasks));
     for (let task of lostTasks) {
-        task.begin(expectedBytes => {
-          //console.log('Expected: ' + expectedBytes);
-        }).progress((percent) => {
-          AsyncStorage.setItem('download_' + task.id, JSON.stringify(percent * 100));
-          //console.log(`Downloaded: ${percent * 100}%`);
-        }).done(() => {
-          AsyncStorage.setItem('download_' + task.id, JSON.stringify(1 * 100));
-          //console.log('Downlaod is done!');
-        }).error((error) => {
-          //console.log('Download canceled due to error: ', error);
-        });
-      
+      task.begin(expectedBytes => {
+        //console.log('Expected: ' + expectedBytes);
+      }).progress((percent) => {
+        AsyncStorage.setItem('download_' + task.id, JSON.stringify(percent * 100));
+        console.log(`Downloaded: ${percent * 100}%`);
+      }).done(() => {
+        AsyncStorage.setItem('download_' + task.id, JSON.stringify(1 * 100));
+        //console.log('Downlaod is done!');
+      }).error((error) => {
+        //console.log('Download canceled due to error: ', error);
+      });
+
     }
 
     var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
@@ -47,7 +48,7 @@ export default function Offline({navigation}) {
       var downloadpercent = await AsyncStorage.getItem('download_' + taskid);
       var downloadseourl = await AsyncStorage.getItem('download_seourl' + taskid);
       var downloadtheme = await AsyncStorage.getItem('download_theme' + taskid);
-      pendingTasks.push({ 'task': taskid, 'downloadurl': downloadurl, 'downloadpath': downloadpath, 'downloadtitle': downloadtitle, 'downloadthumbnail': downloadthumbnail, 'downloadpercent': downloadpercent,'downloadseourl':downloadseourl,'downloadtheme':downloadtheme })
+      pendingTasks.push({ 'task': taskid, 'downloadurl': downloadurl, 'downloadpath': downloadpath, 'downloadtitle': downloadtitle, 'downloadthumbnail': downloadthumbnail, 'downloadpercent': downloadpercent, 'downloadseourl': downloadseourl, 'downloadtheme': downloadtheme })
     }
     AllTasks.push({ "data": pendingTasks })
     pendingTasks = [];
@@ -80,37 +81,36 @@ export default function Offline({navigation}) {
       },
     ]);
   }
-  const pauseDownloadAction = async (taskid, downloadurl, downloaddestination) => {
+  const pauseDownloadAction = async (taskid) => {
     let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
     for (let task of lostTasks) {
       if (taskid == task.id) {
         task.pause();
+        setPauseDownload(true);
       }
     }
     downloadedVideos()
   }
-  const resumeDownloadAction = async (taskid, downloadurl, downloaddestination) => {
+  const resumeDownloadAction = async (taskid) => {
     let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
     for (let task of lostTasks) {
       if (taskid == task.id) {
         task.resume();
+        setPauseDownload(false);
       }
     }
     downloadedVideos()
   }
   const videosRender = (item) => {
     var downloadstatus = 0;
-    var pausedownload = false;
     if (item.item.downloadpercent == '100') {
       downloadstatus = 1;
     }
     else if (item.item.downloadpercent != "" || item.item.downloadpercent != null) {
       downloadstatus = 2;
-      pausedownload = true;
     }
     else {
       downloadstatus = 0;
-      pausedownload = false;
     }
 
     return (
@@ -119,21 +119,21 @@ export default function Offline({navigation}) {
         <View style={{ flexDirection: 'row', width: "100%" }}>
           {item.item.downloadthumbnail ?
             <Pressable style={{ width: "35%", marginRight: 10, justifyContent: 'center', alignItems: 'center' }}>
-              
+
 
               <FastImage
                 style={{ width: "100%", height: 80, left: 0, borderRadius: 15, }}
                 source={{ uri: item.item.downloadthumbnail, priority: FastImage.priority.high }}
                 resizeMode={FastImage.resizeMode.stretch}
               />
-              {downloadstatus!=1 ? <Pressable style={{width: "100%", height: 80, left: 0, borderRadius: 15,position:'absolute',backgroundColor:BACKGROUND_TRANSPARENT_COLOR,justifyContent:'center',alignItems:'center'}} onPress={()=>navigation.dispatch(StackActions.replace('Episode',{seoUrl:item.item.downloadseourl,theme:item.item.downloadtheme}))}><View><MaterialCommunityIcons name='progress-download'  size={30} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons></View></Pressable> : ""}
+              {downloadstatus != 1 ? <Pressable style={{ width: "100%", height: 80, left: 0, borderRadius: 15, position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, justifyContent: 'center', alignItems: 'center' }} onPress={() => navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.item.downloadseourl, theme: item.item.downloadtheme }))}><View><MaterialCommunityIcons name='progress-download' size={30} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons></View></Pressable> : ""}
               <View style={{ position: 'absolute' }}>
-                {downloadstatus == 1 ? <Pressable onPress={()=>navigation.dispatch(StackActions.replace('Episode',{seoUrl:item.item.downloadseourl,theme:item.item.downloadtheme}))}><MaterialCommunityIcons name="play-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
-                {/* {downloadstatus == 2 ?
+                {downloadstatus == 1 ? <Pressable onPress={() => navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.item.downloadseourl, theme: item.item.downloadtheme }))}><MaterialCommunityIcons name="play-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                {downloadstatus == 2 ?
 
-                  pausedownload ? <Pressable><MaterialCommunityIcons onPress={() => resumeDownloadAction(item.item.task, item.item.downloadurl, item.item.downloadpath)} name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : <Pressable><MaterialCommunityIcons onPress={() => pauseDownloadAction(item.item.task, item.item.downloadurl, item.item.downloadpath)} name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                  pauseDownload ? <Pressable><MaterialCommunityIcons onPress={() => resumeDownloadAction(item.item.task)} name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : <Pressable><MaterialCommunityIcons onPress={() => pauseDownloadAction(item.item.task)} name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
 
-                  : ""} */}
+                  : ""}
               </View>
             </Pressable>
             : ""}
