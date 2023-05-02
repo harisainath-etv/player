@@ -5,7 +5,6 @@ import FastImage from 'react-native-fast-image';
 import { BACKGROUND_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Footer from './footer';
 import NormalHeader from './normalHeader';
 
 export const ElementsText = {

@@ -180,7 +180,7 @@ export default function Header(props) {
                     <TouchableOpacity onPress={() => navigation.navigate('Subscribe', {})} >
                         <Image source={require('../assets/images/subscribe.png')} style={styles.subscribeImage}></Image>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate('Search', {})} style={{ marginRight: 10, marginLeft: 7 }}>
+                    <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace( 'Search', {}))} style={{ marginRight: 10, marginLeft: 7 }}>
                         <FontAwesome5 name="search" size={20} color="white" />
                     </TouchableOpacity>
                 </View>
