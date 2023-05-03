@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet, Text, Pressable, ActivityIndicator, RefreshControl, Image } from 'react-native';
+import { View, FlatList, StyleSheet, Text, Pressable, ActivityIndicator, RefreshControl, Image, TouchableOpacity } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -13,7 +13,8 @@ import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECT
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
-import RNBackgroundDownloader from 'react-native-background-downloader';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+// import RNBackgroundDownloader from 'react-native-background-downloader';
 import axios from 'axios';
 import Footer from './footer';
 import Header from './header';
@@ -180,29 +181,27 @@ function Home({ navigation, route }) {
 
                                             }
                                         }
-                                        
+
                                     }
                                     Final.push({ "friendlyId": data.data.catalog_list_items[i].catalog_list_items[j].friendly_id, "data": internalAll, "layoutType": data.data.catalog_list_items[i].catalog_list_items[j].layout_type, "displayName": data.data.catalog_list_items[i].catalog_list_items[j].display_title });
                                     internalAll = [];
 
                                 }
                             }
-                            if(data.data.catalog_list_items[i].layout_type=="continue_watching")
-                            {
+                            if (data.data.catalog_list_items[i].layout_type == "continue_watching") {
                                 var sessionId = await AsyncStorage.getItem('session');
                                 if (sessionId != "" && sessionId != null) {
-                                    const continueresp = await fetch(FIRETV_BASE_URL + "users/"+sessionId+"/playlists/watchhistory/listitems.gzip?&auth_token="+VIDEO_AUTH_TOKEN+"&access_token="+ACCESS_TOKEN+"&item_language=eng&region="+region);
+                                    const continueresp = await fetch(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchhistory/listitems.gzip?&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&item_language=eng&region=" + region);
                                     const continuedata = await continueresp.json();
-                                    
-                                    for(var c=0;c<continuedata.data.items.length;c++)
-                                    {
-                                    All.push({ "uri": continuedata.data.items[c].thumbnails.high_4_3.url, "theme": continuedata.data.items[c].theme, "premium": false, "seoUrl": continuedata.data.items[c].seo_url, "medialistinlist": false, "friendlyId": "", "displayTitle": continuedata.data.items[c].title });
+
+                                    for (var c = 0; c < continuedata.data.items.length; c++) {
+                                        All.push({ "uri": continuedata.data.items[c].thumbnails.high_4_3.url, "theme": continuedata.data.items[c].theme, "premium": false, "seoUrl": continuedata.data.items[c].seo_url, "medialistinlist": false, "friendlyId": "", "displayTitle": continuedata.data.items[c].title });
                                     }
 
-                               
+
                                 }
 
-                               // console.log(JSON.stringify(All));
+                                // console.log(JSON.stringify(All));
                             }
                         }
 
@@ -234,17 +233,14 @@ function Home({ navigation, route }) {
             // }
 
             //watchlater content
-            var allkeys= await AsyncStorage.getAllKeys();
-            for(let a=0;a<allkeys.length;a++)
-            {
+            var allkeys = await AsyncStorage.getAllKeys();
+            for (let a = 0; a < allkeys.length; a++) {
                 //checking for watchlater content
-                if(allkeys[a].includes("watchLater_"))
-                {
+                if (allkeys[a].includes("watchLater_")) {
                     await AsyncStorage.removeItem(allkeys[a]);
                 }
                 //checking for like content
-                if(allkeys[a].includes("like_"))
-                {
+                if (allkeys[a].includes("like_")) {
                     await AsyncStorage.removeItem(allkeys[a]);
                 }
             }
@@ -706,7 +702,9 @@ function Home({ navigation, route }) {
     }, []);
 
     const memoizedValue = useMemo(() => renderItem, [totalHomeData]);
-
+    const loadFilters = async()=>{
+        navigation.navigate('FoodFilter');
+    }
     return (
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR, }}>
 
@@ -728,7 +726,13 @@ function Home({ navigation, route }) {
                 ""
             }
 
-
+            {pageName == 'recipes' ?
+                <TouchableOpacity onPress={loadFilters} style={{justifyContent:'center',alignItems:'center', flexDirection:'row',marginTop:15,marginBottom:15}}>
+                    <MaterialCommunityIcons name='filter-variant' size={30} color={NORMAL_TEXT_COLOR} />
+                    <Text style={{color:NORMAL_TEXT_COLOR,fontSize:22}}>FILTER</Text>
+                </TouchableOpacity>
+                :
+                ""}
 
             {/* body content */}
             {totalHomeData ? <FlatList
