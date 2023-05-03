@@ -3,6 +3,7 @@ import React, { useEffect, useState, createRef } from 'react';
 import * as NavigationBar from "expo-navigation-bar";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, } from '../constants';
@@ -16,6 +17,7 @@ import RNFS from 'react-native-fs';
 import RNBackgroundDownloader from 'react-native-background-downloader';
 import Share from 'react-native-share';
 import Modal from "react-native-modal";
+import Slider from '@react-native-community/slider';
 // import VideoViewAndroid from '../components/VideoViewAndroid';
 // import VideoViewIos from '../components/VideoViewIos';
 
@@ -56,6 +58,9 @@ export default function Episode({ navigation, route }) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [prefrence, setPreference] = useState([]);
   const [isresumeDownloading, setIsresumeDownloading] = useState(false);
+  const [currenttimestamp, setcurrenttimestamp] = useState("00:00:00");
+  const [duration, setDuration] = useState("");
+  const [currentloadingtime, setcurrentloadingtime] = useState(0);
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
@@ -259,7 +264,7 @@ export default function Episode({ navigation, route }) {
     state.showControls
       ? setState({ ...state, showControls: false })
       : setState({ ...state, showControls: true });
-    setTimeout(function () { setState({ ...state, showControls: false }) }, 5000)
+    setTimeout(function () { setState({ ...state, showControls: false }) }, 10000)
   }
   const checkgoback = () => {
     if (navigation.canGoBack())
@@ -471,25 +476,28 @@ export default function Episode({ navigation, route }) {
     hours = String(hours).padStart(2, '0');
     minutes = String(minutes).padStart(2, '0');
     var timestamp = hours + ":" + minutes + ":" + seconds;
-    var sessionId = await AsyncStorage.getItem('session');
-    if (sessionId != "" && sessionId != null && timestamp != "" && timestamp != null) {
-      await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchhistory", {
-        listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true" },
-        auth_token: VIDEO_AUTH_TOKEN,
-        access_token: ACCESS_TOKEN,
-        play_back_status: "playing",
-        play_back_time: timestamp
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }).then(response => {
-        //console.log(JSON.stringify(response.data));
-      }).catch(error => {
-      })
+    setcurrenttimestamp(timestamp);
+    setcurrentloadingtime(totalSeconds);
+    if ((totalSeconds % 30) == 0) {
+      var sessionId = await AsyncStorage.getItem('session');
+      if (sessionId != "" && sessionId != null && timestamp != "" && timestamp != null) {
+        await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchhistory", {
+          listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true" },
+          auth_token: VIDEO_AUTH_TOKEN,
+          access_token: ACCESS_TOKEN,
+          play_back_status: "playing",
+          play_back_time: timestamp
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }).then(response => {
+          console.log(JSON.stringify(response.data));
+        }).catch(error => {
+        })
+      }
     }
   }
-
 
   return (
     <View style={styles.mainContainer}>
@@ -498,23 +506,10 @@ export default function Episode({ navigation, route }) {
           {playUrl != "" && playUrl != null && !showupgrade ?
             <TouchableWithoutFeedback onPress={showControls}>
               <View style={{ flex: 1 }}>
-                {/* <View
-                  style={{
-                    height: 270,
-                    width: PAGE_WIDTH,
-                    backgroundColor: "grey",
-                  }}
-                >
-                  <VideoViewAndroid
-                    url={playUrl}
-                    adTag="https://pubads.g.doubleclick.net/gampad/ads?slotname=/21769336530/ETV_APP_MIDROLL\u0026sz=480x361|480x360\u0026unviewed_position_start=1\u0026env=instream\u0026gdfp_req=1\u0026ad_rule=0\u0026output=xml_vast4\u0026description_url=https://preprod.etvwin.com\u0026vad_type=linear\u0026vpos=midroll\u0026pod=1\u0026min_ad_duration=0\u0026max_ad_duration=999000\u0026ppos=1\u0026lip=true\u0026npa=false\u0026kfa=0\u0026tfcd=0\u0026wta=1\u0026npa=0"
-                  />
-                </View> */}
-
                 <Video
                   ref={videoRef}
                   source={{ uri: playUrl }}
-                  controls={true}
+                  controls={false}
                   paused={!play}
                   playInBackground={false}
                   volume={1}
@@ -528,10 +523,13 @@ export default function Episode({ navigation, route }) {
                   style={fullscreen ? styles.fullscreenVideo : styles.video}
                   onEnd={checkpreviewContent}
                   playWhenInactive={false}
-                  progressUpdateInterval={30000}
+                  progressUpdateInterval={1000}
                   onProgress={play => {
                     var milliseconds = play.currentTime;
                     toHoursAndMinutes(Math.floor(milliseconds));
+                  }}
+                  onLoad={(data) => {
+                    setDuration(data.duration)
                   }}
                 />
                 {state.showControls && (
@@ -549,6 +547,61 @@ export default function Episode({ navigation, route }) {
                       style={styles.fullscreenButton}>
                       {fullscreen ? <Feather name="minimize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather> : <Feather name="maximize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather>}
                     </TouchableOpacity>
+                  </View>
+                )}
+
+
+                {state.showControls && (
+                  <View style={{ width: "100%", position: 'absolute', top:"40%", flexDirection:'row',justifyContent:'center',alignItems:'center' }}>
+                    <TouchableOpacity
+                      onPress={() => { 
+                        videoRef.current.seek(currentloadingtime - 10) 
+                      }}
+                      style={{marginRight:50}}>
+                      <Ionicons name="md-caret-back-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={()=> { 
+                        videoRef.current.seek(currentloadingtime + 10)
+                      }}
+                      style={{marginLeft:50}}>
+                      <Ionicons name="md-caret-forward-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
+                {state.showControls && (
+                  <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50, bottom: 10, flexDirection: 'row' }}>
+                    <TouchableOpacity
+                      onPress={() => { setPlay(!play) }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      style={{ top: 20, left: 10, width: "10%" }}>
+                      {play ?
+                        <MaterialCommunityIcons name="pause-circle" size={35} color={NORMAL_TEXT_COLOR} />
+                        :
+                        <MaterialCommunityIcons name="play-circle" size={35} color={NORMAL_TEXT_COLOR} />
+                      }
+                    </TouchableOpacity>
+                    <View style={{ width: "78%", top: 20 }}>
+                      <Slider
+                        style={{ width: "100%", height: 40 }}
+                        minimumValue={0}
+                        maximumValue={Math.floor(duration)}
+                        minimumTrackTintColor="#FF0000 "
+                        maximumTrackTintColor="#343A82"
+                        tapToSeek={true}
+                        value={currentloadingtime}
+                        onSlidingComplete={val => {
+                          videoRef.current.seek(Math.floor(val))
+                        }}
+                      />
+                    </View>
+                    <View style={{ top: 30, width: "12%", right: 5 }}>
+                      <Text style={{ color: "#ffffff", fontSize: 11 }}>
+                        {currenttimestamp}
+                      </Text>
+                    </View>
                   </View>
                 )}
               </View>
@@ -699,7 +752,7 @@ const styles = StyleSheet.create({
   fullscreenButton: {
     position: 'absolute',
     right: 20,
-    top: 20,
+    top: 30,
     paddingRight: 10,
   },
   navigationBack: {
