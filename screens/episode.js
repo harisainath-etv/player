@@ -526,8 +526,8 @@ export default function Episode({ navigation, route }) {
       <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
         <View style={styles.container}>
           {playUrl != "" && playUrl != null && !showupgrade ?
-            <TouchableWithoutFeedback onPress={showControls}>
-              <View style={{ flex: 1 }}>
+            
+              <Pressable onPress={showControls}>
                 <Video
                   ref={videoRef}
                   source={{ uri: playUrl }}
@@ -609,7 +609,7 @@ export default function Episode({ navigation, route }) {
                 {state.showControls && (
                   <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50, bottom: 10, flexDirection: 'row' }}>
                     <TouchableOpacity
-                      onPress={() => { setPlay(!play); }}
+                      onPress={() => { setPlay(!play); setState({ ...state, showControls: true });}}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                       style={{ top: 20, left: 10, width: "10%" }}>
                       {play ?
@@ -639,8 +639,8 @@ export default function Episode({ navigation, route }) {
                     </View>
                   </View>
                 )}
-              </View>
-            </TouchableWithoutFeedback>
+              </Pressable>
+           
 
             :
 
