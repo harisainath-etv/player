@@ -56,15 +56,21 @@ export default function Episode({ navigation, route }) {
   const [likecontent, setlikecontent] = useState();
   const [shareUrl, setShareUrl] = useState()
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isResolutionModalVisible, setResolutionModalVisible] = useState(false);
   const [prefrence, setPreference] = useState([]);
+  const [resolutionPreference, setResolutionPreference] = useState([]);
   const [isresumeDownloading, setIsresumeDownloading] = useState(false);
   const [currenttimestamp, setcurrenttimestamp] = useState("00:00:00");
   const [duration, setDuration] = useState("");
   const [currentloadingtime, setcurrentloadingtime] = useState(0);
+  const [videoType, setvideoType] = useState('auto');
+  const [videoresolution, setvideoresolution] = useState('1280');
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
-
+  const toggleModalResolution = () => {
+    setResolutionModalVisible(!isResolutionModalVisible);
+  }
 
   const navigationConfig = async () => {
     // // Just incase it is not hidden
@@ -498,14 +504,30 @@ export default function Episode({ navigation, route }) {
       }
     }
   }
+  const loadResolutionSettings = async () => {
+    var resolution = []
+    var settingsapi = offlineUrl + "?service_id=6&play_url=yes&protocol=hls&us=745d7e9f1e37ca27fdffbebfe8a99877";
+    await axios.get(settingsapi).then(response => {
+      for (let o = 0; o < response.data.playback_urls.length; o++) {
+        resolution.push({ "display_name": response.data.playback_urls[o].display_name, "vwidth": response.data.playback_urls[o].vwidth, "vheight": response.data.playback_urls[o].vheight })
+      }
+      setResolutionPreference(resolution);
+      toggleModalResolution()
+    }).catch(error => { })
+  }
+  const setVideoResolution = async (type,resolution) =>{
+    setvideoType(type);
+    setvideoresolution(resolution);
+    toggleModalResolution();
+  }
 
   return (
     <View style={styles.mainContainer}>
       <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
         <View style={styles.container}>
           {playUrl != "" && playUrl != null && !showupgrade ?
-            <TouchableWithoutFeedback onPress={showControls}>
-              <View style={{ flex: 1 }}>
+            
+              <Pressable onPress={showControls}>
                 <Video
                   ref={videoRef}
                   source={{ uri: playUrl }}
@@ -513,6 +535,10 @@ export default function Episode({ navigation, route }) {
                   paused={!play}
                   playInBackground={false}
                   volume={1}
+                  selectedVideoTrack={{
+                    type: videoType,
+                    value: videoresolution
+                  }}
                   bufferConfig={{
                     minBufferMs: 1000000,
                     maxBufferMs: 2000000,
@@ -542,6 +568,13 @@ export default function Episode({ navigation, route }) {
                     </TouchableOpacity>
 
                     <TouchableOpacity
+                      onPress={loadResolutionSettings}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      style={styles.settingsicon}>
+                      <Ionicons name="settings" size={25} color={NORMAL_TEXT_COLOR}></Ionicons>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
                       onPress={handleFullscreen}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                       style={styles.fullscreenButton}>
@@ -552,20 +585,22 @@ export default function Episode({ navigation, route }) {
 
 
                 {state.showControls && (
-                  <View style={{ width: "100%", position: 'absolute', top:"40%", flexDirection:'row',justifyContent:'center',alignItems:'center' }}>
+                  <View style={{ width: "100%", position: 'absolute', top: "40%", flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                     <TouchableOpacity
-                      onPress={() => { 
-                        videoRef.current.seek(currentloadingtime - 10) 
+                      onPress={() => {
+                        videoRef.current.seek(currentloadingtime - 10)
+                        setState({ ...state, showControls: true });
                       }}
-                      style={{marginRight:50}}>
+                      style={{ marginRight: 50 }}>
                       <Ionicons name="md-caret-back-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                      onPress={()=> { 
+                      onPress={() => {
                         videoRef.current.seek(currentloadingtime + 10)
+                        setState({ ...state, showControls: true });
                       }}
-                      style={{marginLeft:50}}>
+                      style={{ marginLeft: 50 }}>
                       <Ionicons name="md-caret-forward-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
                     </TouchableOpacity>
                   </View>
@@ -574,7 +609,7 @@ export default function Episode({ navigation, route }) {
                 {state.showControls && (
                   <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50, bottom: 10, flexDirection: 'row' }}>
                     <TouchableOpacity
-                      onPress={() => { setPlay(!play) }}
+                      onPress={() => { setPlay(!play); setState({ ...state, showControls: true });}}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                       style={{ top: 20, left: 10, width: "10%" }}>
                       {play ?
@@ -604,8 +639,8 @@ export default function Episode({ navigation, route }) {
                     </View>
                   </View>
                 )}
-              </View>
-            </TouchableWithoutFeedback>
+              </Pressable>
+           
 
             :
 
@@ -641,7 +676,7 @@ export default function Episode({ navigation, route }) {
                 <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', borderRightColor: TAB_COLOR, borderWidth: 2 }]}></Text>
                 <Text style={[styles.detailsText, { borderWidth: 1, borderStyle: 'dashed', borderColor: TAB_COLOR, marginLeft: 10, borderRadius: 10 }]}>{displayGenres}</Text>
               </View>
-              <ReadMore numberOfLines={3} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
+              <ReadMore numberOfLines={4} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
                 <Text style={styles.detailsText}>{description}</Text>
               </ReadMore>
             </View>
@@ -726,6 +761,39 @@ export default function Episode({ navigation, route }) {
           </Modal>
 
 
+          <Modal
+            isVisible={isResolutionModalVisible}
+            testID={'modal'}
+            animationIn="slideInDown"
+            animationOut="slideOutDown"
+            onBackdropPress={toggleModalResolution}
+            backdropColor={"black"}
+            backdropOpacity={0.40}
+          >
+            <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR }}>
+              <TouchableOpacity key={'pref'} onPress={()=>{setVideoResolution('auto','1280')}}>
+                <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5,flexDirection:'row' }}>
+                  <Text style={{ color: NORMAL_TEXT_COLOR,marginRight:10 }}>Auto</Text>
+                  {videoType=='auto' ? <MaterialCommunityIcons name="check-bold" size={18} color={NORMAL_TEXT_COLOR}/> : ""}
+                </View>
+              </TouchableOpacity>
+              {resolutionPreference.map((pref, ind) => {
+                return (
+                  pref.display_name != "" ?
+                    <TouchableOpacity key={'pref' + ind}  onPress={()=>{setVideoResolution('resolution',pref.vheight)}}>
+                      <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5,flexDirection:'row'  }}>
+                        <Text style={{ color: NORMAL_TEXT_COLOR,marginRight:10 }}>{pref.display_name}</Text>
+                        {videoType=='resolution' && videoresolution==pref.vheight ? <MaterialCommunityIcons name="check-bold" size={18} color={NORMAL_TEXT_COLOR}/> : ""}
+                      </View>
+                    </TouchableOpacity>
+                    :
+                    ""
+                )
+              })}
+            </View>
+          </Modal>
+
+
           <StatusBar style="auto" />
         </View>
       </ScrollView>
@@ -752,6 +820,12 @@ const styles = StyleSheet.create({
   fullscreenButton: {
     position: 'absolute',
     right: 20,
+    top: 30,
+    paddingRight: 10,
+  },
+  settingsicon: {
+    position: 'absolute',
+    right: 60,
     top: 30,
     paddingRight: 10,
   },
