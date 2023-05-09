@@ -82,33 +82,38 @@ export default function Header(props) {
                 <View style={styles.drawerContainer}>
                     <View>
                         {!login ?
-                            <ImageBackground
-                                source={require('../assets/images/drawer_header.png')}
-                                resizeMode="cover"
-                                style={styles.drawerHeaderImage}>
-                                <View style={{ padding: 25 }}>
-                                    <Text style={styles.drawerHeaderText}>Hi Guest User!</Text>
-                                    <View style={{ flexDirection: 'row', marginTop: 25 }}>
-                                        <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Login', {})); }} style={{ backgroundColor: TAB_COLOR, padding: 13, borderRadius: 10, marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
-                                            <Text style={styles.drawerHeaderText}>SIGN IN</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Signup', {})); }} style={{ borderColor: TAB_COLOR, padding: 13, borderRadius: 10, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' }}>
-                                            <Text style={styles.drawerHeaderText}>SIGN UP</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            </ImageBackground>
-                            :
-                            profilePic != "" && profilePic != null ?
+                            
                                 <ImageBackground
-                                    source={{ uri: profilePic }}
+                                    source={require('../assets/images/drawer_header.png')}
                                     resizeMode="cover"
                                     style={styles.drawerHeaderImage}>
                                     <View style={{ padding: 25 }}>
-                                        <Text style={styles.drawerHeaderText}>Hi {name}</Text>
+                                        <Text style={styles.drawerHeaderText}>Hi Guest User!</Text>
+                                        <View style={{ flexDirection: 'row', marginTop: 25 }}>
+                                            <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Login', {})); }} style={{ backgroundColor: TAB_COLOR, padding: 13, borderRadius: 10, marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
+                                                <Text style={styles.drawerHeaderText}>SIGN IN</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Signup', {})); }} style={{ borderColor: TAB_COLOR, padding: 13, borderRadius: 10, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' }}>
+                                                <Text style={styles.drawerHeaderText}>SIGN UP</Text>
+                                            </TouchableOpacity>
+                                        </View>
                                     </View>
                                 </ImageBackground>
+                            
+                            :
+                            profilePic != "" && profilePic != null ?
+                                <Pressable  onPress={()=>{toggleModal();navigation.navigate('Profile')}}>
+                                    <ImageBackground
+                                        source={{ uri: profilePic }}
+                                        resizeMode="cover"
+                                        style={styles.drawerHeaderImage}>
+                                        <View style={{ padding: 25 }}>
+                                            <Text style={styles.drawerHeaderText}>Hi {name}</Text>
+                                        </View>
+                                    </ImageBackground>
+                                </Pressable>
                                 :
+                                <Pressable  onPress={()=>{toggleModal();navigation.navigate('Profile')}}>
                                 <ImageBackground
                                     source={require('../assets/images/usericon.png')}
                                     resizeMode="center"
@@ -132,6 +137,7 @@ export default function Header(props) {
 
                                     </View>
                                 </ImageBackground>
+                                </Pressable>
                         }
 
                         <View style={{ paddingLeft: 30, marginTop: 20 }}>
@@ -180,7 +186,7 @@ export default function Header(props) {
                     <TouchableOpacity onPress={() => navigation.navigate('Subscribe', {})} >
                         <Image source={require('../assets/images/subscribe.png')} style={styles.subscribeImage}></Image>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace( 'Search', {}))} style={{ marginRight: 10, marginLeft: 7 }}>
+                    <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Search', {}))} style={{ marginRight: 10, marginLeft: 7 }}>
                         <FontAwesome5 name="search" size={20} color="white" />
                     </TouchableOpacity>
                 </View>

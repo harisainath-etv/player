@@ -80,6 +80,7 @@ export default function Login({ navigation }) {
                     }
                 }).then(response=>{
                     setemailRegError("");
+                    AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                     AsyncStorage.setItem('add_profile',JSON.stringify(response.data.data.add_profile))
                     AsyncStorage.setItem('first_time_login',JSON.stringify(response.data.data.first_time_login))
                     AsyncStorage.setItem('firstname',response.data.data.profile_obj.firstname)
@@ -114,12 +115,37 @@ export default function Login({ navigation }) {
                         AsyncStorage.setItem('user_email_id',resp.data.data.user_email_id)
                         AsyncStorage.setItem('user_id',resp.data.data.user_id)
                         setpopup(false)
-                        navigation.dispatch(StackActions.replace('Home',{pageFriendlyId:'featured-1',popup:popup}))
         
                         }).catch(err=>{
                             alert("Error in fetching account details. Please try again later.")
                         })
-
+                        axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
+                            if (planresponse.data.data.length > 0) {
+                                AsyncStorage.setItem('subscription', 'done');
+                                AsyncStorage.setItem('user_id', planresponse.data.data[0].user_id);
+                                AsyncStorage.setItem('subscription_id', planresponse.data.data[0].subscription_id);
+                                AsyncStorage.setItem('plan_id', planresponse.data.data[0].plan_id);
+                                AsyncStorage.setItem('category', planresponse.data.data[0].category);
+                                AsyncStorage.setItem('valid_till', planresponse.data.data[0].valid_till);
+                                AsyncStorage.setItem('start_date', planresponse.data.data[0].start_date);
+                                AsyncStorage.setItem('transaction_id', planresponse.data.data[0].transaction_id);
+                                AsyncStorage.setItem('created_at', planresponse.data.data[0].created_at);
+                                AsyncStorage.setItem('updated_at', planresponse.data.data[0].updated_at);
+                                AsyncStorage.setItem('plan_status', planresponse.data.data[0].plan_status);
+                                AsyncStorage.setItem('invoice_inc_id', JSON.stringify(planresponse.data.data[0].invoice_inc_id));
+                                AsyncStorage.setItem('price_charged', JSON.stringify(planresponse.data.data[0].price_charged));
+                                AsyncStorage.setItem('email_id', JSON.stringify(planresponse.data.data[0].email_id));
+                                AsyncStorage.setItem('plan_title', JSON.stringify(planresponse.data.data[0].plan_title));
+                                AsyncStorage.setItem('subscription_title', JSON.stringify(planresponse.data.data[0].subscription_title));
+                                AsyncStorage.setItem('invoice_id', JSON.stringify(planresponse.data.data[0].invoice_id));
+                                AsyncStorage.setItem('currency', JSON.stringify(planresponse.data.data[0].currency));
+                                AsyncStorage.setItem('currency_symbol', JSON.stringify(planresponse.data.data[0].currency_symbol));
+                                AsyncStorage.setItem('status', JSON.stringify(planresponse.data.data[0].status));
+                            }
+                        }).catch(planerror => {
+                            console.log(planerror.response.data);
+                        })
+                        navigation.dispatch(StackActions.replace('Home',{pageFriendlyId:'featured-1',popup:false}))
                     //navigation.navigate('MobileUpdate')
                 }).catch(error=>{
                     setemailRegError(error.response.data.error.message);
