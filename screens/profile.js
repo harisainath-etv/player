@@ -184,7 +184,7 @@ export default function Profile({ navigation }) {
                 }
                 {address != "" && address != null ?
                     <View style={styles.inneroption}>
-                        <Text style={styles.detailsheader}>Location</Text>
+                        <Text style={styles.detailsheader}>Location / Pincode</Text>
                         <Text style={styles.detailsvalue}>{address}</Text>
                     </View>
                     :

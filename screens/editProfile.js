@@ -1,5 +1,5 @@
 import { View, Text, ImageBackground, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Pressable } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -7,6 +7,7 @@ import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, T
 import { DETAILS_TEXT_COLOR } from '../constants';
 import { StackActions } from '@react-navigation/native';
 import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
 import DatePicker from 'react-native-date-picker';
 
 
@@ -20,7 +21,6 @@ export default function EditProfile({ navigation }) {
     const [dob, setdob] = useState();
     const [gender, setgender] = useState("");
     const [address, setaddress] = useState("");
-    const [pincode, setpincode] = useState("");
     const [subscription_title, setsubscription_title] = useState("");
     const [expireson, setexpireson] = useState("");
     const [open, setOpen] = useState(false)
@@ -39,7 +39,6 @@ export default function EditProfile({ navigation }) {
         const address = await AsyncStorage.getItem('address');
         const valid_till = await AsyncStorage.getItem('valid_till');
         const subscriptiontitle = await AsyncStorage.getItem('subscription_title');
-        const pincode = await AsyncStorage.getItem('pincode');
         if (session != "" && session != null) {
             setLogin(true)
             setName(firstname);
@@ -48,40 +47,49 @@ export default function EditProfile({ navigation }) {
             if (birthdate != "" && birthdate != null)
                 setdob(birthdate);
             setgender(gender)
+            if (address != "" && address != null)
             setaddress(address)
             setsubscription_title(subscriptiontitle)
             setexpireson(valid_till)
-            setpincode(pincode);
         }
         if (profile_pic != "" && profile_pic != null)
             setProfilePic(profile_pic)
 
         //console.log(profile_pic);
     }
-    useEffect(() => {
-        if (ref.current == true)
-            return
-        ref.current = true;
-        loadData();
-    })
+
+    useFocusEffect(
+        useCallback(() => {
+            loadData()  
+        }, [])
+      );
+
     const updateUser = async () => {
         var session = await AsyncStorage.getItem('session');
-        var dateofbirth = datofBirth.getFullYear() + "-" + datofBirth.getMonth() + "-" + datofBirth.getDate();
+        var dateofbirth = datofBirth.getDate() + "-" +  (+datofBirth.getMonth() + 1) + "-" + datofBirth.getFullYear() ;
         await axios.put(FIRETV_BASE_URL_STAGING + 'users/' + session + '/account', {
             access_token: ACCESS_TOKEN,
             auth_token: VIDEO_AUTH_TOKEN,
             user: {
                 firstname: name,
                 birthdate: dateofbirth,
-                gender: gender
+                gender: gender,
+                address:address
             }
         }).then(resp => {
             AsyncStorage.setItem('firstname', name);
             AsyncStorage.setItem('birthdate', dateofbirth);
             AsyncStorage.setItem('gender', gender);
+            AsyncStorage.removeItem('address').then(respo=>{
+            AsyncStorage.setItem('address', address);
+            }).catch(err=>{})
             alert('Updated');
+            navigation.dispatch(StackActions.replace('Home',{ pageFriendlyId: 'featured-1' }))
         }).catch(error => { console.log(error.response.data); })
 
+    }
+    const setaddresspincode = async(event) =>{
+        console.log(JSON.stringify(address));
     }
 
     return (
@@ -145,6 +153,10 @@ export default function EditProfile({ navigation }) {
                     <Text style={styles.detailsheader}>Name *</Text>
                     <TextInput value={name} onChange={setName} style={styles.textinput} placeholder='Name' placeholderTextColor={NORMAL_TEXT_COLOR} ></TextInput>
                 </View>
+                <View style={styles.inneroption}>
+                    <Text style={styles.detailsheader}>Location / Pincode</Text>
+                    <TextInput value={address} onChangeText={setaddress} style={styles.textinput} placeholder='Location / Pincode' placeholderTextColor={NORMAL_TEXT_COLOR}></TextInput>
+                </View>
 
                 <View style={styles.inneroption}>
                     <Text style={styles.detailsheader}>DOB</Text>
@@ -183,10 +195,7 @@ export default function EditProfile({ navigation }) {
                     </View>
                 </View>
 
-                <View style={styles.inneroption}>
-                    <Text style={styles.detailsheader}>Pincode</Text>
-                    <TextInput value={pincode} onChange={setpincode} style={styles.textinput} placeholder='Pincode' placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='number-pad'></TextInput>
-                </View>
+                
                 <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}>
                     <TouchableOpacity onPress={updateUser} style={{ backgroundColor: TAB_COLOR, paddingTop: 10, paddingBottom: 10, paddingLeft: 22, paddingRight: 22, borderRadius: 20 }}><Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}>Update</Text></TouchableOpacity>
                 </View>
