@@ -52,6 +52,7 @@ export default function Header(props) {
         const mobile_number = await AsyncStorage.getItem('mobile_number');
         const session = await AsyncStorage.getItem('session');
         const profile_pic = await AsyncStorage.getItem('profile_pic');
+        //console.log(profile_pic);
         if (session != "" && session != null) {
             setLogin(true)
             setName(firstname);
@@ -67,6 +68,15 @@ export default function Header(props) {
     useEffect(() => {
         loadData();
     })
+    function validURL(str) {
+        var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+            '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+        return !!pattern.test(str);
+    }
 
     return (
         <View style={{}}>
@@ -82,61 +92,76 @@ export default function Header(props) {
                 <View style={styles.drawerContainer}>
                     <View>
                         {!login ?
-                            
-                                <ImageBackground
-                                    source={require('../assets/images/drawer_header.png')}
-                                    resizeMode="cover"
-                                    style={styles.drawerHeaderImage}>
-                                    <View style={{ padding: 25 }}>
-                                        <Text style={styles.drawerHeaderText}>Hi Guest User!</Text>
-                                        <View style={{ flexDirection: 'row', marginTop: 25 }}>
-                                            <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Login', {})); }} style={{ backgroundColor: TAB_COLOR, padding: 13, borderRadius: 10, marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
-                                                <Text style={styles.drawerHeaderText}>SIGN IN</Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Signup', {})); }} style={{ borderColor: TAB_COLOR, padding: 13, borderRadius: 10, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' }}>
-                                                <Text style={styles.drawerHeaderText}>SIGN UP</Text>
-                                            </TouchableOpacity>
-                                        </View>
+
+                            <ImageBackground
+                                source={require('../assets/images/drawer_header.png')}
+                                resizeMode="cover"
+                                style={styles.drawerHeaderImage}>
+                                <View style={{ padding: 25 }}>
+                                    <Text style={styles.drawerHeaderText}>Hi Guest User!</Text>
+                                    <View style={{ flexDirection: 'row', marginTop: 25 }}>
+                                        <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Login', {})); }} style={{ backgroundColor: TAB_COLOR, padding: 13, borderRadius: 10, marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
+                                            <Text style={styles.drawerHeaderText}>SIGN IN</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Signup', {})); }} style={{ borderColor: TAB_COLOR, padding: 13, borderRadius: 10, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' }}>
+                                            <Text style={styles.drawerHeaderText}>SIGN UP</Text>
+                                        </TouchableOpacity>
                                     </View>
-                                </ImageBackground>
-                            
+                                </View>
+                            </ImageBackground>
+
                             :
-                            profilePic != "" && profilePic != null ?
-                                <Pressable  onPress={()=>{toggleModal();navigation.navigate('Profile')}}>
+                            profilePic != "" && profilePic != null && validURL(profilePic) ?
+                                <Pressable onPress={() => { toggleModal(); navigation.navigate('Profile') }}>
                                     <ImageBackground
                                         source={{ uri: profilePic }}
                                         resizeMode="cover"
                                         style={styles.drawerHeaderImage}>
-                                        <View style={{ padding: 25 }}>
-                                            <Text style={styles.drawerHeaderText}>Hi {name}</Text>
+                                        <View style={{ padding: 25, height: 170, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%" }}>
+
+
+                                            <View style={{ bottom: 0, position: 'absolute', left: 35, flexDirection: 'row' }}>
+                                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                                    <Text style={styles.drawerHeaderText}>Hi {name}</Text>
+                                                    {email != "" && email != null ?
+                                                        <Text style={styles.drawerHeaderText}>{email}</Text>
+                                                        :
+                                                        ""}
+                                                </View>
+                                                <View style={{ justifyContent: 'center', alignItems: 'center', marginLeft: 15 }}>
+                                                    <MaterialCommunityIcons name='greater-than' color={SLIDER_PAGINATION_SELECTED_COLOR} size={18}></MaterialCommunityIcons>
+                                                </View>
+                                            </View>
+
+
                                         </View>
                                     </ImageBackground>
                                 </Pressable>
                                 :
-                                <Pressable  onPress={()=>{toggleModal();navigation.navigate('Profile')}}>
-                                <ImageBackground
-                                    source={require('../assets/images/usericon.png')}
-                                    resizeMode="center"
-                                    style={styles.drawerHeaderImage}>
-                                    <View style={{ padding: 25, height: 170, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%" }}>
+                                <Pressable onPress={() => { toggleModal(); navigation.navigate('Profile') }}>
+                                    <ImageBackground
+                                        source={require('../assets/images/usericon.png')}
+                                        resizeMode="center"
+                                        style={styles.drawerHeaderImage}>
+                                        <View style={{ padding: 25, height: 170, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%" }}>
 
 
-                                        <Pressable style={{ bottom: 0, position: 'absolute', left: 35, flexDirection: 'row' }}>
-                                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                                <Text style={styles.drawerHeaderText}>Hi {name}</Text>
-                                                {email != "" && email != null ?
-                                                    <Text style={styles.drawerHeaderText}>{email}</Text>
-                                                    :
-                                                    ""}
+                                            <View style={{ bottom: 0, position: 'absolute', left: 35, flexDirection: 'row' }}>
+                                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                                    <Text style={styles.drawerHeaderText}>Hi {name}</Text>
+                                                    {email != "" && email != null ?
+                                                        <Text style={styles.drawerHeaderText}>{email}</Text>
+                                                        :
+                                                        ""}
+                                                </View>
+                                                <View style={{ justifyContent: 'center', alignItems: 'center', marginLeft: 15 }}>
+                                                    <MaterialCommunityIcons name='greater-than' color={SLIDER_PAGINATION_SELECTED_COLOR} size={18}></MaterialCommunityIcons>
+                                                </View>
                                             </View>
-                                            <View style={{ justifyContent: 'center', alignItems: 'center', marginLeft: 15 }}>
-                                                <MaterialCommunityIcons name='greater-than' color={SLIDER_PAGINATION_SELECTED_COLOR} size={18}></MaterialCommunityIcons>
-                                            </View>
-                                        </Pressable>
 
 
-                                    </View>
-                                </ImageBackground>
+                                        </View>
+                                    </ImageBackground>
                                 </Pressable>
                         }
 

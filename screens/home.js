@@ -727,9 +727,9 @@ function Home({ navigation, route }) {
             }
 
             {pageName == 'recipes' ?
-                <TouchableOpacity onPress={loadFilters} style={{justifyContent:'center',alignItems:'center', flexDirection:'row',marginTop:15,marginBottom:15}}>
+                <TouchableOpacity onPress={loadFilters} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: 15, marginBottom: 15 }}>
                     <MaterialCommunityIcons name='filter-variant' size={30} color={NORMAL_TEXT_COLOR} />
-                    <Text style={{color:NORMAL_TEXT_COLOR,fontSize:22}}>FILTER</Text>
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 22 }}>FILTER</Text>
                 </TouchableOpacity>
                 :
                 ""}

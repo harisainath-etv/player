@@ -97,7 +97,15 @@ export default function Profile({ navigation }) {
         await AsyncStorage.removeItem('mobile_number');
         navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
     }
-
+    function validURL(str) {
+        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        return !!pattern.test(str);
+      }
     return (
         <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
             <View style={{ marginTop: 20, marginLeft: 10 }}>
@@ -130,7 +138,7 @@ export default function Profile({ navigation }) {
                 </ImageBackground>
 
                 :
-                profilePic != "" && profilePic != null ?
+                profilePic != "" && profilePic != null && validURL(profilePic)?
 
                     <View style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}>
                         <Image

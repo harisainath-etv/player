@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressable } from 'react-native'
-import React, { useEffect, useState,useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
-import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, FIRETV_BASE_URL_STAGING } from '../constants'
+import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, FIRETV_BASE_URL_STAGING, ACCESS_TOKEN, VIDEO_AUTH_TOKEN } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StackActions } from '@react-navigation/native';
@@ -40,6 +40,11 @@ export default function Otp({ navigation, route }) {
         const region = await AsyncStorage.getItem('country_code');
         const loginMobile = await AsyncStorage.getItem(otpkey);
         const session_id = await AsyncStorage.getItem('session');
+
+        var frontpagedob = await AsyncStorage.getItem('frontpagedob');
+        var frontpagegender = await AsyncStorage.getItem('frontpagegender');
+        var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
+
         if (otpkey == "loginMobile" || otpkey == "signupMobile") {
             axios.post(FIRETV_BASE_URL_STAGING + "users/verify_otp", {
                 auth_token: AUTH_TOKEN,
@@ -65,16 +70,35 @@ export default function Otp({ navigation, route }) {
                     AsyncStorage.setItem('profile_pic', response.data.data.profile_pic)
                     AsyncStorage.setItem('session', response.data.data.session)
                     AsyncStorage.setItem('user_id', response.data.data.user_id)
+
+                    if ((frontpagedob != "" && frontpagedob != null) || (frontpagegender != "" && frontpagegender != null) || (frontpagepincode != "" && frontpagepincode != null)) {
+                        
+                            axios.put(FIRETV_BASE_URL_STAGING + 'users/' + response.data.data.session + '/account', {
+                                access_token: ACCESS_TOKEN,
+                                auth_token: VIDEO_AUTH_TOKEN,
+                                user: {
+                                    birthdate: frontpagedob,
+                                    gender: frontpagegender,
+                                    address: frontpagepincode
+                                }
+                            }).then(resp => {
+                                AsyncStorage.removeItem('frontpagedob');
+                                AsyncStorage.removeItem('frontpagegender');
+                                AsyncStorage.removeItem('frontpagepincode');
+                            }).catch(error => { console.log(error.response.data); })
+                        
+                    }
+
                     axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
                         AsyncStorage.setItem('address', resp.data.data.address)
                         AsyncStorage.setItem('age', resp.data.data.age)
                         AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
                         AsyncStorage.setItem('email_id', resp.data.data.email_id)
                         AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
-                        AsyncStorage.setItem('ext_user_id', resp.data.data.ext_user_id)
+                        //AsyncStorage.setItem('ext_user_id', resp.data.data.ext_user_id)
                         AsyncStorage.setItem('firstname', resp.data.data.firstname)
                         AsyncStorage.setItem('gender', resp.data.data.gender)
-                        AsyncStorage.setItem('is_mobile_verify', JSON.stringify(resp.data.data.is_mobile_verify))
+                        //AsyncStorage.setItem('is_mobile_verify', JSON.stringify(resp.data.data.is_mobile_verify))
                         AsyncStorage.setItem('lastname', JSON.stringify(resp.data.data.lastname))
                         AsyncStorage.setItem('login_type', resp.data.data.login_type)
                         AsyncStorage.setItem('mobile_number', resp.data.data.mobile_number)
@@ -86,7 +110,7 @@ export default function Otp({ navigation, route }) {
                     }).catch(err => {
                         alert("Error in fetching account details. Please try again later.")
                     })
-                    
+
                     axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
                         if (planresponse.data.data.length > 0) {
                             AsyncStorage.setItem('subscription', 'done');
@@ -110,14 +134,14 @@ export default function Otp({ navigation, route }) {
                             AsyncStorage.setItem('currency_symbol', JSON.stringify(planresponse.data.data[0].currency_symbol));
                             AsyncStorage.setItem('status', JSON.stringify(planresponse.data.data[0].status));
                         }
-                        else
-                        {
+                        else {
                             AsyncStorage.setItem('subscription_title', 'Free');
                         }
                     }).catch(planerror => {
                         console.log(planerror.response.data);
                     })
-                    navigation.dispatch(StackActions.replace('Home',{pageFriendlyId:'featured-1',popup:false,mobilescreenunshow:true}))
+
+                    navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: false, mobilescreenunshow: true }))
 
                 }).catch(error => {
                     //console.log(error.response.status);
@@ -152,16 +176,34 @@ export default function Otp({ navigation, route }) {
                         AsyncStorage.setItem('profile_pic', response.data.data.profile_pic)
                         AsyncStorage.setItem('session', response.data.data.session)
                         AsyncStorage.setItem('user_id', response.data.data.user_id)
+
+                        if ((frontpagedob != "" && frontpagedob != null) || (frontpagegender != "" && frontpagegender != null) || (frontpagepincode != "" && frontpagepincode != null)) {
+                
+                            axios.put(FIRETV_BASE_URL_STAGING + 'users/' + response.data.data.session + '/account', {
+                                access_token: ACCESS_TOKEN,
+                                auth_token: VIDEO_AUTH_TOKEN,
+                                user: {
+                                    birthdate: frontpagedob,
+                                    gender: frontpagegender,
+                                    address: frontpagepincode
+                                }
+                            }).then(resp => {
+                                AsyncStorage.removeItem('frontpagedob');
+                                AsyncStorage.removeItem('frontpagegender');
+                                AsyncStorage.removeItem('frontpagepincode');
+                            }).catch(error => { console.log(error.response.data); })
+                        }
+
                         axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
                             AsyncStorage.setItem('address', resp.data.data.address)
                             AsyncStorage.setItem('age', resp.data.data.age)
                             AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
                             AsyncStorage.setItem('email_id', resp.data.data.email_id)
                             AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
-                            AsyncStorage.setItem('ext_user_id', resp.data.data.ext_user_id)
+                            //AsyncStorage.setItem('ext_user_id', resp.data.data.ext_user_id)
                             AsyncStorage.setItem('firstname', resp.data.data.firstname)
                             AsyncStorage.setItem('gender', resp.data.data.gender)
-                            AsyncStorage.setItem('is_mobile_verify', JSON.stringify(resp.data.data.is_mobile_verify))
+                            //AsyncStorage.setItem('is_mobile_verify', JSON.stringify(resp.data.data.is_mobile_verify))
                             AsyncStorage.setItem('lastname', JSON.stringify(resp.data.data.lastname))
                             AsyncStorage.setItem('login_type', resp.data.data.login_type)
                             AsyncStorage.setItem('mobile_number', resp.data.data.mobile_number)
@@ -169,7 +211,7 @@ export default function Otp({ navigation, route }) {
                             AsyncStorage.setItem('profile_pic', resp.data.data.profile_pic)
                             AsyncStorage.setItem('user_email_id', resp.data.data.user_email_id)
                             AsyncStorage.setItem('user_id', resp.data.data.user_id)
-                            navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: true,mobilescreenunshow:true }))
+                            navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: true, mobilescreenunshow: true }))
                         }).catch(err => {
                             alert("Error in fetching account details. Please try again later.")
                         })
@@ -208,21 +250,21 @@ export default function Otp({ navigation, route }) {
                 <View style={{ marginTop: 50 }}>
                     <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12 }}>Enter 6 digit code</Text>
                     <View style={{ flexDirection: 'row', marginTop: 10 }}>
-                        <TextInput secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp1} value={otp1} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={()=>{
+                        <TextInput secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp1} value={otp1} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={() => {
                             otp2ref.current.focus()
-                            }}></TextInput>
-                        <TextInput ref={otp2ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp2} value={otp2} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad'  onKeyPress={()=>{
+                        }}></TextInput>
+                        <TextInput ref={otp2ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp2} value={otp2} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={() => {
                             otp3ref.current.focus()
-                            }}></TextInput>
-                        <TextInput ref={otp3ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp3} value={otp3} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={()=>{
+                        }}></TextInput>
+                        <TextInput ref={otp3ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp3} value={otp3} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={() => {
                             otp4ref.current.focus()
-                            }}></TextInput>
-                        <TextInput ref={otp4ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp4} value={otp4} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={()=>{
+                        }}></TextInput>
+                        <TextInput ref={otp4ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp4} value={otp4} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={() => {
                             otp5ref.current.focus()
-                            }}></TextInput>
-                        <TextInput ref={otp5ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp5} value={otp5} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={()=>{
+                        }}></TextInput>
+                        <TextInput ref={otp5ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp5} value={otp5} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={() => {
                             otp6ref.current.focus()
-                            }}></TextInput>
+                        }}></TextInput>
                         <TextInput ref={otp6ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp6} value={otp6} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad'></TextInput>
                         <View style={styles.timer}>
                             <Text>{seconds} Sec</Text>

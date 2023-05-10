@@ -20,7 +20,7 @@ export default function Login({ navigation }) {
     const [signinError, setsigninError] = useState('');
     const [signinSuccess, setsigninSuccess] = useState('');
     const [selected, setSelected] = useState('mobile');
-    const [popup,setpopup] = useState(false);
+    const [popup, setpopup] = useState(false);
 
     function ValidateEmail(input) {
         var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
@@ -34,11 +34,11 @@ export default function Login({ navigation }) {
         if (Mobile.trim() == "") { setMobileError("Please enter your mobile number."); return true; } else setMobileError("");
         if (Mobile.trim().length != 10) { setMobileError("Please enter a valid mobile number."); return true; } else setMobileError("");
 
-        await AsyncStorage.setItem("loginMobile", "0091"+Mobile);
+        await AsyncStorage.setItem("loginMobile", "0091" + Mobile);
         const region = await AsyncStorage.getItem('country_code');
         axios.post(FIRETV_BASE_URL_STAGING + "users/generate_signin_otp", {
             auth_token: AUTH_TOKEN,
-            user: { user_id: "0091"+Mobile, region: region, type: "msisdn" }
+            user: { user_id: "0091" + Mobile, region: region, type: "msisdn" }
         }, {
             headers: {
                 'Accept': 'application/json',
@@ -47,13 +47,11 @@ export default function Login({ navigation }) {
         })
             .then(response => {
                 console.log(JSON.stringify(response.data));
-                if(response.data.status_code==200)
-                {
+                if (response.data.status_code == 200) {
                     setOtpError("")
                     navigation.dispatch(StackActions.replace('Otp', { 'otpkey': 'loginMobile' }));
                 }
-                else
-                {
+                else {
                     setOtpError(error.response.data.error.message)
                 }
             }).catch(error => {
@@ -68,92 +66,114 @@ export default function Login({ navigation }) {
         if (newpassword.trim() == "") { setnewpasswordError("Please enter your password."); return true; } else setnewpasswordError("");
         if (ValidateEmail(email)) {
             setEmailError("");
+            var frontpagedob = await AsyncStorage.getItem('frontpagedob');
+            var frontpagegender = await AsyncStorage.getItem('frontpagegender');
+            var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
+            
             //if (CheckPassword(newpassword)) {
-                const region = await AsyncStorage.getItem('country_code');
-                axios.post(FIRETV_BASE_URL_STAGING + "users/sign_in", {
-                    auth_token: AUTH_TOKEN,
-                    user: { email_id: email, region: region, password: newpassword }
-                }, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    }
-                }).then(response=>{
-                    setemailRegError("");
-                    AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
-                    AsyncStorage.setItem('add_profile',JSON.stringify(response.data.data.add_profile))
-                    AsyncStorage.setItem('first_time_login',JSON.stringify(response.data.data.first_time_login))
-                    AsyncStorage.setItem('firstname',response.data.data.profile_obj.firstname)
-                    AsyncStorage.setItem('is_device_limit_status',JSON.stringify(response.data.data.is_device_limit_status))
-                    AsyncStorage.setItem('lastname',JSON.stringify(response.data.data.profile_obj.lastname))
-                    AsyncStorage.setItem('login_type',response.data.data.login_type)
-                    AsyncStorage.setItem('mobile_number',response.data.data.mobile_number)
+            const region = await AsyncStorage.getItem('country_code');
+            axios.post(FIRETV_BASE_URL_STAGING + "users/sign_in", {
+                auth_token: AUTH_TOKEN,
+                user: { email_id: email, region: region, password: newpassword }
+            }, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }).then(response => {
+                setemailRegError("");
+                AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
+                AsyncStorage.setItem('add_profile', JSON.stringify(response.data.data.add_profile))
+                AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
+                AsyncStorage.setItem('firstname', response.data.data.profile_obj.firstname)
+                AsyncStorage.setItem('is_device_limit_status', JSON.stringify(response.data.data.is_device_limit_status))
+                AsyncStorage.setItem('lastname', JSON.stringify(response.data.data.profile_obj.lastname))
+                AsyncStorage.setItem('login_type', response.data.data.login_type)
+                AsyncStorage.setItem('mobile_number', response.data.data.mobile_number)
+                //AsyncStorage.setItem('mobile_number',"")
+                AsyncStorage.setItem('default_profile', response.data.data.profile_obj.default_profile)
+                AsyncStorage.setItem('profile_id', response.data.data.profile_obj.profile_id)
+                AsyncStorage.setItem('region', response.data.data.profile_obj.region)
+                AsyncStorage.setItem('profile_pic', response.data.data.profile_pic)
+                AsyncStorage.setItem('session', response.data.data.session)
+                AsyncStorage.setItem('user_id', response.data.data.user_id)
+                AsyncStorage.setItem('email_id', response.data.data.email_id)
+
+                if ((frontpagedob != "" && frontpagedob != null) || (frontpagegender != "" && frontpagegender != null) || (frontpagepincode != "" && frontpagepincode != null)) {
+                
+                    axios.put(FIRETV_BASE_URL_STAGING + 'users/' + response.data.data.session + '/account', {
+                        access_token: ACCESS_TOKEN,
+                        auth_token: VIDEO_AUTH_TOKEN,
+                        user: {
+                            birthdate: frontpagedob,
+                            gender: frontpagegender,
+                            address: frontpagepincode
+                        }
+                    }).then(resp => {
+                        AsyncStorage.removeItem('frontpagedob');
+                        AsyncStorage.removeItem('frontpagegender');
+                        AsyncStorage.removeItem('frontpagepincode');
+                    }).catch(error => { console.log(error.response.data); })
+                }
+
+                axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
+                    AsyncStorage.setItem('address', resp.data.data.address)
+                    AsyncStorage.setItem('age', resp.data.data.age)
+                    AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
+                    AsyncStorage.setItem('email_id', resp.data.data.email_id)
+                    AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
+                    //AsyncStorage.setItem('ext_user_id',resp.data.data.ext_user_id)
+                    AsyncStorage.setItem('firstname', resp.data.data.firstname)
+                    AsyncStorage.setItem('gender', resp.data.data.gender)
+                    //AsyncStorage.setItem('is_mobile_verify',JSON.stringify(resp.data.data.is_mobile_verify))
+                    AsyncStorage.setItem('lastname', JSON.stringify(resp.data.data.lastname))
+                    AsyncStorage.setItem('login_type', resp.data.data.login_type)
+                    AsyncStorage.setItem('mobile_number', resp.data.data.mobile_number)
                     //AsyncStorage.setItem('mobile_number',"")
-                    AsyncStorage.setItem('default_profile',response.data.data.profile_obj.default_profile)
-                    AsyncStorage.setItem('profile_id',response.data.data.profile_obj.profile_id)
-                    AsyncStorage.setItem('region',response.data.data.profile_obj.region)
-                    AsyncStorage.setItem('profile_pic',response.data.data.profile_pic)
-                    AsyncStorage.setItem('session',response.data.data.session)
-                    AsyncStorage.setItem('user_id',response.data.data.user_id)
-                    AsyncStorage.setItem('email_id',response.data.data.email_id)
-                    axios.get(FIRETV_BASE_URL_STAGING + "users/"+response.data.data.session+"/account.gzip?auth_token="+AUTH_TOKEN).then(resp=>{
-                        AsyncStorage.setItem('address',resp.data.data.address)
-                        AsyncStorage.setItem('age',resp.data.data.age)
-                        AsyncStorage.setItem('birthdate',resp.data.data.birthdate)
-                        AsyncStorage.setItem('email_id',resp.data.data.email_id)
-                        AsyncStorage.setItem('ext_account_email_id',resp.data.data.ext_account_email_id)
-                        AsyncStorage.setItem('ext_user_id',resp.data.data.ext_user_id)
-                        AsyncStorage.setItem('firstname',resp.data.data.firstname)
-                        AsyncStorage.setItem('gender',resp.data.data.gender)
-                        AsyncStorage.setItem('is_mobile_verify',JSON.stringify(resp.data.data.is_mobile_verify))
-                        AsyncStorage.setItem('lastname',JSON.stringify(resp.data.data.lastname))
-                        AsyncStorage.setItem('login_type',resp.data.data.login_type)
-                        AsyncStorage.setItem('mobile_number',resp.data.data.mobile_number)
-                        //AsyncStorage.setItem('mobile_number',"")
-                        AsyncStorage.setItem('primary_id',resp.data.data.primary_id)
-                        AsyncStorage.setItem('profile_pic',resp.data.data.profile_pic)
-                        AsyncStorage.setItem('user_email_id',resp.data.data.user_email_id)
-                        AsyncStorage.setItem('user_id',resp.data.data.user_id)
-                        setpopup(false)
-        
-                        }).catch(err=>{
-                            alert("Error in fetching account details. Please try again later.")
-                        })
-                        axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
-                            if (planresponse.data.data.length > 0) {
-                                AsyncStorage.setItem('subscription', 'done');
-                                AsyncStorage.setItem('user_id', planresponse.data.data[0].user_id);
-                                AsyncStorage.setItem('subscription_id', planresponse.data.data[0].subscription_id);
-                                AsyncStorage.setItem('plan_id', planresponse.data.data[0].plan_id);
-                                AsyncStorage.setItem('category', planresponse.data.data[0].category);
-                                AsyncStorage.setItem('valid_till', planresponse.data.data[0].valid_till);
-                                AsyncStorage.setItem('start_date', planresponse.data.data[0].start_date);
-                                AsyncStorage.setItem('transaction_id', planresponse.data.data[0].transaction_id);
-                                AsyncStorage.setItem('created_at', planresponse.data.data[0].created_at);
-                                AsyncStorage.setItem('updated_at', planresponse.data.data[0].updated_at);
-                                AsyncStorage.setItem('plan_status', planresponse.data.data[0].plan_status);
-                                AsyncStorage.setItem('invoice_inc_id', JSON.stringify(planresponse.data.data[0].invoice_inc_id));
-                                AsyncStorage.setItem('price_charged', JSON.stringify(planresponse.data.data[0].price_charged));
-                                AsyncStorage.setItem('email_id', JSON.stringify(planresponse.data.data[0].email_id));
-                                AsyncStorage.setItem('plan_title', JSON.stringify(planresponse.data.data[0].plan_title));
-                                AsyncStorage.setItem('subscription_title', JSON.stringify(planresponse.data.data[0].subscription_title));
-                                AsyncStorage.setItem('invoice_id', JSON.stringify(planresponse.data.data[0].invoice_id));
-                                AsyncStorage.setItem('currency', JSON.stringify(planresponse.data.data[0].currency));
-                                AsyncStorage.setItem('currency_symbol', JSON.stringify(planresponse.data.data[0].currency_symbol));
-                                AsyncStorage.setItem('status', JSON.stringify(planresponse.data.data[0].status));
-                            }
-                        }).catch(planerror => {
-                            console.log(planerror.response.data);
-                        })
-                        navigation.dispatch(StackActions.replace('Home',{pageFriendlyId:'featured-1',popup:false}))
-                    //navigation.navigate('MobileUpdate')
-                }).catch(error=>{
-                    setemailRegError(error.response.data.error.message);
+                    AsyncStorage.setItem('primary_id', resp.data.data.primary_id)
+                    AsyncStorage.setItem('profile_pic', resp.data.data.profile_pic)
+                    AsyncStorage.setItem('user_email_id', resp.data.data.user_email_id)
+                    AsyncStorage.setItem('user_id', resp.data.data.user_id)
+                    setpopup(false)
+
+                }).catch(err => {
+                    alert("Error in fetching account details. Please try again later.")
                 })
-           // }
-           // else {
-           //     setnewpasswordError("Password should be minimum of 8 digits and it should have at least one lowercase letter, one uppercase letter, one numeric digit, and one special character."); return true;
-           // }
+                axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
+                    if (planresponse.data.data.length > 0) {
+                        AsyncStorage.setItem('subscription', 'done');
+                        AsyncStorage.setItem('user_id', planresponse.data.data[0].user_id);
+                        AsyncStorage.setItem('subscription_id', planresponse.data.data[0].subscription_id);
+                        AsyncStorage.setItem('plan_id', planresponse.data.data[0].plan_id);
+                        AsyncStorage.setItem('category', planresponse.data.data[0].category);
+                        AsyncStorage.setItem('valid_till', planresponse.data.data[0].valid_till);
+                        AsyncStorage.setItem('start_date', planresponse.data.data[0].start_date);
+                        AsyncStorage.setItem('transaction_id', planresponse.data.data[0].transaction_id);
+                        AsyncStorage.setItem('created_at', planresponse.data.data[0].created_at);
+                        AsyncStorage.setItem('updated_at', planresponse.data.data[0].updated_at);
+                        AsyncStorage.setItem('plan_status', planresponse.data.data[0].plan_status);
+                        AsyncStorage.setItem('invoice_inc_id', JSON.stringify(planresponse.data.data[0].invoice_inc_id));
+                        AsyncStorage.setItem('price_charged', JSON.stringify(planresponse.data.data[0].price_charged));
+                        AsyncStorage.setItem('email_id', JSON.stringify(planresponse.data.data[0].email_id));
+                        AsyncStorage.setItem('plan_title', JSON.stringify(planresponse.data.data[0].plan_title));
+                        AsyncStorage.setItem('subscription_title', JSON.stringify(planresponse.data.data[0].subscription_title));
+                        AsyncStorage.setItem('invoice_id', JSON.stringify(planresponse.data.data[0].invoice_id));
+                        AsyncStorage.setItem('currency', JSON.stringify(planresponse.data.data[0].currency));
+                        AsyncStorage.setItem('currency_symbol', JSON.stringify(planresponse.data.data[0].currency_symbol));
+                        AsyncStorage.setItem('status', JSON.stringify(planresponse.data.data[0].status));
+                    }
+                }).catch(planerror => {
+                    console.log(planerror.response.data);
+                })
+                navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: false }))
+                //navigation.navigate('MobileUpdate')
+            }).catch(error => {
+                setemailRegError(error.response.data.error.message);
+            })
+            // }
+            // else {
+            //     setnewpasswordError("Password should be minimum of 8 digits and it should have at least one lowercase letter, one uppercase letter, one numeric digit, and one special character."); return true;
+            // }
         }
         else {
             setEmailError("Please enter a valid email id."); return true;
@@ -173,8 +193,8 @@ export default function Login({ navigation }) {
                 </View>
                 {selected == 'mobile' ?
                     <View style={styles.body}>
-                        <View style={{justifyContent:'center',alignItems:'center'}}>
-                        <Text style={styles.errormessage}>{otpError}</Text>
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={styles.errormessage}>{otpError}</Text>
                         </View>
                         <TextInput maxLength={10} onChangeText={setMobile} value={Mobile} style={styles.textinput} placeholder="Mobile Number*" placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='phone-pad' />
                         <Text style={styles.errormessage}>{MobileError}</Text>
@@ -203,8 +223,8 @@ export default function Login({ navigation }) {
                     :
 
                     <View style={styles.body}>
-                        <View style={{justifyContent:'center',alignItems:'center'}}>
-                        <Text style={styles.errormessage}>{emailRegError}</Text>
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={styles.errormessage}>{emailRegError}</Text>
                         </View>
                         <TextInput onChangeText={setEmail} value={email} style={styles.textinput} placeholder="Email Id*" placeholderTextColor={NORMAL_TEXT_COLOR} />
                         <Text style={styles.errormessage}>{EmailError}</Text>
@@ -212,8 +232,8 @@ export default function Login({ navigation }) {
                         <TextInput secureTextEntry={true} onChangeText={setnewpassword} value={newpassword} style={styles.textinput} placeholder="Password*" placeholderTextColor={NORMAL_TEXT_COLOR} />
                         <Text style={styles.errormessage}>{newpasswordError}</Text>
                         <View>
-                            <TouchableOpacity style={{ position: 'absolute', right:20 }}>
-                                <Text style={{color:NORMAL_TEXT_COLOR}}>Forgot Password?</Text>
+                            <TouchableOpacity style={{ position: 'absolute', right: 20 }}>
+                                <Text style={{ color: NORMAL_TEXT_COLOR }}>Forgot Password?</Text>
                             </TouchableOpacity>
                         </View>
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
