@@ -225,10 +225,10 @@ android {
     }
     signingConfigs {
         debug {
-            storeFile file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
+            storeFile file('firebase.keystore')
+            storePassword 'Firebase@123@@@'
+            keyAlias 'firebase'
+            keyPassword 'Firebase@123@@@'
         }
     }
     buildTypes {
@@ -290,7 +290,8 @@ dependencies {
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.10'
     implementation project(path: ":react-native-video")
     implementation "androidx.appcompat:appcompat:1.0.0"
-
+    implementation platform('com.google.firebase:firebase-bom:32.0.0')
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.browser:browser:1.4.0'
     implementation 'androidx.media:media:1.6.0'
@@ -385,3 +386,5 @@ def isNewArchitectureEnabled() {
     // - Set an environment variable `ORG_GRADLE_PROJECT_newArchEnabled=true`
     return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
 }
+
+apply plugin: "com.google.gms.google-services"

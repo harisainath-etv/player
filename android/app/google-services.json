@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "278069225987",
+    "project_id": "etv-win-r-login",
+    "storage_bucket": "etv-win-r-login.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:278069225987:android:d7c9ef9ce4ecd71e7e3c36",
+        "android_client_info": {
+          "package_name": "com.video"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "278069225987-gfp3ovg2ejkolqo7vh7t547g545dr4ni.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.video",
+            "certificate_hash": "b5895752064a3317ae7220e9bf9eeb6636d6ad6f"
+          }
+        },
+        {
+          "client_id": "278069225987-2gahhp75vq1h9p57tgq81ddp1eg9o4mo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB83LA72M96FqI91EDvROv7sCsxH0n0l98"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "278069225987-2gahhp75vq1h9p57tgq81ddp1eg9o4mo.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "278069225987-s9ekvuklcf7pbege6i92mcj4e3uki72h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.video"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
