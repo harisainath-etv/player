@@ -131,22 +131,26 @@ export default function EditProfile({ navigation }) {
                 profilePic != "" && profilePic != null && validURL(profilePic)?
 
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                        <Image
-                            source={{ uri: profilePic }}
-                            resizeMode="center"
-                            style={styles.drawerHeaderImage}
-                        ></Image>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
+                            {name != "" && name != null ?
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
+                                :
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
+                            }
+                        </View>
                     </View>
 
 
                     :
 
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                        <Image
-                            source={require('../assets/images/usericon.png')}
-                            resizeMode="center"
-                            style={styles.drawerHeaderImage}
-                        ></Image>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
+                            {name != "" && name != null ?
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
+                                :
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
+                            }
+                        </View>
                     </View>
 
             }

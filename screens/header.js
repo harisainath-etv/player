@@ -7,7 +7,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Modal from "react-native-modal";
 import { useNavigation } from '@react-navigation/native';
 import { StackActions } from '@react-navigation/native';
-import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, MORE_LINK_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, } from '../constants';
+import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, MORE_LINK_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Header(props) {
@@ -113,12 +113,15 @@ export default function Header(props) {
                             :
                             profilePic != "" && profilePic != null && validURL(profilePic) ?
                                 <Pressable onPress={() => { toggleModal(); navigation.navigate('Profile') }}>
-                                    <ImageBackground
-                                        source={{ uri: profilePic }}
-                                        resizeMode="cover"
-                                        style={styles.drawerHeaderImage}>
-                                        <View style={{ padding: 25, height: 170, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%" }}>
-
+                                    <View style={styles.drawerHeaderImage}>
+                                        <View style={{ padding: 25, height: 170, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
+                                            <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
+                                                {name != "" && name != null ?
+                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
+                                                    :
+                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
+                                                }
+                                            </View>
 
                                             <View style={{ bottom: 0, position: 'absolute', left: 35, flexDirection: 'row' }}>
                                                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -135,17 +138,19 @@ export default function Header(props) {
 
 
                                         </View>
-                                    </ImageBackground>
+                                    </View>
                                 </Pressable>
                                 :
                                 <Pressable onPress={() => { toggleModal(); navigation.navigate('Profile') }}>
-                                    <ImageBackground
-                                        source={require('../assets/images/usericon.png')}
-                                        resizeMode="center"
-                                        style={styles.drawerHeaderImage}>
-                                        <View style={{ padding: 25, height: 170, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%" }}>
-
-
+                                    <View style={styles.drawerHeaderImage}>
+                                        <View style={{ padding: 25, height: 170, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
+                                            <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
+                                                {name != "" && name != null ?
+                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
+                                                    :
+                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
+                                                }
+                                            </View>
                                             <View style={{ bottom: 0, position: 'absolute', left: 35, flexDirection: 'row' }}>
                                                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                                                     <Text style={styles.drawerHeaderText}>Hi {name}</Text>
@@ -161,7 +166,7 @@ export default function Header(props) {
 
 
                                         </View>
-                                    </ImageBackground>
+                                    </View>
                                 </Pressable>
                         }
 

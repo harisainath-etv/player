@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, FIRETV_BASE_URL_STAGING, } from '../constants';
+import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, FIRETV_BASE_URL_STAGING, SLIDER_PAGINATION_UNSELECTED_COLOR, } from '../constants';
 import { DETAILS_TEXT_COLOR } from '../constants';
 import { StackActions } from '@react-navigation/native';
 import axios from 'axios';
@@ -98,14 +98,14 @@ export default function Profile({ navigation }) {
         navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
     }
     function validURL(str) {
-        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+            '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
         return !!pattern.test(str);
-      }
+    }
     return (
         <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
             <View style={{ marginTop: 20, marginLeft: 10 }}>
@@ -138,14 +138,16 @@ export default function Profile({ navigation }) {
                 </ImageBackground>
 
                 :
-                profilePic != "" && profilePic != null && validURL(profilePic)?
+                profilePic != "" && profilePic != null && validURL(profilePic) ?
 
                     <View style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}>
-                        <Image
-                            source={{ uri: profilePic }}
-                            resizeMode="center"
-                            style={styles.drawerHeaderImage}
-                        ></Image>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
+                            {name != "" && name != null ?
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
+                                :
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
+                            }
+                        </View>
                         <Text style={styles.drawerHeaderText}>{name}</Text>
                         {email != "" && email != null ?
                             <Text style={styles.drawerHeaderText}>{email}</Text>
@@ -157,11 +159,13 @@ export default function Profile({ navigation }) {
                     :
 
                     <View style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}>
-                        <Image
-                            source={require('../assets/images/usericon.png')}
-                            resizeMode="center"
-                            style={styles.drawerHeaderImage}
-                        ></Image>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
+                            {name != "" && name != null ?
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
+                                :
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
+                            }
+                        </View>
                         <Text style={styles.drawerHeaderText}>{name}</Text>
                         {email != "" && email != null ?
                             <Text style={styles.drawerHeaderText}>{email}</Text>
@@ -171,7 +175,7 @@ export default function Profile({ navigation }) {
 
             }
             <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}>
-                <TouchableOpacity onPress={()=>{navigation.navigate('EditProfile')}} style={{ backgroundColor: TAB_COLOR, paddingTop: 10, paddingBottom: 10, paddingLeft: 22, paddingRight: 22, borderRadius: 20 }}><Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}>Edit Profile</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => { navigation.navigate('EditProfile') }} style={{ backgroundColor: TAB_COLOR, paddingTop: 10, paddingBottom: 10, paddingLeft: 22, paddingRight: 22, borderRadius: 20 }}><Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}>Edit Profile</Text></TouchableOpacity>
             </View>
             <ScrollView style={{ marginTop: 20 }}>
                 {dob != "" && dob != null ?
