@@ -1,11 +1,12 @@
-import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, TouchableWithoutFeedback, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, Image, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform, FlatList } from 'react-native';
 import React, { useEffect, useState, createRef } from 'react';
 import * as NavigationBar from "expo-navigation-bar";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, } from '../constants';
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, } from '../constants';
 import axios from 'axios';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
@@ -14,6 +15,12 @@ import Video from 'react-native-video';
 import { StackActions } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import RNBackgroundDownloader from 'react-native-background-downloader';
+import Share from 'react-native-share';
+import Modal from "react-native-modal";
+import Slider from '@react-native-community/slider';
+import FastImage from 'react-native-fast-image';
+// import VideoViewAndroid from '../components/VideoViewAndroid';
+// import VideoViewIos from '../components/VideoViewIos';
 
 export default function Episode({ navigation, route }) {
   const { seoUrl, theme } = route.params;
@@ -34,26 +41,46 @@ export default function Episode({ navigation, route }) {
   const [play, setPlay] = useState(true);
   const [loading, setLoading] = useState(false);
   const [offlineUrl, setOfflineUrl] = useState("");
-  const [offlineDownloadUrl, setofflineDownloadUrl] = useState("");
   //0 - not downloaded, 1-downloaded, 2-downloading
   const [downloadedStatus, setDownloadedStatus] = useState(0)
   const [taskdownloading, settaskdownloading] = useState();
   const [pauseDownload, setPauseDownload] = useState(false);
   const [thumbnailImage, setThumbnailImage] = useState("");
-
+  const [preview, setPreview] = useState(false);
+  const [loggedin, setloggedin] = useState(false);
+  const [showupgrade, setshowupgrade] = useState(false);
   const videoRef = createRef();
   const [state, setState] = useState({ showControls: true, progress: 0, isPaused: false, });
-  const [downloadFileTask, setdownloadFileTask] = useState()
-
-
+  const [contentId, setContentId] = useState();
+  const [catalogId, setCatalogId] = useState();
+  const [watchlatercontent, setwatchlatercontent] = useState();
+  const [likecontent, setlikecontent] = useState();
+  const [shareUrl, setShareUrl] = useState()
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [isResolutionModalVisible, setResolutionModalVisible] = useState(false);
+  const [prefrence, setPreference] = useState([]);
+  const [resolutionPreference, setResolutionPreference] = useState([]);
+  const [isresumeDownloading, setIsresumeDownloading] = useState(false);
+  const [currenttimestamp, setcurrenttimestamp] = useState("00:00:00");
+  const [duration, setDuration] = useState("");
+  const [currentloadingtime, setcurrentloadingtime] = useState(0);
+  const [videoType, setvideoType] = useState('auto');
+  const [videoresolution, setvideoresolution] = useState('1280');
+  const [subcategoryImages, setsubcategoryImages] = useState([])
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+  const toggleModalResolution = () => {
+    setResolutionModalVisible(!isResolutionModalVisible);
+  }
 
   const navigationConfig = async () => {
     // // Just incase it is not hidden
     // NavigationBar.setBackgroundColorAsync('red');
-   // NavigationBar.setVisibilityAsync("hidden");
+    //NavigationBar.setVisibilityAsync("hidden");
   };
   const navigationConfigVisible = async () => {
-   // NavigationBar.setVisibilityAsync("visible");
+    //NavigationBar.setVisibilityAsync("visible");
   };
   const exitScreen = async () => {
     StatusBar.setHidden(false)
@@ -74,6 +101,8 @@ export default function Episode({ navigation, route }) {
       const checkEvent = filterItems('event', splittedData);
       const region = await AsyncStorage.getItem('country_code');
       var urlPath = "";
+      var totalData = [];
+      var sessionId = await AsyncStorage.getItem('session');
       if (splittedData.length == 4 && checkChannel == 0) {
         urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/subcategories/" + splittedData[2] + "/episodes/" + splittedData[3];
       }
@@ -104,11 +133,12 @@ export default function Episode({ navigation, route }) {
         //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/" + splittedData[2] + "/" + splittedData[3];
       }
       const url = urlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
-      // console.log(seourl);
-      // console.log(url);
+      //  console.log(seourl);
+      //  console.log(url);
       await axios.get(url).then(response => {
         setTitle(response.data.data.title);
         setOfflineUrl(response.data.data.play_url.saranyu.url);
+        setShareUrl(response.data.data.dynamic_url);
         if (response.data.data.hasOwnProperty('channel_object'))
           setChannel(response.data.data.channel_object.name);
         if (response.data.data.hasOwnProperty('cbfc_rating'))
@@ -119,12 +149,24 @@ export default function Episode({ navigation, route }) {
           setDescription(response.data.data.description);
         if (response.data.data.hasOwnProperty('thumbnails'))
           setThumbnailImage(response.data.data.thumbnails.high_4_3.url);
-        // setContentId(response.data.data.content_id);
-        // setCatalogId(response.data.data.catalog_id);
+        setContentId(response.data.data.content_id);
+        setCatalogId(response.data.data.catalog_id);
+        AsyncStorage.getItem("watchLater_" + contentId).then(resp => {
+          if (resp != "" && resp != null)
+            setwatchlatercontent(true);
+        }).catch(erro => { })
+        AsyncStorage.getItem("like_" + contentId).then(resp => {
+          //console.log(resp);
+          if (resp != "" && resp != null)
+            setlikecontent(true);
+        }).catch(erro => { })
         var currentTimestamp = Math.floor(Date.now() / 1000).toString();
-        var sessionId = Math.random().toString(20).slice(2);
-        var md5String = stringMd5(response.data.data.catalog_id + response.data.data.content_id + "" + currentTimestamp + SECRET_KEY)
-        //console.log(response.data.data.content_id);
+        //console.log(sessionId);
+        if (sessionId != null)
+          setloggedin(true);
+        if (sessionId == null)
+          sessionId = "";
+        var md5String = stringMd5(response.data.data.catalog_id + response.data.data.content_id + sessionId + currentTimestamp + SECRET_KEY)
         axios.post(FIRETV_BASE_URL + "v2/users/get_all_details", {
           catalog_id: response.data.data.catalog_id,
           content_id: response.data.data.content_id,
@@ -132,7 +174,7 @@ export default function Episode({ navigation, route }) {
           region: region,
           auth_token: VIDEO_AUTH_TOKEN,
           access_token: ACCESS_TOKEN,
-          id: "",
+          id: sessionId,
           ts: currentTimestamp,
           md5: md5String
         }, {
@@ -149,19 +191,38 @@ export default function Episode({ navigation, route }) {
               else
                 if (response.data.data.stream_info.preview.adaptive_url != "") {
                   setPlayUrl(response.data.data.stream_info.preview.adaptive_url);
+                  setPreview(true);
                 }
             }
             setLoading(false);
           }).catch(error => {
-            console.log(JSON.stringify(error.response.data));
+            //console.log(JSON.stringify(error.response.data));
             setLoading(false);
           }
           )
+
+        axios.get(FIRETV_BASE_URL_STAGING + "catalog_lists/movie-videolists?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&item_language=eng&region=" + region + "&parent_id=" + response.data.data.content_id).then(resp => {
+          for (var o = 0; o < resp.data.data.catalog_list_items.length; o++) {
+            var subcategorydata = [];
+            for (var s = 0; s < resp.data.data.catalog_list_items[o].catalog_list_items.length; s++) {
+              subcategorydata.push({ 'thumbnail': resp.data.data.catalog_list_items[o].catalog_list_items[s].thumbnails.high_4_3.url, 'title': resp.data.data.catalog_list_items[o].catalog_list_items[s].title, 'premium': resp.data.data.catalog_list_items[o].catalog_list_items[s].access_control.is_free, 'theme': resp.data.data.catalog_list_items[o].catalog_list_items[s].theme, 'seo_url': resp.data.data.catalog_list_items[o].catalog_list_items[s].seo_url })
+            }
+            totalData.push({ 'display_title': resp.data.data.catalog_list_items[o].display_title, 'item_type': resp.data.data.catalog_list_items[o].theme, 'thumbnails': subcategorydata, 'friendlyId': resp.data.data.catalog_list_items[o].friendly_id })
+            setsubcategoryImages([...subcategoryImages, totalData])
+          }
+        }).catch(err => {
+
+        })
         setLoading(false);
       }).catch(error => {
         setLoading(false);
       })
     }
+
+    //ofline downloads
+    let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
+    if (lostTasks.length > 0)
+      setIsresumeDownloading(true);
   }
   const checkOfflineDownload = async () => {
 
@@ -169,10 +230,10 @@ export default function Episode({ navigation, route }) {
       var splittedOfflineUrl = offlineUrl.split("/");
       var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/' + splittedOfflineUrl[splittedOfflineUrl.length - 1] + ".ts.download";
       if (await RNFS.exists(downloaddirectory)) {
-        console.log(downloadpercent);
+        //console.log(downloadpercent);
         var downloadpercent = await AsyncStorage.getItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1]);
         var downloadtask = await AsyncStorage.getItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1]);
-        console.log(downloadtask);
+        //console.log(downloadtask);
         if (downloadtask != "" || downloadtask != null)
           settaskdownloading(downloadtask);
         if (downloadpercent == '100') {
@@ -225,7 +286,7 @@ export default function Episode({ navigation, route }) {
     state.showControls
       ? setState({ ...state, showControls: false })
       : setState({ ...state, showControls: true });
-    setTimeout(function () { setState({ ...state, showControls: false }) }, 5000)
+    setTimeout(function () { setState({ ...state, showControls: false }) }, 10000)
   }
   const checkgoback = () => {
     if (navigation.canGoBack())
@@ -234,52 +295,78 @@ export default function Episode({ navigation, route }) {
       navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
   }
   const downloadFile = async () => {
-    
-      // if (offlineUrl != "") {
-      var splittedOfflineUrl = offlineUrl.split("/");
-      var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
-      if (await RNFS.exists(downloaddirectory)) {
-        //setDownloadedStatus(1)
+    if (!loggedin) {
+      navigation.dispatch(StackActions.replace("Login"));
+    }
+    else {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Download File',
+          message:
+            'Need App Access To Download Files',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        // if (offlineUrl != "") {
+        var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
+        var offlineprefrences = [];
+        if (await RNFS.exists(downloaddirectory)) {
+          //setDownloadedStatus(1)
+        }
+        else {
+          RNFS.mkdir(downloaddirectory);
+        }
+        var offlinedownloadapi = offlineUrl + "?service_id=6&play_url=yes&protocol=http_pd&us=745d7e9f1e37ca27fdffbebfe8a99877";
+        await axios.get(offlinedownloadapi).then(response => {
+          for (let o = 0; o < response.data.playback_urls.length; o++) {
+            offlineprefrences.push({ "display_name": response.data.playback_urls[o].display_name, "playback_url": response.data.playback_urls[o].playback_url, "offlineUrl": offlineUrl, "downloaddirectory": downloaddirectory })
+          }
+          setPreference(offlineprefrences);
+          toggleModal()
+        }).catch(error => { })
+
+        // }
+
       }
       else {
-        RNFS.mkdir(downloaddirectory);
+        alert("Please give access to download files.");
       }
-      var offlinedownloadapi = offlineUrl + "?service_id=6&play_url=yes&protocol=http_pd&us=745d7e9f1e37ca27fdffbebfe8a99877";
-      await axios.get(offlinedownloadapi).then(response => {
-        setofflineDownloadUrl(response.data.playback_urls[3].playback_url);
-        AsyncStorage.setItem('download_url' + splittedOfflineUrl[splittedOfflineUrl.length - 1], offlineDownloadUrl);
-        AsyncStorage.setItem('download_path' + splittedOfflineUrl[splittedOfflineUrl.length - 1], `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts.download`);
-        AsyncStorage.setItem('download_title' + splittedOfflineUrl[splittedOfflineUrl.length - 1], title);
-        AsyncStorage.setItem('download_thumbnail' + splittedOfflineUrl[splittedOfflineUrl.length - 1], thumbnailImage);
-        AsyncStorage.setItem('download_seourl' + splittedOfflineUrl[splittedOfflineUrl.length - 1], seourl)
-
-
-        let tasks = RNBackgroundDownloader.download({
-          id: splittedOfflineUrl[splittedOfflineUrl.length - 1],
-          url: offlineDownloadUrl,
-          destination: `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts.download`
-        }).begin((expectedBytes) => {
-          setDownloadedStatus(2)
-          console.log(`Going to download ${expectedBytes} bytes!`);
-        }).progress((percent) => {
-          AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(percent * 100));
-          console.log(`Downloaded: ${percent * 100}%`);
-        }).done(() => {
-          AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(1 * 100));
-          setDownloadedStatus(1)
-          console.log('Download is done!');
-        }).error((error) => {
-          console.log('Download canceled due to error: ', error);
-        })
-        settaskdownloading(tasks);
-        AsyncStorage.setItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(tasks));
-
-      }).catch(error => { })
-
-      // }
-
+    }
   }
-  
+
+  const startDownloading = async (playback_url, offlineUrl, downloaddirectory) => {
+    var splittedOfflineUrl = offlineUrl.split("/");
+    AsyncStorage.setItem('download_url' + splittedOfflineUrl[splittedOfflineUrl.length - 1], playback_url);
+    AsyncStorage.setItem('download_path' + splittedOfflineUrl[splittedOfflineUrl.length - 1], `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts.download`);
+    AsyncStorage.setItem('download_title' + splittedOfflineUrl[splittedOfflineUrl.length - 1], title);
+    AsyncStorage.setItem('download_thumbnail' + splittedOfflineUrl[splittedOfflineUrl.length - 1], thumbnailImage);
+    AsyncStorage.setItem('download_seourl' + splittedOfflineUrl[splittedOfflineUrl.length - 1], seourl)
+
+    let tasks = RNBackgroundDownloader.download({
+      id: splittedOfflineUrl[splittedOfflineUrl.length - 1],
+      url: playback_url,
+      destination: `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts.download`
+    }).begin((expectedBytes) => {
+      setDownloadedStatus(2)
+      console.log(`Going to download ${expectedBytes} bytes!`);
+      toggleModal()
+    }).progress((percent) => {
+      AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(percent * 100));
+      console.log(`Downloaded: ${percent * 100}%`);
+    }).done(() => {
+      AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(1 * 100));
+      setDownloadedStatus(1)
+      console.log('Download is done!');
+    }).error((error) => {
+      console.log('Download canceled due to error: ', error);
+    })
+    settaskdownloading(tasks);
+    AsyncStorage.setItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(tasks));
+    navigation.dispatch(StackActions.replace('Offline'));
+  }
+
   const deleteDownload = async () => {
 
     Alert.alert('Delete File', 'Please confirm to delete the file from offline.', [
@@ -290,7 +377,7 @@ export default function Episode({ navigation, route }) {
       },
       {
         text: 'OK', onPress: async () => {
-          console.log('OK Pressed')
+          //console.log('OK Pressed')
 
           var splittedOfflineUrl = offlineUrl.split("/");
           var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/' + splittedOfflineUrl[splittedOfflineUrl.length - 1] + ".ts.download";
@@ -298,63 +385,329 @@ export default function Episode({ navigation, route }) {
             await RNFS.unlink(downloaddirectory)
             setDownloadedStatus(0)
           }
-
-
+          navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
         }
       },
     ]);
   }
   const pauseDownloadAction = async () => {
-     taskdownloading.pause();
+    taskdownloading.pause();
     setPauseDownload(true);
   }
   const resumeDownloadAction = async () => {
     taskdownloading.resume();
     setPauseDownload(false);
   }
+  const checkpreviewContent = async () => {
+    if (preview) {
+      setshowupgrade(true);
+    }
+  }
+  const watchLater = async () => {
+    if (!loggedin) {
+      navigation.dispatch(StackActions.replace("Login"));
+    }
+    else {
+      var sessionId = await AsyncStorage.getItem('session');
+      await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchlater", {
+        listitem: { catalog_id: catalogId, content_id: contentId },
+        auth_token: VIDEO_AUTH_TOKEN,
+        access_token: ACCESS_TOKEN,
+
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }).then(response => {
+        alert("Added to watchlist");
+        AsyncStorage.setItem("watchLater_" + contentId, contentId);
+        setwatchlatercontent(true);
+      }).catch(error => {
+        alert("Unable to add to watchlist. Please try again later.");
+      })
+    }
+  }
+  const likeContent = async () => {
+    if (!loggedin) {
+      navigation.dispatch(StackActions.replace("Login"));
+    }
+    else {
+      var sessionId = await AsyncStorage.getItem('session');
+      await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/like", {
+        listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true" },
+        auth_token: VIDEO_AUTH_TOKEN,
+        access_token: ACCESS_TOKEN,
+
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }).then(response => {
+        AsyncStorage.setItem("like_" + contentId, contentId);
+        setlikecontent(true);
+      }).catch(error => {
+        alert("Unable to like the content. Please try again later.");
+      })
+    }
+  }
+  const deleteLike = async (catalog_id, contentId) => {
+    var sessionId = await AsyncStorage.getItem('session');
+    var region = await AsyncStorage.getItem('country_code');
+    await axios.get(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/like/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region + '&content_id=' + contentId + '&catalog_id=' + catalog_id).then(response => {
+      //console.log(JSON.stringify(response.data.data.items[0]));
+      axios.delete(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/like/listitems/" + response.data.data.items[0].listitem_id + "?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(resp => {
+        AsyncStorage.removeItem('like_' + contentId)
+        setlikecontent(false);
+      }).catch(err => { })
 
 
+    }).catch(error => {
+      //console.log(JSON.stringify(error.response.data));
+    })
+
+  }
+
+  const shareOptions = async () => {
+    const shareOptions = {
+      title: title,
+      failOnCancel: false,
+      urls: [shareUrl],
+    };
+    const ShareResponse = await Share.open(shareOptions);
+  }
+  // const onAdsLoaded = () => {
+  //   setTimeout(() => {
+  //     videoRef.startAds();
+  //   }, 10000);
+  // }
+
+  // const onAdStarted = () => {
+  //   setPlay(true);
+  // }
+
+  // const onAdsComplete = () => {
+  //   setPlay(false);
+  // }
+  const toHoursAndMinutes = async (totalSeconds) => {
+    const totalMinutes = Math.floor(totalSeconds / 60);
+
+    var seconds = totalSeconds % 60;
+    var hours = Math.floor(totalMinutes / 60);
+    var minutes = totalMinutes % 60;
+    seconds = String(seconds).padStart(2, '0');
+    hours = String(hours).padStart(2, '0');
+    minutes = String(minutes).padStart(2, '0');
+    var timestamp = hours + ":" + minutes + ":" + seconds;
+    setcurrenttimestamp(timestamp);
+    setcurrentloadingtime(totalSeconds);
+    if ((totalSeconds % 30) == 0) {
+      var sessionId = await AsyncStorage.getItem('session');
+      if (sessionId != "" && sessionId != null && timestamp != "" && timestamp != null) {
+        await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchhistory", {
+          listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true" },
+          auth_token: VIDEO_AUTH_TOKEN,
+          access_token: ACCESS_TOKEN,
+          play_back_status: "playing",
+          play_back_time: timestamp
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }).then(response => {
+          console.log(JSON.stringify(response.data));
+        }).catch(error => {
+        })
+      }
+    }
+  }
+  const loadResolutionSettings = async () => {
+    var resolution = []
+    var settingsapi = offlineUrl + "?service_id=6&play_url=yes&protocol=hls&us=745d7e9f1e37ca27fdffbebfe8a99877";
+    await axios.get(settingsapi).then(response => {
+      for (let o = 0; o < response.data.playback_urls.length; o++) {
+        resolution.push({ "display_name": response.data.playback_urls[o].display_name, "vwidth": response.data.playback_urls[o].vwidth, "vheight": response.data.playback_urls[o].vheight })
+      }
+      setResolutionPreference(resolution);
+      toggleModalResolution()
+    }).catch(error => { })
+  }
+  const setVideoResolution = async (type, resolution) => {
+    setvideoType(type);
+    setvideoresolution(resolution);
+    toggleModalResolution();
+  }
+
+  // function renderSubcat({ item }) {
+
+  //   return (
+  //     <View style={{ textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+
+  //       {item.map((subcat, i) => {
+  //         return (
+  //           <View style={{ textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start' }} key={'main' + i}>
+  //             {subcat.thumbnails.length > 0 ?
+  //               <View style={{ textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+  //                 <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10, textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start' }} key={'heading' + i}>{subcat.display_title}</Text>
+  //                 {subcat.name != 'related' ? <Pressable style={{ position: 'absolute', right: 30 }} onPress={() => navigation.navigate('EpisodesMoreList', { firendlyId: subcat.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
+
+  //               </View> : ""}
+
+  //             <FlatList
+  //               data={subcat.thumbnails}
+  //               horizontal={true}
+  //               keyExtractor={(x, i) => i.toString()}
+  //               renderItem={(items, index) => {
+  //                 console.log(items.item.seo_url);
+  //                 return (
+  //                   <View style={{ marginBottom: 10 }} key={'innerkey' + index}>
+  //                     <View>
+  //                       {VIDEO_TYPES.includes(items.item.theme) ?
+  //                         <Pressable onPress={() => navigation.navigate({ name: 'Episode', params: { seoUrl: items.item.seo_url }, key: { index } })}>
+  //                           <FastImage resizeMode={FastImage.resizeMode.stretch} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+  //                         </Pressable>
+  //                         :
+  //                         <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.stretch} key={'image' + index} style={styles.imageSectionVertical} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>
+  //                       }
+
+  //                       {VIDEO_TYPES.includes(items.item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+  //                       {!items.item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+  //                     </View>
+  //                     <View style={VIDEO_TYPES.includes(items.item.theme) ? { width: PAGE_WIDTH / 2.06 } : ""}>
+  //                       {subcat.display_title == 'Episodes' ?
+  //                         <View style={{ justifyContent: 'center', }}><Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 12 }}>{items.item.title} </Text></View> : ""
+  //                       }
+  //                     </View>
+  //                   </View>
+  //                 )
+  //               }}
+  //             ></FlatList>
+  //           </View>
+  //         )
+  //       })}
+  //     </View>
+  //   )
+  // }
 
   return (
     <View style={styles.mainContainer}>
       <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
         <View style={styles.container}>
-          {playUrl ?
-            <TouchableWithoutFeedback onPress={showControls}>
-              <View style={{ flex: 1 }}>
-                <Video
-                  ref={videoRef}
-                  source={{ uri: playUrl }}
-                  controls={true}
-                  paused={!play}
-                  playInBackground={false}
-                  volume={1}
-                  bufferConfig={{
-                    minBufferMs: 250000,
-                    maxBufferMs: 500000,
-                  }}
-                  resizeMode={fullscreen ? 'cover' : 'none'}
-                  style={fullscreen ? styles.fullscreenVideo : styles.video}
-                />
-                {state.showControls && (
-                  <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50 }}>
-                    <TouchableOpacity
-                      onPress={() => { fullscreen ? handleFullscreen() : checkgoback() }}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      style={styles.navigationBack}>
-                      <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
-                    </TouchableOpacity>
+          {playUrl != "" && playUrl != null && !showupgrade ?
 
-                    <TouchableOpacity
-                      onPress={handleFullscreen}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      style={styles.fullscreenButton}>
-                      {fullscreen ? <Feather name="minimize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather> : <Feather name="maximize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather>}
-                    </TouchableOpacity>
+            <Pressable onPress={showControls}>
+              <Video
+                ref={videoRef}
+                source={{ uri: playUrl }}
+                controls={false}
+                paused={!play}
+                playInBackground={false}
+                volume={1}
+                selectedVideoTrack={{
+                  type: videoType,
+                  value: videoresolution
+                }}
+                bufferConfig={{
+                  minBufferMs: 1000000,
+                  maxBufferMs: 2000000,
+                  bufferForPlaybackMs: 7000
+                }}
+                rate={1.0}
+                resizeMode={fullscreen ? 'cover' : 'none'}
+                style={fullscreen ? styles.fullscreenVideo : styles.video}
+                onEnd={checkpreviewContent}
+                playWhenInactive={false}
+                progressUpdateInterval={1000}
+                onProgress={play => {
+                  var milliseconds = play.currentTime;
+                  toHoursAndMinutes(Math.floor(milliseconds));
+                }}
+                onLoad={(data) => {
+                  setDuration(data.duration)
+                }}
+              />
+              {state.showControls && (
+                <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50 }}>
+                  <TouchableOpacity
+                    onPress={() => { fullscreen ? handleFullscreen() : checkgoback() }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    style={styles.navigationBack}>
+                    <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={loadResolutionSettings}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    style={styles.settingsicon}>
+                    <Ionicons name="settings" size={25} color={NORMAL_TEXT_COLOR}></Ionicons>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={handleFullscreen}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    style={styles.fullscreenButton}>
+                    {fullscreen ? <Feather name="minimize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather> : <Feather name="maximize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather>}
+                  </TouchableOpacity>
+                </View>
+              )}
+
+
+              {state.showControls && (
+                <View style={{ width: "100%", position: 'absolute', top: "40%", flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      videoRef.current.seek(currentloadingtime - 10)
+                      setState({ ...state, showControls: true });
+                    }}
+                    style={{ marginRight: 50 }}>
+                    <Ionicons name="md-caret-back-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      videoRef.current.seek(currentloadingtime + 10)
+                      setState({ ...state, showControls: true });
+                    }}
+                    style={{ marginLeft: 50 }}>
+                    <Ionicons name="md-caret-forward-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              {state.showControls && (
+                <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50, bottom: 10, flexDirection: 'row' }}>
+                  <TouchableOpacity
+                    onPress={() => { setPlay(!play); setState({ ...state, showControls: true }); }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    style={{ top: 20, left: 10, width: "10%" }}>
+                    {play ?
+                      <MaterialCommunityIcons name="pause-circle" size={35} color={NORMAL_TEXT_COLOR} />
+                      :
+                      <MaterialCommunityIcons name="play-circle" size={35} color={NORMAL_TEXT_COLOR} />
+                    }
+                  </TouchableOpacity>
+                  <View style={{ width: "78%", top: 20 }}>
+                    <Slider
+                      style={{ width: "100%", height: 40 }}
+                      minimumValue={0}
+                      maximumValue={Math.floor(duration)}
+                      minimumTrackTintColor="#FF0000 "
+                      maximumTrackTintColor="#343A82"
+                      tapToSeek={true}
+                      value={currentloadingtime}
+                      onSlidingComplete={val => {
+                        videoRef.current.seek(Math.floor(val))
+                      }}
+                    />
                   </View>
-                )}
-              </View>
-            </TouchableWithoutFeedback>
+                  <View style={{ top: 30, width: "12%", right: 5 }}>
+                    <Text style={{ color: "#ffffff", fontSize: 11 }}>
+                      {currenttimestamp}
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </Pressable>
+
 
             :
 
@@ -368,11 +721,14 @@ export default function Episode({ navigation, route }) {
               </TouchableOpacity>
               {loading ? <ActivityIndicator size={'large'} color={"#ffffff"}></ActivityIndicator> :
 
-                <View style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
-                  <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>LOGIN</Text></TouchableOpacity>
+                loggedin ? <TouchableOpacity onPress={() => navigation.navigate('Subscribe')} style={[styles.button, { width: 200 }]}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Upgrade / Subscribe</Text></TouchableOpacity>
+                  :
+                  <View style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>LOGIN</Text></TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>SIGN UP</Text></TouchableOpacity>
-                </View>
+                    <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>SIGN UP</Text></TouchableOpacity>
+                  </View>
+
               }
             </View>
 
@@ -387,29 +743,130 @@ export default function Episode({ navigation, route }) {
                 <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', borderRightColor: TAB_COLOR, borderWidth: 2 }]}></Text>
                 <Text style={[styles.detailsText, { borderWidth: 1, borderStyle: 'dashed', borderColor: TAB_COLOR, marginLeft: 10, borderRadius: 10 }]}>{displayGenres}</Text>
               </View>
-              <ReadMore numberOfLines={3} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
+              <ReadMore numberOfLines={4} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
                 <Text style={styles.detailsText}>{description}</Text>
               </ReadMore>
             </View>
 
             {!loading ?
               <View style={styles.options}>
-                <View style={styles.singleoption}><MaterialCommunityIcons name="thumb-up" size={30} color={NORMAL_TEXT_COLOR} /></View>
-                <View style={styles.singleoption}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></View>
                 <View style={styles.singleoption}>
-                  {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
-                  {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
-                  {downloadedStatus == 2 ?
+                  {!likecontent ?
+                    <Pressable onPress={likeContent}><MaterialIcons name="thumb-up-off-alt" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                    :
+                    <Pressable onPress={() => deleteLike(catalogId, contentId)}><MaterialIcons name="thumb-up" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                  }
+                </View>
 
-                    pauseDownload ? <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                <View style={styles.singleoption}>
+                  <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                </View>
 
-                    : ""}
+                {passedtheme != 'live' && passedtheme != 'livetv' ?
+                  <View style={styles.singleoption}>
+                    {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                    {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                    {downloadedStatus == 2 ?
+
+                      pauseDownload ?
+                        isresumeDownloading ?
+                          <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                          :
+                          <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                        :
+                        isresumeDownloading ?
+                          <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                          :
+                          <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+
+                      : ""}
+
+                  </View>
+                  :
+                  <View style={styles.singleoption}>
+                    <MaterialCommunityIcons name="download" size={30} color={DARKED_BORDER_COLOR} />
+                  </View>
+                }
+
+                <View style={styles.singleoption}>
+
+                  {!watchlatercontent ?
+                    <Pressable onPress={watchLater}><MaterialIcons name="watch-later" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                    :
+                    <Pressable onPress={() => { navigation.dispatch(StackActions.replace('WatchLater')) }}><MaterialIcons name="watch-later" size={30} color={DARKED_BORDER_COLOR} /></Pressable>
+                  }
 
                 </View>
-                <View style={styles.singleoption}><MaterialIcons name="watch-later" size={30} color={NORMAL_TEXT_COLOR} /></View>
               </View>
               : ""}
           </View> : ""}
+
+          {/* {subcategoryImages && !fullscreen ?
+            <FlatList
+              data={subcategoryImages}
+              renderItem={renderSubcat}
+              keyExtractor={(x, i) => i.toString()}
+            />
+            : ""} */}
+
+          <Modal
+            isVisible={isModalVisible}
+            testID={'modal'}
+            animationIn="slideInDown"
+            animationOut="slideOutDown"
+            onBackdropPress={toggleModal}
+            backdropColor={"black"}
+            backdropOpacity={0.40}
+          >
+            <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR }}>
+              {prefrence.map((pref, ind) => {
+                return (
+                  pref.display_name != "" ?
+                    <TouchableOpacity key={'pref' + ind} onPress={() => { startDownloading(pref.playback_url, pref.offlineUrl, pref.downloaddirectory) }}>
+                      <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5 }}>
+                        <Text style={{ color: NORMAL_TEXT_COLOR }}>{pref.display_name}</Text>
+                      </View>
+                    </TouchableOpacity>
+                    :
+                    ""
+                )
+              })}
+            </View>
+          </Modal>
+
+
+          <Modal
+            isVisible={isResolutionModalVisible}
+            testID={'modal'}
+            animationIn="slideInDown"
+            animationOut="slideOutDown"
+            onBackdropPress={toggleModalResolution}
+            backdropColor={"black"}
+            backdropOpacity={0.40}
+          >
+            <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR }}>
+              <TouchableOpacity key={'pref'} onPress={() => { setVideoResolution('auto', '1280') }}>
+                <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, flexDirection: 'row' }}>
+                  <Text style={{ color: NORMAL_TEXT_COLOR, marginRight: 10 }}>Auto</Text>
+                  {videoType == 'auto' ? <MaterialCommunityIcons name="check-bold" size={18} color={NORMAL_TEXT_COLOR} /> : ""}
+                </View>
+              </TouchableOpacity>
+              {resolutionPreference.map((pref, ind) => {
+                return (
+                  pref.display_name != "" ?
+                    <TouchableOpacity key={'pref' + ind} onPress={() => { setVideoResolution('resolution', pref.vheight) }}>
+                      <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, flexDirection: 'row' }}>
+                        <Text style={{ color: NORMAL_TEXT_COLOR, marginRight: 10 }}>{pref.display_name}</Text>
+                        {videoType == 'resolution' && videoresolution == pref.vheight ? <MaterialCommunityIcons name="check-bold" size={18} color={NORMAL_TEXT_COLOR} /> : ""}
+                      </View>
+                    </TouchableOpacity>
+                    :
+                    ""
+                )
+              })}
+            </View>
+          </Modal>
+
 
           <StatusBar style="auto" />
         </View>
@@ -437,7 +894,13 @@ const styles = StyleSheet.create({
   fullscreenButton: {
     position: 'absolute',
     right: 20,
-    top: 20,
+    top: 30,
+    paddingRight: 10,
+  },
+  settingsicon: {
+    position: 'absolute',
+    right: 60,
+    top: 30,
     paddingRight: 10,
   },
   navigationBack: {
@@ -454,4 +917,27 @@ const styles = StyleSheet.create({
   singleoption: { width: "25%", alignItems: 'center', justifyContent: 'center', borderColor: DARKED_BORDER_COLOR, borderWidth: 1, height: 55 },
   marginContainer: { marginLeft: 5, marginRight: 5 },
   button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 10, borderRadius: 20, marginRight: 10 },
+  imageSectionHorizontal: {
+    width: PAGE_WIDTH / 2.06,
+    height: 117,
+    marginHorizontal: 3,
+    borderRadius: 10,
+    marginBottom: 10,
+    borderWidth: 1
+  },
+  sectionHeaderMore: {
+    color: MORE_LINK_COLOR,
+    fontSize: 13,
+    textAlign: 'right'
+  },
+  imageSectionVertical: {
+    width: PAGE_WIDTH / 3.15,
+    height: 170,
+    marginHorizontal: 3,
+    borderRadius: 10,
+    marginBottom: 10,
+
+  },
+  playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
+  crownIcon: { position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
 });

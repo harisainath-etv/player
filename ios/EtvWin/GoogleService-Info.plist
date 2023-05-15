@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>278069225987-inactcd0rqi6d5ri44u2m0kfkem687m9.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.278069225987-inactcd0rqi6d5ri44u2m0kfkem687m9</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>278069225987-g07s3ac73qn9kk91na58oi0tur1uqqm8.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyARw9yVcigwp2iT5lZ6QH844Z_ow75Uc5s</string>
+	<key>GCM_SENDER_ID</key>
+	<string>278069225987</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.name.EtvWin</string>
+	<key>PROJECT_ID</key>
+	<string>etv-win-r-login</string>
+	<key>STORAGE_BUCKET</key>
+	<string>etv-win-r-login.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:278069225987:ios:dd288118adbc61977e3c36</string>
+</dict>
+</plist>

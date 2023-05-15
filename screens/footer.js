@@ -30,15 +30,13 @@ export default function Footer(props) {
             })
         }
     }
-    const CastSession = (castSession) =>{
+    const CastSession = (castSession) => {
         const sessionManager = GoogleCast.getSessionManager()
-        if(castSet)
-        {
+        if (castSet) {
             sessionManager.endCurrentSession()
             setcastSet(false)
         }
-        else
-        {
+        else {
             sessionManager.startSession(castSession)
             setcastSet(true)
         }
@@ -55,14 +53,14 @@ export default function Footer(props) {
         <View>
             <View style={styles.footerContainer}>
 
-                {pageName == 'Home' || pageName=='live' ?
+                {pageName == 'Home' || pageName == 'live' ?
 
                     <View style={styles.iconContainer}>
                         <MaterialCommunityIcons name="home" size={28} color={SLIDER_PAGINATION_SELECTED_COLOR} />
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>HOME</Text>
                     </View>
                     :
-                    <TouchableOpacity  style={styles.iconContainer} onPress={()=>navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}>
+                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}>
                         <MaterialCommunityIcons name="home" size={28} color={NORMAL_TEXT_COLOR} />
                         <Text style={styles.footerText}>HOME</Text>
                     </TouchableOpacity>
@@ -75,7 +73,7 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>TV CHANNELS</Text>
                     </View>
                     :
-                    <TouchableOpacity style={styles.iconContainer} onPress={()=>navigation.dispatch(StackActions.replace('Channels', { pageFriendlyId:'channels' })) }>
+                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Channels', { pageFriendlyId: 'channels' }))}>
                         <MaterialCommunityIcons name="television-classic" size={28} color={NORMAL_TEXT_COLOR} />
                         <Text style={styles.footerText}>TV CHANNELS</Text>
                     </TouchableOpacity>
@@ -88,7 +86,7 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>NEWS</Text>
                     </View>
                     :
-                    <TouchableOpacity style={styles.iconContainer} onPress={()=>navigation.dispatch(StackActions.replace('News', { pageFriendlyId:'news' }))}>
+                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('News', { pageFriendlyId: 'news' }))}>
                         <MaterialCommunityIcons name="newspaper-variant-multiple-outline" size={28} color={NORMAL_TEXT_COLOR} />
                         <Text style={styles.footerText}>NEWS</Text>
                     </TouchableOpacity>
@@ -100,7 +98,7 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>OFFLINE</Text>
                     </View>
                     :
-                    <TouchableOpacity style={styles.iconContainer} onPress={()=>navigation.dispatch(StackActions.replace('Offline', { pageFriendlyId:'Offline' }))}>
+                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Offline', { pageFriendlyId: 'Offline' }))}>
                         <MaterialCommunityIcons name="download" size={28} color={NORMAL_TEXT_COLOR} />
                         <Text style={styles.footerText}>OFFLINE</Text>
                     </TouchableOpacity>
@@ -112,14 +110,16 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>WATCH LATER</Text>
                     </View>
                     :
-                    <View style={styles.iconContainer}>
-                        <MaterialCommunityIcons name="sticker-plus" size={28} color={NORMAL_TEXT_COLOR} />
-                        <Text style={styles.footerText}>WATCH LATER</Text>
-                    </View>
+                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('WatchLater', { pageFriendlyId: 'WatchLater' }))}>
+                        <View style={styles.iconContainer}>
+                            <MaterialCommunityIcons name="sticker-plus" size={28} color={NORMAL_TEXT_COLOR} />
+                            <Text style={styles.footerText}>WATCH LATER</Text>
+                        </View>
+                    </TouchableOpacity>
                 }
 
             </View>
-            
+
             {castState != NO_CAST_DEVICES ?
                 <TouchableOpacity onPress={toggleModal}><View style={styles.chromeCast}><FontAwesome5 name="chromecast" size={20} color="white" /></View></TouchableOpacity>
                 : ""}
@@ -130,10 +130,10 @@ export default function Footer(props) {
                     onBackdropPress={toggleModal}
                 >
                     <View style={styles.drawerContainer}>
-                        {devices.map((singleDevice)=>{
-                            return(
-                                
-                                <TouchableOpacity key={singleDevice.friendlyName} onPress={()=>{CastSession(singleDevice.deviceId)}} style={{width:"100%"}}><View style={styles.deviceContainer}><Text style={styles.devicesList}>{singleDevice.friendlyName}</Text></View></TouchableOpacity>
+                        {devices.map((singleDevice) => {
+                            return (
+
+                                <TouchableOpacity key={singleDevice.friendlyName} onPress={() => { CastSession(singleDevice.deviceId) }} style={{ width: "100%" }}><View style={styles.deviceContainer}><Text style={styles.devicesList}>{singleDevice.friendlyName}</Text></View></TouchableOpacity>
                             )
                         })}
                     </View>
@@ -144,9 +144,9 @@ export default function Footer(props) {
 }
 
 const styles = StyleSheet.create({
-    drawerContainer: { backgroundColor: NORMAL_TEXT_COLOR, height: 'auto', justifyContent:'center',alignItems:'center' },
-    devicesList:{fontSize:18,justifyContent:'center',alignItems:'center',padding:10},
-    deviceContainer:{borderBottomColor:BACKGROUND_COLOR,borderBottomWidth:1,width:"100%", justifyContent:'center',alignItems:'center' },
+    drawerContainer: { backgroundColor: NORMAL_TEXT_COLOR, height: 'auto', justifyContent: 'center', alignItems: 'center' },
+    devicesList: { fontSize: 18, justifyContent: 'center', alignItems: 'center', padding: 10 },
+    deviceContainer: { borderBottomColor: BACKGROUND_COLOR, borderBottomWidth: 1, width: "100%", justifyContent: 'center', alignItems: 'center' },
     chromeCast: {
         width: 56,
         height: 56,

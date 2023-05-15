@@ -4,8 +4,10 @@ import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR
 import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 import NormalHeader from './normalHeader';
 import Footer from './footer';
+import { StackActions } from '@react-navigation/native';
 
-export default function Calendarscreen() {
+export default function Calendarscreen({ navigation, route }) {
+    var { episodeUrl } = route.params;
     const [fromDate, setfromDate] = useState();
     const [toDate, settoDate] = useState();
     const [counter, setCounter] = useState(0);
@@ -13,6 +15,14 @@ export default function Calendarscreen() {
     const setDates = (day) => {
         { counter == 0 ? setfromDate(day.dateString) : settoDate(day.dateString) }
         { counter == 0 ? setCounter(1) : setCounter(0) }
+    }
+    const searchCalendar = async () =>{
+        if(fromDate=="" || fromDate== null || toDate=="" || toDate== null)
+        {
+            alert("Please select from and to date");
+        }
+        else
+        navigation.dispatch(StackActions.replace('SearchCalendarEpisodes',{episodeUrl:episodeUrl,fromDate:fromDate,toDate:toDate}))
     }
     return (
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
@@ -58,7 +68,7 @@ export default function Calendarscreen() {
 
                 />
                 <View style={{ justifyContent: 'center', alignItems: 'center',marginTop:15 }}>
-                    <TouchableOpacity style={{ backgroundColor: TAB_COLOR,paddingTop:10,paddingBottom:10,paddingLeft:18,paddingRight:18,borderRadius:15 }}><Text style={{color:NORMAL_TEXT_COLOR,fontWeight:'bold'}}>Apply</Text></TouchableOpacity>
+                    <TouchableOpacity onPress={searchCalendar} style={{ backgroundColor: TAB_COLOR,paddingTop:10,paddingBottom:10,paddingLeft:18,paddingRight:18,borderRadius:15 }}><Text style={{color:NORMAL_TEXT_COLOR,fontWeight:'bold'}}>Apply</Text></TouchableOpacity>
                 </View>
             </ScrollView>
             <Footer></Footer>
