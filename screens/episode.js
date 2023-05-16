@@ -669,6 +669,17 @@ export default function Episode({ navigation, route }) {
                     style={{ marginRight: 50 }}>
                     <Ionicons name="md-caret-back-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
                   </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    onPress={() => { setPlay(!play); setState({ ...state, showControls: true }); }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    style={{ right: 10, left: 10, width: "10%" }}>
+                    {play ?
+                      <MaterialCommunityIcons name="pause-circle" size={35} color={NORMAL_TEXT_COLOR} />
+                      :
+                      <MaterialCommunityIcons name="play-circle" size={35} color={NORMAL_TEXT_COLOR} />
+                    }
+                  </TouchableOpacity>
 
                   <TouchableOpacity
                     onPress={() => {
@@ -683,17 +694,7 @@ export default function Episode({ navigation, route }) {
 
               {state.showControls && (
                 <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50, bottom: 10, flexDirection: 'row' }}>
-                  <TouchableOpacity
-                    onPress={() => { setPlay(!play); setState({ ...state, showControls: true }); }}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    style={{ top: 20, left: 10, width: "10%" }}>
-                    {play ?
-                      <MaterialCommunityIcons name="pause-circle" size={35} color={NORMAL_TEXT_COLOR} />
-                      :
-                      <MaterialCommunityIcons name="play-circle" size={35} color={NORMAL_TEXT_COLOR} />
-                    }
-                  </TouchableOpacity>
-                  <View style={{ width: "78%", top: 20 }}>
+                  <View style={{ width: "85%", top: 20 }}>
                     <Slider
                       style={{ width: "100%", height: 40 }}
                       minimumValue={0}
@@ -707,7 +708,7 @@ export default function Episode({ navigation, route }) {
                       }}
                     />
                   </View>
-                  <View style={{ top: 30, width: "12%", right: 5 }}>
+                  <View style={{ top: 30, width: "15%", right: 5 }}>
                     <Text style={{ color: "#ffffff", fontSize: 11 }}>
                       {currenttimestamp}
                     </Text>
