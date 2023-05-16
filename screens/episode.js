@@ -67,6 +67,11 @@ export default function Episode({ navigation, route }) {
   const [videoType, setvideoType] = useState('auto');
   const [videoresolution, setvideoresolution] = useState('1280');
   const [subcategoryImages, setsubcategoryImages] = useState([])
+  const [lastPress, setLastPress] = useState(null);
+  const [tapCount, setTapCount] = useState(0);
+  var multiTapCount = 10;
+  var multiTapDelay = 300;
+
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
@@ -591,6 +596,25 @@ export default function Episode({ navigation, route }) {
   //     </View>
   //   )
   // }
+  const handlePress = () => {
+    const now = Date.now();
+
+    setLastPress(now);
+    if (now - lastPress <= multiTapDelay) {
+      if (tapCount < multiTapCount - 1) {
+        setTapCount(tapCount + 1);
+        console.log(tapCount);
+      } else {
+        showControls()
+      }
+    } else {
+      //setTapCount(1);
+      showControls()
+    }
+
+    //videoRef.current.seek()
+  };
+
 
   return (
     <View style={styles.mainContainer}>
@@ -669,7 +693,7 @@ export default function Episode({ navigation, route }) {
                     style={{ marginRight: 50 }}>
                     <Ionicons name="md-caret-back-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
                   </TouchableOpacity>
-                  
+
                   <TouchableOpacity
                     onPress={() => { setPlay(!play); setState({ ...state, showControls: true }); }}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -750,9 +774,9 @@ export default function Episode({ navigation, route }) {
               <View style={{ flexDirection: 'row' }}>
                 <Text style={styles.detailsText}>{contentRating}</Text>
                 <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', borderRightColor: TAB_COLOR, borderWidth: 2 }]}></Text>
-                {displayGenres.map((resp,index) => {
+                {displayGenres.map((resp, index) => {
 
-                  return( <Text key={index} style={[styles.detailsText, { borderWidth: 1, borderStyle: 'dashed', borderColor: TAB_COLOR, marginLeft: 10, borderRadius: 10 }]}>{resp}</Text> )
+                  return (<Text key={index} style={[styles.detailsText, { borderWidth: 1, borderStyle: 'dashed', borderColor: TAB_COLOR, marginLeft: 10, borderRadius: 10 }]}>{resp}</Text>)
 
                 })}
               </View>
