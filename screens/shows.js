@@ -21,7 +21,7 @@ export default function Shows({ navigation, route }) {
     const [userRating, setUserRating] = useState();
     const [channel, setChannel] = useState();
     const [contentRating, setContentRating] = useState();
-    const [displayGenres, setDisplayGenres] = useState();
+    const [displayGenres, setDisplayGenres] = useState([]);
     const [description, setDescription] = useState();
     { ind ? indexValue = ind : indexValue = 0 };
     const [subcategorySeoUrl, setSubcategorySeoUrl] = useState(indexValue);
@@ -362,7 +362,7 @@ export default function Shows({ navigation, route }) {
                                             return (<Text key={index} style={[styles.detailsText, { borderWidth: 1, borderStyle: 'dashed', borderColor: TAB_COLOR, marginLeft: 10, borderRadius: 10 }]}>{resp}</Text>)
 
                                         })}
-                                        
+
                                     </View>
                                     <ReadMore numberOfLines={3} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
                                         <Text style={styles.detailsText}>{description}</Text>
