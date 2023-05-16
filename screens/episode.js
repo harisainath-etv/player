@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, TouchableWithoutFeedback, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, Image, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform, FlatList } from 'react-native';
 import React, { useEffect, useState, createRef } from 'react';
 import * as NavigationBar from "expo-navigation-bar";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -6,7 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, } from '../constants';
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, } from '../constants';
 import axios from 'axios';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
@@ -18,6 +18,7 @@ import RNBackgroundDownloader from 'react-native-background-downloader';
 import Share from 'react-native-share';
 import Modal from "react-native-modal";
 import Slider from '@react-native-community/slider';
+import FastImage from 'react-native-fast-image';
 // import VideoViewAndroid from '../components/VideoViewAndroid';
 // import VideoViewIos from '../components/VideoViewIos';
 
@@ -65,6 +66,7 @@ export default function Episode({ navigation, route }) {
   const [currentloadingtime, setcurrentloadingtime] = useState(0);
   const [videoType, setvideoType] = useState('auto');
   const [videoresolution, setvideoresolution] = useState('1280');
+  const [subcategoryImages, setsubcategoryImages] = useState([])
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
@@ -99,6 +101,7 @@ export default function Episode({ navigation, route }) {
       const checkEvent = filterItems('event', splittedData);
       const region = await AsyncStorage.getItem('country_code');
       var urlPath = "";
+      var totalData = [];
       var sessionId = await AsyncStorage.getItem('session');
       if (splittedData.length == 4 && checkChannel == 0) {
         urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/subcategories/" + splittedData[2] + "/episodes/" + splittedData[3];
@@ -197,6 +200,19 @@ export default function Episode({ navigation, route }) {
             setLoading(false);
           }
           )
+
+        axios.get(FIRETV_BASE_URL_STAGING + "catalog_lists/movie-videolists?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&item_language=eng&region=" + region + "&parent_id=" + response.data.data.content_id).then(resp => {
+          for (var o = 0; o < resp.data.data.catalog_list_items.length; o++) {
+            var subcategorydata = [];
+            for (var s = 0; s < resp.data.data.catalog_list_items[o].catalog_list_items.length; s++) {
+              subcategorydata.push({ 'thumbnail': resp.data.data.catalog_list_items[o].catalog_list_items[s].thumbnails.high_4_3.url, 'title': resp.data.data.catalog_list_items[o].catalog_list_items[s].title, 'premium': resp.data.data.catalog_list_items[o].catalog_list_items[s].access_control.is_free, 'theme': resp.data.data.catalog_list_items[o].catalog_list_items[s].theme, 'seo_url': resp.data.data.catalog_list_items[o].catalog_list_items[s].seo_url })
+            }
+            totalData.push({ 'display_title': resp.data.data.catalog_list_items[o].display_title, 'item_type': resp.data.data.catalog_list_items[o].theme, 'thumbnails': subcategorydata, 'friendlyId': resp.data.data.catalog_list_items[o].friendly_id })
+            setsubcategoryImages([...subcategoryImages, totalData])
+          }
+        }).catch(err => {
+
+        })
         setLoading(false);
       }).catch(error => {
         setLoading(false);
@@ -509,138 +525,194 @@ export default function Episode({ navigation, route }) {
     var settingsapi = offlineUrl + "?service_id=6&play_url=yes&protocol=hls&us=745d7e9f1e37ca27fdffbebfe8a99877";
     await axios.get(settingsapi).then(response => {
       for (let o = 0; o < response.data.playback_urls.length; o++) {
-        resolution.push({ "display_name": response.data.playback_urls[o].display_name, "vwidth": response.data.playback_urls[o].vwidth, "vheight": response.data.playback_urls[o].vheight })
+        var displayname = response.data.playback_urls[o].display_name.split('-');
+        const found = resolution.some(el => el.display_name === displayname[0]);
+        if(!found)
+        {
+        resolution.push({ "display_name": displayname[0], "vwidth": response.data.playback_urls[o].vwidth, "vheight": response.data.playback_urls[o].vheight })
+        }
       }
       setResolutionPreference(resolution);
       toggleModalResolution()
     }).catch(error => { })
   }
-  const setVideoResolution = async (type,resolution) =>{
+  const setVideoResolution = async (type, resolution) => {
     setvideoType(type);
     setvideoresolution(resolution);
     toggleModalResolution();
   }
+
+  // function renderSubcat({ item }) {
+
+  //   return (
+  //     <View style={{ textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+
+  //       {item.map((subcat, i) => {
+  //         return (
+  //           <View style={{ textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start' }} key={'main' + i}>
+  //             {subcat.thumbnails.length > 0 ?
+  //               <View style={{ textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+  //                 <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10, textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start' }} key={'heading' + i}>{subcat.display_title}</Text>
+  //                 {subcat.name != 'related' ? <Pressable style={{ position: 'absolute', right: 30 }} onPress={() => navigation.navigate('EpisodesMoreList', { firendlyId: subcat.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
+
+  //               </View> : ""}
+
+  //             <FlatList
+  //               data={subcat.thumbnails}
+  //               horizontal={true}
+  //               keyExtractor={(x, i) => i.toString()}
+  //               renderItem={(items, index) => {
+  //                 console.log(items.item.seo_url);
+  //                 return (
+  //                   <View style={{ marginBottom: 10 }} key={'innerkey' + index}>
+  //                     <View>
+  //                       {VIDEO_TYPES.includes(items.item.theme) ?
+  //                         <Pressable onPress={() => navigation.navigate({ name: 'Episode', params: { seoUrl: items.item.seo_url }, key: { index } })}>
+  //                           <FastImage resizeMode={FastImage.resizeMode.stretch} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+  //                         </Pressable>
+  //                         :
+  //                         <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.stretch} key={'image' + index} style={styles.imageSectionVertical} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>
+  //                       }
+
+  //                       {VIDEO_TYPES.includes(items.item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+  //                       {!items.item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+  //                     </View>
+  //                     <View style={VIDEO_TYPES.includes(items.item.theme) ? { width: PAGE_WIDTH / 2.06 } : ""}>
+  //                       {subcat.display_title == 'Episodes' ?
+  //                         <View style={{ justifyContent: 'center', }}><Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 12 }}>{items.item.title} </Text></View> : ""
+  //                       }
+  //                     </View>
+  //                   </View>
+  //                 )
+  //               }}
+  //             ></FlatList>
+  //           </View>
+  //         )
+  //       })}
+  //     </View>
+  //   )
+  // }
 
   return (
     <View style={styles.mainContainer}>
       <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
         <View style={styles.container}>
           {playUrl != "" && playUrl != null && !showupgrade ?
-            
-              <Pressable onPress={showControls}>
-                <Video
-                  ref={videoRef}
-                  source={{ uri: playUrl }}
-                  controls={false}
-                  paused={!play}
-                  playInBackground={false}
-                  volume={1}
-                  selectedVideoTrack={{
-                    type: videoType,
-                    value: videoresolution
-                  }}
-                  bufferConfig={{
-                    minBufferMs: 1000000,
-                    maxBufferMs: 2000000,
-                    bufferForPlaybackMs: 7000
-                  }}
-                  rate={1.0}
-                  resizeMode={fullscreen ? 'cover' : 'none'}
-                  style={fullscreen ? styles.fullscreenVideo : styles.video}
-                  onEnd={checkpreviewContent}
-                  playWhenInactive={false}
-                  progressUpdateInterval={1000}
-                  onProgress={play => {
-                    var milliseconds = play.currentTime;
-                    toHoursAndMinutes(Math.floor(milliseconds));
-                  }}
-                  onLoad={(data) => {
-                    setDuration(data.duration)
-                  }}
-                />
-                {state.showControls && (
-                  <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50 }}>
-                    <TouchableOpacity
-                      onPress={() => { fullscreen ? handleFullscreen() : checkgoback() }}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      style={styles.navigationBack}>
-                      <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
-                    </TouchableOpacity>
 
-                    <TouchableOpacity
-                      onPress={loadResolutionSettings}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      style={styles.settingsicon}>
-                      <Ionicons name="settings" size={25} color={NORMAL_TEXT_COLOR}></Ionicons>
-                    </TouchableOpacity>
+            <Pressable onPress={showControls}>
+              <Video
+                ref={videoRef}
+                source={{ uri: playUrl }}
+                controls={false}
+                paused={!play}
+                playInBackground={false}
+                volume={1}
+                selectedVideoTrack={{
+                  type: videoType,
+                  value: videoresolution
+                }}
+                bufferConfig={{
+                  minBufferMs: 1000000,
+                  maxBufferMs: 2000000,
+                  bufferForPlaybackMs: 7000
+                }}
+                rate={1.0}
+                resizeMode={fullscreen ? 'cover' : 'none'}
+                style={fullscreen ? styles.fullscreenVideo : styles.video}
+                onEnd={checkpreviewContent}
+                playWhenInactive={false}
+                progressUpdateInterval={1000}
+                onProgress={play => {
+                  var milliseconds = play.currentTime;
+                  toHoursAndMinutes(Math.floor(milliseconds));
+                }}
+                onLoad={(data) => {
+                  setDuration(data.duration)
+                }}
+              />
+              {state.showControls && (
+                <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50 }}>
+                  <TouchableOpacity
+                    onPress={() => { fullscreen ? handleFullscreen() : checkgoback() }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    style={styles.navigationBack}>
+                    <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
+                  </TouchableOpacity>
 
-                    <TouchableOpacity
-                      onPress={handleFullscreen}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      style={styles.fullscreenButton}>
-                      {fullscreen ? <Feather name="minimize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather> : <Feather name="maximize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather>}
-                    </TouchableOpacity>
-                  </View>
-                )}
+                  <TouchableOpacity
+                    onPress={loadResolutionSettings}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    style={styles.settingsicon}>
+                    <Ionicons name="settings" size={25} color={NORMAL_TEXT_COLOR}></Ionicons>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={handleFullscreen}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    style={styles.fullscreenButton}>
+                    {fullscreen ? <Feather name="minimize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather> : <Feather name="maximize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather>}
+                  </TouchableOpacity>
+                </View>
+              )}
 
 
-                {state.showControls && (
-                  <View style={{ width: "100%", position: 'absolute', top: "40%", flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        videoRef.current.seek(currentloadingtime - 10)
-                        setState({ ...state, showControls: true });
+              {state.showControls && (
+                <View style={{ width: "100%", position: 'absolute', top: "40%", flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      videoRef.current.seek(currentloadingtime - 10)
+                      setState({ ...state, showControls: true });
+                    }}
+                    style={{ marginRight: 50 }}>
+                    <Ionicons name="md-caret-back-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      videoRef.current.seek(currentloadingtime + 10)
+                      setState({ ...state, showControls: true });
+                    }}
+                    style={{ marginLeft: 50 }}>
+                    <Ionicons name="md-caret-forward-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              {state.showControls && (
+                <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50, bottom: 10, flexDirection: 'row' }}>
+                  <TouchableOpacity
+                    onPress={() => { setPlay(!play); setState({ ...state, showControls: true }); }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    style={{ top: 20, left: 10, width: "10%" }}>
+                    {play ?
+                      <MaterialCommunityIcons name="pause-circle" size={35} color={NORMAL_TEXT_COLOR} />
+                      :
+                      <MaterialCommunityIcons name="play-circle" size={35} color={NORMAL_TEXT_COLOR} />
+                    }
+                  </TouchableOpacity>
+                  <View style={{ width: "78%", top: 20 }}>
+                    <Slider
+                      style={{ width: "100%", height: 40 }}
+                      minimumValue={0}
+                      maximumValue={Math.floor(duration)}
+                      minimumTrackTintColor="#FF0000 "
+                      maximumTrackTintColor="#343A82"
+                      tapToSeek={true}
+                      value={currentloadingtime}
+                      onSlidingComplete={val => {
+                        videoRef.current.seek(Math.floor(val))
                       }}
-                      style={{ marginRight: 50 }}>
-                      <Ionicons name="md-caret-back-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      onPress={() => {
-                        videoRef.current.seek(currentloadingtime + 10)
-                        setState({ ...state, showControls: true });
-                      }}
-                      style={{ marginLeft: 50 }}>
-                      <Ionicons name="md-caret-forward-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
-                    </TouchableOpacity>
+                    />
                   </View>
-                )}
-
-                {state.showControls && (
-                  <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50, bottom: 10, flexDirection: 'row' }}>
-                    <TouchableOpacity
-                      onPress={() => { setPlay(!play); setState({ ...state, showControls: true });}}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      style={{ top: 20, left: 10, width: "10%" }}>
-                      {play ?
-                        <MaterialCommunityIcons name="pause-circle" size={35} color={NORMAL_TEXT_COLOR} />
-                        :
-                        <MaterialCommunityIcons name="play-circle" size={35} color={NORMAL_TEXT_COLOR} />
-                      }
-                    </TouchableOpacity>
-                    <View style={{ width: "78%", top: 20 }}>
-                      <Slider
-                        style={{ width: "100%", height: 40 }}
-                        minimumValue={0}
-                        maximumValue={Math.floor(duration)}
-                        minimumTrackTintColor="#FF0000 "
-                        maximumTrackTintColor="#343A82"
-                        tapToSeek={true}
-                        value={currentloadingtime}
-                        onSlidingComplete={val => {
-                          videoRef.current.seek(Math.floor(val))
-                        }}
-                      />
-                    </View>
-                    <View style={{ top: 30, width: "12%", right: 5 }}>
-                      <Text style={{ color: "#ffffff", fontSize: 11 }}>
-                        {currenttimestamp}
-                      </Text>
-                    </View>
+                  <View style={{ top: 30, width: "12%", right: 5 }}>
+                    <Text style={{ color: "#ffffff", fontSize: 11 }}>
+                      {currenttimestamp}
+                    </Text>
                   </View>
-                )}
-              </Pressable>
-           
+                </View>
+              )}
+            </Pressable>
+
 
             :
 
@@ -734,6 +806,13 @@ export default function Episode({ navigation, route }) {
               : ""}
           </View> : ""}
 
+          {/* {subcategoryImages && !fullscreen ?
+            <FlatList
+              data={subcategoryImages}
+              renderItem={renderSubcat}
+              keyExtractor={(x, i) => i.toString()}
+            />
+            : ""} */}
 
           <Modal
             isVisible={isModalVisible}
@@ -771,19 +850,19 @@ export default function Episode({ navigation, route }) {
             backdropOpacity={0.40}
           >
             <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR }}>
-              <TouchableOpacity key={'pref'} onPress={()=>{setVideoResolution('auto','1280')}}>
-                <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5,flexDirection:'row' }}>
-                  <Text style={{ color: NORMAL_TEXT_COLOR,marginRight:10 }}>Auto</Text>
-                  {videoType=='auto' ? <MaterialCommunityIcons name="check-bold" size={18} color={NORMAL_TEXT_COLOR}/> : ""}
+              <TouchableOpacity key={'pref'} onPress={() => { setVideoResolution('auto', '1280') }}>
+                <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, flexDirection: 'row' }}>
+                  <Text style={{ color: NORMAL_TEXT_COLOR, marginRight: 10 }}>Auto</Text>
+                  {videoType == 'auto' ? <MaterialCommunityIcons name="check-bold" size={18} color={NORMAL_TEXT_COLOR} /> : ""}
                 </View>
               </TouchableOpacity>
               {resolutionPreference.map((pref, ind) => {
                 return (
                   pref.display_name != "" ?
-                    <TouchableOpacity key={'pref' + ind}  onPress={()=>{setVideoResolution('resolution',pref.vheight)}}>
-                      <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5,flexDirection:'row'  }}>
-                        <Text style={{ color: NORMAL_TEXT_COLOR,marginRight:10 }}>{pref.display_name}</Text>
-                        {videoType=='resolution' && videoresolution==pref.vheight ? <MaterialCommunityIcons name="check-bold" size={18} color={NORMAL_TEXT_COLOR}/> : ""}
+                    <TouchableOpacity key={'pref' + ind} onPress={() => { setVideoResolution('resolution', pref.vheight) }}>
+                      <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, flexDirection: 'row' }}>
+                        <Text style={{ color: NORMAL_TEXT_COLOR, marginRight: 10 }}>{pref.display_name}</Text>
+                        {videoType == 'resolution' && videoresolution == pref.vheight ? <MaterialCommunityIcons name="check-bold" size={18} color={NORMAL_TEXT_COLOR} /> : ""}
                       </View>
                     </TouchableOpacity>
                     :
@@ -843,4 +922,27 @@ const styles = StyleSheet.create({
   singleoption: { width: "25%", alignItems: 'center', justifyContent: 'center', borderColor: DARKED_BORDER_COLOR, borderWidth: 1, height: 55 },
   marginContainer: { marginLeft: 5, marginRight: 5 },
   button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 10, borderRadius: 20, marginRight: 10 },
+  imageSectionHorizontal: {
+    width: PAGE_WIDTH / 2.06,
+    height: 117,
+    marginHorizontal: 3,
+    borderRadius: 10,
+    marginBottom: 10,
+    borderWidth: 1
+  },
+  sectionHeaderMore: {
+    color: MORE_LINK_COLOR,
+    fontSize: 13,
+    textAlign: 'right'
+  },
+  imageSectionVertical: {
+    width: PAGE_WIDTH / 3.15,
+    height: 170,
+    marginHorizontal: 3,
+    borderRadius: 10,
+    marginBottom: 10,
+
+  },
+  playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
+  crownIcon: { position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
 });

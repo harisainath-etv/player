@@ -24,10 +24,14 @@ import SearchCalendarEpisodes from './screens/searchCalendarEpisodes';
 import Search from './screens/search';
 import FoodFilter from './screens/FoodFilter';
 import FilterData from './screens/FilterData';
-import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION } from './constants';
+import Profile from './screens/profile';
+import EditProfile from './screens/editProfile';
+import FrontProfile from './screens/frontProfile';
+import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING } from './constants';
 import { View, Dimensions, Platform } from 'react-native';
 import SplashScreen from 'react-native-splash-screen'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const Stack = createStackNavigator();
 export default function App() {
@@ -37,22 +41,32 @@ export default function App() {
   async function loadDefaultData() {
 
     const getCurrentVersion = await AsyncStorage.getItem('currentVersion');
+    const firstload = await AsyncStorage.getItem('firstload');
+    if (firstload == "" || firstload == null) {
+      await AsyncStorage.setItem('firstload', 'yes');
+    }
+    else {
+      await AsyncStorage.setItem('firstload', 'no');
+    }
+
+    //fetching ip data
+    const ipdetails = FIRETV_BASE_URL + "/regions/autodetect/ip.gzip?auth_token=" + AUTH_TOKEN;
+    const ipResp = await fetch(ipdetails);
+    const ipData = await ipResp.json();
+    await AsyncStorage.setItem('requestIp', ipData.region.request)
+    await AsyncStorage.setItem('ip', ipData.region.ip)
+    await AsyncStorage.setItem('country_code', ipData.region.country_code2)
+    await AsyncStorage.setItem('country_name', ipData.region.country_name)
+    await AsyncStorage.setItem('continent_code', ipData.region.continent_code)
+    await AsyncStorage.setItem('latitude', JSON.stringify(ipData.region.latitude))
+    await AsyncStorage.setItem('longitude', JSON.stringify(ipData.region.longitude))
+    await AsyncStorage.setItem('timezone', ipData.region.timezone)
+    await AsyncStorage.setItem('calling_code', ipData.region.calling_code)
+    await AsyncStorage.setItem('min_digits', JSON.stringify(ipData.region.min_digits))
+    await AsyncStorage.setItem('max_digits', JSON.stringify(ipData.region.max_digits))
+
+
     if (getCurrentVersion != APP_VERSION) {
-      //fetching ip data
-      const ipdetails = FIRETV_BASE_URL + "/regions/autodetect/ip.gzip?auth_token=" + AUTH_TOKEN;
-      const ipResp = await fetch(ipdetails);
-      const ipData = await ipResp.json();
-      await AsyncStorage.setItem('requestIp', ipData.region.request)
-      await AsyncStorage.setItem('ip', ipData.region.ip)
-      await AsyncStorage.setItem('country_code', ipData.region.country_code2)
-      await AsyncStorage.setItem('country_name', ipData.region.country_name)
-      await AsyncStorage.setItem('continent_code', ipData.region.continent_code)
-      await AsyncStorage.setItem('latitude', JSON.stringify(ipData.region.latitude))
-      await AsyncStorage.setItem('longitude', JSON.stringify(ipData.region.longitude))
-      await AsyncStorage.setItem('timezone', ipData.region.timezone)
-      await AsyncStorage.setItem('calling_code', ipData.region.calling_code)
-      await AsyncStorage.setItem('min_digits', JSON.stringify(ipData.region.min_digits))
-      await AsyncStorage.setItem('max_digits', JSON.stringify(ipData.region.max_digits))
       //fetching app config data
       const appConfig = FIRETV_BASE_URL + "/catalogs/message/items/app-config-params.gzip?region=" + ipData.region.country_code2 + "&auth_token=" + AUTH_TOKEN + "&current_version=" + APP_VERSION;
       const appConfigResp = await fetch(appConfig);
@@ -98,6 +112,59 @@ export default function App() {
       await AsyncStorage.setItem('subscriptionUrl', appConfigData.data.params_hash2.config_params.subscription_url);
       await AsyncStorage.setItem('tvLoginUrl', appConfigData.data.params_hash2.config_params.tv_login_url);
     }
+
+    var session = await AsyncStorage.getItem('session');
+    var region = await AsyncStorage.getItem('country_code');
+    if (session != "" && session != null) {
+      axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
+        if (planresponse.data.data.length > 0) {
+          AsyncStorage.setItem('subscription', 'done');
+          AsyncStorage.setItem('user_id', planresponse.data.data[0].user_id);
+          AsyncStorage.setItem('subscription_id', planresponse.data.data[0].subscription_id);
+          AsyncStorage.setItem('plan_id', planresponse.data.data[0].plan_id);
+          AsyncStorage.setItem('category', planresponse.data.data[0].category);
+          AsyncStorage.setItem('valid_till', planresponse.data.data[0].valid_till);
+          AsyncStorage.setItem('start_date', planresponse.data.data[0].start_date);
+          AsyncStorage.setItem('transaction_id', planresponse.data.data[0].transaction_id);
+          AsyncStorage.setItem('created_at', planresponse.data.data[0].created_at);
+          AsyncStorage.setItem('updated_at', planresponse.data.data[0].updated_at);
+          AsyncStorage.setItem('plan_status', planresponse.data.data[0].plan_status);
+          AsyncStorage.setItem('invoice_inc_id', JSON.stringify(planresponse.data.data[0].invoice_inc_id));
+          AsyncStorage.setItem('price_charged', JSON.stringify(planresponse.data.data[0].price_charged));
+          AsyncStorage.setItem('email_id', JSON.stringify(planresponse.data.data[0].email_id));
+          AsyncStorage.setItem('plan_title', JSON.stringify(planresponse.data.data[0].plan_title));
+          AsyncStorage.setItem('subscription_title', JSON.stringify(planresponse.data.data[0].subscription_title));
+          AsyncStorage.setItem('invoice_id', JSON.stringify(planresponse.data.data[0].invoice_id));
+          AsyncStorage.setItem('currency', JSON.stringify(planresponse.data.data[0].currency));
+          AsyncStorage.setItem('currency_symbol', JSON.stringify(planresponse.data.data[0].currency_symbol));
+          AsyncStorage.setItem('status', JSON.stringify(planresponse.data.data[0].status));
+        }
+      }).catch(planerror => {
+        console.log(planerror.response.data);
+      })
+      axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
+        AsyncStorage.setItem('address', resp.data.data.address)
+        AsyncStorage.setItem('age', resp.data.data.age)
+        AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
+        AsyncStorage.setItem('email_id', resp.data.data.email_id)
+        AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
+        //AsyncStorage.setItem('ext_user_id',resp.data.data.ext_user_id)
+        AsyncStorage.setItem('firstname', resp.data.data.firstname)
+        AsyncStorage.setItem('gender', resp.data.data.gender)
+        //AsyncStorage.setItem('is_mobile_verify',JSON.stringify(resp.data.data.is_mobile_verify))
+        AsyncStorage.setItem('lastname', JSON.stringify(resp.data.data.lastname))
+        AsyncStorage.setItem('login_type', resp.data.data.login_type)
+        AsyncStorage.setItem('mobile_number', resp.data.data.mobile_number)
+        //AsyncStorage.setItem('mobile_number',"")
+        AsyncStorage.setItem('primary_id', resp.data.data.primary_id)
+        AsyncStorage.setItem('profile_pic', resp.data.data.profile_pic)
+        AsyncStorage.setItem('user_email_id', resp.data.data.user_email_id)
+        AsyncStorage.setItem('user_id', resp.data.data.user_id)
+
+      }).catch(err => {
+        alert("Error in fetching account details. Please try again later.")
+      })
+    }
     SplashScreen.hide();
   }
 
@@ -109,6 +176,7 @@ export default function App() {
     <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ presentation: 'transparentModal', backgroundColor: BACKGROUND_COLOR }}>
+          <Stack.Screen name="FrontProfile" component={FrontProfile} options={{ header: () => null, }} />
           <Stack.Screen name="Home" component={Home} options={{ header: () => null, }} />
           {/* <Stack.Screen name="CustomeVideoPlayer" component={Video} options={{ header: () => null, }} /> */}
           <Stack.Screen name="News" component={News} options={{ header: () => null, }} />
@@ -132,6 +200,8 @@ export default function App() {
           <Stack.Screen name="Search" component={Search} options={{ header: () => null, }} />
           <Stack.Screen name="FoodFilter" component={FoodFilter} options={{ header: () => null, }} />
           <Stack.Screen name="FilterData" component={FilterData} options={{ header: () => null, }} />
+          <Stack.Screen name="Profile" component={Profile} options={{ header: () => null, }} />
+          <Stack.Screen name="EditProfile" component={EditProfile} options={{ header: () => null, }} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>
