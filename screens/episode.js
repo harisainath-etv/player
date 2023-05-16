@@ -525,7 +525,12 @@ export default function Episode({ navigation, route }) {
     var settingsapi = offlineUrl + "?service_id=6&play_url=yes&protocol=hls&us=745d7e9f1e37ca27fdffbebfe8a99877";
     await axios.get(settingsapi).then(response => {
       for (let o = 0; o < response.data.playback_urls.length; o++) {
-        resolution.push({ "display_name": response.data.playback_urls[o].display_name, "vwidth": response.data.playback_urls[o].vwidth, "vheight": response.data.playback_urls[o].vheight })
+        var displayname = response.data.playback_urls[o].display_name.split('-');
+        const found = resolution.some(el => el.display_name === displayname[0]);
+        if(!found)
+        {
+        resolution.push({ "display_name": displayname[0], "vwidth": response.data.playback_urls[o].vwidth, "vheight": response.data.playback_urls[o].vheight })
+        }
       }
       setResolutionPreference(resolution);
       toggleModalResolution()
