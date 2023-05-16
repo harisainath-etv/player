@@ -94,7 +94,7 @@ export default function Shows({ navigation, route }) {
             setUserRating(Math.round(response.data.data.average_user_rating));
             setChannel(response.data.data.channel_object.name);
             setContentRating(response.data.data.cbfc_rating);
-            setDisplayGenres(response.data.data.display_genres.join(","));
+            setDisplayGenres(response.data.data.display_genres);
             setDescription(response.data.data.description);
             setEpisodeTypeTags(response.data.data.subcategories[subcategorySeoUrl].episodetype_tags);
             setRelatedUrl(relatedurlPath);
@@ -129,7 +129,7 @@ export default function Shows({ navigation, route }) {
                 subcategoryurlPath = baseUrl + "catalogs/" + subcategorySplit[0] + "/items/" + subcategorySplit[1] + "/subcategories/" + subcategorySplit[3] + "/episodes";
                 subcategoryurl = subcategoryurlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region + "&episode_type=" + response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name;
                 if (response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name == 'episode') {
-                    setEpisodeUrl(baseUrl + "catalogs/" + subcategorySplit[0] + "/items/" + subcategorySplit[1]+"/episodes.gzip");
+                    setEpisodeUrl(baseUrl + "catalogs/" + subcategorySplit[0] + "/items/" + subcategorySplit[1] + "/episodes.gzip");
                 }
                 mainArr.push({ 'name': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name, 'display_title': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].display_title, 'item_type': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].item_type, 'subcategoryurl': subcategoryurl })
             }
@@ -356,7 +356,13 @@ export default function Shows({ navigation, route }) {
                                     <View style={{ flexDirection: 'row' }}>
                                         <Text style={styles.detailsText}>{contentRating}</Text>
                                         <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', borderRightColor: TAB_COLOR, borderWidth: 2 }]}></Text>
-                                        <Text style={[styles.detailsText, { borderWidth: 1, borderStyle: 'dashed', borderColor: TAB_COLOR, marginLeft: 10, borderRadius: 10 }]}>{displayGenres}</Text>
+                                        
+                                        {displayGenres.map((resp, index) => {
+
+                                            return (<Text key={index} style={[styles.detailsText, { borderWidth: 1, borderStyle: 'dashed', borderColor: TAB_COLOR, marginLeft: 10, borderRadius: 10 }]}>{resp}</Text>)
+
+                                        })}
+                                        
                                     </View>
                                     <ReadMore numberOfLines={3} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
                                         <Text style={styles.detailsText}>{description}</Text>
@@ -399,7 +405,7 @@ export default function Shows({ navigation, route }) {
 
                             </View>
 
-                            <Pressable onPress={() => navigation.navigate('Calendarscreen',{episodeUrl:episodeUrl})} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', padding: 20 }}>
+                            <Pressable onPress={() => navigation.navigate('Calendarscreen', { episodeUrl: episodeUrl })} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', padding: 20 }}>
                                 <MaterialCommunityIcons name="calendar-month" size={40} color={NORMAL_TEXT_COLOR} />
                                 <Text style={{ fontSize: 18, color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}> FILTER BY DATE</Text>
                             </Pressable>

@@ -33,7 +33,7 @@ export default function Episode({ navigation, route }) {
   const [title, setTitle] = useState();
   const [channel, setChannel] = useState();
   const [contentRating, setContentRating] = useState();
-  const [displayGenres, setDisplayGenres] = useState();
+  const [displayGenres, setDisplayGenres] = useState([]);
   const [description, setDescription] = useState();
   const [playUrl, setPlayUrl] = useState("");
   const [onlineplayUrl, setOnlinePlayUrl] = useState(false);
@@ -144,7 +144,7 @@ export default function Episode({ navigation, route }) {
         if (response.data.data.hasOwnProperty('cbfc_rating'))
           setContentRating(response.data.data.cbfc_rating);
         if (response.data.data.hasOwnProperty('display_genres'))
-          setDisplayGenres(response.data.data.display_genres.join(","));
+          setDisplayGenres(response.data.data.display_genres);
         if (response.data.data.hasOwnProperty('description'))
           setDescription(response.data.data.description);
         if (response.data.data.hasOwnProperty('thumbnails'))
@@ -527,9 +527,8 @@ export default function Episode({ navigation, route }) {
       for (let o = 0; o < response.data.playback_urls.length; o++) {
         var displayname = response.data.playback_urls[o].display_name.split('-');
         const found = resolution.some(el => el.display_name === displayname[0]);
-        if(!found)
-        {
-        resolution.push({ "display_name": displayname[0], "vwidth": response.data.playback_urls[o].vwidth, "vheight": response.data.playback_urls[o].vheight })
+        if (!found) {
+          resolution.push({ "display_name": displayname[0], "vwidth": response.data.playback_urls[o].vwidth, "vheight": response.data.playback_urls[o].vheight })
         }
       }
       setResolutionPreference(resolution);
@@ -632,6 +631,10 @@ export default function Episode({ navigation, route }) {
               />
               {state.showControls && (
                 <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50 }}>
+                  {preview ?
+                    <View style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: NORMAL_TEXT_COLOR }}>You are watching Trailer</Text></View>
+                    :
+                    ""}
                   <TouchableOpacity
                     onPress={() => { fullscreen ? handleFullscreen() : checkgoback() }}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -746,7 +749,11 @@ export default function Episode({ navigation, route }) {
               <View style={{ flexDirection: 'row' }}>
                 <Text style={styles.detailsText}>{contentRating}</Text>
                 <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', borderRightColor: TAB_COLOR, borderWidth: 2 }]}></Text>
-                <Text style={[styles.detailsText, { borderWidth: 1, borderStyle: 'dashed', borderColor: TAB_COLOR, marginLeft: 10, borderRadius: 10 }]}>{displayGenres}</Text>
+                {displayGenres.map((resp,index) => {
+
+                  return( <Text key={index} style={[styles.detailsText, { borderWidth: 1, borderStyle: 'dashed', borderColor: TAB_COLOR, marginLeft: 10, borderRadius: 10 }]}>{resp}</Text> )
+
+                })}
               </View>
               <ReadMore numberOfLines={4} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
                 <Text style={styles.detailsText}>{description}</Text>
