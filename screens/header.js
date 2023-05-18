@@ -152,7 +152,7 @@ export default function Header(props) {
                                                 }
                                             </View>
                                             <View style={{ bottom: 0, position: 'absolute', left: 35, flexDirection: 'row' }}>
-                                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                                <View style={{ justifyContent: 'center', alignItems: 'flex-start' }}>
                                                     <Text style={styles.drawerHeaderText}>Hi {name}</Text>
                                                     {email != "" && email != null ?
                                                         <Text style={styles.drawerHeaderText}>{email}</Text>

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressable } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
 import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL_STAGING, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR } from '../constants'
@@ -14,6 +14,15 @@ export default function MobileUpdate({ navigation }) {
     const [signinError, setsigninError] = useState('');
     const [signinSuccess, setsigninSuccess] = useState('');
     
+    useEffect(()=>{
+        AsyncStorage.getItem('mobile_number').then(resp=>{
+            if(resp!="" && resp!=null)
+            {
+                navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: true }))
+            }
+        })
+    })
+
     const updateMobileUser = async () => {
         if (Mobile.trim() == "") { setMobileError("Please enter your mobile number."); return true; } else setMobileError("");
         if (Mobile.trim().length != 10) { setMobileError("Please enter a valid mobile number."); return true; } else setMobileError("");
@@ -21,7 +30,6 @@ export default function MobileUpdate({ navigation }) {
         await AsyncStorage.setItem("updateMobile","0091"+Mobile);
         const region = await AsyncStorage.getItem('country_code');
         const session_id = await AsyncStorage.getItem('session');
-        console.log(FIRETV_BASE_URL_STAGING + "users/"+session_id+"/generate_mobile_otp ");
         axios.post(FIRETV_BASE_URL_STAGING + "users/"+session_id+"/generate_mobile_otp ", {
             auth_token: AUTH_TOKEN,
             profile: { region: region, type: "msisdn",user_id:"0091"+Mobile}

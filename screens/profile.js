@@ -186,6 +186,15 @@ export default function Profile({ navigation }) {
                     :
                     ""
                 }
+                {mobile != "" && mobile != null ?
+                    <View style={styles.inneroption}>
+                        <Text style={styles.detailsheader}>Mobile Number</Text>
+                        <Text style={styles.detailsvalue}>{mobile.substring(4, 14)}</Text>
+                    </View>
+                    :
+                    ""
+                }
+
                 {gender != "" && gender != null ?
                     <View style={styles.inneroption}>
                         <Text style={styles.detailsheader}>Gender</Text>
@@ -194,6 +203,7 @@ export default function Profile({ navigation }) {
                     :
                     ""
                 }
+
                 {address != "" && address != null ?
                     <View style={styles.inneroption}>
                         <Text style={styles.detailsheader}>Location / Pincode</Text>

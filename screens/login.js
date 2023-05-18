@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressa
 import React, { useState, useEffect } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
-import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR, FIRETV_BASE_URL_STAGING, WEB_CLIENT_ID, ACCESS_TOKEN, VIDEO_AUTH_TOKEN } from '../constants'
+import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR, FIRETV_BASE_URL_STAGING, WEB_CLIENT_ID, ACCESS_TOKEN, VIDEO_AUTH_TOKEN, SLIDER_PAGINATION_SELECTED_COLOR } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
@@ -23,6 +23,8 @@ export default function Login({ navigation }) {
     const [selected, setSelected] = useState('mobile');
     const [popup, setpopup] = useState(false);
     const [user, setuser] = useState({});
+    const [showresend, setshowresend] = useState(false);
+
 
     useEffect(() => {
         GoogleSignin.configure({
@@ -228,7 +230,23 @@ export default function Login({ navigation }) {
             }).catch(error => {
                 //console.log(error.response.status);
                 //console.log(error.response.headers);
+                if(error.response.data.error.code!='1029')
                 setOtpError(error.response.data.error.message)
+                else
+                {
+                    axios.post(FIRETV_BASE_URL_STAGING+"users/resend_verification_link",{
+                        auth_token: AUTH_TOKEN,
+                        access_token: ACCESS_TOKEN,
+                        user: { email_id: "0091" + Mobile, region: region, type: "msisdn" }
+                    }, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        }
+                    }).then(sentotp=>{
+                        navigation.dispatch(StackActions.replace('Otp', { 'otpkey': 'signupMobile' }));
+                    }).catch(errorotp=>{setOtpError(errorotp.response.data.error.message)})
+                }
             }
             );
     }
@@ -339,7 +357,25 @@ export default function Login({ navigation }) {
                 navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: false }))
                 //navigation.navigate('MobileUpdate')
             }).catch(error => {
+                if(error.response.data.error.code!="1029")
                 setemailRegError(error.response.data.error.message);
+                else
+                {
+                    setemailRegError("");
+                    axios.post(FIRETV_BASE_URL_STAGING + "users/resend_verification_link", {
+                        auth_token: AUTH_TOKEN,
+                        access_token: ACCESS_TOKEN,
+                        user: { email_id: email, region: region, type: "email" }
+                    }, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        }
+                    }).then(sentotp => {
+                        setshowresend(true);
+                        setemailRegError('Verification link has been sent to \r\n \r\n ' + email + '. \r\n \r\n Please click the link in that email to continue.');
+                    }).catch(errorotp => { setOtpError(errorotp.response.data.error.message) })
+                }
             })
             // }
             // else {
@@ -349,6 +385,26 @@ export default function Login({ navigation }) {
         else {
             setEmailError("Please enter a valid email id."); return true;
         }
+    }
+
+    const resendEmail = async () => {
+        setemailRegError("");
+        const region = await AsyncStorage.getItem('country_code');
+
+        axios.post(FIRETV_BASE_URL_STAGING + "users/resend_verification_link", {
+            auth_token: AUTH_TOKEN,
+            access_token: ACCESS_TOKEN,
+            user: { email_id: email, region: region, type: "email" }
+        }, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        }).then(sentotp => {
+            setemailRegError('Verification link has been sent to \r\n \r\n' + email + '.\r\n \r\nPlease click the link in that email to continue.');
+        }).catch(errorotp => { setOtpError(errorotp.response.data.error.message) })
+
+
     }
     return (
         <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
@@ -411,6 +467,15 @@ export default function Login({ navigation }) {
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                             <Text style={styles.errormessage}>{emailRegError}</Text>
                         </View>
+                        {showresend  ?
+                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
+                                <Pressable onPress={resendEmail}><Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 18 }}>Resend Email</Text></Pressable>
+                            </View>
+                            :
+                            ""
+                        }
+
+
                         <TextInput onChangeText={setEmail} value={email} style={styles.textinput} placeholder="Email Id*" placeholderTextColor={NORMAL_TEXT_COLOR} />
                         <Text style={styles.errormessage}>{EmailError}</Text>
 
@@ -434,10 +499,6 @@ export default function Login({ navigation }) {
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                        </View>
-
-                        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
-                            <Text style={{ color: DETAILS_TEXT_COLOR }}>----- OR -----</Text>
                         </View>
 
 
