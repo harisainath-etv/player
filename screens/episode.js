@@ -69,6 +69,7 @@ export default function Episode({ navigation, route }) {
   const [subcategoryImages, setsubcategoryImages] = useState([])
   const [lastPress, setLastPress] = useState(null);
   const [tapCount, setTapCount] = useState(0);
+  const [seektime,setseektime] = useState();
   var multiTapCount = 10;
   var multiTapDelay = 300;
 
@@ -192,6 +193,7 @@ export default function Episode({ navigation, route }) {
             if (onlineplayUrl == false) {
               if (response.data.data.stream_info.adaptive_url != "") {
                 setPlayUrl(response.data.data.stream_info.adaptive_url);
+                setseektime(response.data.data.playlists.pos);
               }
               else
                 if (response.data.data.stream_info.preview.adaptive_url != "") {
@@ -651,6 +653,11 @@ export default function Episode({ navigation, route }) {
                 }}
                 onLoad={(data) => {
                   setDuration(data.duration)
+                  if(seektime!="" && seektime!=null)
+                  {
+                    var splittedtime = seektime.split(":");
+                    videoRef.current.seek(splittedtime[0] * 3600 + splittedtime[1] * 60 + splittedtime[2]);
+                  }
                 }}
               />
               {state.showControls && (
@@ -707,6 +714,7 @@ export default function Episode({ navigation, route }) {
 
                   <TouchableOpacity
                     onPress={() => {
+                      console.log(currentloadingtime);
                       videoRef.current.seek(currentloadingtime + 10)
                       setState({ ...state, showControls: true });
                     }}
