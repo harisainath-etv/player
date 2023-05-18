@@ -35,3 +35,5 @@ export const ANDROID_SHARE_MESSAGE = "Hi, \r\n\r\n I am using the ETV Win App. C
 export const IOS_SHARE_MESSAGE = "Hi, \r\n\r\n I am using the ETV Win App. Check it out on your phone and stay in touch with us anytime and anywhere \r\n\r\n";
 export const ANDROID_SHARE_URL = "https://play.google.com/store/apps/details?id=com.etvwin.mobile";
 export const IOS_SHARE_URL = "https://play.google.com/store/apps/details?id=com.etvwin.mobile";
+export const ANDROID_PACKAGE_NAME = "com.etvwin.mobile";
+export const IOS_PACKAGE_NAME = "com.etvwin.mobile";
