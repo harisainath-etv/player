@@ -27,6 +27,7 @@ import FilterData from './screens/FilterData';
 import Profile from './screens/profile';
 import EditProfile from './screens/editProfile';
 import FrontProfile from './screens/frontProfile';
+import Feedback from './screens/feedback';
 import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING } from './constants';
 import { View, Dimensions, Platform } from 'react-native';
 import SplashScreen from 'react-native-splash-screen'
@@ -202,6 +203,7 @@ export default function App() {
           <Stack.Screen name="FilterData" component={FilterData} options={{ header: () => null, }} />
           <Stack.Screen name="Profile" component={Profile} options={{ header: () => null, }} />
           <Stack.Screen name="EditProfile" component={EditProfile} options={{ header: () => null, }} />
+          <Stack.Screen name="Feedback" component={Feedback} options={{ header: () => null, }} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>

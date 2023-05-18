@@ -71,6 +71,7 @@ export default function Profile({ navigation }) {
         })
         await AsyncStorage.removeItem('session');
         await AsyncStorage.removeItem('mobile_number');
+        await AsyncStorage.removeItem('email_id');
         navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
     }
 
@@ -95,6 +96,7 @@ export default function Profile({ navigation }) {
         })
         await AsyncStorage.removeItem('session');
         await AsyncStorage.removeItem('mobile_number');
+        await AsyncStorage.removeItem('email_id');
         navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
     }
     function validURL(str) {

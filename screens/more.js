@@ -10,6 +10,9 @@ export default function More({navigation}) {
         var url = await AsyncStorage.getItem(key);
         navigation.navigate('Webview',{uri:url})
     }
+    const navigatetopage = async() =>{
+        navigation.navigate('Feedback')
+    }
     return (
         <ScrollView style={styles.mainContainer}>
             <Header name="More"></Header>
@@ -69,6 +72,7 @@ export default function More({navigation}) {
             </View>
             </TouchableOpacity>
 
+            <TouchableOpacity onPress={navigatetopage}>
             <View style={styles.item}>
                 <View style={{width:"80%"}}>
                     <Text style={styles.textstyle}>Feedback</Text>
@@ -77,6 +81,7 @@ export default function More({navigation}) {
                     <MaterialCommunityIcons name='greater-than' size={20} color={SLIDER_PAGINATION_SELECTED_COLOR} style={{ position: 'absolute', right: 0 }} />
                 </View>
             </View>
+            </TouchableOpacity>
 
             <View style={styles.item}>
                 <View style={{width:"80%"}}>
