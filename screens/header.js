@@ -29,7 +29,7 @@ export default function Header(props) {
             { 'iconName': 'television-classic', 'pageName': 'LIVE-TV', 'text': 'Live TV', 'type': 1, 'pageFriendlyId': 'live', 'navigateTo': 'OtherResponse' },
             { 'iconName': 'bell-check', 'pageName': 'SUBSCRIPTION', 'text': 'Subscription', 'type': 1, 'pageFriendlyId': '', 'navigateTo': '' },
             { 'iconName': 'more', 'pageName': 'MORE', 'text': 'More', 'type': 1, 'pageFriendlyId': '', 'navigateTo': 'More' },
-            { 'iconName': 'gear', 'pageName': 'Settings', 'text': 'Settings', 'type': 2, 'pageFriendlyId': '', 'navigateTo': '' }]
+            { 'iconName': 'gear', 'pageName': 'Settings', 'text': 'Settings', 'type': 2, 'pageFriendlyId': '', 'navigateTo': 'Settings' }]
 
             :
 
@@ -42,7 +42,7 @@ export default function Header(props) {
             { 'iconName': 'sticker-plus', 'pageName': 'WATCH-LATER', 'text': 'Watch Later', 'type': 1, 'pageFriendlyId': '', 'navigateTo': 'WatchLater' },
 
             { 'iconName': 'more', 'pageName': 'MORE', 'text': 'More', 'type': 1, 'pageFriendlyId': '', 'navigateTo': 'More' },
-            { 'iconName': 'gear', 'pageName': 'Settings', 'text': 'Settings', 'type': 2, 'pageFriendlyId': '', 'navigateTo': '' }]
+            { 'iconName': 'gear', 'pageName': 'Settings', 'text': 'Settings', 'type': 2, 'pageFriendlyId': '', 'navigateTo': 'Settings' }]
 
     }
 
