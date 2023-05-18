@@ -95,6 +95,20 @@ export default function App() {
             return true;
           }
         }
+      if (appConfigData.data.params_hash2.config_params.popup_details.show_popup) {
+        await AsyncStorage.setItem('show_popup', 'yes');
+        if(ipData.region.country_code2=='IN')
+        {
+          await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.images.high_3_4);
+        }
+        else
+        {
+          await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.other_region_images.high_3_4);
+        }
+        await AsyncStorage.setItem('redirect_type', appConfigData.data.params_hash2.config_params.popup_details.redirect_type);
+      }
+      else
+        await AsyncStorage.setItem('show_popup', 'no');
       await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
       await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);
       await AsyncStorage.setItem('faq', appConfigData.data.params_hash2.config_params.faq);
