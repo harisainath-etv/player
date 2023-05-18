@@ -2,9 +2,10 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressa
 import React, { useState } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
-import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, ACCESS_TOKEN, MORE_LINK_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING } from '../constants'
+import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, ACCESS_TOKEN, MORE_LINK_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, SLIDER_PAGINATION_SELECTED_COLOR } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function Signup({ navigation }) {
     const [name, setName] = useState('');
@@ -24,6 +25,8 @@ export default function Signup({ navigation }) {
     const [Mobile, setMobile] = useState('');
     const [MobileError, setMobileError] = useState('');
     const [otpError, setOtpError] = useState('');
+    const [termscheck, setTermsCheck] = useState(false);
+    const [showresend, setshowresend] = useState(false);
 
 
     function CheckPassword(inputtxt) {
@@ -51,7 +54,7 @@ export default function Signup({ navigation }) {
         //posting data
         axios.post(FIRETV_BASE_URL + "users", {
             auth_token: AUTH_TOKEN,
-            user: { user_id: userId, firstname: name, password: newpassword, region: region, type: type }
+            user: { email_id: userId, firstname: name, password: newpassword, region: region }
         }, {
             headers: {
                 'Accept': 'application/json',
@@ -60,47 +63,85 @@ export default function Signup({ navigation }) {
         })
             .then(response => {
                 //console.log(JSON.stringify(response));
-                setregisterError('')
-                setregisterSuccess('Registered Successfully.')
+                setOtpError('')
+                setOtpError('Verification link has been sent to \r\n \r\n ' + userId + '. \r\n \r\n Please click the link in that email to continue.');
+                setshowresend(true);
 
             }).catch(error => {
                 //console.log(error.response.status);
                 //console.log(error.response.headers);
-                setregisterError(error.response.data.error.message)
+                setOtpError(error.response.data.error.message)
             }
             );
     }
 
+
+    const resendEmail = async () => {
+        setOtpError("");
+        const region = await AsyncStorage.getItem('country_code');
+
+        axios.post(FIRETV_BASE_URL_STAGING + "users/resend_verification_link", {
+            auth_token: AUTH_TOKEN,
+            access_token: ACCESS_TOKEN,
+            user: { email_id: emailMobile, region: region, type: "email" }
+        }, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        }).then(sentotp => {
+            setregisterError('')
+            setOtpError('Verification link has been sent to \r\n \r\n' + emailMobile + '. \r\n \r\n Please click the link in that email to continue.');
+        }).catch(errorotp => { setOtpError(errorotp.response.data.error.message) })
+
+
+    }
+
     const registerEmailUser = async () => {
         if (name.trim() == "") { setNameError("Please enter name."); return true; } else setNameError("");
-        if (emailMobile.trim() == "") { setemailMobileError("Please enter your email or mobile number."); return true; } else setemailMobileError("");
+        if (emailMobile.trim() == "") { setemailMobileError("Please enter your email."); return true; } else setemailMobileError("");
         if (newpassword.trim() == "") { setnewpasswordError("Please enter new password."); return true; } else setnewpasswordError("");
         if (confirmpassword.trim() == "") { setconfirmpasswordError("Please confirm your password."); return true; } else setconfirmpasswordError("");
         if (confirmpassword.trim() != newpassword.trim()) { setconfirmpasswordError("Password Mismatch. Please re-enter"); return true; } else setconfirmpasswordError("");
         if (ValidateEmail(emailMobile)) {
-            postData('email');
-        }
-        else {
+            setemailMobileError("");
             if (CheckPassword(newpassword)) {
-                postData('msisdn');
+                setnewpasswordError("");
+                if (!termscheck) {
+                    setOtpError('Please select Terms Of Use and Privacy Policy.');
+                    return true;
+                }
+                else {
+                    setOtpError('');
+                    postData('email');
+                }
             }
             else {
                 setnewpasswordError("Password should be minimum of 8 digits and it should have at least one lowercase letter, one uppercase letter, one numeric digit, and one special character."); return true;
             }
         }
+        else {
+            setemailMobileError("Please enter a valid email")
+        }
 
     }
     const signUpMobileUser = async () => {
-        if (Name.trim() == "") { setnameError("Please enter your name."); return true; } else setMobileError("");
+        if (Name.trim() == "") { setnameError("Please enter your name."); return true; } else setnameError("");
 
         if (Mobile.trim() == "") { setMobileError("Please enter your mobile number."); return true; } else setMobileError("");
         if (Mobile.trim().length != 10) { setMobileError("Please enter a valid mobile number."); return true; } else setMobileError("");
-
-        await AsyncStorage.setItem("signupMobile", "0091"+Mobile);
+        if (!termscheck) {
+            setOtpError('Please select Terms Of Use and Privacy Policy.');
+            return true;
+        }
+        else {
+            setOtpError("");
+        }
+        await AsyncStorage.setItem("signupMobile", "0091" + Mobile);
         const region = await AsyncStorage.getItem('country_code');
         axios.post(FIRETV_BASE_URL_STAGING + "users/signup_otp", {
             auth_token: AUTH_TOKEN,
-            user: { user_id: "0091"+Mobile, region: region, type: "msisdn",firstname:Name }
+            user: { user_id: "0091" + Mobile, region: region, type: "msisdn", firstname: Name }
         }, {
             headers: {
                 'Accept': 'application/json',
@@ -117,6 +158,10 @@ export default function Signup({ navigation }) {
             }
             );
     }
+    const navigatetopage = async (key) => {
+        var url = await AsyncStorage.getItem(key);
+        navigation.navigate('Webview', { uri: url })
+    }
     return (
         <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
             <View style={{ flex: 1, }}>
@@ -126,21 +171,30 @@ export default function Signup({ navigation }) {
                     <TouchableOpacity style={{ position: 'absolute', right: 20, }} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>SKIP</Text></TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 15, }}>
-                    <Pressable onPress={() => setSelected('mobile')} style={[selected == 'mobile' ? styles.selectedBackground : styles.unselectedBackground, { borderTopLeftRadius: 10, borderBottomLeftRadius: 10 }]}><View style={styles.innerView}><Text style={{ fontWeight: 'bold' }}>Mobile No</Text></View></Pressable>
-                    <Pressable onPress={() => setSelected('email')} style={[selected == 'email' ? styles.selectedBackground : styles.unselectedBackground, { borderTopRightRadius: 10, borderBottomRightRadius: 10 }]}><View style={styles.innerView}><Text style={{ fontWeight: 'bold' }}>Email Id</Text></View></Pressable>
+                    <Pressable onPress={() => { setSelected('mobile'); setTermsCheck(false); }} style={[selected == 'mobile' ? styles.selectedBackground : styles.unselectedBackground, { borderTopLeftRadius: 10, borderBottomLeftRadius: 10 }]}><View style={styles.innerView}><Text style={{ fontWeight: 'bold' }}>Mobile No</Text></View></Pressable>
+                    <Pressable onPress={() => { setSelected('email'); setTermsCheck(false); }} style={[selected == 'email' ? styles.selectedBackground : styles.unselectedBackground, { borderTopRightRadius: 10, borderBottomRightRadius: 10 }]}><View style={styles.innerView}><Text style={{ fontWeight: 'bold' }}>Email Id</Text></View></Pressable>
                 </View>
 
                 {selected == 'mobile' ?
                     <View style={styles.body}>
-                        <View style={{justifyContent:'center',alignItems:'center'}}>
-                        <Text style={styles.errormessage}>{otpError}</Text>
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={styles.errormessage}>{otpError}</Text>
                         </View>
                         <TextInput maxLength={10} onChangeText={setname} value={Name} style={styles.textinput} placeholder="Name*" placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='default' />
                         <Text style={styles.errormessage}>{nameerror}</Text>
 
                         <TextInput maxLength={10} onChangeText={setMobile} value={Mobile} style={styles.textinput} placeholder="Mobile Number*" placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='phone-pad' />
                         <Text style={styles.errormessage}>{MobileError}</Text>
+                        <View style={{ marginBottom: 10, marginTop: 10, flexDirection: 'row', width: '100%', }}>
+                            {termscheck ?
+                                <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={35} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                :
+                                <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={35} color={NORMAL_TEXT_COLOR} /></Pressable>
+                            }
+                            <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16, marginLeft: 10, flex: 1, flexWrap: 'wrap' }}>I agree to the <Pressable onPress={() => navigatetopage('termsCondition')}><Text style={{ color: NORMAL_TEXT_COLOR }}>TERMS OF USE</Text></Pressable> and <Pressable><Text style={{ color: NORMAL_TEXT_COLOR }} onPress={() => navigatetopage('privacy')}>PRIVACY POLICY</Text></Pressable></Text>
 
+
+                        </View>
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                             <View style={{ flexDirection: 'row', width: '100%' }}>
                                 <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
@@ -158,6 +212,17 @@ export default function Signup({ navigation }) {
                     </View>
                     :
                     <View style={styles.body}>
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={styles.errormessage}>{otpError}</Text>
+                        </View>
+                        {showresend  ?
+                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20, }}>
+                                <Pressable onPress={resendEmail}><Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 18 }}>Resend Email</Text></Pressable>
+                            </View>
+                            :
+                            ""
+                        }
+
                         <TextInput onChangeText={setName} value={name} style={styles.textinput} placeholder="Name *" placeholderTextColor={NORMAL_TEXT_COLOR} />
                         <Text style={styles.errormessage}>{nameError}</Text>
                         <TextInput onChangeText={setemailMobile} value={emailMobile} style={styles.textinput} placeholder="Email*" placeholderTextColor={NORMAL_TEXT_COLOR} />
@@ -167,10 +232,19 @@ export default function Signup({ navigation }) {
                         <TextInput onChangeText={setconfirmpassword} secureTextEntry={true} value={confirmpassword} style={styles.textinput} placeholder="Confirm Password *" placeholderTextColor={NORMAL_TEXT_COLOR} />
                         <Text style={styles.errormessage}>{confirmpasswordError}</Text>
 
+                        <View style={{ marginBottom: 10, marginTop: 10, flexDirection: 'row', width: '100%', }}>
+                            {termscheck ?
+                                <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={35} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                :
+                                <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={35} color={NORMAL_TEXT_COLOR} /></Pressable>
+                            }
+                            <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16, marginLeft: 10, flex: 1, flexWrap: 'wrap' }}>I agree to the <Pressable onPress={() => navigatetopage('termsCondition')}><Text style={{ color: NORMAL_TEXT_COLOR }}>TERMS OF USE</Text></Pressable> and <Pressable><Text style={{ color: NORMAL_TEXT_COLOR }} onPress={() => navigatetopage('privacy')}>PRIVACY POLICY</Text></Pressable></Text>
+                        </View>
+
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                             <View style={{ flexDirection: 'row', width: '100%' }}>
-                            <Text style={styles.errormessage}>{registerError}</Text>
-                            <Text style={styles.successmessage}>{registerSuccess}</Text>
+                                <Text style={styles.errormessage}>{registerError}</Text>
+                                <Text style={styles.successmessage}>{registerSuccess}</Text>
                                 <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
                                     <TouchableOpacity onPress={registerEmailUser} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text></TouchableOpacity>
                                 </View>
