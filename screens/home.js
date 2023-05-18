@@ -41,6 +41,19 @@ function Home({ navigation, route }) {
         SLIDER_PAGINATION_SELECTED_COLOR,
         SLIDER_PAGINATION_SELECTED_COLOR,
     ]);
+
+    const [colors1, setColors1] = useState([
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+    ]);
     const [totalHomeData, settotalHomeData] = useState([]);
     const [totalMenuData, settotalMenuData] = useState();
     { route.params ? page = route.params.pageFriendlyId : page = 'featured-1' }
@@ -62,6 +75,9 @@ function Home({ navigation, route }) {
     const [isModalVisible, setModalVisible] = useState(false);
     var menuref = useRef();
     const progressValue = useSharedValue(0);
+    const progressValue1 = useSharedValue(0);
+    const progressValue2 = useSharedValue(0);
+    const progressValue3 = useSharedValue(0);
     const dataFetchedRef = useRef(false);
     const paginationLoadCount = 10;
 
@@ -401,7 +417,7 @@ function Home({ navigation, route }) {
                             autoPlay={autoPlay}
                             autoPlayInterval={2000}
                             onProgressChange={(_, absoluteProgress) =>
-                                (progressValue.value = absoluteProgress)
+                                (progressValue1.value = absoluteProgress)
                             }
                             mode="parallax"
                             windowSize={3}
@@ -443,7 +459,7 @@ function Home({ navigation, route }) {
                                 autoPlay={autoPlay}
                                 autoPlayInterval={2000}
                                 onProgressChange={(_, absoluteProgress) =>
-                                    (progressValue.value = absoluteProgress)
+                                    (progressValue2.value = absoluteProgress)
                                 }
                                 mode="parallax"
                                 windowSize={3}
@@ -480,7 +496,7 @@ function Home({ navigation, route }) {
                                 autoPlay={autoPlay}
                                 autoPlayInterval={2000}
                                 onProgressChange={(_, absoluteProgress) =>
-                                    (progressValue.value = absoluteProgress)
+                                    (progressValue3.value = absoluteProgress)
                                 }
                                 mode="parallax"
                                 windowSize={3}
@@ -501,7 +517,7 @@ function Home({ navigation, route }) {
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
                         </View>
-                        {!!progressValue ?
+                        {!!progressValue3 ?
                             <View
                                 style={{
                                     flexDirection: 'row',
@@ -511,15 +527,15 @@ function Home({ navigation, route }) {
                                     top: -1,
                                 }}
                             >
-                                {colors.map((backgroundColor, index) => {
+                                {colors1.map((backgroundColor, index) => {
                                     return (
                                         <PaginationItem
                                             backgroundColor={backgroundColor}
-                                            animValue={progressValue}
+                                            animValue={progressValue3}
                                             index={index}
                                             key={index}
                                             isRotate={isVertical}
-                                            length={colors.length}
+                                            length={colors1.length}
                                         />
                                     );
                                 })}
