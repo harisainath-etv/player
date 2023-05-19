@@ -811,7 +811,7 @@ export default function Episode({ navigation, route }) {
                   <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
                 </View>
 
-                {passedtheme != 'live' && passedtheme != 'livetv' ?
+                {passedtheme != 'live' && passedtheme != 'livetv' && !preview?
                   <View style={styles.singleoption}>
                     {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
                     {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}

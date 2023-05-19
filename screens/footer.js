@@ -35,10 +35,12 @@ export default function Footer(props) {
         if (castSet) {
             sessionManager.endCurrentSession()
             setcastSet(false)
+            alert('Disconnected');
         }
         else {
             sessionManager.startSession(castSession)
             setcastSet(true)
+            alert('Connected');
         }
     }
     useEffect(() => {
@@ -121,7 +123,11 @@ export default function Footer(props) {
             </View>
 
             {castState != NO_CAST_DEVICES ?
+                castSet ?
+                <TouchableOpacity onPress={CastSession}><View style={styles.chromeCast}><MaterialCommunityIcons name="cast-connected" size={20} color="white" /></View></TouchableOpacity>
+                :
                 <TouchableOpacity onPress={toggleModal}><View style={styles.chromeCast}><FontAwesome5 name="chromecast" size={20} color="white" /></View></TouchableOpacity>
+
                 : ""}
 
             {devices ?
