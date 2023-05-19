@@ -1,12 +1,13 @@
 import { View, Text, ImageBackground, StyleSheet, TouchableOpacity, Image, ScrollView, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, FIRETV_BASE_URL_STAGING, SLIDER_PAGINATION_UNSELECTED_COLOR, } from '../constants';
 import { DETAILS_TEXT_COLOR } from '../constants';
 import { StackActions } from '@react-navigation/native';
 import axios from 'axios';
+import RNBackgroundDownloader from 'react-native-background-downloader';
+import RNFS from 'react-native-fs';
 
 
 
@@ -72,6 +73,10 @@ export default function Profile({ navigation }) {
         await AsyncStorage.removeItem('session');
         await AsyncStorage.removeItem('mobile_number');
         await AsyncStorage.removeItem('email_id');
+        var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/'
+        if (await RNFS.exists(downloaddirectory)) {
+            await RNFS.unlink(downloaddirectory)
+          }
         navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
     }
 
@@ -97,6 +102,10 @@ export default function Profile({ navigation }) {
         await AsyncStorage.removeItem('session');
         await AsyncStorage.removeItem('mobile_number');
         await AsyncStorage.removeItem('email_id');
+        var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/'
+        if (await RNFS.exists(downloaddirectory)) {
+            await RNFS.unlink(downloaddirectory)
+          }
         navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
     }
     function validURL(str) {

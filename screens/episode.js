@@ -69,7 +69,8 @@ export default function Episode({ navigation, route }) {
   const [subcategoryImages, setsubcategoryImages] = useState([])
   const [lastPress, setLastPress] = useState(null);
   const [tapCount, setTapCount] = useState(0);
-  const [seektime,setseektime] = useState();
+  const [seektime, setseektime] = useState();
+  const [showsettingsicon,setshowsettingsicon] = useState(true);
   var multiTapCount = 10;
   var multiTapDelay = 300;
 
@@ -232,7 +233,7 @@ export default function Episode({ navigation, route }) {
       setIsresumeDownloading(true);
   }
   const checkOfflineDownload = async () => {
-
+    var sessionId = await AsyncStorage.getItem('session');
     if (offlineUrl != "") {
       var splittedOfflineUrl = offlineUrl.split("/");
       var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/' + splittedOfflineUrl[splittedOfflineUrl.length - 1] + ".ts.download";
@@ -243,10 +244,11 @@ export default function Episode({ navigation, route }) {
         //console.log(downloadtask);
         if (downloadtask != "" || downloadtask != null)
           settaskdownloading(downloadtask);
-        if (downloadpercent == '100') {
+        if (downloadpercent == '100' && sessionId!="" && sessionId!=null) {
           setDownloadedStatus(1)
           setPlayUrl(downloaddirectory)
           setOnlinePlayUrl(true)
+          setshowsettingsicon(false);
         }
         else if (downloadpercent != "" || downloadpercent != null) {
           setDownloadedStatus(2)
@@ -653,8 +655,7 @@ export default function Episode({ navigation, route }) {
                 }}
                 onLoad={(data) => {
                   setDuration(data.duration)
-                  if(seektime!="" && seektime!=null)
-                  {
+                  if (seektime != "" && seektime != null) {
                     var splittedtime = seektime.split(":");
                     videoRef.current.seek(splittedtime[0] * 3600 + splittedtime[1] * 60 + splittedtime[2]);
                   }
@@ -672,13 +673,16 @@ export default function Episode({ navigation, route }) {
                     style={styles.navigationBack}>
                     <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
                   </TouchableOpacity>
-
+                  
+                  {showsettingsicon ?
                   <TouchableOpacity
                     onPress={loadResolutionSettings}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     style={styles.settingsicon}>
                     <Ionicons name="settings" size={25} color={NORMAL_TEXT_COLOR}></Ionicons>
                   </TouchableOpacity>
+                  :
+                  ""}
 
                   <TouchableOpacity
                     onPress={handleFullscreen}
