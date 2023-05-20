@@ -131,6 +131,9 @@ export default function App() {
 
     var session = await AsyncStorage.getItem('session');
     var region = await AsyncStorage.getItem('country_code');
+    const removeunwanted= async()=>{
+      await AsyncStorage.removeItem('session');
+    }
     if (session != "" && session != null) {
       axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
         if (planresponse.data.data.length > 0) {
@@ -158,7 +161,7 @@ export default function App() {
       }).catch(planerror => {
         console.log(planerror.response.data);
       })
-      axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
+      await axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
         AsyncStorage.setItem('address', resp.data.data.address)
         AsyncStorage.setItem('age', resp.data.data.age)
         AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
@@ -178,7 +181,7 @@ export default function App() {
         AsyncStorage.setItem('user_id', resp.data.data.user_id)
 
       }).catch(err => {
-        alert("Error in fetching account details. Please try again later.")
+         removeunwanted()
       })
     }
     SplashScreen.hide();
