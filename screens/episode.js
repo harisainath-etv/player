@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, Image, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform, FlatList } from 'react-native';
-import React, { useEffect, useState, createRef } from 'react';
+import React, { useEffect, useState, createRef, useRef } from 'react';
 import * as NavigationBar from "expo-navigation-bar";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -18,7 +18,7 @@ import RNBackgroundDownloader from 'react-native-background-downloader';
 import Share from 'react-native-share';
 import Modal from "react-native-modal";
 import Slider from '@react-native-community/slider';
-import FastImage from 'react-native-fast-image';
+import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, } from 'react-native-google-cast';
 // import VideoViewAndroid from '../components/VideoViewAndroid';
 // import VideoViewIos from '../components/VideoViewIos';
 
@@ -73,6 +73,8 @@ export default function Episode({ navigation, route }) {
   const [showsettingsicon,setshowsettingsicon] = useState(true);
   var multiTapCount = 10;
   var multiTapDelay = 300;
+  var client = useRemoteMediaClient();
+  const dataFetchedRef = useRef(false);
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -265,6 +267,8 @@ export default function Episode({ navigation, route }) {
 
   }
   useEffect(() => {
+    if (dataFetchedRef.current) return;
+        dataFetchedRef.current = true;
     loadData()
     if (fullscreen) {
       navigationConfig();
@@ -659,6 +663,34 @@ export default function Episode({ navigation, route }) {
                     var splittedtime = seektime.split(":");
                     videoRef.current.seek(splittedtime[0] * 3600 + splittedtime[1] * 60 + splittedtime[2]);
                   }
+
+                  GoogleCast.getCastState().then(state => {
+                    if(state=='connected' && playUrl!="")
+                    {
+                      
+                      if(!client) {
+                        GoogleCast.getDiscoveryManager()
+                      }
+                      console.log('client changed ', client)
+                      const started = client?.onMediaPlaybackStarted(() =>
+                        console.log("playback started")
+                      );
+                      const ended = client?.onMediaPlaybackEnded(() =>
+                        console.log("playback ended")
+                      );
+                      if(client && playUrl!="" && playUrl!=null) { 
+                        client?.loadMedia({
+                          mediaInfo: {
+                            contentUrl:
+                              playUrl,
+                          },
+                        })
+                      }
+              
+                    }
+                })
+
+
                 }}
               />
               {state.showControls && (
