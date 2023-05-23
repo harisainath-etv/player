@@ -16,6 +16,7 @@ import { StackActions } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 // import RNBackgroundDownloader from 'react-native-background-downloader';
 import axios from 'axios';
+import Modal from "react-native-modal";
 import Footer from './footer';
 import Header from './header';
 
@@ -29,6 +30,19 @@ var popup = false;
 function Home({ navigation, route }) {
 
     const [colors, setColors] = useState([
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+        SLIDER_PAGINATION_SELECTED_COLOR,
+    ]);
+
+    const [colors1, setColors1] = useState([
         SLIDER_PAGINATION_SELECTED_COLOR,
         SLIDER_PAGINATION_SELECTED_COLOR,
         SLIDER_PAGINATION_SELECTED_COLOR,
@@ -55,8 +69,15 @@ function Home({ navigation, route }) {
     const [pagenumber, setPagenumber] = useState(0);
     const [toload, settoload] = useState(true);
     const [loading, setloading] = useState(false);
+    const [imagepopup, setimagepopup] = useState();
+    const [redirectionpage, setredirectionpage] = useState()
+    const [popupalreadyshown, setpopupalreadyshown] = useState(false)
+    const [isModalVisible, setModalVisible] = useState(false);
     var menuref = useRef();
     const progressValue = useSharedValue(0);
+    const progressValue1 = useSharedValue(0);
+    const progressValue2 = useSharedValue(0);
+    const progressValue3 = useSharedValue(0);
     const dataFetchedRef = useRef(false);
     const paginationLoadCount = 10;
 
@@ -75,10 +96,33 @@ function Home({ navigation, route }) {
         width: PAGE_WIDTH * 0.95,
         height: 250,
     });
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
 
     async function loadData(p) {
         const mobile = await AsyncStorage.getItem('mobile_number');
         const session = await AsyncStorage.getItem('session');
+        var show_popup = await AsyncStorage.getItem('show_popup');
+        var popupshown = await AsyncStorage.getItem('popupshown');
+        if(popupshown=='yes')
+        {
+            setpopupalreadyshown(true)
+        }
+
+        if (show_popup == 'yes') {
+            const imgpopup = await AsyncStorage.getItem('popupimage');
+            const redirect_type = await AsyncStorage.getItem('redirect_type');
+            setimagepopup(imgpopup);
+            if (redirect_type == "plans_page") {
+                setredirectionpage('Subscribe')
+            }
+            if(!popupalreadyshown)
+            {
+                toggleModal()
+                await AsyncStorage.setItem('popupshown','yes');
+            }
+        }
         if ((mobile == "" || mobile == null) && (session != "" && session != null)) {
             navigation.dispatch(StackActions.replace('MobileUpdate', {}));
         }
@@ -373,7 +417,7 @@ function Home({ navigation, route }) {
                             autoPlay={autoPlay}
                             autoPlayInterval={2000}
                             onProgressChange={(_, absoluteProgress) =>
-                                (progressValue.value = absoluteProgress)
+                                (progressValue1.value = absoluteProgress)
                             }
                             mode="parallax"
                             windowSize={3}
@@ -415,7 +459,7 @@ function Home({ navigation, route }) {
                                 autoPlay={autoPlay}
                                 autoPlayInterval={2000}
                                 onProgressChange={(_, absoluteProgress) =>
-                                    (progressValue.value = absoluteProgress)
+                                    (progressValue2.value = absoluteProgress)
                                 }
                                 mode="parallax"
                                 windowSize={3}
@@ -452,7 +496,7 @@ function Home({ navigation, route }) {
                                 autoPlay={autoPlay}
                                 autoPlayInterval={2000}
                                 onProgressChange={(_, absoluteProgress) =>
-                                    (progressValue.value = absoluteProgress)
+                                    (progressValue3.value = absoluteProgress)
                                 }
                                 mode="parallax"
                                 windowSize={3}
@@ -473,7 +517,7 @@ function Home({ navigation, route }) {
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
                         </View>
-                        {!!progressValue ?
+                        {!!progressValue3 ?
                             <View
                                 style={{
                                     flexDirection: 'row',
@@ -483,15 +527,15 @@ function Home({ navigation, route }) {
                                     top: -1,
                                 }}
                             >
-                                {colors.map((backgroundColor, index) => {
+                                {colors1.map((backgroundColor, index) => {
                                     return (
                                         <PaginationItem
                                             backgroundColor={backgroundColor}
-                                            animValue={progressValue}
+                                            animValue={progressValue3}
                                             index={index}
                                             key={index}
                                             isRotate={isVertical}
-                                            length={colors.length}
+                                            length={colors1.length}
                                         />
                                     );
                                 })}
@@ -702,7 +746,7 @@ function Home({ navigation, route }) {
     }, []);
 
     const memoizedValue = useMemo(() => renderItem, [totalHomeData]);
-    const loadFilters = async()=>{
+    const loadFilters = async () => {
         navigation.navigate('FoodFilter');
     }
     return (
@@ -752,6 +796,29 @@ function Home({ navigation, route }) {
             <Footer
                 pageName="Home"
             ></Footer>
+
+
+            <Modal
+                isVisible={isModalVisible}
+                testID={'modal'}
+                animationIn="slideInDown"
+                animationOut="slideOutDown"
+                onBackdropPress={toggleModal}
+                backdropColor={"black"}
+                backdropOpacity={0.40}
+            >
+                <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR,justifyContent:'center',alignItems:'center' }}>
+                    <Pressable onPress={toggleModal} style={{position:'absolute',right:0,zIndex:1000,top:0}}><MaterialCommunityIcons name='close-circle' color={NORMAL_TEXT_COLOR} size={30}/></Pressable>
+                    {imagepopup ?
+                        <Pressable onPress={()=>{navigation.dispatch(StackActions.replace(redirectionpage))}}><Image source={{ uri: imagepopup }} style={{width:PAGE_WIDTH-50,height:PAGE_HEIGHT-50}} resizeMode='contain'></Image></Pressable>
+                        :
+                        ""
+                    }
+
+                </View>
+            </Modal>
+
+
             <StatusBar style="auto" />
         </View>
     );

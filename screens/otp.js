@@ -40,8 +40,11 @@ export default function Otp({ navigation, route }) {
         const region = await AsyncStorage.getItem('country_code');
         const loginMobile = await AsyncStorage.getItem(otpkey);
         const session_id = await AsyncStorage.getItem('session');
-        const email_id = await AsyncStorage.getItem('email_id');
-
+        var email_id = await AsyncStorage.getItem('email_id');
+        if(email_id=="" || email_id==null)
+        {
+            email_id = await AsyncStorage.getItem('ext_user_id');
+        }
         var frontpagedob = await AsyncStorage.getItem('frontpagedob');
         var frontpagegender = await AsyncStorage.getItem('frontpagegender');
         var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
@@ -96,7 +99,7 @@ export default function Otp({ navigation, route }) {
                         AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
                         AsyncStorage.setItem('email_id', resp.data.data.email_id)
                         AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
-                        //AsyncStorage.setItem('ext_user_id', resp.data.data.ext_user_id)
+                        AsyncStorage.setItem('ext_user_id', resp.data.data.ext_user_id)
                         AsyncStorage.setItem('firstname', resp.data.data.firstname)
                         AsyncStorage.setItem('gender', resp.data.data.gender)
                         //AsyncStorage.setItem('is_mobile_verify', JSON.stringify(resp.data.data.is_mobile_verify))
@@ -196,7 +199,7 @@ export default function Otp({ navigation, route }) {
                             AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
                             AsyncStorage.setItem('email_id', resp.data.data.email_id)
                             AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
-                            //AsyncStorage.setItem('ext_user_id', resp.data.data.ext_user_id)
+                            AsyncStorage.setItem('ext_user_id', resp.data.data.ext_user_id)
                             AsyncStorage.setItem('firstname', resp.data.data.firstname)
                             AsyncStorage.setItem('gender', resp.data.data.gender)
                             //AsyncStorage.setItem('is_mobile_verify', JSON.stringify(resp.data.data.is_mobile_verify))
@@ -302,7 +305,7 @@ export default function Otp({ navigation, route }) {
                                 AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
                                 AsyncStorage.setItem('email_id', resp.data.data.email_id)
                                 AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
-                                //AsyncStorage.setItem('ext_user_id', resp.data.data.ext_user_id)
+                                AsyncStorage.setItem('ext_user_id', resp.data.data.ext_user_id)
                                 AsyncStorage.setItem('firstname', resp.data.data.firstname)
                                 AsyncStorage.setItem('gender', resp.data.data.gender)
                                 //AsyncStorage.setItem('is_mobile_verify', JSON.stringify(resp.data.data.is_mobile_verify))

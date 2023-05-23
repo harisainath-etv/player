@@ -19,34 +19,43 @@ export default function Footer(props) {
     var client = useRemoteMediaClient()
     const castDevice = useCastDevice()
     const devices = useDevices()
-    const castData = () => {
-        if (client) {
-            client.loadMedia({
-                mediaInfo: {
-                    contentUrl:
-                        'https://commondatastorage.googleapis.com/gtv-videos-bucket/CastVideos/mp4/BigBuckBunny.mp4',
-                    contentType: 'video/mp4',
-                },
-            })
-        }
-    }
+    
     const CastSession = (castSession) => {
         const sessionManager = GoogleCast.getSessionManager()
         if (castSet) {
             sessionManager.endCurrentSession()
             setcastSet(false)
+            alert('Disconnected');
         }
         else {
             sessionManager.startSession(castSession)
             setcastSet(true)
+            toggleModal()
+            alert('Connected');
         }
     }
     useEffect(() => {
         GoogleCast.getCastState().then(state => {
             setCastSate(state);
+            if(state=='connected')
+            {
+                setcastSet(true)
+            }
+            else
+            {
+                setcastSet(false)
+            }
         })
         GoogleCast.onCastStateChanged((castState) => {
             setCastSate(castState);
+            if(castState=='connected')
+            {
+                setcastSet(true)
+            }
+            else
+            {
+                setcastSet(false)
+            }
         })
     })
     return (
@@ -121,7 +130,11 @@ export default function Footer(props) {
             </View>
 
             {castState != NO_CAST_DEVICES ?
+                castSet ?
+                <TouchableOpacity onPress={CastSession}><View style={styles.chromeCast}><MaterialCommunityIcons name="cast-connected" size={20} color="white" /></View></TouchableOpacity>
+                :
                 <TouchableOpacity onPress={toggleModal}><View style={styles.chromeCast}><FontAwesome5 name="chromecast" size={20} color="white" /></View></TouchableOpacity>
+
                 : ""}
 
             {devices ?
@@ -137,7 +150,16 @@ export default function Footer(props) {
                             )
                         })}
                     </View>
-                </Modal> : ""
+                </Modal> : 
+                
+                <Modal
+                    isVisible={isModalVisible}
+                    onBackdropPress={toggleModal}
+                >
+                    <View style={styles.drawerContainer}>
+                        <View style={{ width: "100%" }}><View style={styles.deviceContainer}><Text style={styles.devicesList}>No Devices Available</Text></View></View>
+                    </View>
+                </Modal>
             }
         </View>
     )

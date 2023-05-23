@@ -27,6 +27,10 @@ import FilterData from './screens/FilterData';
 import Profile from './screens/profile';
 import EditProfile from './screens/editProfile';
 import FrontProfile from './screens/frontProfile';
+import Feedback from './screens/feedback';
+import Settings from './screens/settings';
+import Subscribe from './screens/subscribe';
+import Confirmation from './screens/confirmation';
 import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING } from './constants';
 import { View, Dimensions, Platform } from 'react-native';
 import SplashScreen from 'react-native-splash-screen'
@@ -93,6 +97,20 @@ export default function App() {
             return true;
           }
         }
+      if (appConfigData.data.params_hash2.config_params.popup_details.show_popup) {
+        await AsyncStorage.setItem('show_popup', 'yes');
+        if(ipData.region.country_code2=='IN')
+        {
+          await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.images.high_3_4);
+        }
+        else
+        {
+          await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.other_region_images.high_3_4);
+        }
+        await AsyncStorage.setItem('redirect_type', appConfigData.data.params_hash2.config_params.popup_details.redirect_type);
+      }
+      else
+        await AsyncStorage.setItem('show_popup', 'no');
       await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
       await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);
       await AsyncStorage.setItem('faq', appConfigData.data.params_hash2.config_params.faq);
@@ -115,6 +133,9 @@ export default function App() {
 
     var session = await AsyncStorage.getItem('session');
     var region = await AsyncStorage.getItem('country_code');
+    const removeunwanted= async()=>{
+      await AsyncStorage.removeItem('session');
+    }
     if (session != "" && session != null) {
       axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
         if (planresponse.data.data.length > 0) {
@@ -142,13 +163,13 @@ export default function App() {
       }).catch(planerror => {
         console.log(planerror.response.data);
       })
-      axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
+      await axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
         AsyncStorage.setItem('address', resp.data.data.address)
         AsyncStorage.setItem('age', resp.data.data.age)
         AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
         AsyncStorage.setItem('email_id', resp.data.data.email_id)
         AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
-        //AsyncStorage.setItem('ext_user_id',resp.data.data.ext_user_id)
+        AsyncStorage.setItem('ext_user_id',resp.data.data.ext_user_id)
         AsyncStorage.setItem('firstname', resp.data.data.firstname)
         AsyncStorage.setItem('gender', resp.data.data.gender)
         //AsyncStorage.setItem('is_mobile_verify',JSON.stringify(resp.data.data.is_mobile_verify))
@@ -162,7 +183,7 @@ export default function App() {
         AsyncStorage.setItem('user_id', resp.data.data.user_id)
 
       }).catch(err => {
-        alert("Error in fetching account details. Please try again later.")
+         removeunwanted()
       })
     }
     SplashScreen.hide();
@@ -202,6 +223,10 @@ export default function App() {
           <Stack.Screen name="FilterData" component={FilterData} options={{ header: () => null, }} />
           <Stack.Screen name="Profile" component={Profile} options={{ header: () => null, }} />
           <Stack.Screen name="EditProfile" component={EditProfile} options={{ header: () => null, }} />
+          <Stack.Screen name="Feedback" component={Feedback} options={{ header: () => null, }} />
+          <Stack.Screen name="Settings" component={Settings} options={{ header: () => null, }} />
+          <Stack.Screen name="Subscribe" component={Subscribe} options={{ header: () => null, }} />
+          <Stack.Screen name="Confirmation" component={Confirmation} options={{ header: () => null, }} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>

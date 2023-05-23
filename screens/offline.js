@@ -131,7 +131,7 @@ export default function Offline({ navigation }) {
                 {downloadstatus == 1 ? <Pressable onPress={() => navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.item.downloadseourl, theme: item.item.downloadtheme }))}><MaterialCommunityIcons name="play-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
                 {downloadstatus == 2 ?
 
-                  pauseDownload ? <Pressable><MaterialCommunityIcons onPress={() => resumeDownloadAction(item.item.task)} name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : <Pressable><MaterialCommunityIcons onPress={() => pauseDownloadAction(item.item.task)} name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                  pauseDownload ? <Pressable><MaterialCommunityIcons onPress={() => resumeDownloadAction(item.item.task)} name="motion-pause" size={60} color={NORMAL_TEXT_COLOR} /></Pressable> : <Pressable><MaterialCommunityIcons onPress={() => pauseDownloadAction(item.item.task)} name="progress-download" size={60} color={NORMAL_TEXT_COLOR} /></Pressable>
 
                   : ""}
               </View>

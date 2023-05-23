@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, Image, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform, FlatList } from 'react-native';
-import React, { useEffect, useState, createRef } from 'react';
+import React, { useEffect, useState, createRef, useRef } from 'react';
 import * as NavigationBar from "expo-navigation-bar";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -18,7 +18,7 @@ import RNBackgroundDownloader from 'react-native-background-downloader';
 import Share from 'react-native-share';
 import Modal from "react-native-modal";
 import Slider from '@react-native-community/slider';
-import FastImage from 'react-native-fast-image';
+import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, } from 'react-native-google-cast';
 // import VideoViewAndroid from '../components/VideoViewAndroid';
 // import VideoViewIos from '../components/VideoViewIos';
 
@@ -69,8 +69,12 @@ export default function Episode({ navigation, route }) {
   const [subcategoryImages, setsubcategoryImages] = useState([])
   const [lastPress, setLastPress] = useState(null);
   const [tapCount, setTapCount] = useState(0);
+  const [seektime, setseektime] = useState();
+  const [showsettingsicon,setshowsettingsicon] = useState(true);
   var multiTapCount = 10;
   var multiTapDelay = 300;
+  var client = useRemoteMediaClient();
+  const dataFetchedRef = useRef(false);
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -192,6 +196,7 @@ export default function Episode({ navigation, route }) {
             if (onlineplayUrl == false) {
               if (response.data.data.stream_info.adaptive_url != "") {
                 setPlayUrl(response.data.data.stream_info.adaptive_url);
+                setseektime(response.data.data.playlists.pos);
               }
               else
                 if (response.data.data.stream_info.preview.adaptive_url != "") {
@@ -230,7 +235,7 @@ export default function Episode({ navigation, route }) {
       setIsresumeDownloading(true);
   }
   const checkOfflineDownload = async () => {
-
+    var sessionId = await AsyncStorage.getItem('session');
     if (offlineUrl != "") {
       var splittedOfflineUrl = offlineUrl.split("/");
       var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/' + splittedOfflineUrl[splittedOfflineUrl.length - 1] + ".ts.download";
@@ -241,10 +246,11 @@ export default function Episode({ navigation, route }) {
         //console.log(downloadtask);
         if (downloadtask != "" || downloadtask != null)
           settaskdownloading(downloadtask);
-        if (downloadpercent == '100') {
+        if (downloadpercent == '100' && sessionId!="" && sessionId!=null) {
           setDownloadedStatus(1)
           setPlayUrl(downloaddirectory)
           setOnlinePlayUrl(true)
+          setshowsettingsicon(false);
         }
         else if (downloadpercent != "" || downloadpercent != null) {
           setDownloadedStatus(2)
@@ -261,6 +267,8 @@ export default function Episode({ navigation, route }) {
 
   }
   useEffect(() => {
+    if (dataFetchedRef.current) return;
+        dataFetchedRef.current = true;
     loadData()
     if (fullscreen) {
       navigationConfig();
@@ -651,6 +659,38 @@ export default function Episode({ navigation, route }) {
                 }}
                 onLoad={(data) => {
                   setDuration(data.duration)
+                  if (seektime != "" && seektime != null) {
+                    var splittedtime = seektime.split(":");
+                    videoRef.current.seek(splittedtime[0] * 3600 + splittedtime[1] * 60 + splittedtime[2]);
+                  }
+
+                  GoogleCast.getCastState().then(state => {
+                    if(state=='connected' && playUrl!="")
+                    {
+                      
+                      if(!client) {
+                        GoogleCast.getDiscoveryManager()
+                      }
+                      console.log('client changed ', client)
+                      const started = client?.onMediaPlaybackStarted(() =>
+                        console.log("playback started")
+                      );
+                      const ended = client?.onMediaPlaybackEnded(() =>
+                        console.log("playback ended")
+                      );
+                      if(client && playUrl!="" && playUrl!=null) { 
+                        client?.loadMedia({
+                          mediaInfo: {
+                            contentUrl:
+                              playUrl,
+                          },
+                        })
+                      }
+              
+                    }
+                })
+
+
                 }}
               />
               {state.showControls && (
@@ -665,13 +705,16 @@ export default function Episode({ navigation, route }) {
                     style={styles.navigationBack}>
                     <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
                   </TouchableOpacity>
-
+                  
+                  {showsettingsicon ?
                   <TouchableOpacity
                     onPress={loadResolutionSettings}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     style={styles.settingsicon}>
                     <Ionicons name="settings" size={25} color={NORMAL_TEXT_COLOR}></Ionicons>
                   </TouchableOpacity>
+                  :
+                  ""}
 
                   <TouchableOpacity
                     onPress={handleFullscreen}
@@ -707,6 +750,7 @@ export default function Episode({ navigation, route }) {
 
                   <TouchableOpacity
                     onPress={() => {
+                      console.log(currentloadingtime);
                       videoRef.current.seek(currentloadingtime + 10)
                       setState({ ...state, showControls: true });
                     }}
@@ -799,7 +843,7 @@ export default function Episode({ navigation, route }) {
                   <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
                 </View>
 
-                {passedtheme != 'live' && passedtheme != 'livetv' ?
+                {passedtheme != 'live' && passedtheme != 'livetv' && !preview?
                   <View style={styles.singleoption}>
                     {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
                     {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}

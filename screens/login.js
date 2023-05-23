@@ -311,7 +311,7 @@ export default function Login({ navigation }) {
                     AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
                     AsyncStorage.setItem('email_id', resp.data.data.email_id)
                     AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
-                    //AsyncStorage.setItem('ext_user_id',resp.data.data.ext_user_id)
+                    AsyncStorage.setItem('ext_user_id',resp.data.data.ext_user_id)
                     AsyncStorage.setItem('firstname', resp.data.data.firstname)
                     AsyncStorage.setItem('gender', resp.data.data.gender)
                     //AsyncStorage.setItem('is_mobile_verify',JSON.stringify(resp.data.data.is_mobile_verify))
