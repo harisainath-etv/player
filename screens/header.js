@@ -19,6 +19,7 @@ export default function Header(props) {
     const [email, setEmail] = useState("");
     const [mobile, setMobile] = useState("");
     const [profilePic, setProfilePic] = useState();
+    const [subscription_title, setsubscription_title] = useState("");
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -52,12 +53,14 @@ export default function Header(props) {
         const mobile_number = await AsyncStorage.getItem('mobile_number');
         const session = await AsyncStorage.getItem('session');
         const profile_pic = await AsyncStorage.getItem('profile_pic');
+        const subscriptiontitle = await AsyncStorage.getItem('subscription_title');
         //console.log(profile_pic);
         if (session != "" && session != null) {
             setLogin(true)
             setName(firstname);
             setEmail(email);
             setMobile(mobile_number);
+            setsubscription_title(subscriptiontitle)
         }
         if (profile_pic != "" && profile_pic != null)
             setProfilePic(profile_pic)
@@ -213,9 +216,12 @@ export default function Header(props) {
                 </View>
 
                 <View style={styles.rightItems}>
+                    {subscription_title=='' || subscription_title==null || subscription_title=='Free'?
                     <TouchableOpacity onPress={() => navigation.navigate('Subscribe', {})} >
                         <Image source={require('../assets/images/subscribe.png')} style={styles.subscribeImage}></Image>
                     </TouchableOpacity>
+                    :
+                    ""}
                     <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Search', {}))} style={{ marginRight: 10, marginLeft: 7 }}>
                         <FontAwesome5 name="search" size={20} color="white" />
                     </TouchableOpacity>
