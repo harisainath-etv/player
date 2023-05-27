@@ -86,9 +86,11 @@ export default function Episode({ navigation, route }) {
   const navigationConfig = async () => {
     // // Just incase it is not hidden
     // NavigationBar.setBackgroundColorAsync('red');
+    if(Platform.OS='android')
     NavigationBar.setVisibilityAsync("hidden");
   };
   const navigationConfigVisible = async () => {
+    if(Platform.OS='android')
     NavigationBar.setVisibilityAsync("visible");
   };
   const exitScreen = async () => {
