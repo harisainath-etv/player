@@ -103,6 +103,7 @@ function Home({ navigation, route }) {
     async function loadData(p) {
         const mobile = await AsyncStorage.getItem('mobile_number');
         const session = await AsyncStorage.getItem('session');
+        var region = await AsyncStorage.getItem('country_code');
         var show_popup = await AsyncStorage.getItem('show_popup');
         var popupshown = await AsyncStorage.getItem('popupshown');
         if(popupshown=='yes')
@@ -123,7 +124,7 @@ function Home({ navigation, route }) {
                 await AsyncStorage.setItem('popupshown','yes');
             }
         }
-        if ((mobile == "" || mobile == null) && (session != "" && session != null)) {
+        if ((mobile == "" || mobile == null) && (session != "" && session != null) && (region=='IN')) {
             navigation.dispatch(StackActions.replace('MobileUpdate', {}));
         }
         else {

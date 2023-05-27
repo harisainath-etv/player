@@ -1,12 +1,12 @@
 import { View, Text, FlatList, Pressable, ScrollView, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import NormalHeader from './normalHeader';
-import { ACCESS_TOKEN, BACKGROUND_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
+import { ACCESS_TOKEN, BACKGROUND_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export default function Subscribe({navigation}) {
+export default function Subscribe({ navigation }) {
     const [subscribeplans, setsubscribeplans] = useState([]);
     const dataFetchedRef = useRef(false);
     const [selectedplan, setSelectedPlan] = useState('premium_plan');
@@ -18,12 +18,15 @@ export default function Subscribe({navigation}) {
     const [selectedpriceforpayment, setselectedpriceforpayment] = useState("");
     const [selectedpriceforduration, setselectedpriceforduration] = useState("");
     const [selectedpricecurrency, setselectedpricecurrency] = useState("");
-    const [currency,setcurrency] = useState("");
-    const [category,setcategory] = useState("all_access_pack");
-    const [catalogid,setcatalogid] = useState("");
-    const [planid,setplanid] = useState("");
-    const [description,setdescription] = useState("");
+    const [currency, setcurrency] = useState("");
+    const [category, setcategory] = useState("all_access_pack");
+    const [catalogid, setcatalogid] = useState("");
+    const [planid, setplanid] = useState("");
+    const [description, setdescription] = useState("");
+    const [currentplan, setcurrentplan] = useState("");
     const loadData = async () => {
+        var currentplan = await AsyncStorage.getItem('plan_id');
+        setcurrentplan(currentplan);
         var items = [];
         AsyncStorage.setItem('selectedplan', selectedplan)
         const region = await AsyncStorage.getItem('country_code');
@@ -48,7 +51,7 @@ export default function Subscribe({navigation}) {
                 }
                 for (var p = 0; p < resp.data.data.items[i].plans.length; p++) {
                     if (resp.data.data.items[i].plan_id == selectedPlan) {
-                        plans.push({ "id": resp.data.data.items[i].plans[p].id, "title": resp.data.data.items[i].plans[p].title, "ext_plan_id": resp.data.data.items[i].plans[p].ext_plan_id, "region": resp.data.data.items[i].plans[p].region, "price": resp.data.data.items[i].plans[p].price, "currency": resp.data.data.items[i].plans[p].currency, "currency_symbol": resp.data.data.items[i].plans[p].currency_symbol, "currency_notation": resp.data.data.items[i].plans[p].currency_notation, "striked_price": resp.data.data.items[i].plans[p].striked_price, "duration": resp.data.data.items[i].plans[p].duration, "period": resp.data.data.items[i].plans[p].period, "display_period": resp.data.data.items[i].plans[p].display_period, "offer_description": resp.data.data.items[i].plans[p].offer_description,"description": resp.data.data.items[i].plans[p].description, "apple_product_id": resp.data.data.items[i].plans[p].apple_product_id, "google_product_id": resp.data.data.items[i].plans[p].google_product_id, "renewable_type": resp.data.data.items[i].plans[p].renewable_type, "screen_limit": resp.data.data.items[i].plans[p].screen_limit, "pack_order": resp.data.data.items[i].plans[p].pack_order, "planlength": resp.data.data.items[i].plans.length })
+                        plans.push({ "id": resp.data.data.items[i].plans[p].id, "title": resp.data.data.items[i].plans[p].title, "ext_plan_id": resp.data.data.items[i].plans[p].ext_plan_id, "region": resp.data.data.items[i].plans[p].region, "price": resp.data.data.items[i].plans[p].price, "currency": resp.data.data.items[i].plans[p].currency, "currency_symbol": resp.data.data.items[i].plans[p].currency_symbol, "currency_notation": resp.data.data.items[i].plans[p].currency_notation, "striked_price": resp.data.data.items[i].plans[p].striked_price, "duration": resp.data.data.items[i].plans[p].duration, "period": resp.data.data.items[i].plans[p].period, "display_period": resp.data.data.items[i].plans[p].display_period, "offer_description": resp.data.data.items[i].plans[p].offer_description, "description": resp.data.data.items[i].plans[p].description, "apple_product_id": resp.data.data.items[i].plans[p].apple_product_id, "google_product_id": resp.data.data.items[i].plans[p].google_product_id, "renewable_type": resp.data.data.items[i].plans[p].renewable_type, "screen_limit": resp.data.data.items[i].plans[p].screen_limit, "pack_order": resp.data.data.items[i].plans[p].pack_order, "planlength": resp.data.data.items[i].plans.length })
                     }
                 }
             }
@@ -63,49 +66,45 @@ export default function Subscribe({navigation}) {
                     {selectedplan == item.item.plan_id && item.item.status == 'published' ?
                         <MaterialCommunityIcons name='radiobox-marked' color={NORMAL_TEXT_COLOR} size={30} />
                         :
-                        <Pressable onPress={() => { setSelectedPlan(item.item.plan_id); setselectedprice(""); AsyncStorage.setItem('selectedplan', item.item.plan_id); loadpackdetails(); setselectedname(item.item.display_title);setselectedcategoryid(item.item.category_id);setcategory(item.item.category);setcatalogid(item.item.catalog_id) }}><MaterialCommunityIcons name='radiobox-blank' color={NORMAL_TEXT_COLOR} size={30} /></Pressable>
+                        <Pressable onPress={() => { setSelectedPlan(item.item.plan_id); setselectedprice(""); AsyncStorage.setItem('selectedplan', item.item.plan_id); loadpackdetails(); setselectedname(item.item.display_title); setselectedcategoryid(item.item.category_id); setcategory(item.item.category); setcatalogid(item.item.catalog_id) }}><MaterialCommunityIcons name='radiobox-blank' color={NORMAL_TEXT_COLOR} size={30} /></Pressable>
                     }
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25 }}>{item.item.display_title}</Text>
                 </View>
             </View>
         )
     }
-    const proceedtopay = async()=>{
-        var session= await AsyncStorage.getItem('session');
-        var region= await AsyncStorage.getItem('country_code');
-        if(session=='' || session==null)
-        {
+    const proceedtopay = async () => {
+        var session = await AsyncStorage.getItem('session');
+        var region = await AsyncStorage.getItem('country_code');
+        if (session == '' || session == null) {
             navigation.navigate('Login');
         }
-        else
-        {
-            if(selectedprice!="" && selectedprice!=null)
-            {
-                axios.get(FIRETV_BASE_URL_STAGING+"users/"+session+"/user_plans/upgrade_plan?region="+region+"&auth_token="+VIDEO_AUTH_TOKEN+"&access_token="+ACCESS_TOKEN+"&sub_theme_id="+selectedcategoryid+"&to_plan="+selectedprice).then(resp=>{
-                    AsyncStorage.setItem('actual_price',resp.data.data.payable.actual_price);
-                    AsyncStorage.setItem('payable_amount',resp.data.data.payable.payable_amount);
-                    AsyncStorage.setItem('payable_currency_symbol',resp.data.data.payable.currency_symbol);
-                    AsyncStorage.setItem('payable_selected_name',selectedname);
-                    AsyncStorage.setItem('payable_selected_duration',selectedpriceforduration);
-                    AsyncStorage.setItem('payable_currency',resp.data.data.payable.currency);
-                    AsyncStorage.setItem('payable_category',category);
-                    AsyncStorage.setItem('payable_category_id',resp.data.data.payable.category_pack_id);
-                    AsyncStorage.setItem('payable_catalog_id',resp.data.data.payable.subscription_catalog_id);
-                    AsyncStorage.setItem('payable_plan_id',planid);
-                    AsyncStorage.setItem('payable_description',description);
-                    if(resp.data.data.existing_plan==null || resp.data.data.existing_plan=="")
-                    {
-                        AsyncStorage.setItem('payable_upgrade','no');
+        else {
+            if (selectedprice != "" && selectedprice != null) {
+                axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/user_plans/upgrade_plan?region=" + region + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&sub_theme_id=" + selectedcategoryid + "&to_plan=" + selectedprice).then(resp => {
+                    AsyncStorage.setItem('actual_price', resp.data.data.payable.actual_price);
+                    AsyncStorage.setItem('payable_amount', resp.data.data.payable.payable_amount);
+                    AsyncStorage.setItem('payable_currency_symbol', resp.data.data.payable.currency_symbol);
+                    AsyncStorage.setItem('payable_selected_name', selectedname);
+                    AsyncStorage.setItem('payable_selected_duration', selectedpriceforduration);
+                    AsyncStorage.setItem('payable_currency', resp.data.data.payable.currency);
+                    AsyncStorage.setItem('payable_category', category);
+                    AsyncStorage.setItem('payable_category_id', resp.data.data.payable.category_pack_id);
+                    AsyncStorage.setItem('payable_catalog_id', resp.data.data.payable.subscription_catalog_id);
+                    AsyncStorage.setItem('payable_plan_id', planid);
+                    AsyncStorage.setItem('payable_description', description);
+                    if (resp.data.data.existing_plan == null || resp.data.data.existing_plan == "") {
+                        AsyncStorage.setItem('payable_upgrade', 'no');
                     }
-                    else
-                    {
-                        AsyncStorage.setItem('payable_upgrade','yes');
+                    else {
+                        AsyncStorage.setItem('payable_upgrade', 'yes');
                     }
                     navigation.navigate("Confirmation");
-                }).catch(error=>{})
+                }).catch(error => {
+                    alert(error.response.data.error)
+                 })
             }
-            else
-            {
+            else {
                 alert("Please select a plan to proceed.")
             }
         }
@@ -138,11 +137,17 @@ export default function Subscribe({navigation}) {
                             return (
                                 <View key={resp.id} style={{ paddingTop: 20, paddingBottom: 20, backgroundColor: TAB_COLOR, borderWidth: 1, borderStyle: 'dashed', borderColor: DETAILS_TEXT_COLOR, marginTop: 20, borderRadius: 10, justifyContent: 'center', alignItems: 'center', width: (100 / resp.planlength) - 5 + "%", }}>
                                     {selectedprice == resp.id ?
-                                        <MaterialCommunityIcons name='radiobox-marked' size={30} color={NORMAL_TEXT_COLOR} style={{ position: 'absolute', left: 0, top: 0 }} />
+                                        currentplan == resp.id ?
+                                            ""
+                                            :
+                                            <MaterialCommunityIcons name='radiobox-marked' size={30} color={NORMAL_TEXT_COLOR} style={{ position: 'absolute', left: 0, top: 0 }} />
                                         :
-                                        <Pressable style={{ position: 'absolute', left: 0, top: 0 }} onPress={() => { setselectedprice(resp.id); setselectedpriceforpayment(resp.price); setselectedpriceforduration(resp.display_period); setselectedpricecurrency(resp.currency_symbol);setcurrency(resp.currency);setplanid(resp.id);setdescription(resp.description); }}><MaterialCommunityIcons name='radiobox-blank' size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                        <Pressable style={{ position: 'absolute', left: 0, top: 0 }} onPress={() => { setselectedprice(resp.id); setselectedpriceforpayment(resp.price); setselectedpriceforduration(resp.display_period); setselectedpricecurrency(resp.currency_symbol); setcurrency(resp.currency); setplanid(resp.id); setdescription(resp.description); }}><MaterialCommunityIcons name='radiobox-blank' size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
                                     }
-
+                                    {currentplan == resp.id ?
+                                        <Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, position: 'absolute', right: 15, top: 5 }}>Active</Text>
+                                        :
+                                        ""}
                                     <View style={{ justifyContent: 'center', alignItems: 'center', }}>
                                         <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, marginRight: 10, marginTop: 10 }}>{resp.currency_symbol} {resp.price}</Text>
                                         {resp.striked_price ?

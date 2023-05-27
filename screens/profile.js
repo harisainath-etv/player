@@ -70,9 +70,7 @@ export default function Profile({ navigation }) {
         }).catch(error => {
             console.log(JSON.stringify(error.response.data));
         })
-        await AsyncStorage.removeItem('session');
-        await AsyncStorage.removeItem('mobile_number');
-        await AsyncStorage.removeItem('email_id');
+        await AsyncStorage.clear();
         var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/'
         if (await RNFS.exists(downloaddirectory)) {
             await RNFS.unlink(downloaddirectory)
@@ -99,9 +97,7 @@ export default function Profile({ navigation }) {
         }).catch(error => {
             console.log(JSON.stringify(error.response.data));
         })
-        await AsyncStorage.removeItem('session');
-        await AsyncStorage.removeItem('mobile_number');
-        await AsyncStorage.removeItem('email_id');
+        await AsyncStorage.clear();
         var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/'
         if (await RNFS.exists(downloaddirectory)) {
             await RNFS.unlink(downloaddirectory)
@@ -227,9 +223,9 @@ export default function Profile({ navigation }) {
                 <View style={styles.inneroption}>
                     <Text style={styles.detailsheader}>Subscription Status</Text>
                     {subscription_title == "" || subscription_title == null ?
-                        <Text style={styles.detailsvalue}>Free</Text>
+                        <Pressable onPress={()=>navigation.navigate('Subscribe')}><Text style={styles.detailsvalue}>Free</Text></Pressable>
                         :
-                        <Text style={styles.detailsvalue}>{subscription_title}</Text>
+                        <Pressable onPress={()=>navigation.navigate('Subscribe')}><Text style={styles.detailsvalue}>{subscription_title}</Text></Pressable>
                     }
                     {expireson != "" && expireson != null ?
                         <Text style={styles.detailsheader}>Expires on {expireson}</Text>

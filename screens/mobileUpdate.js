@@ -13,10 +13,20 @@ export default function MobileUpdate({ navigation }) {
     
     const [signinError, setsigninError] = useState('');
     const [signinSuccess, setsigninSuccess] = useState('');
-    
+    const [region, setregion] = useState('IN');
+    const loaddata= async() =>{
+        var region = await AsyncStorage.getItem('country_code');
+        setregion(region);
+    }
     useEffect(()=>{
+        loaddata()
         AsyncStorage.getItem('mobile_number').then(resp=>{
-            if(resp!="" && resp!=null)
+            if(resp!="" && resp!=null && region=='IN')
+            {
+                navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: true }))
+            }
+            else
+            if(region!="IN")
             {
                 navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: true }))
             }
@@ -26,13 +36,13 @@ export default function MobileUpdate({ navigation }) {
     const updateMobileUser = async () => {
         if (Mobile.trim() == "") { setMobileError("Please enter your mobile number."); return true; } else setMobileError("");
         if (Mobile.trim().length != 10) { setMobileError("Please enter a valid mobile number."); return true; } else setMobileError("");
-
-        await AsyncStorage.setItem("updateMobile","0091"+Mobile);
+        const calling_code = await AsyncStorage.getItem('calling_code');
+        await AsyncStorage.setItem("updateMobile",calling_code+Mobile);
         const region = await AsyncStorage.getItem('country_code');
         const session_id = await AsyncStorage.getItem('session');
         axios.post(FIRETV_BASE_URL_STAGING + "users/"+session_id+"/generate_mobile_otp ", {
             auth_token: AUTH_TOKEN,
-            profile: { region: region, type: "msisdn",user_id:"0091"+Mobile}
+            profile: { region: region, type: "msisdn",user_id:calling_code+Mobile}
         }, {
             headers: {
                 'Accept': 'application/json',
