@@ -774,7 +774,7 @@ export default function Login({ navigation }) {
                                 <TextInput secureTextEntry={true} onChangeText={setnewpassword} value={newpassword} style={styles.textinput} placeholder="Password*" placeholderTextColor={NORMAL_TEXT_COLOR} />
                                 <Text style={styles.errormessage}>{newpasswordError}</Text>
                                 <View>
-                                    <TouchableOpacity style={{ position: 'absolute', right: 20 }}>
+                                    <TouchableOpacity style={{ position: 'absolute', right: 20 }} onPress={()=>navigation.navigate('ForgotPassword')}>
                                         <Text style={{ color: NORMAL_TEXT_COLOR }}>Forgot Password?</Text>
                                     </TouchableOpacity>
                                 </View>
