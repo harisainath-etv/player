@@ -19,7 +19,7 @@ export default function Footer(props) {
     var client = useRemoteMediaClient()
     const castDevice = useCastDevice()
     const devices = useDevices()
-    
+
     const CastSession = (castSession) => {
         const sessionManager = GoogleCast.getSessionManager()
         if (castSet) {
@@ -37,31 +37,43 @@ export default function Footer(props) {
     useEffect(() => {
         GoogleCast.getCastState().then(state => {
             setCastSate(state);
-            if(state=='connected')
-            {
+            if (state == 'connected') {
                 setcastSet(true)
             }
-            else
-            {
+            else {
                 setcastSet(false)
             }
         })
         GoogleCast.onCastStateChanged((castState) => {
             setCastSate(castState);
-            if(castState=='connected')
-            {
+            if (castState == 'connected') {
                 setcastSet(true)
             }
-            else
-            {
+            else {
                 setcastSet(false)
             }
         })
     })
     return (
         <View>
-            <View style={styles.footerContainer}>
+            <View style={{ zIndex: 1000, justifyContent: 'center', alignContent: 'center', alignSelf: 'center', alignItems: 'center' }}>
+                <View style={{ backgroundColor: BACKGROUND_COLOR, width: 100, position: 'absolute',padding:20,borderTopRightRadius:50,borderTopLeftRadius:50 }}>
 
+                    {pageName == 'SHORTS' ?
+                        <View style={styles.iconContainer}>
+                            <MaterialCommunityIcons name="video-check" size={40} color={SLIDER_PAGINATION_SELECTED_COLOR} />
+                            <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR,fontSize:15,fontWeight:'bold' }]}>SHORTS</Text>
+                        </View>
+                        :
+                        <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Shorts', { pageFriendlyId: 'channels' }))}>
+                            <MaterialCommunityIcons name="video-check" size={40} color={NORMAL_TEXT_COLOR} />
+                            <Text style={[styles.footerText,{fontSize:15,fontWeight:'bold'}]}>SHORTS</Text>
+                        </TouchableOpacity>
+                    }
+
+                </View>
+            </View>
+            <View style={styles.footerContainer}>
                 {pageName == 'Home' || pageName == 'live' ?
 
                     <View style={styles.iconContainer}>
@@ -88,6 +100,13 @@ export default function Footer(props) {
                     </TouchableOpacity>
                 }
 
+
+                
+                    <View style={styles.iconContainer}>
+                        <MaterialCommunityIcons name="video-check" size={28} color={BACKGROUND_COLOR} />
+                        <Text style={[styles.footerText, { color: BACKGROUND_COLOR }]}>TV CHANNELS</Text>
+                    </View>
+
                 {pageName == 'NEWS' ?
 
                     <View style={styles.iconContainer}>
@@ -112,7 +131,7 @@ export default function Footer(props) {
                         <Text style={styles.footerText}>OFFLINE</Text>
                     </TouchableOpacity>
                 }
-                {pageName == 'WATCH-LATER' ?
+                {/* {pageName == 'WATCH-LATER' ?
 
                     <View style={styles.iconContainer}>
                         <MaterialCommunityIcons name="sticker-plus" size={28} color={SLIDER_PAGINATION_SELECTED_COLOR} />
@@ -125,15 +144,15 @@ export default function Footer(props) {
                             <Text style={styles.footerText}>WATCH LATER</Text>
                         </View>
                     </TouchableOpacity>
-                }
+                } */}
 
             </View>
 
             {castState != NO_CAST_DEVICES ?
                 castSet ?
-                <TouchableOpacity onPress={CastSession}><View style={styles.chromeCast}><MaterialCommunityIcons name="cast-connected" size={20} color="white" /></View></TouchableOpacity>
-                :
-                <TouchableOpacity onPress={toggleModal}><View style={styles.chromeCast}><FontAwesome5 name="chromecast" size={20} color="white" /></View></TouchableOpacity>
+                    <TouchableOpacity onPress={CastSession}><View style={styles.chromeCast}><MaterialCommunityIcons name="cast-connected" size={20} color="white" /></View></TouchableOpacity>
+                    :
+                    <TouchableOpacity onPress={toggleModal}><View style={styles.chromeCast}><FontAwesome5 name="chromecast" size={20} color="white" /></View></TouchableOpacity>
 
                 : ""}
 
@@ -150,8 +169,8 @@ export default function Footer(props) {
                             )
                         })}
                     </View>
-                </Modal> : 
-                
+                </Modal> :
+
                 <Modal
                     isVisible={isModalVisible}
                     onBackdropPress={toggleModal}
