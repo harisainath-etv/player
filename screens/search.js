@@ -137,7 +137,7 @@ export default function Search({ navigation }) {
                 <View style={{ width: "80%" }}>
                     <TextInput onChangeText={setSearch} value={search} style={styles.textinput} placeholder="Start Searching.." placeholderTextColor={NORMAL_TEXT_COLOR} onKeyPress={loadDataCheck} />
                 </View>
-                <View style={{ marginLeft: 10 }}>
+                <View style={{ marginLeft: 0 }}>
                     <Pressable onPress={() => setSearch("")}><Ionicons name="close-circle" size={30} color="#ffffff" style={{ marginTop: 10 }} /></Pressable>
                 </View>
             </View>

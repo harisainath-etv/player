@@ -1,6 +1,6 @@
-import { View, Text, FlatList, Pressable, } from 'react-native'
+import { View, ActivityIndicator, FlatList, Pressable, StyleSheet } from 'react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { BACKGROUND_COLOR, PAGE_HEIGHT, PAGE_WIDTH } from '../constants'
+import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SLIDER_PAGINATION_SELECTED_COLOR } from '../constants'
 import TransparentHeader from './transparentHeader';
 import Video from 'react-native-video';
 
@@ -20,15 +20,26 @@ export default function Shorts() {
     const videoRef = useRef();
     const [currentIndexValue, setcurrentIndexValue] = useState(0);
     const [showcontrols, setshowcontrols] = useState(true);
-    const loadcontrols = async () => {        
-            setshowcontrols(!showcontrols)
+    const [state, setState] = useState({ opacity: 0 });
+    const loadcontrols = async () => {
+        setshowcontrols(!showcontrols)
     }
-    useEffect(()=>{
-        if(showcontrols)
-        {
-            setTimeout(function(){ setshowcontrols(!showcontrols) },5000);
+    useEffect(() => {
+        if (showcontrols) {
+            setTimeout(function () { setshowcontrols(!showcontrols) }, 5000);
         }
     })
+    const onLoadStart = () => {
+        setState({ opacity: 1 });
+    }
+    const onLoad = () => {
+        setState({ opacity: 0 });
+    }
+    const onBuffer = ({ isBuffering }) => {
+        setState({ opacity: isBuffering ? 1 : 0 });
+    }
+
+
     return (
         <View style={{ height: PAGE_HEIGHT, width: PAGE_WIDTH, backgroundColor: BACKGROUND_COLOR }}>
             {showcontrols ?
@@ -50,29 +61,38 @@ export default function Shorts() {
                         return (
 
                             <Pressable onPress={loadcontrols} style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flex: 1, flexGrow: 1 }}>
-                                {currentIndexValue === index ?
-                                    <View style={{ flex: 1, flexGrow: 1 }}>
-                                        <Video
-                                            ref={videoRef}
-                                            source={{ uri: item }}
-                                            controls={false}
-                                            paused={currentIndexValue === index ? false : true}
-                                            playInBackground={false}
-                                            repeat={true}
-                                            volume={1}
-                                            bufferConfig={{
-                                                minBufferMs: 1000000,
-                                                maxBufferMs: 2000000,
-                                                bufferForPlaybackMs: 7000
-                                            }}
-                                            rate={1.0}
-                                            resizeMode={'stretch'}
-                                            style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flexGrow: 1, flex: 1 }}
-                                            playWhenInactive={false}
-                                        />
-                                    </View>
-                                    :
-                                    ""}
+                                {/* {currentIndexValue === index ? */}
+                                <View style={{ flex: 1, flexGrow: 1 }}>
+                                    <Video
+                                        ref={videoRef}
+                                        onBuffer={onBuffer}
+                                        source={{ uri: item }}
+                                        controls={false}
+                                        onLoadStart={onLoadStart}
+                                        onLoad={onLoad}
+                                        paused={currentIndexValue === index ? false : true}
+                                        playInBackground={false}
+                                        repeat={true}
+                                        volume={1}
+                                        // bufferConfig={{
+                                        //     minBufferMs: 1000000,
+                                        //     maxBufferMs: 2000000,
+                                        //     bufferForPlaybackMs: 7000
+                                        // }}
+                                        rate={1.0}
+                                        resizeMode={'stretch'}
+                                        style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flexGrow: 1, flex: 1 }}
+                                        playWhenInactive={false}
+                                    />
+                                    <ActivityIndicator
+                                        animating
+                                        size="large"
+                                        color={SLIDER_PAGINATION_SELECTED_COLOR}
+                                        style={[styles.activityIndicator, { opacity: state.opacity }]}
+                                    />
+                                </View>
+                                {/* :
+                                    ""} */}
                             </Pressable>
 
                         );
@@ -84,3 +104,14 @@ export default function Shorts() {
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    activityIndicator: {
+        position: 'absolute',
+        top: 70,
+        left: 70,
+        right: 70,
+        height: 50,
+    },
+
+});
