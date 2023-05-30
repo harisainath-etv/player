@@ -57,16 +57,16 @@ export default function Footer(props) {
     return (
         <View>
             <View style={{ zIndex: 1000, justifyContent: 'center', alignContent: 'center', alignSelf: 'center', alignItems: 'center' }}>
-                <View style={{ backgroundColor: BACKGROUND_COLOR, width: 100, position: 'absolute',padding:20,borderTopRightRadius:50,borderTopLeftRadius:50 }}>
+                <View style={{ backgroundColor: BACKGROUND_COLOR, width: 100, position: 'absolute',padding:15,borderTopRightRadius:50,borderTopLeftRadius:50 }}>
 
                     {pageName == 'SHORTS' ?
                         <View style={styles.iconContainer}>
-                            <MaterialCommunityIcons name="video-check" size={40} color={SLIDER_PAGINATION_SELECTED_COLOR} />
+                            <MaterialCommunityIcons name="video-check" size={43} color={SLIDER_PAGINATION_SELECTED_COLOR} />
                             <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR,fontSize:15,fontWeight:'bold' }]}>SHORTS</Text>
                         </View>
                         :
                         <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Shorts', { pageFriendlyId: 'channels' }))}>
-                            <MaterialCommunityIcons name="video-check" size={40} color={NORMAL_TEXT_COLOR} />
+                            <MaterialCommunityIcons name="video-check" size={43} color={NORMAL_TEXT_COLOR} />
                             <Text style={[styles.footerText,{fontSize:15,fontWeight:'bold'}]}>SHORTS</Text>
                         </TouchableOpacity>
                     }

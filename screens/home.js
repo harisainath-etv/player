@@ -106,8 +106,7 @@ function Home({ navigation, route }) {
         var region = await AsyncStorage.getItem('country_code');
         var show_popup = await AsyncStorage.getItem('show_popup');
         var popupshown = await AsyncStorage.getItem('popupshown');
-        if(popupshown=='yes')
-        {
+        if (popupshown == 'yes') {
             setpopupalreadyshown(true)
         }
 
@@ -118,13 +117,12 @@ function Home({ navigation, route }) {
             if (redirect_type == "plans_page") {
                 setredirectionpage('Subscribe')
             }
-            if(!popupalreadyshown)
-            {
+            if (!popupalreadyshown) {
                 toggleModal()
-                await AsyncStorage.setItem('popupshown','yes');
+                await AsyncStorage.setItem('popupshown', 'yes');
             }
         }
-        if ((mobile == "" || mobile == null) && (session != "" && session != null) && (region=='IN')) {
+        if ((mobile == "" || mobile == null) && (session != "" && session != null) && (region == 'IN')) {
             navigation.dispatch(StackActions.replace('MobileUpdate', {}));
         }
         else {
@@ -778,7 +776,9 @@ function Home({ navigation, route }) {
                 </TouchableOpacity>
                 :
                 ""}
-
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} ></ActivityIndicator> : ""}
+            </View>
             {/* body content */}
             {totalHomeData ? <FlatList
                 data={totalHomeData}
@@ -790,10 +790,7 @@ function Home({ navigation, route }) {
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 renderItem={memoizedValue}
             /> : ""}
-            <View style={{ height: 10 }}></View>
-            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} ></ActivityIndicator> : ""}
-            </View>
+            <View style={{ height: 25 }}></View>
             <Footer
                 pageName="Home"
             ></Footer>
@@ -808,10 +805,10 @@ function Home({ navigation, route }) {
                 backdropColor={"black"}
                 backdropOpacity={0.40}
             >
-                <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR,justifyContent:'center',alignItems:'center' }}>
-                    <Pressable onPress={toggleModal} style={{position:'absolute',right:0,zIndex:1000,top:0}}><MaterialCommunityIcons name='close-circle' color={NORMAL_TEXT_COLOR} size={30}/></Pressable>
+                <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR, justifyContent: 'center', alignItems: 'center' }}>
+                    <Pressable onPress={toggleModal} style={{ position: 'absolute', right: 0, zIndex: 1000, top: 0 }}><MaterialCommunityIcons name='close-circle' color={NORMAL_TEXT_COLOR} size={30} /></Pressable>
                     {imagepopup ?
-                        <Pressable onPress={()=>{navigation.dispatch(StackActions.replace(redirectionpage))}}><Image source={{ uri: imagepopup }} style={{width:PAGE_WIDTH-50,height:PAGE_HEIGHT-50}} resizeMode='contain'></Image></Pressable>
+                        <Pressable onPress={() => { navigation.dispatch(StackActions.replace(redirectionpage)) }}><Image source={{ uri: imagepopup }} style={{ width: PAGE_WIDTH - 50, height: PAGE_HEIGHT - 50 }} resizeMode='contain'></Image></Pressable>
                         :
                         ""
                     }

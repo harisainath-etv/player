@@ -28,7 +28,7 @@ export default function Header(props) {
         !login ?
             menuArray = [{ 'iconName': 'home', 'pageName': 'Home', 'text': 'Home', 'type': 1, 'pageFriendlyId': 'featured-1', 'navigateTo': 'Home' },
             { 'iconName': 'television-classic', 'pageName': 'LIVE-TV', 'text': 'Live TV', 'type': 1, 'pageFriendlyId': 'live', 'navigateTo': 'OtherResponse' },
-            { 'iconName': 'bell-check', 'pageName': 'SUBSCRIPTION', 'text': 'Subscription', 'type': 1, 'pageFriendlyId': '', 'navigateTo': '' },
+            { 'iconName': 'bell-check', 'pageName': 'SUBSCRIPTION', 'text': 'Subscription', 'type': 1, 'pageFriendlyId': '', 'navigateTo': 'Subscribe' },
             { 'iconName': 'more', 'pageName': 'MORE', 'text': 'More', 'type': 1, 'pageFriendlyId': '', 'navigateTo': 'More' },
             { 'iconName': 'gear', 'pageName': 'Settings', 'text': 'Settings', 'type': 2, 'pageFriendlyId': '', 'navigateTo': 'Settings' }]
 
@@ -36,7 +36,7 @@ export default function Header(props) {
 
             menuArray = [{ 'iconName': 'home', 'pageName': 'Home', 'text': 'Home', 'type': 1, 'pageFriendlyId': 'featured-1', 'navigateTo': 'Home' },
             { 'iconName': 'television-classic', 'pageName': 'LIVE-TV', 'text': 'Live TV', 'type': 1, 'pageFriendlyId': 'live', 'navigateTo': 'OtherResponse' },
-            { 'iconName': 'bell-check', 'pageName': 'SUBSCRIPTION', 'text': 'Subscription', 'type': 1, 'pageFriendlyId': '', 'navigateTo': '' },
+            { 'iconName': 'bell-check', 'pageName': 'SUBSCRIPTION', 'text': 'Subscription', 'type': 1, 'pageFriendlyId': '', 'navigateTo': 'Subscribe' },
 
             { 'iconName': 'download', 'pageName': 'OFFLINE', 'text': 'Offline Videos', 'type': 1, 'pageFriendlyId': '', 'navigateTo': 'Offline' },
             { 'iconName': 'television-play', 'pageName': 'TV', 'text': 'Activate TV', 'type': 1, 'pageFriendlyId': '', 'navigateTo': 'ActivateTv' },
