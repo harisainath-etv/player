@@ -195,7 +195,7 @@ function Channels({ navigation, route }) {
                                         navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                         :
                                         VIDEO_TYPES.includes(item.theme) ?
-                                            navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            navigation.navigate('Episode', { seoUrl: item.seoUrl,theme: item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                 }
                             }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
@@ -257,7 +257,7 @@ function Channels({ navigation, route }) {
                                         navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                         :
                                         VIDEO_TYPES.includes(item.theme) ?
-                                            navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            navigation.navigate('Episode', { seoUrl: item.seoUrl,theme: item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                 }
                             }}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
@@ -294,7 +294,7 @@ function Channels({ navigation, route }) {
                                             navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                navigation.navigate('Episode', { seoUrl: item.seoUrl,theme: item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -323,7 +323,7 @@ function Channels({ navigation, route }) {
                                                     item.medialistinlist ?
                                                         navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                         :
-                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl })
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl,theme: item.theme })
                                                 }
                                             }}>
                                                 <FastImage
@@ -360,7 +360,7 @@ function Channels({ navigation, route }) {
                                                     navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl,theme: item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage
@@ -398,7 +398,7 @@ function Channels({ navigation, route }) {
                                                 item.medialistinlist ?
                                                     navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
-                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl })
+                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl,theme: item.theme })
                                             }
                                         }}>
                                             <FastImage
@@ -440,7 +440,7 @@ function Channels({ navigation, route }) {
                                             navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                navigation.navigate('Episode', { seoUrl: item.seoUrl,theme: item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -493,7 +493,7 @@ function Channels({ navigation, route }) {
                                                     navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl,theme: item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage

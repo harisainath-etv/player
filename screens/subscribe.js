@@ -142,7 +142,11 @@ export default function Subscribe({ navigation }) {
                                             :
                                             <MaterialCommunityIcons name='radiobox-marked' size={30} color={NORMAL_TEXT_COLOR} style={{ position: 'absolute', left: 0, top: 0 }} />
                                         :
+                                        currentplan == resp.id ?
+                                        ""
+                                        :
                                         <Pressable style={{ position: 'absolute', left: 0, top: 0 }} onPress={() => { setselectedprice(resp.id); setselectedpriceforpayment(resp.price); setselectedpriceforduration(resp.display_period); setselectedpricecurrency(resp.currency_symbol); setcurrency(resp.currency); setplanid(resp.id); setdescription(resp.description); }}><MaterialCommunityIcons name='radiobox-blank' size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                    
                                     }
                                     {currentplan == resp.id ?
                                         <Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, position: 'absolute', right: 15, top: 5 }}>Active</Text>

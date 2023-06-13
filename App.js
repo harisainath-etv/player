@@ -184,6 +184,10 @@ export default function App() {
         AsyncStorage.setItem('profile_pic', resp.data.data.profile_pic)
         AsyncStorage.setItem('user_email_id', resp.data.data.user_email_id)
         AsyncStorage.setItem('user_id', resp.data.data.user_id)
+        if(resp.data.data.isUserSubscribed)
+        AsyncStorage.setItem('isUserSubscribed', 'yes')
+        else
+        AsyncStorage.setItem('isUserSubscribed', 'no')
 
       }).catch(err => {
          removeunwanted()
