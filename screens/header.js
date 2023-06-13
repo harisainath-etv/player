@@ -82,7 +82,7 @@ export default function Header(props) {
     }
 
     return (
-        <View style={{}}>
+        <View style={{marginTop:20}}>
             {/* Drawer Navigation Modal */}
             <Modal
                 isVisible={isModalVisible}

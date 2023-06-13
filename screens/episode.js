@@ -607,7 +607,6 @@ export default function Episode({ navigation, route }) {
     <View style={styles.mainContainer}>
       <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
         <View style={styles.container}>
-          <Text style={{color:NORMAL_TEXT_COLOR}}>{playUrl}</Text>
           {playUrl != "" && playUrl != null && !showupgrade ?
 
             <Pressable onPress={showControls}>
@@ -968,7 +967,7 @@ const styles = StyleSheet.create({
   navigationBack: {
     position: 'absolute',
     left: 15,
-    top: 20,
+    top: 30,
     paddingLeft: 10,
   },
   mainContainer: { flex: 1, backgroundColor: BACKGROUND_COLOR },

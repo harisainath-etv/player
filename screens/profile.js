@@ -33,6 +33,7 @@ export default function Profile({ navigation }) {
         const gender = await AsyncStorage.getItem('gender');
         const address = await AsyncStorage.getItem('address');
         const valid_till = await AsyncStorage.getItem('valid_till');
+        var datetime= new Date(valid_till);
         const subscriptiontitle = await AsyncStorage.getItem('subscription_title');
         if (session != "" && session != null) {
             setLogin(true)
@@ -43,7 +44,7 @@ export default function Profile({ navigation }) {
             setgender(gender)
             setaddress(address)
             setsubscription_title(subscriptiontitle)
-            setexpireson(valid_till)
+            setexpireson(datetime.getDate()+"-"+datetime.getMonth()+"-"+datetime.getFullYear())
         }
         if (profile_pic != "" && profile_pic != null)
             setProfilePic(profile_pic)
@@ -231,14 +232,14 @@ export default function Profile({ navigation }) {
 
                     <View style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}>
                         <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
-                            {name != "" && name != null ?
+                            {name != "" && name != null && name != 'null' ?
                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
                                 :
                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
                             }
                         </View>
                         <Text style={styles.drawerHeaderText}>{name}</Text>
-                        {email != "" && email != null ?
+                        {email != "" && email != null && email != 'null' ?
                             <Text style={styles.drawerHeaderText}>{email}</Text>
                             :
                             ""}
@@ -249,14 +250,14 @@ export default function Profile({ navigation }) {
 
                     <View style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}>
                         <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
-                            {name != "" && name != null ?
+                            {name != "" && name != null && name != 'null' ?
                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
                                 :
                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
                             }
                         </View>
                         <Text style={styles.drawerHeaderText}>{name}</Text>
-                        {email != "" && email != null ?
+                        {email != "" && email != null && email != 'null' ?
                             <Text style={styles.drawerHeaderText}>{email}</Text>
                             :
                             ""}

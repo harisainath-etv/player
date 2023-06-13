@@ -55,7 +55,7 @@ export default function Footer(props) {
         })
     })
     return (
-        <View>
+        <View style={{marginBottom:30}}>
             <View style={{ zIndex: 1000, justifyContent: 'center', alignContent: 'center', alignSelf: 'center', alignItems: 'center' }}>
                 <View style={{ backgroundColor: BACKGROUND_COLOR, width: 100, position: 'absolute',padding:15,borderTopRightRadius:50,borderTopLeftRadius:50 }}>
 
@@ -91,12 +91,12 @@ export default function Footer(props) {
                 {pageName == 'TV-CHANNELS' ?
                     <View style={styles.iconContainer}>
                         <MaterialCommunityIcons name="television-classic" size={28} color={SLIDER_PAGINATION_SELECTED_COLOR} />
-                        <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>TV CHANNELS</Text>
+                        <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>TV CHANNEL</Text>
                     </View>
                     :
                     <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Channels', { pageFriendlyId: 'channels' }))}>
                         <MaterialCommunityIcons name="television-classic" size={28} color={NORMAL_TEXT_COLOR} />
-                        <Text style={styles.footerText}>TV CHANNELS</Text>
+                        <Text style={styles.footerText}>TV CHANNEL</Text>
                     </TouchableOpacity>
                 }
 
