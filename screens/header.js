@@ -119,7 +119,7 @@ export default function Header(props) {
                                     <View style={styles.drawerHeaderImage}>
                                         <View style={{ padding: 25, height: 170, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
                                             <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
-                                                {name != "" && name != null ?
+                                                {name != "" && name != null && name != 'null' ?
                                                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
                                                     :
                                                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
@@ -129,7 +129,7 @@ export default function Header(props) {
                                             <View style={{ bottom: 0, position: 'absolute', left: 35, flexDirection: 'row' }}>
                                                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                                                     <Text style={styles.drawerHeaderText}>Hi {name}</Text>
-                                                    {email != "" && email != null ?
+                                                    {email != "" && email != null && email != 'null' ?
                                                         <Text style={styles.drawerHeaderText}>{email}</Text>
                                                         :
                                                         ""}
@@ -148,7 +148,7 @@ export default function Header(props) {
                                     <View style={styles.drawerHeaderImage}>
                                         <View style={{ padding: 25, height: 170, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
                                             <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
-                                                {name != "" && name != null ?
+                                                {name != "" && name != null && name != 'null' ?
                                                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
                                                     :
                                                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
@@ -157,7 +157,7 @@ export default function Header(props) {
                                             <View style={{ bottom: 0, position: 'absolute', left: 35, flexDirection: 'row' }}>
                                                 <View style={{ justifyContent: 'center', alignItems: 'flex-start' }}>
                                                     <Text style={styles.drawerHeaderText}>Hi {name}</Text>
-                                                    {email != "" && email != null ?
+                                                    {email != "" && email != null && email != 'null' ?
                                                         <Text style={styles.drawerHeaderText}>{email}</Text>
                                                         :
                                                         ""}
