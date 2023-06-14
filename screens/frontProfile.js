@@ -177,7 +177,7 @@ export default function FrontProfile({ navigation }) {
                 </View>
 
                 :
-                <View>
+                <View style={{marginTop:40}}>
                     <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 30 }}>
                         <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold', fontSize: 20 }}>Add Profile Info</Text>
                     </View>

@@ -34,6 +34,7 @@ import ForgotPassword from './screens/forgotPassword';
 import Confirmation from './screens/confirmation';
 import Shorts from './screens/ShortVideos';
 import TransparentHeader from './screens/transparentHeader';
+import Reload from './screens/reload';
 import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING } from './constants';
 import { View, Dimensions, Platform } from 'react-native';
 //import SplashScreen from 'react-native-splash-screen'
@@ -323,6 +324,7 @@ export default function App() {
           <Stack.Screen name="ForgotPassword" component={ForgotPassword} options={{ header: () => null, }} />
           <Stack.Screen name="Shorts" component={Shorts} options={{ header: () => null, }} />
           <Stack.Screen name="TransparentHeader" component={TransparentHeader} options={{ header: () => null, }} />
+          <Stack.Screen name="Reload" component={Reload} options={{ header: () => null, }} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>

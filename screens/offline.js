@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Alert, StatusBar, Pressable, ScrollView, FlatLi
 import React, { useEffect, useState, useRef } from 'react'
 import RNBackgroundDownloader from 'react-native-background-downloader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BACKGROUND_COLOR, DARKED_BORDER_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT } from '../constants';
+import { BACKGROUND_COLOR, DARKED_BORDER_COLOR, DATABASE_DISPLAY_NAME, DATABASE_NAME, DATABASE_SIZE, DATABASE_VERSION, NORMAL_TEXT_COLOR, PAGE_HEIGHT } from '../constants';
 import FastImage from 'react-native-fast-image';
 import Footer from './footer';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -13,11 +13,51 @@ import { BACKGROUND_TRANSPARENT_COLOR } from '../constants';
 import Header from './header';
 var pendingTasks = [];
 var AllTasks = [];
+var SQLite = require('react-native-sqlite-storage')
 export default function Offline({ navigation }) {
   const [offlineVideo, setOfflineVideos] = useState();
   const [pauseDownload, setPauseDownload] = useState(false);
   const dataFetchedRef = useRef(false);
+  const errorCB = (err) => {
+    //console.log("SQL Error: " + err);
+  }
 
+  const successCB = () => {
+    console.log("SQL executed fine");
+  }
+
+  const openCB = () => {
+    //console.log("Database OPENED");
+  }
+  const getdownloadedvides = async () => {
+    var db = SQLite.openDatabase(DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, openCB, errorCB);
+    db.transaction((tx) => {
+      tx.executeSql('SELECT * FROM DownloadedId group by downloadedid', [], async (tx, results) => {
+        var len = results.rows.length;
+        for (let i = 0; i < len; i++) {
+          let row = results.rows.item(i);
+          console.log(row.downloadedid);
+          var taskid = row.downloadedid;
+          var downloadurl = await AsyncStorage.getItem('download_url' + taskid);
+          var downloadpath = await AsyncStorage.getItem('download_path' + taskid);
+          var downloadtitle = await AsyncStorage.getItem('download_title' + taskid);
+          var downloadthumbnail = await AsyncStorage.getItem('download_thumbnail' + taskid);
+          var downloadpercent = await AsyncStorage.getItem('download_' + taskid);
+          var downloadseourl = await AsyncStorage.getItem('download_seourl' + taskid);
+          var downloadtheme = await AsyncStorage.getItem('download_theme' + taskid);
+          console.log(taskid);
+          console.log(downloadpercent);
+          pendingTasks.push({ 'task': taskid, 'downloadurl': downloadurl, 'downloadpath': downloadpath, 'downloadtitle': downloadtitle, 'downloadthumbnail': downloadthumbnail, 'downloadpercent': downloadpercent, 'downloadseourl': downloadseourl, 'downloadtheme': downloadtheme })
+        }
+      });
+
+    });
+    AllTasks = [];
+    AllTasks.push({ "data": pendingTasks })
+    pendingTasks = [];
+    setOfflineVideos(AllTasks);
+    AllTasks = [];
+  }
   const downloadedVideos = async () => {
     let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
     //console.log(JSON.stringify(lostTasks));
@@ -28,32 +68,20 @@ export default function Offline({ navigation }) {
         AsyncStorage.setItem('download_' + task.id, JSON.stringify(percent * 100));
         console.log(`Downloaded: ${percent * 100}%`);
       }).done(() => {
-        AsyncStorage.setItem('download_' + task.id, JSON.stringify(1 * 100));
+        console.log(task.id);
+        completedtask(task.id);
         //console.log('Downlaod is done!');
       }).error((error) => {
         //console.log('Download canceled due to error: ', error);
       });
-
     }
 
-    var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
-    let files = await RNFetchBlob.fs.ls(downloaddirectory);
-    for (var i = 0; i < files.length; i++) {
-      var taskdetail = files[i].split(".");
-      var taskid = taskdetail[0];
-      var downloadurl = await AsyncStorage.getItem('download_url' + taskid);
-      var downloadpath = await AsyncStorage.getItem('download_path' + taskid);
-      var downloadtitle = await AsyncStorage.getItem('download_title' + taskid);
-      var downloadthumbnail = await AsyncStorage.getItem('download_thumbnail' + taskid);
-      var downloadpercent = await AsyncStorage.getItem('download_' + taskid);
-      var downloadseourl = await AsyncStorage.getItem('download_seourl' + taskid);
-      var downloadtheme = await AsyncStorage.getItem('download_theme' + taskid);
-      pendingTasks.push({ 'task': taskid, 'downloadurl': downloadurl, 'downloadpath': downloadpath, 'downloadtitle': downloadtitle, 'downloadthumbnail': downloadthumbnail, 'downloadpercent': downloadpercent, 'downloadseourl': downloadseourl, 'downloadtheme': downloadtheme })
-    }
-    AllTasks.push({ "data": pendingTasks })
-    pendingTasks = [];
-    setOfflineVideos(AllTasks);
-    AllTasks = [];
+    await getdownloadedvides();
+  }
+  const completedtask = async(id) =>{
+    await AsyncStorage.setItem('download_' + id, JSON.stringify(1 * 100));
+    navigation.dispatch(StackActions.replace('Reload',{routename:'Offline'}));
+    await getdownloadedvides();
   }
   const deleteDownload = async (taskid) => {
 
@@ -75,7 +103,16 @@ export default function Offline({ navigation }) {
           }
           if (await RNFS.exists(downloaddirectory)) {
             await RNFS.unlink(downloaddirectory)
-            downloadedVideos();
+
+            var db = SQLite.openDatabase(DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, openCB, errorCB);
+            db.transaction((tx) => {
+              tx.executeSql("delete FROM DownloadedId where downloadedid='"+taskid+"'", [], async (tx, results) => {
+              });
+
+            });
+
+            await downloadedVideos();
+            navigation.dispatch(StackActions.replace('Reload',{routename:'Offline'}));
           }
         }
       },
@@ -89,7 +126,7 @@ export default function Offline({ navigation }) {
         setPauseDownload(true);
       }
     }
-    downloadedVideos()
+    await downloadedVideos()
   }
   const resumeDownloadAction = async (taskid) => {
     let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
@@ -99,7 +136,7 @@ export default function Offline({ navigation }) {
         setPauseDownload(false);
       }
     }
-    downloadedVideos()
+    await downloadedVideos()
   }
   const videosRender = (item) => {
     var downloadstatus = 0;
@@ -112,7 +149,7 @@ export default function Offline({ navigation }) {
     else {
       downloadstatus = 0;
     }
-
+console.log("hihihihihi"+item.item.downloadpercent);
     return (
 
       <View style={{ borderColor: DARKED_BORDER_COLOR, borderRadius: 15, borderWidth: 1, width: "99%", marginBottom: 10 }}>
@@ -152,8 +189,8 @@ export default function Offline({ navigation }) {
     )
   }
   useEffect(() => {
-    // if (dataFetchedRef.current) return;
-    // dataFetchedRef.current = true;
+    if (dataFetchedRef.current) return;
+    dataFetchedRef.current = true;
     downloadedVideos();
   })
   return (

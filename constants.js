@@ -37,3 +37,7 @@ export const ANDROID_SHARE_URL = "https://play.google.com/store/apps/details?id=
 export const IOS_SHARE_URL = "https://play.google.com/store/apps/details?id=com.etvwin.mobile";
 export const ANDROID_PACKAGE_NAME = "com.etvwin.mobile";
 export const IOS_PACKAGE_NAME = "com.etvwin.mobile";
+export const DATABASE_NAME = "etvwin.db";
+export const DATABASE_VERSION = "1.0";
+export const DATABASE_DISPLAY_NAME = "ETVWin Database";
+export const DATABASE_SIZE = 200000;

@@ -6,7 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, } from '../constants';
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DATABASE_NAME, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, DATABASE_SIZE, DATABASE_DISPLAY_NAME, DATABASE_VERSION, } from '../constants';
 import axios from 'axios';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
@@ -21,7 +21,7 @@ import Slider from '@react-native-community/slider';
 import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, } from 'react-native-google-cast';
 // import VideoViewAndroid from '../components/VideoViewAndroid';
 // import VideoViewIos from '../components/VideoViewIos';
-
+var SQLite = require('react-native-sqlite-storage')
 export default function Episode({ navigation, route }) {
   const { seoUrl, theme } = route.params;
   const [seourl, setSeourl] = useState(seoUrl);
@@ -71,6 +71,7 @@ export default function Episode({ navigation, route }) {
   const [tapCount, setTapCount] = useState(0);
   const [seektime, setseektime] = useState();
   const [showsettingsicon,setshowsettingsicon] = useState(true);
+  var downloadid=[];
   var multiTapCount = 10;
   var multiTapDelay = 300;
   var client = useRemoteMediaClient();
@@ -329,8 +330,31 @@ export default function Episode({ navigation, route }) {
     }
   }
 
+  const errorCB =  (err) => {
+    console.log("SQL Error: " + JSON.stringify(err));
+  }
+  
+  const successCB = () => {
+    console.log("SQL executed fine");
+  }
+  
+  const openCB = () => {
+    console.log("Database OPENED");
+  }
+  
+
+
   const startDownloading = async (playback_url, offlineUrl, downloaddirectory) => {
     var splittedOfflineUrl = offlineUrl.split("/");
+    var db = SQLite.openDatabase(DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, openCB, errorCB);
+    db.transaction((tx) => {
+      tx.executeSql('CREATE TABLE IF NOT EXISTS DownloadedId( '
+      + 'downloadedid VARCHAR(120) ); ', [], successCB, errorCB);
+
+      tx.executeSql("insert into DownloadedId values ('"+splittedOfflineUrl[splittedOfflineUrl.length - 1]+"');",[], successCB, errorCB)
+    });
+
+    
     AsyncStorage.setItem('download_url' + splittedOfflineUrl[splittedOfflineUrl.length - 1], playback_url);
     AsyncStorage.setItem('download_path' + splittedOfflineUrl[splittedOfflineUrl.length - 1], `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.mov`);
     AsyncStorage.setItem('download_title' + splittedOfflineUrl[splittedOfflineUrl.length - 1], title);
@@ -356,7 +380,7 @@ export default function Episode({ navigation, route }) {
     })
     settaskdownloading(tasks);
     AsyncStorage.setItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(tasks));
-    //navigation.dispatch(StackActions.replace('Offline'));
+    //navigation.dispatch(StackActions.replace('Reload',{routename:'Offline'}));
   }
 
   const deleteDownload = async () => {
@@ -967,7 +991,7 @@ const styles = StyleSheet.create({
   navigationBack: {
     position: 'absolute',
     left: 15,
-    top: 30,
+    top: 40,
     paddingLeft: 10,
   },
   mainContainer: { flex: 1, backgroundColor: BACKGROUND_COLOR },
