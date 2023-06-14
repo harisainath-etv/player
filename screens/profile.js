@@ -37,13 +37,13 @@ export default function Profile({ navigation }) {
         const subscriptiontitle = await AsyncStorage.getItem('subscription_title');
         if (session != "" && session != null) {
             setLogin(true)
-            setName(firstname);
-            setEmail(email);
+            setName(firstname.split('"').join(""));
+            setEmail(email.split('"').join(""));
             setMobile(mobile_number);
             setdob(birthdate);
             setgender(gender)
             setaddress(address)
-            setsubscription_title(subscriptiontitle)
+            setsubscription_title(subscriptiontitle.split('"').join(""))
             setexpireson(datetime.getDate()+"-"+datetime.getMonth()+"-"+datetime.getFullYear())
         }
         if (profile_pic != "" && profile_pic != null)

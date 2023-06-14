@@ -123,7 +123,7 @@ export default function Search({ navigation }) {
     }
     return (
         <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <View style={{ width: "100%", flexDirection: 'row', marginTop: 20, position: 'absolute', top: 0, zIndex: 40 }}>
+            <View style={{ width: "100%", flexDirection: 'row', marginTop: 20, position: 'absolute', top: 0, zIndex: 40,marginTop:40 }}>
                 <View style={{ marginRight: 10 }}>
                     <TouchableOpacity onPress={() => {
                         if (navigation.canGoBack())
@@ -146,7 +146,7 @@ export default function Search({ navigation }) {
                     <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 22 }}>Search for Shows, Serials, Episodes, Movies, Recipes and Videos</Text>
                 </View>
                 :
-                <View style={{ marginTop: 70 }}>
+                <View style={{ marginTop: 110 }}>
                     {/* body content */}
                     {episodes ? <FlatList
                         data={episodes}

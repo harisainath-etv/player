@@ -5,7 +5,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKGROUND_COLOR, DARKED_BORDER_COLOR, DATABASE_DISPLAY_NAME, DATABASE_NAME, DATABASE_SIZE, DATABASE_VERSION, NORMAL_TEXT_COLOR, PAGE_HEIGHT } from '../constants';
 import FastImage from 'react-native-fast-image';
 import Footer from './footer';
-import RNFetchBlob from 'react-native-fetch-blob';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import RNFS from 'react-native-fs';
 import { StackActions } from '@react-navigation/native';

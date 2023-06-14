@@ -696,7 +696,7 @@ export default function Login({ navigation }) {
     }
     return (
         <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
-            <View style={{ flex: 1, }}>
+            <View style={{ flex: 1,marginTop:40 }}>
 
                 <View style={styles.header}>
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Sign In</Text>

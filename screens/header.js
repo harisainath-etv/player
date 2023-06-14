@@ -57,8 +57,8 @@ export default function Header(props) {
         //console.log(profile_pic);
         if (session != "" && session != null) {
             setLogin(true)
-            setName(firstname);
-            setEmail(email);
+            setName(firstname.split('"').join(""));
+            setEmail(email.split('"').join(""));
             setMobile(mobile_number);
             setsubscription_title(subscriptiontitle)
         }
@@ -100,7 +100,7 @@ export default function Header(props) {
                                 source={require('../assets/images/drawer_header.png')}
                                 resizeMode="cover"
                                 style={styles.drawerHeaderImage}>
-                                <View style={{ padding: 25 }}>
+                                <View style={{ padding: 25,marginTop:40 }}>
                                     <Text style={styles.drawerHeaderText}>Hi Guest User!</Text>
                                     <View style={{ flexDirection: 'row', marginTop: 25 }}>
                                         <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Login', {})); }} style={{ backgroundColor: TAB_COLOR, padding: 13, borderRadius: 10, marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
@@ -117,7 +117,7 @@ export default function Header(props) {
                             profilePic != "" && profilePic != null && validURL(profilePic) ?
                                 <Pressable onPress={() => { toggleModal(); navigation.navigate('Profile') }}>
                                     <View style={styles.drawerHeaderImage}>
-                                        <View style={{ padding: 25, height: 170, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
+                                        <View style={{ padding: 25, height: 210, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
                                             <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
                                                 {name != "" && name != null && name !='null' ?
                                                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
@@ -146,7 +146,7 @@ export default function Header(props) {
                                 :
                                 <Pressable onPress={() => { toggleModal(); navigation.navigate('Profile') }}>
                                     <View style={styles.drawerHeaderImage}>
-                                        <View style={{ padding: 25, height: 170, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
+                                        <View style={{ padding: 25, height: 210, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
                                             <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
                                                 {name != "" && name != null && name !='null' ?
                                                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
@@ -234,8 +234,8 @@ export default function Header(props) {
 
 const styles = StyleSheet.create({
     menuItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 25, },
-    drawerHeaderText: { color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: 'bold' },
-    drawerHeaderImage: { width: "100%", height: 170 },
+    drawerHeaderText: { color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold' },
+    drawerHeaderImage: { width: "100%", height: 210 },
     drawerContainer: { flex: 1, backgroundColor: SIDEBAR_BACKGROUND_COLOR, height: PAGE_HEIGHT, width: (PAGE_WIDTH / 1.3), left: -20, position: 'absolute' },
     headerContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20, padding: 5 },
     leftItems: { width: '50%', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', },
