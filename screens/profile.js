@@ -2,13 +2,13 @@ import { View, Text, ImageBackground, StyleSheet, TouchableOpacity, Image, Scrol
 import React, { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, FIRETV_BASE_URL_STAGING, SLIDER_PAGINATION_UNSELECTED_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, } from '../constants';
+import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, FIRETV_BASE_URL_STAGING, SLIDER_PAGINATION_UNSELECTED_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, } from '../constants';
 import { DETAILS_TEXT_COLOR } from '../constants';
 import { StackActions } from '@react-navigation/native';
 import axios from 'axios';
 import RNBackgroundDownloader from 'react-native-background-downloader';
 import RNFS from 'react-native-fs';
-
+var SQLite = require('react-native-sqlite-storage')
 
 
 export default function Profile({ navigation }) {
@@ -54,6 +54,20 @@ export default function Profile({ navigation }) {
     useEffect(() => {
         loadData();
     })
+
+    const errorCB =  (err) => {
+        console.log("SQL Error: " + JSON.stringify(err));
+      }
+      
+      const successCB = () => {
+        console.log("SQL executed fine");
+      }
+      
+      const openCB = () => {
+        console.log("Database OPENED");
+      }
+
+
     const signout = async () => {
         var session = await AsyncStorage.getItem('session');
         var userobj = await AsyncStorage.getItem('userobj');
@@ -77,6 +91,13 @@ export default function Profile({ navigation }) {
         if (await RNFS.exists(downloaddirectory)) {
             await RNFS.unlink(downloaddirectory)
         }
+        
+        SQLite.deleteDatabase(DATABASE_NAME).then(() => {
+            console.log("Database DELETED");
+          }).catch((error) => {
+            errorCB(error);
+          });
+
         navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
     }
 
@@ -105,6 +126,11 @@ export default function Profile({ navigation }) {
         if (await RNFS.exists(downloaddirectory)) {
             await RNFS.unlink(downloaddirectory)
         }
+        SQLite.deleteDatabase(DATABASE_NAME).then(() => {
+            console.log("Database DELETED");
+          }).catch((error) => {
+            errorCB(error);
+          });
         navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
     }
     function validURL(str) {

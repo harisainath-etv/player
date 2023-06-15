@@ -15,6 +15,8 @@ install! 'cocoapods',
 
 prepare_react_native_project!
 
+pod 'react-native-google-cast/GuestMode', path: '../node_modules/react-native-google-cast/'
+
 # If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
 # because `react-native-flipper` depends on (FlipperKit,...), which will be excluded. To fix this,
 # you can also exclude `react-native-flipper` in `react-native.config.js`

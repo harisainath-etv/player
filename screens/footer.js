@@ -1,6 +1,6 @@
 import { View, StyleSheet, Text, TouchableOpacity, FlatList } from 'react-native'
 import React, { useState, useEffect, } from 'react'
-import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, } from 'react-native-google-cast';
+import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, CastButton } from 'react-native-google-cast';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Modal from "react-native-modal";
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -55,7 +55,7 @@ export default function Footer(props) {
         })
     })
     return (
-        <View style={{marginBottom:30}}>
+        <View style={{marginBottom:10}}>
             <View style={{ zIndex: 1000, justifyContent: 'center', alignContent: 'center', alignSelf: 'center', alignItems: 'center' }}>
                 <View style={{ backgroundColor: BACKGROUND_COLOR, width: 100, position: 'absolute',padding:15,borderTopRightRadius:50,borderTopLeftRadius:50 }}>
 
@@ -126,7 +126,7 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>OFFLINE</Text>
                     </View>
                     :
-                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Offline', { pageFriendlyId: 'Offline' }))}>
+                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Reload', { routename: 'Offline' }))}>
                         <MaterialCommunityIcons name="download" size={28} color={NORMAL_TEXT_COLOR} />
                         <Text style={styles.footerText}>OFFLINE</Text>
                     </TouchableOpacity>
@@ -147,16 +147,17 @@ export default function Footer(props) {
                 } */}
 
             </View>
-
-            {castState != NO_CAST_DEVICES ?
+                <View style={styles.chromeCast}><CastButton style={{ width: 24, height: 24, tintColor: NORMAL_TEXT_COLOR,  }} /></View>
+                
+            {/* {castState != NO_CAST_DEVICES ?
                 castSet ?
                     <TouchableOpacity onPress={CastSession}><View style={styles.chromeCast}><MaterialCommunityIcons name="cast-connected" size={20} color="white" /></View></TouchableOpacity>
                     :
                     <TouchableOpacity onPress={toggleModal}><View style={styles.chromeCast}><FontAwesome5 name="chromecast" size={20} color="white" /></View></TouchableOpacity>
 
-                : ""}
+                : ""} */}
 
-            {devices ?
+            {/* {devices ?
                 <Modal
                     isVisible={isModalVisible}
                     onBackdropPress={toggleModal}
@@ -179,7 +180,7 @@ export default function Footer(props) {
                         <View style={{ width: "100%" }}><View style={styles.deviceContainer}><Text style={styles.devicesList}>No Devices Available</Text></View></View>
                     </View>
                 </Modal>
-            }
+            } */}
         </View>
     )
 }
