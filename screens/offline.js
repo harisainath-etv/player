@@ -50,7 +50,8 @@ export default function Offline({ navigation }) {
         }
       });
 
-    });
+    }).then(resp=>{}).catch(error=>{});
+
     AllTasks = [];
     AllTasks.push({ "data": pendingTasks })
     pendingTasks = [];
@@ -106,7 +107,8 @@ export default function Offline({ navigation }) {
             var db = SQLite.openDatabase(DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, openCB, errorCB);
             db.transaction((tx) => {
               tx.executeSql("delete FROM DownloadedId where downloadedid='"+taskid+"'", [], async (tx, results) => {
-              });
+              }).then(resp=>{}).catch(error=>{});
+
 
             });
 

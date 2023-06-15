@@ -352,7 +352,7 @@ export default function Episode({ navigation, route }) {
       + 'downloadedid VARCHAR(120) ); ', [], successCB, errorCB);
 
       tx.executeSql("insert into DownloadedId values ('"+splittedOfflineUrl[splittedOfflineUrl.length - 1]+"');",[], successCB, errorCB)
-    });
+    }).then(resp=>{}).catch(error=>{});
 
     
     AsyncStorage.setItem('download_url' + splittedOfflineUrl[splittedOfflineUrl.length - 1], playback_url);

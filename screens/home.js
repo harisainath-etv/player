@@ -9,7 +9,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING } from '../constants';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING,DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
@@ -27,6 +27,7 @@ export const ElementsText = {
 var page = 'featured-1';
 var selectedItem = 0;
 var popup = false;
+var SQLite = require('react-native-sqlite-storage')
 function Home({ navigation, route }) {
 
     const [colors, setColors] = useState([
@@ -99,8 +100,21 @@ function Home({ navigation, route }) {
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
+    const errorCB = (err) => {
+        console.log("SQL Error: " + JSON.stringify(err));
+    }
+
+    const successCB = () => {
+        console.log("SQL executed fine");
+    }
+
+    const openCB = () => {
+        console.log("Database OPENED");
+    }
+
 
     async function loadData(p) {
+        var db = SQLite.openDatabase(DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, openCB, errorCB);
         const mobile = await AsyncStorage.getItem('mobile_number');
         const session = await AsyncStorage.getItem('session');
         var region = await AsyncStorage.getItem('country_code');

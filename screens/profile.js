@@ -38,7 +38,7 @@ export default function Profile({ navigation }) {
         if (session != "" && session != null) {
             setLogin(true)
             setName(firstname.split('"').join(""));
-            setEmail(email.split('"').join(""));
+            //setEmail(email.split('"').join(""));
             setMobile(mobile_number);
             setdob(birthdate);
             setgender(gender)
@@ -91,14 +91,18 @@ export default function Profile({ navigation }) {
         if (await RNFS.exists(downloaddirectory)) {
             await RNFS.unlink(downloaddirectory)
         }
-        
+        try
+        {
         SQLite.deleteDatabase(DATABASE_NAME).then(() => {
             console.log("Database DELETED");
           }).catch((error) => {
             errorCB(error);
           });
-
+        }
+        catch(error)
+        {}
         navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+        
     }
 
     const signoutall = async () => {
@@ -126,11 +130,16 @@ export default function Profile({ navigation }) {
         if (await RNFS.exists(downloaddirectory)) {
             await RNFS.unlink(downloaddirectory)
         }
+        try
+        {
         SQLite.deleteDatabase(DATABASE_NAME).then(() => {
             console.log("Database DELETED");
           }).catch((error) => {
             errorCB(error);
           });
+        }
+        catch(error)
+        {}
         navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
     }
     function validURL(str) {
