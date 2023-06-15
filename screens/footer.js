@@ -55,7 +55,7 @@ export default function Footer(props) {
         })
     })
     return (
-        <View style={{marginBottom:10}}>
+        <View style={{marginBottom:20}}>
             <View style={{ zIndex: 1000, justifyContent: 'center', alignContent: 'center', alignSelf: 'center', alignItems: 'center' }}>
                 <View style={{ backgroundColor: BACKGROUND_COLOR, width: 100, position: 'absolute',padding:15,borderTopRightRadius:50,borderTopLeftRadius:50 }}>
 

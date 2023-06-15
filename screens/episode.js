@@ -698,7 +698,7 @@ export default function Episode({ navigation, route }) {
                 }}
               />
               {state.showControls && (
-                <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50 }}>
+                <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 100 }}>
                   {preview ?
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: NORMAL_TEXT_COLOR }}>You are watching Trailer</Text></View>
                     :
@@ -979,19 +979,19 @@ const styles = StyleSheet.create({
   fullscreenButton: {
     position: 'absolute',
     right: 20,
-    top: 30,
+    top: 60,
     paddingRight: 10,
   },
   settingsicon: {
     position: 'absolute',
     right: 60,
-    top: 30,
+    top: 60,
     paddingRight: 10,
   },
   navigationBack: {
     position: 'absolute',
     left: 15,
-    top: 40,
+    top: 60,
     paddingLeft: 10,
   },
   mainContainer: { flex: 1, backgroundColor: BACKGROUND_COLOR },
