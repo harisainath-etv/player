@@ -40,7 +40,7 @@ export default function MobileUpdate({ navigation }) {
         await AsyncStorage.setItem("updateMobile",calling_code+Mobile);
         const region = await AsyncStorage.getItem('country_code');
         const session_id = await AsyncStorage.getItem('session');
-        axios.post(FIRETV_BASE_URL_STAGING + "users/"+session_id+"/generate_mobile_otp ", {
+        axios.post(FIRETV_BASE_URL_STAGING + "users/"+session_id+"/generate_mobile_otp", {
             auth_token: AUTH_TOKEN,
             profile: { region: region, type: "msisdn",user_id:calling_code+Mobile}
         }, {

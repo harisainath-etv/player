@@ -351,6 +351,23 @@ export default function Otp({ navigation, route }) {
                 setOtpError(updateerror.response.data.error.message)
             })
         }
+        else
+        if (otpkey == "loginMobile") {
+            axios.post(FIRETV_BASE_URL_STAGING + "users/generate_signin_otp", {
+                auth_token: AUTH_TOKEN,
+                user: { user_id: loginMobile, region: region, type: "msisdn" }
+            }, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }).then(updatesresp => {
+                setSeconds(60);
+                setOtpError("Message Sent");
+            }).catch(updateerror => {
+                setOtpError(updateerror.response.data.error.message)
+            })
+        }
         else {
             axios.post(FIRETV_BASE_URL_STAGING + "users/resend_verification_link", {
                 auth_token: AUTH_TOKEN,
