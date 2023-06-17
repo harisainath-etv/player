@@ -35,7 +35,7 @@
     "lottie-react-native": "^5.1.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-native": "^0.71.8",
+    "react-native": "^0.71.11",
     "react-native-background-downloader": "^2.3.4",
     "react-native-calendars": "^1.1298.0",
     "react-native-create-thumbnail": "^1.6.4",

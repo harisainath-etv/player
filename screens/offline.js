@@ -29,10 +29,11 @@ export default function Offline({ navigation }) {
     //console.log("Database OPENED");
   }
   const getdownloadedvides = async () => {
-    var db = SQLite.openDatabase(DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, openCB, errorCB);
-    db.transaction((tx) => {
+    var db = await SQLite.openDatabase(DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, openCB, errorCB);
+    await db.transaction((tx) => {
       tx.executeSql('SELECT * FROM DownloadedId group by downloadedid', [], async (tx, results) => {
         var len = results.rows.length;
+        console.log(len);
         for (let i = 0; i < len; i++) {
           let row = results.rows.item(i);
           console.log(row.downloadedid);
@@ -44,19 +45,15 @@ export default function Offline({ navigation }) {
           var downloadpercent = await AsyncStorage.getItem('download_' + taskid);
           var downloadseourl = await AsyncStorage.getItem('download_seourl' + taskid);
           var downloadtheme = await AsyncStorage.getItem('download_theme' + taskid);
-          console.log(taskid);
-          console.log(downloadpercent);
           pendingTasks.push({ 'task': taskid, 'downloadurl': downloadurl, 'downloadpath': downloadpath, 'downloadtitle': downloadtitle, 'downloadthumbnail': downloadthumbnail, 'downloadpercent': downloadpercent, 'downloadseourl': downloadseourl, 'downloadtheme': downloadtheme })
         }
+        AllTasks = [];
+        AllTasks.push({ "data": pendingTasks })
+        pendingTasks = [];
+        setOfflineVideos(AllTasks);
+        AllTasks = [];
       });
-
-    }).then(resp=>{}).catch(error=>{});
-
-    AllTasks = [];
-    AllTasks.push({ "data": pendingTasks })
-    pendingTasks = [];
-    setOfflineVideos(AllTasks);
-    AllTasks = [];
+    });
   }
   const downloadedVideos = async () => {
     let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
@@ -78,9 +75,9 @@ export default function Offline({ navigation }) {
 
     await getdownloadedvides();
   }
-  const completedtask = async(id) =>{
+  const completedtask = async (id) => {
     await AsyncStorage.setItem('download_' + id, JSON.stringify(1 * 100));
-    navigation.dispatch(StackActions.replace('Reload',{routename:'Offline'}));
+    //navigation.dispatch(StackActions.replace('Reload',{routename:'Offline'}));
     await getdownloadedvides();
   }
   const deleteDownload = async (taskid) => {
@@ -103,18 +100,16 @@ export default function Offline({ navigation }) {
           }
           if (await RNFS.exists(downloaddirectory)) {
             await RNFS.unlink(downloaddirectory)
-
-            var db = SQLite.openDatabase(DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, openCB, errorCB);
-            db.transaction((tx) => {
-              tx.executeSql("delete FROM DownloadedId where downloadedid='"+taskid+"'", [], async (tx, results) => {
-              }).then(resp=>{}).catch(error=>{});
-
-
-            });
-
-            await downloadedVideos();
-            navigation.dispatch(StackActions.replace('Reload',{routename:'Offline'}));
           }
+          var db = SQLite.openDatabase(DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, openCB, errorCB);
+          db.transaction((tx) => {
+            tx.executeSql("delete FROM DownloadedId where downloadedid='" + taskid + "'", [], async (tx, results) => {
+            });
+          });
+
+          await downloadedVideos();
+          //navigation.dispatch(StackActions.replace('Reload',{routename:'Offline'}));
+
         }
       },
     ]);
@@ -150,7 +145,6 @@ export default function Offline({ navigation }) {
     else {
       downloadstatus = 0;
     }
-console.log("hihihihihi"+item.item.downloadpercent);
     return (
 
       <View style={{ borderColor: DARKED_BORDER_COLOR, borderRadius: 15, borderWidth: 1, width: "99%", marginBottom: 10 }}>
@@ -193,7 +187,7 @@ console.log("hihihihihi"+item.item.downloadpercent);
     if (dataFetchedRef.current) return;
     dataFetchedRef.current = true;
     downloadedVideos();
-  })
+  }, [offlineVideo])
   return (
     <View style={styles.mainContainer}>
       <Header pageName="OFFLINE"></Header>

@@ -6,7 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DATABASE_NAME, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, DATABASE_SIZE, DATABASE_DISPLAY_NAME, DATABASE_VERSION, } from '../constants';
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DATABASE_NAME, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, DATABASE_SIZE, DATABASE_DISPLAY_NAME, DATABASE_VERSION, SLIDER_PAGINATION_SELECTED_COLOR, } from '../constants';
 import axios from 'axios';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
@@ -70,8 +70,9 @@ export default function Episode({ navigation, route }) {
   const [lastPress, setLastPress] = useState(null);
   const [tapCount, setTapCount] = useState(0);
   const [seektime, setseektime] = useState();
-  const [showsettingsicon,setshowsettingsicon] = useState(true);
-  var downloadid=[];
+  const [showsettingsicon, setshowsettingsicon] = useState(true);
+  const [downloadMessage, setDownloadMessage] = useState("");
+  var downloadid = [];
   var multiTapCount = 10;
   var multiTapDelay = 300;
   var client = useRemoteMediaClient();
@@ -87,12 +88,12 @@ export default function Episode({ navigation, route }) {
   const navigationConfig = async () => {
     // // Just incase it is not hidden
     // NavigationBar.setBackgroundColorAsync('red');
-    if(Platform.OS=='android')
-    NavigationBar.setVisibilityAsync("hidden");
+    if (Platform.OS == 'android')
+      NavigationBar.setVisibilityAsync("hidden");
   };
   const navigationConfigVisible = async () => {
-    if(Platform.OS=='android')
-    NavigationBar.setVisibilityAsync("visible");
+    if (Platform.OS == 'android')
+      NavigationBar.setVisibilityAsync("visible");
   };
   const exitScreen = async () => {
     StatusBar.setHidden(false)
@@ -233,36 +234,47 @@ export default function Episode({ navigation, route }) {
     if (offlineUrl != "") {
       var splittedOfflineUrl = offlineUrl.split("/");
       var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/' + splittedOfflineUrl[splittedOfflineUrl.length - 1] + ".mov";
-      if (await RNFS.exists(downloaddirectory)) {
-        var downloadpercent = await AsyncStorage.getItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1]);
-        var downloadtask = await AsyncStorage.getItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1]);
-        if (downloadtask != "" || downloadtask != null)
-          settaskdownloading(downloadtask);
-        if (downloadpercent == '100' && sessionId!="" && sessionId!=null) {
-          setDownloadedStatus(1)
-          console.log(downloaddirectory);
-          setPlayUrl(downloaddirectory)
-          console.log(playUrl);
-          setOnlinePlayUrl(true)
-          setshowsettingsicon(false);
-        }
-        else if (downloadpercent != "" || downloadpercent != null) {
-          setDownloadedStatus(2)
-          setOnlinePlayUrl(false)
-          setPauseDownload(true);
-        }
-        else {
-          setDownloadedStatus(0)
-          setOnlinePlayUrl(false)
-          setPauseDownload(false);
-        }
-      }
+
+      var db = await SQLite.openDatabase(DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, openCB, errorCB);
+      await db.transaction((tx) => {
+        tx.executeSql("SELECT * FROM DownloadedId where downloadedid='"+splittedOfflineUrl[splittedOfflineUrl.length - 1]+"'", [], async (tx, results) => {
+          var len = results.rows.length;
+          for (let i = 0; i < len; i++) {
+            let row = results.rows.item(i);
+            console.log(row.downloadedid);
+
+            var downloadpercent = await AsyncStorage.getItem('download_' + row.downloadedid);
+            var downloadtask = await AsyncStorage.getItem('download_task' + row.downloadedid);
+            if (downloadtask != "" || downloadtask != null)
+              settaskdownloading(downloadtask);
+            if (downloadpercent == '100' && sessionId != "" && sessionId != null) {
+              setDownloadedStatus(1)
+              setPlayUrl(downloaddirectory)
+              setOnlinePlayUrl(true)
+              setshowsettingsicon(false);
+            }
+            else if (downloadpercent != "" || downloadpercent != null) {
+              setDownloadedStatus(2)
+              setOnlinePlayUrl(false)
+              setPauseDownload(true);
+            }
+            else {
+              setDownloadedStatus(0)
+              setOnlinePlayUrl(false)
+              setPauseDownload(false);
+            }
+
+          }
+        });
+      });
+
+      
     }
 
   }
   useEffect(() => {
     if (dataFetchedRef.current) return;
-        dataFetchedRef.current = true;
+    dataFetchedRef.current = true;
     loadData()
     if (fullscreen) {
       navigationConfig();
@@ -303,25 +315,25 @@ export default function Episode({ navigation, route }) {
       //   },
       // );
       //if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        // if (offlineUrl != "") {
-        var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
-        var offlineprefrences = [];
-        if (await RNFS.exists(downloaddirectory)) {
-          //setDownloadedStatus(1)
+      // if (offlineUrl != "") {
+      var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
+      var offlineprefrences = [];
+      if (await RNFS.exists(downloaddirectory)) {
+        //setDownloadedStatus(1)
+      }
+      else {
+        RNFS.mkdir(downloaddirectory);
+      }
+      var offlinedownloadapi = offlineUrl + "?service_id=6&play_url=yes&protocol=http_pd&us=745d7e9f1e37ca27fdffbebfe8a99877";
+      await axios.get(offlinedownloadapi).then(response => {
+        for (let o = 0; o < response.data.playback_urls.length; o++) {
+          offlineprefrences.push({ "display_name": response.data.playback_urls[o].display_name, "playback_url": response.data.playback_urls[o].playback_url, "offlineUrl": offlineUrl, "downloaddirectory": downloaddirectory })
         }
-        else {
-          RNFS.mkdir(downloaddirectory);
-        }
-        var offlinedownloadapi = offlineUrl + "?service_id=6&play_url=yes&protocol=http_pd&us=745d7e9f1e37ca27fdffbebfe8a99877";
-        await axios.get(offlinedownloadapi).then(response => {
-          for (let o = 0; o < response.data.playback_urls.length; o++) {
-            offlineprefrences.push({ "display_name": response.data.playback_urls[o].display_name, "playback_url": response.data.playback_urls[o].playback_url, "offlineUrl": offlineUrl, "downloaddirectory": downloaddirectory })
-          }
-          setPreference(offlineprefrences);
-          toggleModal()
-        }).catch(error => { })
+        setPreference(offlineprefrences);
+        toggleModal()
+      }).catch(error => { })
 
-        // }
+      // }
 
       //}
       // else {
@@ -330,18 +342,18 @@ export default function Episode({ navigation, route }) {
     }
   }
 
-  const errorCB =  (err) => {
+  const errorCB = (err) => {
     console.log("SQL Error: " + JSON.stringify(err));
   }
-  
+
   const successCB = () => {
     console.log("SQL executed fine");
   }
-  
+
   const openCB = () => {
     console.log("Database OPENED");
   }
-  
+
 
 
   const startDownloading = async (playback_url, offlineUrl, downloaddirectory) => {
@@ -349,12 +361,12 @@ export default function Episode({ navigation, route }) {
     var db = SQLite.openDatabase(DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, openCB, errorCB);
     db.transaction((tx) => {
       tx.executeSql('CREATE TABLE IF NOT EXISTS DownloadedId( '
-      + 'downloadedid VARCHAR(120) ); ', [], successCB, errorCB);
+        + 'downloadedid VARCHAR(120) ); ', [], successCB, errorCB);
 
-      tx.executeSql("insert into DownloadedId values ('"+splittedOfflineUrl[splittedOfflineUrl.length - 1]+"');",[], successCB, errorCB)
-    }).then(resp=>{}).catch(error=>{});
+      tx.executeSql("insert into DownloadedId values ('" + splittedOfflineUrl[splittedOfflineUrl.length - 1] + "');", [], successCB, errorCB)
+    });
 
-    
+
     AsyncStorage.setItem('download_url' + splittedOfflineUrl[splittedOfflineUrl.length - 1], playback_url);
     AsyncStorage.setItem('download_path' + splittedOfflineUrl[splittedOfflineUrl.length - 1], `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.mov`);
     AsyncStorage.setItem('download_title' + splittedOfflineUrl[splittedOfflineUrl.length - 1], title);
@@ -366,21 +378,24 @@ export default function Episode({ navigation, route }) {
       destination: `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.mov`
     }).begin((expectedBytes) => {
       setDownloadedStatus(2)
+      //setDownloadMessage("Downloading in progress: 0 %")
       console.log(`Going to download ${expectedBytes} bytes!`);
-      toggleModal()
     }).progress((percent) => {
       AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(percent * 100));
       console.log(`Downloaded: ${percent * 100}%`);
+      //setDownloadMessage("Downloading in progress: " + Math.round(percent * 100) + " %")
     }).done(() => {
       AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(1 * 100));
       setDownloadedStatus(1)
       console.log('Download is done!');
+      //setDownloadMessage("")
     }).error((error) => {
       console.log('Download canceled due to error: ', error);
     })
     settaskdownloading(tasks);
     AsyncStorage.setItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(tasks));
-    //navigation.dispatch(StackActions.replace('Reload',{routename:'Offline'}));
+    toggleModal();
+    //navigation.navigate('Offline');
   }
 
   const deleteDownload = async () => {
@@ -669,10 +684,9 @@ export default function Episode({ navigation, route }) {
                   }
 
                   GoogleCast.getCastState().then(state => {
-                    if(state=='connected' && playUrl!="")
-                    {
-                      
-                      if(!client) {
+                    if (state == 'connected' && playUrl != "") {
+
+                      if (!client) {
                         GoogleCast.getDiscoveryManager()
                       }
                       console.log('client changed ', client)
@@ -682,7 +696,7 @@ export default function Episode({ navigation, route }) {
                       const ended = client?.onMediaPlaybackEnded(() =>
                         console.log("playback ended")
                       );
-                      if(client && playUrl!="" && playUrl!=null) { 
+                      if (client && playUrl != "" && playUrl != null) {
                         client?.loadMedia({
                           mediaInfo: {
                             contentUrl:
@@ -690,9 +704,9 @@ export default function Episode({ navigation, route }) {
                           },
                         })
                       }
-              
+
                     }
-                })
+                  })
 
 
                 }}
@@ -709,16 +723,16 @@ export default function Episode({ navigation, route }) {
                     style={styles.navigationBack}>
                     <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
                   </TouchableOpacity>
-                  
+
                   {showsettingsicon ?
-                  <TouchableOpacity
-                    onPress={loadResolutionSettings}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    style={styles.settingsicon}>
-                    <Ionicons name="settings" size={25} color={NORMAL_TEXT_COLOR}></Ionicons>
-                  </TouchableOpacity>
-                  :
-                  ""}
+                    <TouchableOpacity
+                      onPress={loadResolutionSettings}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      style={styles.settingsicon}>
+                      <Ionicons name="settings" size={25} color={NORMAL_TEXT_COLOR}></Ionicons>
+                    </TouchableOpacity>
+                    :
+                    ""}
 
                   <TouchableOpacity
                     onPress={handleFullscreen}
@@ -847,22 +861,22 @@ export default function Episode({ navigation, route }) {
                   <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
                 </View>
 
-                {passedtheme != 'live' && passedtheme != 'livetv' && !preview?
+                {passedtheme != 'live' && passedtheme != 'livetv' && !preview ?
                   <View style={styles.singleoption}>
                     {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
-                    {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                    {downloadedStatus == 1 ? <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="check-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
                     {downloadedStatus == 2 ?
 
                       pauseDownload ?
                         isresumeDownloading ?
                           <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
                           :
-                          <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                          <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
                         :
                         isresumeDownloading ?
                           <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
                           :
-                          <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                          <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
 
                       : ""}
 
@@ -884,6 +898,12 @@ export default function Episode({ navigation, route }) {
                 </View>
               </View>
               : ""}
+
+            {downloadMessage ?
+              <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 30 }}><Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 15 }}>{downloadMessage}</Text></View>
+              :
+              ""
+            }
           </View>
 
           {/* {subcategoryImages && !fullscreen ?

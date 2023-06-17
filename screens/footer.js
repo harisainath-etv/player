@@ -126,7 +126,7 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>OFFLINE</Text>
                     </View>
                     :
-                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Reload', { routename: 'Offline' }))}>
+                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Offline'))}>
                         <MaterialCommunityIcons name="download" size={28} color={NORMAL_TEXT_COLOR} />
                         <Text style={styles.footerText}>OFFLINE</Text>
                     </TouchableOpacity>

@@ -314,6 +314,8 @@ function Home({ navigation, route }) {
             //like content
 
         }
+
+        alreadyloaded=[];
     }
     async function getTopMenu() {
         var TopMenu = [];

@@ -58,6 +58,7 @@ export default function Header(props) {
         if (session != "" && session != null) {
             setLogin(true)
             setName(firstname.split('"').join(""));
+            if(email!='' && email!=null && email!='null')
             setEmail(email.split('"').join(""));
             setMobile(mobile_number);
             setsubscription_title(subscriptiontitle)

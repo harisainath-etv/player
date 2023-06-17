@@ -38,7 +38,8 @@ export default function Profile({ navigation }) {
         if (session != "" && session != null) {
             setLogin(true)
             setName(firstname.split('"').join(""));
-            //setEmail(email.split('"').join(""));
+            if(email!='' && email!=null && email!='null')
+            setEmail(email.split('"').join(""));
             setMobile(mobile_number);
             setdob(birthdate);
             setgender(gender)
@@ -345,7 +346,7 @@ export default function Profile({ navigation }) {
                         :
                         <Pressable onPress={() => navigation.navigate('Subscribe')}><Text style={styles.detailsvalue}>{subscription_title}</Text></Pressable>
                     }
-                    {expireson != "" && expireson != null ?
+                    {expireson != "" && expireson != null && subscription_title != "" || subscription_title != null?
                         <Text style={styles.detailsheader}>Expires on {expireson}</Text>
                         : ""}
                 </View>
