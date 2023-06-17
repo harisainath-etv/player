@@ -704,7 +704,7 @@ function Home({ navigation, route }) {
     }
     const menuRender = ({ item, index }) => {
         return (
-            <View style={{ backgroundColor: BACKGROUND_COLOR, marginBottom: 15, padding: 5 }}>
+            <View style={{ backgroundColor: BACKGROUND_COLOR, marginBottom: 25, padding: 5 }}>
                 {item.friendlyId == pageName ?
 
                     <View style={{ backgroundColor: TAB_COLOR, padding: 8, height: 35, borderRadius: 15, marginRight: 15, justifyContent: 'center', alignItems: 'center' }}>
