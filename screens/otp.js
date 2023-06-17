@@ -336,9 +336,26 @@ export default function Otp({ navigation, route }) {
         const session_id = await AsyncStorage.getItem('session');
 
         if (otpkey == "updateMobile") {
-            axios.post(FIRETV_BASE_URL_STAGING + "users/" + session_id + "/generate_mobile_otp ", {
+            axios.post(FIRETV_BASE_URL_STAGING + "users/" + session_id + "/generate_mobile_otp", {
                 auth_token: AUTH_TOKEN,
                 profile: { region: region, type: "msisdn", user_id: loginMobile }
+            }, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }).then(updatesresp => {
+                setSeconds(60);
+                setOtpError("Message Sent");
+            }).catch(updateerror => {
+                setOtpError(updateerror.response.data.error.message)
+            })
+        }
+        else
+        if (otpkey == "loginMobile") {
+            axios.post(FIRETV_BASE_URL_STAGING + "users/generate_signin_otp", {
+                auth_token: AUTH_TOKEN,
+                user: { region: region, type: "msisdn", user_id: loginMobile }
             }, {
                 headers: {
                     'Accept': 'application/json',

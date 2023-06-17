@@ -162,11 +162,11 @@ export default function Episode({ navigation, route }) {
           setThumbnailImage(response.data.data.thumbnails.high_4_3.url);
         setContentId(response.data.data.content_id);
         setCatalogId(response.data.data.catalog_id);
-        AsyncStorage.getItem("watchLater_" + contentId).then(resp => {
+        AsyncStorage.getItem("watchLater_" + response.data.data.content_id).then(resp => {
           if (resp != "" && resp != null)
             setwatchlatercontent(true);
         }).catch(erro => { })
-        AsyncStorage.getItem("like_" + contentId).then(resp => {
+        AsyncStorage.getItem("like_" + response.data.data.content_id).then(resp => {
           //console.log(resp);
           if (resp != "" && resp != null)
             setlikecontent(true);
