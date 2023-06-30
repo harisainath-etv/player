@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Platform, TextInput } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { ACCESS_TOKEN, BACKGROUND_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, SECRET_KEY, SLIDER_PAGINATION_SELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
+import { ACCESS_TOKEN, BACKGROUND_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, MPGS_PAYMENT_BASE_URL, NORMAL_TEXT_COLOR, SECRET_KEY, SLIDER_PAGINATION_SELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
 import NormalHeader from './normalHeader'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -15,7 +15,7 @@ export default function Confirmation({ navigation }) {
     const [planduration, setplanduration] = useState();
     const [coupon, setcoupon] = useState("");
     const [discountmessage, setdiscountmessage] = useState("");
-    const [usersubscribed,setusersubscribed] = useState();
+    const [usersubscribed, setusersubscribed] = useState();
     const loadData = async () => {
         setAmount(await AsyncStorage.getItem('payable_amount'));
         setcurrency(await AsyncStorage.getItem('payable_currency_symbol'));
@@ -59,37 +59,73 @@ export default function Confirmation({ navigation }) {
             var paymentinfoobj = { coupon_code: coupon, net_amount: amount, price_charged: chargedamount.toString(), currency: payable_currency, packs: [{ plan_type: "", category: payable_category, subscription_catalog_id: payable_catalog_id, category_pack_id: payable_category_id, plan_id: payable_plan_id }] };
         else
             var paymentinfoobj = { net_amount: amount, price_charged: amount, currency: payable_currency, packs: [{ plan_type: "", category: payable_category, subscription_catalog_id: payable_catalog_id, category_pack_id: payable_category_id, plan_id: payable_plan_id }] };
-        
-        axios.post(FIRETV_BASE_URL_STAGING + 'users/' + session + '/transactions', {
-            auth_token: VIDEO_AUTH_TOKEN,
-            access_token: ACCESS_TOKEN,
-            auto_renew: false,
-            us: hashcalculated,
-            region: region,
-            payment_gateway: "billdesk",
-            platform: "android",
-            payment_info: paymentinfoobj,
-            transaction_info: { app_txn_id: 1, txn_message: payable_description, txn_status: 'init', order_id: "", pg_transaction_id: "" },
-            upgrade_plan: palnupgrade,
-            user_info: { email: email, mobile_number: mobile_number },
-            miscellaneous: { browser: "chrome", device_brand: "unknown", device_IMEI: "NA", device_model: "NA", device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: "NA" }
-        }, {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            }
-        }).then(resp => {
-            if(resp.data.data.code!="1070")
-            navigation.navigate('Webview', { uri: resp.data.data.payment_url + "?msg=" + resp.data.data.msg })
-            else
-            {
-                alert(resp.data.data.message);
-                navigation.dispatch(StackActions.replace('Home',{pageFriendlyId: 'featured-1'}))
-            }
 
-        }).catch(error => {
-            console.log(error.response.data);
-        })
+        if (region == 'IN') {
+            axios.post(FIRETV_BASE_URL_STAGING + 'users/' + session + '/transactions', {
+                auth_token: VIDEO_AUTH_TOKEN,
+                access_token: ACCESS_TOKEN,
+                auto_renew: false,
+                us: hashcalculated,
+                region: region,
+                payment_gateway: "billdesk",
+                platform: "android",
+                payment_info: paymentinfoobj,
+                transaction_info: { app_txn_id: 1, txn_message: payable_description, txn_status: 'init', order_id: "", pg_transaction_id: "" },
+                upgrade_plan: palnupgrade,
+                user_info: { email: email, mobile_number: mobile_number },
+                miscellaneous: { browser: "chrome", device_brand: "unknown", device_IMEI: "NA", device_model: "NA", device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: "NA" }
+            }, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }).then(resp => {
+                if (resp.data.data.code != "1070")
+                    navigation.navigate('Webview', { uri: resp.data.data.payment_url + "?msg=" + resp.data.data.msg })
+                else {
+                    alert(resp.data.data.message);
+                    navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+                }
+
+            }).catch(error => {
+                console.log(error.response.data);
+            })
+        }
+        else {
+            axios.post(FIRETV_BASE_URL_STAGING + 'users/' + session + '/transactions', {
+                auth_token: VIDEO_AUTH_TOKEN,
+                access_token: ACCESS_TOKEN,
+                auto_renew: false,
+                us: hashcalculated,
+                region: region,
+                payment_gateway: "mpgs",
+                platform: "android",
+                payment_info: paymentinfoobj,
+                transaction_info: { app_txn_id: 1, txn_message: payable_description, txn_status: 'init', order_id: "", pg_transaction_id: "" },
+                upgrade_plan: palnupgrade,
+                user_info: { email: email, mobile_number: mobile_number },
+                miscellaneous: { browser: "chrome", device_brand: "unknown", device_IMEI: "NA", device_model: "NA", device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: "NA" }
+            }, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }).then(resp => {
+                if (resp.data.data.code == "200")
+                {
+                    var paymenthtml = "<script src='../jquery.1.8.2.js' type='text/javascript'></script><script src='src_javascript.js' type='text/javascript'></script> <html> <head> <script src='https://hdfcbank.gateway.mastercard.com/static/checkout/checkout.min.js' data-error='errorCallback' data-cancel='cancelCallback'> </script> <script type='text/javascript'> function errorCallback(error) { console.log(JSON.stringify(error));  Android.errorCallback(JSON.stringify(error));} function cancelCallback() { Android.cancelCallback(); console.log('Payment cancelled:4809'); } Checkout.configure({ session: { id:  '"+resp.data.data.mpgs.session_id+"' }, order: { description: '"+resp.data.data.mpgs.description+"', id: '"+resp.data.data.transaction_id+"', reference:'"+resp.data.data.mpgs.reference_id+"' }, interaction: { merchant: { name: '"+resp.data.data.mpgs.name+"', address: { line1: '"+resp.data.data.mpgs.address1+"', line2: '"+resp.data.data.mpgs.address1+"' } } } }); Checkout.showPaymentPage(); </script> </head> </html>";
+                    console.log(paymenthtml);
+                    navigation.navigate('Webview', { uri: paymenthtml })
+                }
+                else {
+                    alert(resp.data.data.message);
+                    navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+                }
+
+            }).catch(error => {
+                console.log(error.response.data);
+            })
+        }
     }
 
     const applycoupon = async () => {
@@ -130,30 +166,30 @@ export default function Confirmation({ navigation }) {
                     <Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 20 }}>{planname}  / <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>{planduration}</Text></Text>
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25 }}>{currency} {amount}</Text>
                 </View>
-                {usersubscribed=='no' ?
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 70 }}>
-                    <TextInput
-                        placeholder='Enter Coupon Code'
-                        placeholderTextColor={DETAILS_TEXT_COLOR}
-                        style={{ borderBottomColor: SLIDER_PAGINATION_SELECTED_COLOR, borderWidth: 0.5, width: '70%', padding: 2, color: NORMAL_TEXT_COLOR }}
-                        onChangeText={setcoupon}
-                        value={coupon}
-                    />
-                    <View style={{ width: '5%', }}></View>
+                {usersubscribed == 'no' ?
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 70 }}>
+                        <TextInput
+                            placeholder='Enter Coupon Code'
+                            placeholderTextColor={DETAILS_TEXT_COLOR}
+                            style={{ borderBottomColor: SLIDER_PAGINATION_SELECTED_COLOR, borderWidth: 0.5, width: '70%', padding: 2, color: NORMAL_TEXT_COLOR }}
+                            onChangeText={setcoupon}
+                            value={coupon}
+                        />
+                        <View style={{ width: '5%', }}></View>
 
-                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
-                        <TouchableOpacity onPress={() => applycoupon()} style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 10, borderRadius: 10, marginRight: 20 }}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Apply</Text></TouchableOpacity>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
+                            <TouchableOpacity onPress={() => applycoupon()} style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 10, borderRadius: 10, marginRight: 20 }}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Apply</Text></TouchableOpacity>
+                        </View>
+
                     </View>
-
-                </View>
-                :
-                ""}
+                    :
+                    ""}
                 <View style={{ marginTop: 10 }}>
                     <Text style={{ color: '#00FF00' }}>{discountmessage}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Total Amount Payable</Text>
-                    {(chargedamount!="" && chargedamount!=null) || (chargedamount=="0") ?
+                    {(chargedamount != "" && chargedamount != null) || (chargedamount == "0") ?
                         <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25 }}>{currency} {chargedamount}</Text>
                         :
                         <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25 }}>{currency} {amount}</Text>

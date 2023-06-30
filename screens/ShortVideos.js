@@ -1,21 +1,43 @@
 import { View, ActivityIndicator, FlatList, Pressable, StyleSheet } from 'react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SLIDER_PAGINATION_SELECTED_COLOR } from '../constants'
+import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SHORTS_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR } from '../constants'
 import TransparentHeader from './transparentHeader';
 import Video from 'react-native-video';
-
+import axios from 'axios';
+var loadedindex = [];
 export default function Shorts() {
-    const Videos = [
-        "https://etvwin-s3.akamaized.net/63e08dfeb64c2f0fd8961660/4K_playlist.m3u8",
-        "https://etvwin-s3.akamaized.net/63e08dccb64c2f0fd896165e/4K_playlist.m3u8",
-        "https://etvwin-s3.akamaized.net/63e08d8db64c2f0fd896165c/4K_playlist.m3u8",
-        "https://etvwin-s3.akamaized.net/63e08dfeb64c2f0fd8961660/4K_playlist.m3u8",
-        "https://etvwin-s3.akamaized.net/63e08dccb64c2f0fd896165e/4K_playlist.m3u8",
-        "https://etvwin-s3.akamaized.net/63e08d8db64c2f0fd896165c/4K_playlist.m3u8",
-        "https://etvwin-s3.akamaized.net/63e08dfeb64c2f0fd8961660/4K_playlist.m3u8",
-        "https://etvwin-s3.akamaized.net/63e08dccb64c2f0fd896165e/4K_playlist.m3u8",
-        "https://etvwin-s3.akamaized.net/63e08d8db64c2f0fd896165c/4K_playlist.m3u8",
-    ];
+    const [startindex, setstartindex] = useState(0);
+    var limit = 3;
+    const dataFetch = useRef(null);
+    const [Videos, setVideos] = useState([]);
+    var loadedvideos = [];
+    const getData = async () => {
+        axios.get(SHORTS_BASE_URL + 'welcome/getToken').then(response => {
+            axios.post(SHORTS_BASE_URL + 'welcome/shorts', {
+                token: response.data.token,
+                startindex: startindex,
+                limit: limit
+            }, { headers: {} }).then(resp => {
+                var jsonObj = JSON.parse(resp.data);
+                for (var s = 0; s < jsonObj.data.length; s++) {
+                    var indvideo = jsonObj.data[s].shorts_url;
+                    loadedvideos.push(indvideo)
+                }
+                console.log(JSON.stringify(loadedvideos));
+                setVideos((Videos) => [...Videos, ...loadedvideos]);
+
+            }).catch(err => {
+                console.log(err);
+            })
+        }).catch(error => { })
+
+        console.log(JSON.stringify(Videos));
+    }
+    useEffect(() => {
+        if (dataFetch.current) return;
+        dataFetch.current = true;
+        getData()
+    })
     const flatListRef = useRef();
     const videoRef = useRef();
     const [currentIndexValue, setcurrentIndexValue] = useState(0);
@@ -51,9 +73,18 @@ export default function Shorts() {
                 data={Videos}
                 showsVerticalScrollIndicator={false}
                 showsHorizontalScrollIndicator={false}
-                keyExtractor={(x, i) => i.toString()}
+                keyExtractor={(x, i) => { i.toString(); }}
                 onScroll={e => {
+                    var val = Math.round(e.nativeEvent.contentOffset.y.toFixed(0) / PAGE_HEIGHT);
                     setcurrentIndexValue(Math.round(e.nativeEvent.contentOffset.y.toFixed(0) / PAGE_HEIGHT));
+                    if (!loadedindex.includes(val)) {
+                        loadedindex.push(val);
+                        if(val%2==0 && val!=0 && val!=1)
+                        {
+                            setstartindex(startindex+limit);
+                            getData()
+                        }
+                    }
                 }}
                 contentContainerStyle={{ minHeight: '100%', }}
                 renderItem={useCallback(
@@ -62,25 +93,20 @@ export default function Shorts() {
 
                             <Pressable onPress={loadcontrols} style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flex: 1, flexGrow: 1 }}>
                                 {/* {currentIndexValue === index ? */}
-                                <View style={{ flex: 1, flexGrow: 1 }}>
+                                <View style={{ flex: 1, flexGrow: 1, justifyContent: 'center', alignContent: 'center' }}>
                                     <Video
                                         ref={videoRef}
                                         onBuffer={onBuffer}
                                         source={{ uri: item }}
-                                        controls={false}
+                                        controls={true}
                                         onLoadStart={onLoadStart}
                                         onLoad={onLoad}
                                         paused={currentIndexValue === index ? false : true}
                                         playInBackground={false}
                                         repeat={true}
                                         volume={1}
-                                        // bufferConfig={{
-                                        //     minBufferMs: 1000000,
-                                        //     maxBufferMs: 2000000,
-                                        //     bufferForPlaybackMs: 7000
-                                        // }}
                                         rate={1.0}
-                                        resizeMode={'stretch'}
+                                        resizeMode={'contain'}
                                         style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flexGrow: 1, flex: 1 }}
                                         playWhenInactive={false}
                                     />

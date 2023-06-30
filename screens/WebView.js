@@ -13,7 +13,8 @@ export default function Webview({ navigation, route }) {
         <View style={styles.mainContainer}>
             <NormalHeader></NormalHeader>
             {uri != "" ?
-                <WebView ref={ref} source={{ uri: uri }} style={{ flex: 0,width:PAGE_WIDTH, height: PAGE_HEIGHT+50,backgroundColor:BACKGROUND_COLOR,marginBottom:50 }} onNavigationStateChange={(resp)=>{
+                <WebView ref={ref} source={{ html: uri }} scalesPageToFit
+                originWhitelist={["*"]}  style={{ flex: 1,width:PAGE_WIDTH, height: PAGE_HEIGHT+50,backgroundColor:BACKGROUND_COLOR,marginBottom:50 }} onNavigationStateChange={(resp)=>{
                     if(resp.url.includes("/paymentstatus"))
                     {
                         var splitted=resp.url.split("|");
