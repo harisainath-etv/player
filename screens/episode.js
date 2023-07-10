@@ -70,7 +70,9 @@ export default function Episode({ navigation, route }) {
   const [lastPress, setLastPress] = useState(null);
   const [tapCount, setTapCount] = useState(0);
   const [seektime, setseektime] = useState();
-  const [showsettingsicon,setshowsettingsicon] = useState(true);
+  const [showsettingsicon, setshowsettingsicon] = useState(true);
+  const [introstarttime, setintrostarttime] = useState("");
+  const [introendtime, setintroendtime] = useState("");
   var multiTapCount = 10;
   var multiTapDelay = 300;
   var client = useRemoteMediaClient();
@@ -86,12 +88,12 @@ export default function Episode({ navigation, route }) {
   const navigationConfig = async () => {
     // // Just incase it is not hidden
     // NavigationBar.setBackgroundColorAsync('red');
-    if(Platform.OS='android')
-    NavigationBar.setVisibilityAsync("hidden");
+    if (Platform.OS = 'android')
+      NavigationBar.setVisibilityAsync("hidden");
   };
   const navigationConfigVisible = async () => {
-    if(Platform.OS='android')
-    NavigationBar.setVisibilityAsync("visible");
+    if (Platform.OS = 'android')
+      NavigationBar.setVisibilityAsync("visible");
   };
   const exitScreen = async () => {
     StatusBar.setHidden(false)
@@ -162,6 +164,8 @@ export default function Episode({ navigation, route }) {
           setThumbnailImage(response.data.data.thumbnails.high_4_3.url);
         setContentId(response.data.data.content_id);
         setCatalogId(response.data.data.catalog_id);
+        setintrostarttime(response.data.data.intro_start_time_sec);
+        setintroendtime(response.data.data.intro_end_time_sec);
         AsyncStorage.getItem("watchLater_" + response.data.data.content_id).then(resp => {
           if (resp != "" && resp != null)
             setwatchlatercontent(true);
@@ -248,7 +252,7 @@ export default function Episode({ navigation, route }) {
         //console.log(downloadtask);
         if (downloadtask != "" || downloadtask != null)
           settaskdownloading(downloadtask);
-        if (downloadpercent == '100' && sessionId!="" && sessionId!=null) {
+        if (downloadpercent == '100' && sessionId != "" && sessionId != null) {
           setDownloadedStatus(1)
           setPlayUrl(downloaddirectory)
           setOnlinePlayUrl(true)
@@ -270,7 +274,7 @@ export default function Episode({ navigation, route }) {
   }
   useEffect(() => {
     if (dataFetchedRef.current) return;
-        dataFetchedRef.current = true;
+    dataFetchedRef.current = true;
     loadData()
     if (fullscreen) {
       navigationConfig();
@@ -667,10 +671,9 @@ export default function Episode({ navigation, route }) {
                   }
 
                   GoogleCast.getCastState().then(state => {
-                    if(state=='connected' && playUrl!="")
-                    {
-                      
-                      if(!client) {
+                    if (state == 'connected' && playUrl != "") {
+
+                      if (!client) {
                         GoogleCast.getDiscoveryManager()
                       }
                       console.log('client changed ', client)
@@ -680,7 +683,7 @@ export default function Episode({ navigation, route }) {
                       const ended = client?.onMediaPlaybackEnded(() =>
                         console.log("playback ended")
                       );
-                      if(client && playUrl!="" && playUrl!=null) { 
+                      if (client && playUrl != "" && playUrl != null) {
                         client?.loadMedia({
                           mediaInfo: {
                             contentUrl:
@@ -688,9 +691,9 @@ export default function Episode({ navigation, route }) {
                           },
                         })
                       }
-              
+
                     }
-                })
+                  })
 
 
                 }}
@@ -707,16 +710,16 @@ export default function Episode({ navigation, route }) {
                     style={styles.navigationBack}>
                     <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
                   </TouchableOpacity>
-                  
+
                   {showsettingsicon ?
-                  <TouchableOpacity
-                    onPress={loadResolutionSettings}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    style={styles.settingsicon}>
-                    <Ionicons name="settings" size={25} color={NORMAL_TEXT_COLOR}></Ionicons>
-                  </TouchableOpacity>
-                  :
-                  ""}
+                    <TouchableOpacity
+                      onPress={loadResolutionSettings}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      style={styles.settingsicon}>
+                      <Ionicons name="settings" size={25} color={NORMAL_TEXT_COLOR}></Ionicons>
+                    </TouchableOpacity>
+                    :
+                    ""}
 
                   <TouchableOpacity
                     onPress={handleFullscreen}
@@ -727,6 +730,14 @@ export default function Episode({ navigation, route }) {
                 </View>
               )}
 
+              <View style={{ position: 'absolute', right: 20,bottom:80 }}>
+                {introstarttime != "" && introstarttime != null && !preview && introstarttime<=currentloadingtime && introendtime>=currentloadingtime ?
+                  <TouchableOpacity onPress={()=>{videoRef.current.seek(introendtime)}} style={{backgroundColor:DETAILS_TEXT_COLOR,padding:5,borderRadius:10}}>
+                    <Text style={{fontWeight:'bold'}}>Skip Intro</Text>
+                  </TouchableOpacity>
+                  :
+                  ""}
+              </View>
 
               {state.showControls && (
                 <View style={{ width: "100%", position: 'absolute', top: "40%", flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
@@ -845,7 +856,7 @@ export default function Episode({ navigation, route }) {
                   <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
                 </View>
 
-                {passedtheme != 'live' && passedtheme != 'livetv' && !preview?
+                {passedtheme != 'live' && passedtheme != 'livetv' && !preview ?
                   <View style={styles.singleoption}>
                     {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
                     {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
