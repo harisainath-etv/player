@@ -72,6 +72,9 @@ export default function Episode({ navigation, route }) {
   const [seektime, setseektime] = useState();
   const [showsettingsicon, setshowsettingsicon] = useState(true);
   const [downloadMessage, setDownloadMessage] = useState("");
+  const [introstarttime, setintrostarttime] = useState("");
+  const [introendtime, setintroendtime] = useState("");
+
   var downloadid = [];
   var multiTapCount = 10;
   var multiTapDelay = 300;
@@ -155,6 +158,9 @@ export default function Episode({ navigation, route }) {
           setThumbnailImage(response.data.data.thumbnails.high_4_3.url);
         setContentId(response.data.data.content_id);
         setCatalogId(response.data.data.catalog_id);
+        setintrostarttime(response.data.data.intro_start_time_sec);
+        setintroendtime(response.data.data.intro_end_time_sec);
+
         AsyncStorage.getItem("watchLater_" + response.data.data.content_id).then(resp => {
           if (resp != "" && resp != null)
             setwatchlatercontent(true);
@@ -236,7 +242,7 @@ export default function Episode({ navigation, route }) {
 
       var db = await SQLite.openDatabase(DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, openCB, errorCB);
       await db.transaction((tx) => {
-        tx.executeSql("SELECT * FROM DownloadedId where downloadedid='"+splittedOfflineUrl[splittedOfflineUrl.length - 1]+"'", [], async (tx, results) => {
+        tx.executeSql("SELECT * FROM DownloadedId where downloadedid='" + splittedOfflineUrl[splittedOfflineUrl.length - 1] + "'", [], async (tx, results) => {
           var len = results.rows.length;
           for (let i = 0; i < len; i++) {
             let row = results.rows.item(i);
@@ -267,7 +273,7 @@ export default function Episode({ navigation, route }) {
         });
       });
 
-      
+
     }
 
   }
@@ -741,7 +747,14 @@ export default function Episode({ navigation, route }) {
                   </TouchableOpacity>
                 </View>
               )}
-
+              <View style={{ position: 'absolute', right: 20, bottom: 80 }}>
+                {introstarttime != "" && introstarttime != null && !preview && introstarttime <= currentloadingtime && introendtime >= currentloadingtime ?
+                  <TouchableOpacity onPress={() => { videoRef.current.seek(introendtime) }} style={{ backgroundColor: DETAILS_TEXT_COLOR, padding: 5, borderRadius: 10 }}>
+                    <Text style={{ fontWeight: 'bold' }}>Skip Intro</Text>
+                  </TouchableOpacity>
+                  :
+                  ""}
+              </View>
 
               {state.showControls && (
                 <View style={{ width: "100%", position: 'absolute', top: "40%", flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>

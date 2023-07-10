@@ -41,3 +41,5 @@ export const DATABASE_NAME = "etvwin.db";
 export const DATABASE_VERSION = "1.0";
 export const DATABASE_DISPLAY_NAME = "ETVWin Database";
 export const DATABASE_SIZE = 200000;
+export const MPGS_PAYMENT_BASE_URL = "https://hdfcbank.gateway.mastercard.com/checkout/api/retrieveWsapiVersion/";
+export const SHORTS_BASE_URL = "http://65.2.184.87/files/index.php/";

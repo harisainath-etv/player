@@ -55,19 +55,19 @@ export default function Footer(props) {
         })
     })
     return (
-        <View style={{marginBottom:20}}>
+        <View style={{}}>
             <View style={{ zIndex: 1000, justifyContent: 'center', alignContent: 'center', alignSelf: 'center', alignItems: 'center' }}>
-                <View style={{ backgroundColor: BACKGROUND_COLOR, width: 100, position: 'absolute',padding:15,borderTopRightRadius:50,borderTopLeftRadius:50 }}>
+                <View style={{ backgroundColor: BACKGROUND_COLOR, width: 86, position: 'absolute',padding:15,borderTopRightRadius:43,borderTopLeftRadius:43 }}>
 
                     {pageName == 'SHORTS' ?
                         <View style={styles.iconContainer}>
                             <MaterialCommunityIcons name="video-check" size={43} color={SLIDER_PAGINATION_SELECTED_COLOR} />
-                            <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR,fontSize:15,fontWeight:'bold' }]}>SHORTS</Text>
+                            <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR,fontSize:12,fontWeight:'bold' }]}>SHORTS</Text>
                         </View>
                         :
-                        <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Shorts', { pageFriendlyId: 'channels' }))}>
+                        <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Shorts'))}>
                             <MaterialCommunityIcons name="video-check" size={43} color={NORMAL_TEXT_COLOR} />
-                            <Text style={[styles.footerText,{fontSize:15,fontWeight:'bold'}]}>SHORTS</Text>
+                            <Text style={[styles.footerText,{fontSize:12,fontWeight:'bold'}]}>SHORTS</Text>
                         </TouchableOpacity>
                     }
 
@@ -195,13 +195,13 @@ const styles = StyleSheet.create({
         borderRadius: 28,
         backgroundColor: BACKGROUND_TRANSPARENT_COLOR,
         position: 'absolute',
-        bottom: 50,
+        bottom: 90,
         right: 10,
         alignItems: 'center',
         justifyContent: 'center',
         alignSelf: 'flex-end'
     },
     footerText: { color: NORMAL_TEXT_COLOR, fontSize: 12 },
-    footerContainer: { width: PAGE_WIDTH, backgroundColor: BACKGROUND_COLOR, height: 50, borderTopLeftRadius: 15, borderTopRightRadius: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: "center", paddingLeft: 10, paddingRight: 10 },
+    footerContainer: { width: PAGE_WIDTH, backgroundColor: BACKGROUND_COLOR, height: 30, borderTopLeftRadius: 15, borderTopRightRadius: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: "center", paddingLeft: 10, paddingRight: 10,marginBottom:40 },
     iconContainer: { justifyContent: 'center', alignItems: 'center' },
 })

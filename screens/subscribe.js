@@ -24,11 +24,11 @@ export default function Subscribe({ navigation }) {
     const [planid, setplanid] = useState("");
     const [description, setdescription] = useState("");
     const [currentplan, setcurrentplan] = useState("");
-    const [appleid,setappleid] = useState("");
+    const [appleid, setappleid] = useState("");
     const [regionselected, setregionselected] = useState("");
     const [regionselectedcurrency, setregionselectedcurrency] = useState("");
 
-    
+
 
 
     const loadData = async () => {
@@ -68,7 +68,7 @@ export default function Subscribe({ navigation }) {
     }
     const rendersubscriptionplans = (item, index) => {
         return (
-            <View key={index} style={{ width: '50%', 	height: '100%' }}>
+            <View key={index} style={{ width: '50%', height: '100%' }}>
                 <View style={{ padding: 20, justifyContent: 'center', alignItems: 'center', width: '100%', height: 100, flexDirection: 'row' }}>
                     {selectedplan == item.item.plan_id && item.item.status == 'published' ?
                         <MaterialCommunityIcons name='radiobox-marked' color={NORMAL_TEXT_COLOR} size={30} />
@@ -89,6 +89,7 @@ export default function Subscribe({ navigation }) {
         else {
             if (selectedprice != "" && selectedprice != null) {
                 axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/user_plans/upgrade_plan?region=" + region + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&sub_theme_id=" + selectedcategoryid + "&to_plan=" + selectedprice).then(resp => {
+                    console.log(resp.data.data);
                     AsyncStorage.setItem('actual_price', resp.data.data.payable.actual_price);
                     AsyncStorage.setItem('payable_amount', resp.data.data.payable.payable_amount);
                     AsyncStorage.setItem('payable_currency_symbol', resp.data.data.payable.currency_symbol);
@@ -100,9 +101,9 @@ export default function Subscribe({ navigation }) {
                     AsyncStorage.setItem('payable_catalog_id', resp.data.data.payable.subscription_catalog_id);
                     AsyncStorage.setItem('payable_plan_id', planid);
                     AsyncStorage.setItem('payable_description', description);
-                    AsyncStorage.setItem('appleid',appleid);
-                    AsyncStorage.setItem('payableselectedcategoryid',selectedcategoryid)
-		            AsyncStorage.setItem('regionselected', regionselected);
+                    AsyncStorage.setItem('appleid', appleid);
+                    AsyncStorage.setItem('payableselectedcategoryid', selectedcategoryid)
+                    AsyncStorage.setItem('regionselected', regionselected);
                     AsyncStorage.setItem('regionselectedcurrency', regionselectedcurrency);
                     if (resp.data.data.existing_plan == null || resp.data.data.existing_plan == "") {
                         AsyncStorage.setItem('payable_upgrade', 'no');
@@ -113,7 +114,7 @@ export default function Subscribe({ navigation }) {
                     navigation.navigate("Confirmation");
                 }).catch(error => {
                     alert(error.response.data.error)
-                 })
+                })
             }
             else {
                 alert("Please select a plan to proceed.")
@@ -154,9 +155,9 @@ export default function Subscribe({ navigation }) {
                                             <MaterialCommunityIcons name='radiobox-marked' size={30} color={NORMAL_TEXT_COLOR} style={{ position: 'absolute', left: 0, top: 0 }} />
                                         :
                                         currentplan == resp.id ?
-                                        ""
-                                        :
-                                        <Pressable style={{ position: 'absolute', left: 0, top: 0 }} onPress={() => { setselectedprice(resp.id); setselectedpriceforpayment(resp.price); setselectedpriceforduration(resp.display_period); setselectedpricecurrency(resp.currency_symbol); setcurrency(resp.currency); setplanid(resp.id); setdescription(resp.description); setappleid(resp.apple_product_id); setregionselected(resp.region); setregionselectedcurrency(resp.currency); }}><MaterialCommunityIcons name='radiobox-blank' size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                            ""
+                                            :
+                                            <Pressable style={{ position: 'absolute', left: 0, top: 0 }} onPress={() => { setselectedprice(resp.id); setselectedpriceforpayment(resp.price); setselectedpriceforduration(resp.display_period); setselectedpricecurrency(resp.currency_symbol); setcurrency(resp.currency); setplanid(resp.id); setdescription(resp.description); setappleid(resp.apple_product_id); setregionselected(resp.region); setregionselectedcurrency(resp.currency); }}><MaterialCommunityIcons name='radiobox-blank' size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
                                     }
                                     {currentplan == resp.id ?
                                         <Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, position: 'absolute', right: 15, top: 5 }}>Active</Text>

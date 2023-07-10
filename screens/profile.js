@@ -234,7 +234,7 @@ export default function Profile({ navigation }) {
     }
     return (
         <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
-            <View style={{ marginTop: 20, marginLeft: 10 }}>
+            <View style={{ marginTop: 50, marginLeft: 10 }}>
                 <TouchableOpacity onPress={() => {
                     if (navigation.canGoBack())
                         navigation.goBack()
