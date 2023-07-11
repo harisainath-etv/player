@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet, Text, Pressable, ActivityIndicator, RefreshControl, Image, TouchableOpacity } from 'react-native';
+import { View, FlatList, StyleSheet, Text, Pressable, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -14,6 +14,7 @@ import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Image } from 'react-native-elements';
 // import RNBackgroundDownloader from 'react-native-background-downloader';
 import axios from 'axios';
 import Modal from "react-native-modal";

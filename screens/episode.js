@@ -196,7 +196,7 @@ export default function Episode({ navigation, route }) {
             if (onlineplayUrl == false) {
               if (response.data.data.stream_info.adaptive_url != "") {
                 setPlayUrl(response.data.data.stream_info.adaptive_url);
-                setseektime(response.data.data.playlists.pos);
+                setseektime(response.data.data.stream_info.play_back_time);
               }
               else
                 if (response.data.data.stream_info.preview.adaptive_url != "") {
@@ -540,11 +540,9 @@ export default function Episode({ navigation, route }) {
       var sessionId = await AsyncStorage.getItem('session');
       if (sessionId != "" && sessionId != null && timestamp != "" && timestamp != null) {
         await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchhistory", {
-          listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true" },
+          listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true", play_back_status: "playing",play_back_time: timestamp },
           auth_token: VIDEO_AUTH_TOKEN,
-          access_token: ACCESS_TOKEN,
-          play_back_status: "playing",
-          play_back_time: timestamp
+          access_token: ACCESS_TOKEN
         }, {
           headers: {
             'Content-Type': 'application/json',
@@ -685,7 +683,7 @@ export default function Episode({ navigation, route }) {
                   setDuration(data.duration)
                   if (seektime != "" && seektime != null) {
                     var splittedtime = seektime.split(":");
-                    videoRef.current.seek(splittedtime[0] * 3600 + splittedtime[1] * 60 + splittedtime[2]);
+                    videoRef.current.seek(+(splittedtime[0] * 3600) + +(splittedtime[1] * 60) + +(splittedtime[2]));
                   }
 
                   GoogleCast.getCastState().then(state => {
