@@ -114,6 +114,7 @@ export default function Episode({ navigation, route }) {
       const checkSeason = filterItems('season', splittedData);
       const checkChannel = filterItems('channel', splittedData);
       const checkEvent = filterItems('event', splittedData);
+      const checkLive = filterItems('live', splittedData);
       const region = await AsyncStorage.getItem('country_code');
       var urlPath = "";
       var totalData = [];
@@ -130,7 +131,7 @@ export default function Episode({ navigation, route }) {
       else if (splittedData[0] == 'news' || checkNews.length > 0) {
         urlPath = baseUrl + "catalogs/" + splittedData[splittedData.length - 3] + "/items/" + splittedData[splittedData.length - 2] + "/episodes/" + splittedData[splittedData.length - 1];
       }
-      else if (checkShow.length > 0 || checkEvent.length > 0) {
+      else if ((checkShow.length > 0 || checkEvent.length > 0) && checkLive.length==0) {
         urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[splittedData.length - 2] + "/episodes/" + splittedData[splittedData.length - 1];
       }
       else if (checkChannel.length > 0) {
