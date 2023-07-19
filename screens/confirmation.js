@@ -21,7 +21,7 @@ export default function Confirmation({ navigation }) {
         setcurrency(await AsyncStorage.getItem('payable_currency_symbol'));
         setplanname(await AsyncStorage.getItem('payable_selected_name'));
         setplanduration(await AsyncStorage.getItem('payable_selected_duration'));
-        setusersubscribed(await AsyncStorage.getItem('isUserSubscribed'));
+        setusersubscribed(await AsyncStorage.getItem('payable_coupon_display'));
     }
     useEffect(() => {
         loadData()
@@ -111,11 +111,9 @@ export default function Confirmation({ navigation }) {
                     'Content-Type': 'application/json',
                 }
             }).then(resp => {
-                if (resp.data.data.code == "200")
-                {
-                    var paymenthtml = "<script src='../jquery.1.8.2.js' type='text/javascript'></script><script src='src_javascript.js' type='text/javascript'></script> <html> <head> <script src='https://hdfcbank.gateway.mastercard.com/static/checkout/checkout.min.js' data-error='errorCallback' data-cancel='cancelCallback'> </script> <script type='text/javascript'> function errorCallback(error) { console.log(JSON.stringify(error));  Android.errorCallback(JSON.stringify(error));} function cancelCallback() { Android.cancelCallback(); console.log('Payment cancelled:4809'); } Checkout.configure({ session: { id:  '"+resp.data.data.mpgs.session_id+"' }, order: { description: '"+resp.data.data.mpgs.description+"', id: '"+resp.data.data.transaction_id+"', reference:'"+resp.data.data.mpgs.reference_id+"' }, interaction: { merchant: { name: '"+resp.data.data.mpgs.name+"', address: { line1: '"+resp.data.data.mpgs.address1+"', line2: '"+resp.data.data.mpgs.address1+"' } } } }); Checkout.showPaymentPage(); </script> </head> </html>";
-                    console.log(paymenthtml);
-                    navigation.navigate('Webview', { uri: paymenthtml })
+                if (resp.data.data.code == "200") {
+                    console.log(resp.data.data.mpgs.session_id);
+                    navigation.navigate('HtmlWebview', { sessionid: resp.data.data.mpgs.session_id,description:resp.data.data.mpgs.description,transactionid:resp.data.data.transaction_id,referenceid:resp.data.data.mpgs.reference_id, name:resp.data.data.mpgs.name,line1:resp.data.data.mpgs.address1,line2:resp.data.data.mpgs.address1 })
                 }
                 else {
                     alert(resp.data.data.message);
@@ -166,7 +164,7 @@ export default function Confirmation({ navigation }) {
                     <Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 20 }}>{planname}  / <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>{planduration}</Text></Text>
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25 }}>{currency} {amount}</Text>
                 </View>
-                {usersubscribed == 'no' ?
+                {usersubscribed == 'yes' ?
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 70 }}>
                         <TextInput
                             placeholder='Enter Coupon Code'

@@ -93,6 +93,10 @@ export default function Subscribe({ navigation }) {
                     AsyncStorage.setItem('payable_catalog_id', resp.data.data.payable.subscription_catalog_id);
                     AsyncStorage.setItem('payable_plan_id', planid);
                     AsyncStorage.setItem('payable_description', description);
+                    if(resp.data.data.payable.allow_coupon==true)
+                    AsyncStorage.setItem('payable_coupon_display', 'yes');
+                    else
+                    AsyncStorage.setItem('payable_coupon_display', 'no');
                     if (resp.data.data.existing_plan == null || resp.data.data.existing_plan == "") {
                         AsyncStorage.setItem('payable_upgrade', 'no');
                     }

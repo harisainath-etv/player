@@ -73,6 +73,8 @@ export default function Episode({ navigation, route }) {
   const [showsettingsicon, setshowsettingsicon] = useState(true);
   const [introstarttime, setintrostarttime] = useState("");
   const [introendtime, setintroendtime] = useState("");
+  const [endcreditsstarttime,setendcreditsstarttime] = useState("");
+  const [nextepisode,setnextepisode] = useState("");
   var multiTapCount = 10;
   var multiTapDelay = 300;
   var client = useRemoteMediaClient();
@@ -166,6 +168,8 @@ export default function Episode({ navigation, route }) {
         setCatalogId(response.data.data.catalog_id);
         setintrostarttime(response.data.data.intro_start_time_sec);
         setintroendtime(response.data.data.intro_end_time_sec);
+        setendcreditsstarttime(response.data.data.end_credits_start_time_sec)
+        setnextepisode(response.data.data.next_item)
         AsyncStorage.getItem("watchLater_" + response.data.data.content_id).then(resp => {
           if (resp != "" && resp != null)
             setwatchlatercontent(true);
@@ -421,6 +425,8 @@ export default function Episode({ navigation, route }) {
     if (preview) {
       setshowupgrade(true);
     }
+    await toHoursAndMinutes(0);
+    await playnextitem();
   }
   const watchLater = async () => {
     if (!loggedin) {
@@ -628,7 +634,14 @@ export default function Episode({ navigation, route }) {
     //videoRef.current.seek()
   };
 
-
+  const playnextitem = async() =>{
+    const session = await AsyncStorage.getItem('session');
+    const region = await AsyncStorage.getItem('country_code');
+    var nextitem = FIRETV_BASE_URL_STAGING+"/catalogs/"+catalogId+"/items/"+contentId+"/next_item?auth_token="+AUTH_TOKEN+"&access_token="+ACCESS_TOKEN+"&region="+region+"&item_language=eng";
+    axios.get(nextitem).then(response=>{
+      navigation.replace('Episode',{ seoUrl: response.data.data.seo_url, theme: 'episode' });
+    }).catch(error=>{})
+  }
   return (
     <View style={styles.mainContainer}>
       <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
@@ -733,6 +746,15 @@ export default function Episode({ navigation, route }) {
                 {introstarttime != "" && introstarttime != null && !preview && introstarttime<=currentloadingtime && introendtime>=currentloadingtime ?
                   <TouchableOpacity onPress={()=>{videoRef.current.seek(introendtime)}} style={{backgroundColor:DETAILS_TEXT_COLOR,padding:5,borderRadius:10}}>
                     <Text style={{fontWeight:'bold'}}>Skip Intro</Text>
+                  </TouchableOpacity>
+                  :
+                  ""}
+              </View>
+
+              <View style={{ position: 'absolute', right: 20,bottom:80 }}>
+                {endcreditsstarttime != "" && endcreditsstarttime != null && !preview && endcreditsstarttime<=currentloadingtime ?
+                  <TouchableOpacity onPress={playnextitem} style={{backgroundColor:DETAILS_TEXT_COLOR,padding:5,borderRadius:10}}>
+                    <Text style={{fontWeight:'bold'}}>Play Next</Text>
                   </TouchableOpacity>
                   :
                   ""}
