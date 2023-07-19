@@ -8,6 +8,7 @@ export var AUTH_TOKEN="";
 {Platform.OS=="ios" ? AUTH_TOKEN = "VJ8WEaqygbpYSMzBtsGz" : ""}
 export const VIDEO_AUTH_TOKEN = "q5u8JMWTd2698ncg7q4Q";
 export const SECRET_KEY = "2fd66b173c16e012e90e";
+export const IOS_SECRET_KEY = "c839a9abd2dbb3772bfa";
 export const BASE_URL="https://prod.api.etvwin.com";
 export const ACCESS_TOKEN= "Ay6KCkajdBzztJ4bptpW";
 export const WEB_CLIENT_ID = "278069225987-k7p73vcskifp17pkv06phosqgtavveve.apps.googleusercontent.com";

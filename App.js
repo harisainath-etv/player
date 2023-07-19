@@ -167,6 +167,9 @@ export default function App() {
         }
       }).catch(planerror => {
         console.log(planerror.response.data);
+        if(planerror.response.data.error.code == '1016'){
+          removeunwanted();
+        }
       })
       await axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
         AsyncStorage.setItem('address', resp.data.data.address)

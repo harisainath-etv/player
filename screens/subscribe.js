@@ -105,6 +105,10 @@ export default function Subscribe({ navigation }) {
                     AsyncStorage.setItem('payableselectedcategoryid', selectedcategoryid)
                     AsyncStorage.setItem('regionselected', regionselected);
                     AsyncStorage.setItem('regionselectedcurrency', regionselectedcurrency);
+                    if(resp.data.data.payable.allow_coupon==true)
+                    AsyncStorage.setItem('payable_coupon_display', 'yes');
+                    else
+                    AsyncStorage.setItem('payable_coupon_display', 'no');
                     if (resp.data.data.existing_plan == null || resp.data.data.existing_plan == "") {
                         AsyncStorage.setItem('payable_upgrade', 'no');
                     }

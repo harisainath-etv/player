@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, ActivityIndicator, Pressable, Platform } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, SECRET_KEY, SLIDER_PAGINATION_SELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL_STAGING, IOS_SECRET_KEY, NORMAL_TEXT_COLOR, SECRET_KEY, SLIDER_PAGINATION_SELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
 import NormalHeader from './normalHeader'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -21,6 +21,8 @@ export default function Confirmation({ navigation }) {
     const [activity, setactivity] = useState(false);
     const [renewable, setrenewable] = useState("renewable")
     const [categoryid, setcategoryid] = useState("")
+    const [catalogid, setcatalogid] = useState("")
+    const [errorcounter, seterrorcounter] = useState(0);
 
     const METHOD_DATA = [{
         supportedMethods: ['apple-pay'],
@@ -54,7 +56,9 @@ export default function Confirmation({ navigation }) {
         setselectedplan(await AsyncStorage.getItem('selectedplan'));
         setappleid(await AsyncStorage.getItem('appleid'));
         setcategoryid(await AsyncStorage.getItem("payableselectedcategoryid"))
+        setcatalogid(await AsyncStorage.getItem("payable_catalog_id"))
         const prodid = await AsyncStorage.getItem('appleid');
+        console.log(prodid);
         const intiateconnection = await IAP.initConnection();
         if (intiateconnection) {
             try {
@@ -64,39 +68,13 @@ export default function Confirmation({ navigation }) {
                 alert(err);
             }
         }
-        const region = await AsyncStorage.getItem('regionselected');
-        const categoryId = await AsyncStorage.getItem("payableselectedcategoryid");
-        var session = await AsyncStorage.getItem('session');
         var receipt = "";
-        const planid = await AsyncStorage.getItem('payable_plan_id');
         var purchaseUpdatedlistener = IAP.purchaseUpdatedListener((purchase) => {
             if (activity) {
                 try {
                     receipt = purchase.transactionReceipt;
                     if (receipt != "") {
-                        console.log("hihihihi");
-                        console.log(renewable+","+categoryId+","+planid+","+renewable+","+region);
-                        // axios.post(FIRETV_BASE_URL_STAGING + "users/" + session + "/purchases", {
-                        //     receipt: receipt,
-                        //     auth_token: AUTH_TOKEN,
-                        //     access_token: ACCESS_TOKEN,
-                        //     region: region,
-                        //     renewalType: renewable,
-                        //     categoryId: categoryId,
-                        //     plainId:planid
-                        // }, {
-                        //     headers: {
-                        //         'Accept': 'application/json',
-                        //         'Content-Type': 'application/json',
-                        //     }
-                        // }).then((resp) => {
-                        //     setactivity(false)
-                        //     navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
-                        // }).catch((error) => {
-                        //     alert(JSON.stringify(error));
-                        //     setactivity(false)
-                        // })
-                        // return true;
+                        savepurchase(receipt)
                     }
 
                 }
@@ -121,7 +99,44 @@ export default function Confirmation({ navigation }) {
             // navigation.goBack();
         })
     }
+    const savepurchase = async (receipt) => {
+        const region = await AsyncStorage.getItem('regionselected');
+        const categoryId = await AsyncStorage.getItem("payableselectedcategoryid");
+        const calatalogid = await AsyncStorage.getItem("payable_catalog_id");
+        var session = await AsyncStorage.getItem('session');
+        var receipt = "";
+        const planid = await AsyncStorage.getItem('payable_plan_id');
+        const userid = await AsyncStorage.getItem('user_id');
+        var hashcalculated = stringMd5(IOS_SECRET_KEY + session + region + planid);
 
+        axios.post(FIRETV_BASE_URL_STAGING + "users/" + session + "/purchases", {
+            auth_token: AUTH_TOKEN,
+            access_token: ACCESS_TOKEN,
+            region: region,
+            category_pack_id: categoryId,
+            plan_id: planid,
+            us: hashcalculated,
+            purchases: { receipt: receipt, renewable_type: "renewable" },
+            transaction: {
+                plan_id: planid,
+                region: region
+            },
+            user_id: session,
+        }, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        }).then((resp) => {
+            setactivity(false)
+            console.log(resp);
+            navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+        }).catch((error) => {
+            setactivity(false)
+            savepurchase(receipt);
+        })
+        return true;
+    }
     useEffect(() => {
         loadData()
     })
@@ -182,7 +197,8 @@ export default function Confirmation({ navigation }) {
             alert(JSON.stringify(error.response.data));
             //navigation.goBack();
         })
-        await IAP.requestSubscription({ sku: appleid });
+        const prodid = await AsyncStorage.getItem('appleid');
+        await IAP.requestSubscription({ sku: prodid });
     }
 
     return (

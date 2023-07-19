@@ -74,6 +74,8 @@ export default function Episode({ navigation, route }) {
   const [downloadMessage, setDownloadMessage] = useState("");
   const [introstarttime, setintrostarttime] = useState("");
   const [introendtime, setintroendtime] = useState("");
+  const [endcreditsstarttime, setendcreditsstarttime] = useState("");
+  const [nextepisode, setnextepisode] = useState("");
 
   var downloadid = [];
   var multiTapCount = 10;
@@ -160,6 +162,8 @@ export default function Episode({ navigation, route }) {
         setCatalogId(response.data.data.catalog_id);
         setintrostarttime(response.data.data.intro_start_time_sec);
         setintroendtime(response.data.data.intro_end_time_sec);
+        setendcreditsstarttime(response.data.data.end_credits_start_time_sec)
+        setnextepisode(response.data.data.next_item)
 
         AsyncStorage.getItem("watchLater_" + response.data.data.content_id).then(resp => {
           if (resp != "" && resp != null)
@@ -438,6 +442,8 @@ export default function Episode({ navigation, route }) {
     if (preview) {
       setshowupgrade(true);
     }
+    await toHoursAndMinutes(0);
+    await playnextitem();
   }
   const watchLater = async () => {
     if (!loggedin) {
@@ -540,7 +546,7 @@ export default function Episode({ navigation, route }) {
       var sessionId = await AsyncStorage.getItem('session');
       if (sessionId != "" && sessionId != null && timestamp != "" && timestamp != null) {
         await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchhistory", {
-          listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true", play_back_status: "playing",play_back_time: timestamp },
+          listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true", play_back_status: "playing", play_back_time: timestamp },
           auth_token: VIDEO_AUTH_TOKEN,
           access_token: ACCESS_TOKEN
         }, {
@@ -644,6 +650,14 @@ export default function Episode({ navigation, route }) {
     //videoRef.current.seek()
   };
 
+  const playnextitem = async () => {
+    const session = await AsyncStorage.getItem('session');
+    const region = await AsyncStorage.getItem('country_code');
+    var nextitem = FIRETV_BASE_URL_STAGING + "/catalogs/" + catalogId + "/items/" + contentId + "/next_item?auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region + "&item_language=eng";
+    axios.get(nextitem).then(response => {
+      navigation.replace('Episode', { seoUrl: response.data.data.seo_url, theme: 'episode' });
+    }).catch(error => { })
+  }
 
   return (
     <View style={styles.mainContainer}>
@@ -749,6 +763,15 @@ export default function Episode({ navigation, route }) {
                 {introstarttime != "" && introstarttime != null && !preview && introstarttime <= currentloadingtime && introendtime >= currentloadingtime ?
                   <TouchableOpacity onPress={() => { videoRef.current.seek(introendtime) }} style={{ backgroundColor: DETAILS_TEXT_COLOR, padding: 5, borderRadius: 10 }}>
                     <Text style={{ fontWeight: 'bold' }}>Skip Intro</Text>
+                  </TouchableOpacity>
+                  :
+                  ""}
+              </View>
+
+              <View style={{ position: 'absolute', right: 20, bottom: 80 }}>
+                {endcreditsstarttime != "" && endcreditsstarttime != null && !preview && endcreditsstarttime <= currentloadingtime ?
+                  <TouchableOpacity onPress={playnextitem} style={{ backgroundColor: DETAILS_TEXT_COLOR, padding: 5, borderRadius: 10 }}>
+                    <Text style={{ fontWeight: 'bold' }}>Play Next</Text>
                   </TouchableOpacity>
                   :
                   ""}

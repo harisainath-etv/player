@@ -24,7 +24,7 @@ export default function Feedback({ navigation }) {
   const loaddata = async () => {
     const region = await AsyncStorage.getItem('country_code');
     var email = await AsyncStorage.getItem('email_id');
-    if (email != "" && email != null) {
+    if (email != "" && email != null && email != 'null') {
       setemail(email)
     }
     axios.get(FIRETV_BASE_URL_STAGING + "catalog_lists/channels.gzip?region=" + region + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN).then(resp => {

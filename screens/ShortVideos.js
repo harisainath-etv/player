@@ -265,7 +265,7 @@ export default function Shorts() {
                                     }
 
 
-                                    <Pressable onPress={shareVideo}><AntDesign name="sharealt" size={35} color={SLIDER_PAGINATION_SELECTED_COLOR} style={{ marginTop: 50 }} /></Pressable>
+                                    {/* <Pressable onPress={shareVideo}><AntDesign name="sharealt" size={35} color={SLIDER_PAGINATION_SELECTED_COLOR} style={{ marginTop: 50 }} /></Pressable> */}
 
                                     {/* <Pressable style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="eye" size={30} color="#ffffff" style={{ marginTop: 40 }} />
                                         <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}>{kFormatter(item.totalviews)}</Text></Pressable> */}
