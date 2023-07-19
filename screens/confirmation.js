@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity, Platform, TextInput } from 'react-native'
+import { View, Text, TouchableOpacity, Platform, TextInput, Image, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { ACCESS_TOKEN, BACKGROUND_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, MPGS_PAYMENT_BASE_URL, NORMAL_TEXT_COLOR, SECRET_KEY, SLIDER_PAGINATION_SELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
+import { ACCESS_TOKEN, BACKGROUND_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, SECRET_KEY, SLIDER_PAGINATION_SELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
 import NormalHeader from './normalHeader'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -16,12 +16,15 @@ export default function Confirmation({ navigation }) {
     const [coupon, setcoupon] = useState("");
     const [discountmessage, setdiscountmessage] = useState("");
     const [usersubscribed, setusersubscribed] = useState();
+    const [paymentgateway, setpaymentgateway] = useState('billdesk');
+    const [region, setregion] = useState('IN');
     const loadData = async () => {
         setAmount(await AsyncStorage.getItem('payable_amount'));
         setcurrency(await AsyncStorage.getItem('payable_currency_symbol'));
         setplanname(await AsyncStorage.getItem('payable_selected_name'));
         setplanduration(await AsyncStorage.getItem('payable_selected_duration'));
         setusersubscribed(await AsyncStorage.getItem('payable_coupon_display'));
+        setregion(await AsyncStorage.getItem('country_code'));
     }
     useEffect(() => {
         loadData()
@@ -61,35 +64,69 @@ export default function Confirmation({ navigation }) {
             var paymentinfoobj = { net_amount: amount, price_charged: amount, currency: payable_currency, packs: [{ plan_type: "", category: payable_category, subscription_catalog_id: payable_catalog_id, category_pack_id: payable_category_id, plan_id: payable_plan_id }] };
 
         if (region == 'IN') {
-            axios.post(FIRETV_BASE_URL_STAGING + 'users/' + session + '/transactions', {
-                auth_token: VIDEO_AUTH_TOKEN,
-                access_token: ACCESS_TOKEN,
-                auto_renew: false,
-                us: hashcalculated,
-                region: region,
-                payment_gateway: "billdesk",
-                platform: "android",
-                payment_info: paymentinfoobj,
-                transaction_info: { app_txn_id: 1, txn_message: payable_description, txn_status: 'init', order_id: "", pg_transaction_id: "" },
-                upgrade_plan: palnupgrade,
-                user_info: { email: email, mobile_number: mobile_number },
-                miscellaneous: { browser: "chrome", device_brand: "unknown", device_IMEI: "NA", device_model: "NA", device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: "NA" }
-            }, {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                }
-            }).then(resp => {
-                if (resp.data.data.code != "1070")
-                    navigation.navigate('Webview', { uri: resp.data.data.payment_url + "?msg=" + resp.data.data.msg })
-                else {
-                    alert(resp.data.data.message);
-                    navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
-                }
+            if (paymentgateway == 'billdesk') {
+                axios.post(FIRETV_BASE_URL_STAGING + 'users/' + session + '/transactions', {
+                    auth_token: VIDEO_AUTH_TOKEN,
+                    access_token: ACCESS_TOKEN,
+                    auto_renew: false,
+                    us: hashcalculated,
+                    region: region,
+                    payment_gateway: "billdesk",
+                    platform: "android",
+                    payment_info: paymentinfoobj,
+                    transaction_info: { app_txn_id: 1, txn_message: payable_description, txn_status: 'init', order_id: "", pg_transaction_id: "" },
+                    upgrade_plan: palnupgrade,
+                    user_info: { email: email, mobile_number: mobile_number },
+                    miscellaneous: { browser: "chrome", device_brand: "unknown", device_IMEI: "NA", device_model: "NA", device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: "NA" }
+                }, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    }
+                }).then(resp => {
+                    if (resp.data.data.code != "1070")
+                        navigation.navigate('Webview', { uri: resp.data.data.payment_url + "?msg=" + resp.data.data.msg })
+                    else {
+                        alert(resp.data.data.message);
+                        navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+                    }
 
-            }).catch(error => {
-                console.log(error.response.data);
-            })
+                }).catch(error => {
+                    console.log(error.response.data);
+                })
+            }
+            else if (paymentgateway == 'ccavenue') {
+                axios.post(FIRETV_BASE_URL_STAGING + 'users/' + session + '/transactions', {
+                    auth_token: VIDEO_AUTH_TOKEN,
+                    access_token: ACCESS_TOKEN,
+                    auto_renew: false,
+                    us: hashcalculated,
+                    region: region,
+                    payment_gateway: "ccavenue",
+                    platform: "android",
+                    payment_info: paymentinfoobj,
+                    transaction_info: { app_txn_id: 1, txn_message: payable_description, txn_status: 'init', order_id: "", pg_transaction_id: "" },
+                    upgrade_plan: palnupgrade,
+                    user_info: { email: email, mobile_number: mobile_number },
+                    miscellaneous: { browser: "chrome", device_brand: "unknown", device_IMEI: "NA", device_model: "NA", device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: "NA" }
+                }, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    }
+                }).then(resp => {
+                    if (resp.data.data.code != "1070") { 
+                        navigation.navigate('Webview', { uri: resp.data.data.payment_url + "&encRequest=" + resp.data.data.msg + "&access_code=" + resp.data.data.access_code })
+                    }
+                    else {
+                        alert(resp.data.data.message);
+                        navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+                    }
+
+                }).catch(error => {
+                    console.log(error);
+                })
+            }
         }
         else {
             axios.post(FIRETV_BASE_URL_STAGING + 'users/' + session + '/transactions', {
@@ -113,7 +150,7 @@ export default function Confirmation({ navigation }) {
             }).then(resp => {
                 if (resp.data.data.code == "200") {
                     console.log(resp.data.data.mpgs.session_id);
-                    navigation.navigate('HtmlWebview', { sessionid: resp.data.data.mpgs.session_id,description:resp.data.data.mpgs.description,transactionid:resp.data.data.transaction_id,referenceid:resp.data.data.mpgs.reference_id, name:resp.data.data.mpgs.name,line1:resp.data.data.mpgs.address1,line2:resp.data.data.mpgs.address1 })
+                    navigation.navigate('HtmlWebview', { sessionid: resp.data.data.mpgs.session_id, description: resp.data.data.mpgs.description, transactionid: resp.data.data.transaction_id, referenceid: resp.data.data.mpgs.reference_id, name: resp.data.data.mpgs.name, line1: resp.data.data.mpgs.address1, line2: resp.data.data.mpgs.address1 })
                 }
                 else {
                     alert(resp.data.data.message);
@@ -193,6 +230,40 @@ export default function Confirmation({ navigation }) {
                         <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25 }}>{currency} {amount}</Text>
                     }
                 </View>
+
+                {region == 'IN' ?
+                    paymentgateway == 'billdesk' ?
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
+                            <Pressable onPress={() => setpaymentgateway('billdesk')} style={{ width: "45%" }}>
+                                <Image source={require('../assets/billdesk-tick.png')} style={{ width: '100%', height: 50 }} />
+                            </Pressable>
+                            <Pressable onPress={() => setpaymentgateway('ccavenue')} style={{ width: "45%" }}>
+                                <Image source={require('../assets/ccavenue-untick.png')} style={{ width: '100%', height: 50 }} />
+                            </Pressable>
+                        </View>
+                        :
+                        paymentgateway == 'ccavenue' ?
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
+                                <Pressable onPress={() => setpaymentgateway('billdesk')} style={{ width: "45%" }}>
+                                    <Image source={require('../assets/billdesk-untick.png')} style={{ width: '100%', height: 50 }} />
+                                </Pressable>
+                                <Pressable onPress={() => setpaymentgateway('ccavenue')} style={{ width: "45%" }}>
+                                    <Image source={require('../assets/ccavenue-tick.png')} style={{ width: '100%', height: 50 }} />
+                                </Pressable>
+                            </View>
+                            :
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
+                                <Pressable onPress={() => setpaymentgateway('billdesk')} style={{ width: "45%" }}>
+                                    <Image source={require('../assets/billdesk-tick.png')} style={{ width: '100%', height: 50 }} />
+                                </Pressable>
+                                <Pressable onPress={() => setpaymentgateway('ccavenue')} style={{ width: "45%" }}>
+                                    <Image source={require('../assets/ccavenue-untick.png')} style={{ width: '100%', height: 50 }} />
+                                </Pressable>
+                            </View>
+                    :
+                    ""
+                }
+
             </View>
 
             <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
