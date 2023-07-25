@@ -1,4 +1,4 @@
-package com.video.Media;
+package com.etvwin.mobile.Media;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.ReactApplicationContext;

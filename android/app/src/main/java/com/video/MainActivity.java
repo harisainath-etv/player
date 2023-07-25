@@ -1,4 +1,4 @@
-package com.video;
+package com.etvwin.mobile;
 
 import android.os.Build;
 import android.os.Bundle;

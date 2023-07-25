@@ -1,4 +1,4 @@
-package com.video.newarchitecture.components;
+package com.etvwin.mobile.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;

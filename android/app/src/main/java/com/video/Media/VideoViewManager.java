@@ -1,4 +1,4 @@
-package com.video.Media;
+package com.etvwin.mobile.Media;
 
 import android.view.Choreographer;
 import android.view.View;

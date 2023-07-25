@@ -20,6 +20,7 @@ import axios from 'axios';
 import Modal from "react-native-modal";
 import Footer from './footer';
 import Header from './header';
+import DeviceInfo from 'react-native-device-info';
 
 export const ElementsText = {
     AUTOPLAY: 'AutoPlay',
@@ -28,6 +29,7 @@ export const ElementsText = {
 var page = 'featured-1';
 var selectedItem = 0;
 var popup = false;
+var isTablet = DeviceInfo.isTablet();
 function Home({ navigation, route }) {
 
     const [colors, setColors] = useState([
@@ -82,17 +84,29 @@ function Home({ navigation, route }) {
     const dataFetchedRef = useRef(false);
     const paginationLoadCount = 10;
 
-    const baseOptions = ({
+    const baseOptions = isTablet ? ({
+        vertical: false,
+        width: PAGE_WIDTH,
+        height: 430,
+    }) : ({
         vertical: false,
         width: PAGE_WIDTH * 0.9,
         height: 430,
     });
-    const baseOptionsOther = ({
+    const baseOptionsOther = isTablet ? ({
+        vertical: false,
+        width: PAGE_WIDTH,
+        height: 260,
+    }): ({
         vertical: false,
         width: PAGE_WIDTH * 0.9,
         height: 260,
     });
-    const baseOptionsOtherSingle = ({
+    const baseOptionsOtherSingle = isTablet? ({
+        vertical: false,
+        width: PAGE_WIDTH,
+        height: 355,
+    }): ({
         vertical: false,
         width: PAGE_WIDTH * 0.95,
         height: 250,
@@ -171,14 +185,23 @@ function Home({ navigation, route }) {
                                 }
                                 else {
                                     if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
-                                        if (data.data.catalog_list_items[i].layout_type == "top_banner")
-                                            All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": "" });
-                                        else
-                                            if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show")
-                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                        if (data.data.catalog_list_items[i].layout_type == "top_banner") {
+                                            if (isTablet)
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_16_9.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": "" });
                                             else
-                                                if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
-                                                    All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": "" });
+                                        }
+                                        else
+                                            if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show") {
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                            }
+                                            else
+                                                if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner") {
+                                                    if (isTablet)
+                                                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.web_banner.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                    else
+                                                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                }
                                                 else
                                                     All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
 
@@ -299,8 +322,8 @@ function Home({ navigation, route }) {
                     }
                 }).catch(error => {
                     //console.log(JSON.stringify(error.response.data));
-                    if(error.response.data.error.code=='1016'){
-                       removeunwanted()
+                    if (error.response.data.error.code == '1016') {
+                        removeunwanted()
                     }
                 })
 
@@ -312,13 +335,12 @@ function Home({ navigation, route }) {
                     }
                 }).catch(error => {
                     //console.log(JSON.stringify(error.response.data));
-                    if(error.response.data.error.code=='1016'){
+                    if (error.response.data.error.code == '1016') {
                         removeunwanted()
-                     }
+                    }
                 })
             }
-            else
-            {
+            else {
                 await AsyncStorage.clear();
                 await loadasyncdata()
             }
@@ -327,7 +349,7 @@ function Home({ navigation, route }) {
 
         }
     }
-    const removeunwanted = async() =>{
+    const removeunwanted = async () => {
         await AsyncStorage.clear();
         await loadasyncdata()
         navigation.push("Home", {
@@ -443,6 +465,15 @@ function Home({ navigation, route }) {
     }
 
     const renderItem = ({ item, index }) => {
+        const modeconfigobj = isTablet ? ({
+            parallaxScrollingScale: 0.90,
+            parallaxScrollingOffset: 65,
+            parallaxAdjacentItemScale: 0.90,
+        }) : ({
+            parallaxScrollingScale: 0.82,
+            parallaxScrollingOffset: 50,
+            parallaxAdjacentItemScale: 0.82,
+        });
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
 
@@ -461,11 +492,7 @@ function Home({ navigation, route }) {
                             mode="parallax"
                             windowSize={3}
                             panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
-                            modeConfig={{
-                                parallaxScrollingScale: 0.82,
-                                parallaxScrollingOffset: 50,
-                                parallaxAdjacentItemScale: 0.82,
-                            }}
+                            modeConfig={modeconfigobj}
                             data={item.data}
                             style={{ top: -15, }}
                             renderItem={({ item, index }) => <Pressable onPress={() => {
@@ -477,7 +504,7 @@ function Home({ navigation, route }) {
                                             navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                 }
 
-                            }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
+                            }}><FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
                         : ""}
 
@@ -526,11 +553,7 @@ function Home({ navigation, route }) {
                             mode="parallax"
                             windowSize={3}
                             panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
-                            modeConfig={{
-                                parallaxScrollingScale: 0.82,
-                                parallaxScrollingOffset: 50,
-                                parallaxAdjacentItemScale: 0.82,
-                            }}
+                            modeConfig={modeconfigobj}
                             data={item.data}
                             style={{}}
                             renderItem={({ item, index }) => <Pressable onPress={() => {
@@ -618,7 +641,7 @@ function Home({ navigation, route }) {
                                             VIDEO_TYPES.includes(item.theme) ?
                                                 navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                     }
-                                }}><Image resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
+                                }}><Image resizeMode={FastImage.resizeMode.stretch} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
                         </View>
                         {!!progressValue3 ?
@@ -654,54 +677,16 @@ function Home({ navigation, route }) {
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
                             {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
-                        <FlatList
-                            data={item.data}
-                            keyExtractor={(x, i) => i.toString()}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.containerMargin}
-                            renderItem={
-                                ({ item, index }) =>
-                                    <View>
-                                        <Pressable onPress={() => {
-                                            {
-                                                item.medialistinlist ?
-                                                    navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
-                                                    :
-                                                    VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
-                                            }
-                                        }}>
-                                            <Image
-                                                style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
-                                                resizeMode={FastImage.resizeMode.stretch}
-                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                        </Pressable>
-                                        {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
-                                        {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                    </View>
-                            }
-                        />
-                    </View>
-                    : ""}
-
-                {item.layoutType == 'channels' && item.data.length != 0 ?
-                    <View>
-                        <View style={styles.sectionHeaderView}>
-                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
-                        </View>
-                        <View style={{ flexDirection: 'column' }}>
+                        {isTablet ?
                             <FlatList
                                 data={item.data}
                                 keyExtractor={(x, i) => i.toString()}
-                                horizontal={false}
+                                horizontal={true}
                                 showsHorizontalScrollIndicator={false}
                                 style={styles.containerMargin}
-                                numColumns={3}
                                 renderItem={
                                     ({ item, index }) =>
-                                        <View style={{ marginRight: 5, marginLeft: 5 }}>
+                                        <View>
                                             <Pressable onPress={() => {
                                                 {
                                                     item.medialistinlist ?
@@ -712,50 +697,183 @@ function Home({ navigation, route }) {
                                                 }
                                             }}>
                                                 <Image
-                                                    style={[styles.imageSectionCircle,]}
+                                                    style={[styles.imageSectionVerticalTab, { resizeMode: 'stretch', }]}
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
-                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
+                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </View>
                                 }
                             />
+                            :
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                numColumns={3}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                }
+                                            }}>
+                                                <Image
+                                                    style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                            </Pressable>
+                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                        </View>
+                                }
+                            />
+                        }
+                    </View>
+                    : ""}
+
+                {item.layoutType == 'channels' && item.data.length != 0 ?
+                    <View>
+                        <View style={styles.sectionHeaderView}>
+                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
+                        </View>
+                        <View style={{ flexDirection: 'column' }}>
+                            {isTablet ?
+                                <FlatList
+                                    data={item.data}
+                                    keyExtractor={(x, i) => i.toString()}
+                                    horizontal={false}
+                                    showsHorizontalScrollIndicator={false}
+                                    style={styles.containerMargin}
+                                    numColumns={3}
+                                    renderItem={
+                                        ({ item, index }) =>
+                                            <View style={{ marginRight: 5, marginLeft: 5 }}>
+                                                <Pressable onPress={() => {
+                                                    {
+                                                        item.medialistinlist ?
+                                                            navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                            :
+                                                            VIDEO_TYPES.includes(item.theme) ?
+                                                                navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                    }
+                                                }}>
+                                                    <Image
+                                                        style={[styles.imageSectionCircleTab,]}
+                                                        resizeMode={FastImage.resizeMode.stretch}
+                                                        source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                    {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                    {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                                </Pressable>
+                                            </View>
+                                    }
+                                />
+                                :
+                                <FlatList
+                                    data={item.data}
+                                    keyExtractor={(x, i) => i.toString()}
+                                    horizontal={false}
+                                    showsHorizontalScrollIndicator={false}
+                                    style={styles.containerMargin}
+                                    numColumns={3}
+                                    renderItem={
+                                        ({ item, index }) =>
+                                            <View style={{ marginRight: 5, marginLeft: 5 }}>
+                                                <Pressable onPress={() => {
+                                                    {
+                                                        item.medialistinlist ?
+                                                            navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                            :
+                                                            VIDEO_TYPES.includes(item.theme) ?
+                                                                navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                    }
+                                                }}>
+                                                    <Image
+                                                        style={[styles.imageSectionCircle,]}
+                                                        resizeMode={FastImage.resizeMode.stretch}
+                                                        source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                    {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                    {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                                </Pressable>
+                                            </View>
+                                    }
+                                />
+                            }
                         </View>
                     </View>
                     : ""}
 
                 {item.layoutType == 'live' && item.data.length != 0 ?
                     <View>
-                        <FlatList
-                            data={item.data}
-                            keyExtractor={(x, i) => i.toString()}
-                            horizontal={false}
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.containerMargin}
-                            numColumns={3}
-                            renderItem={
-                                ({ item, index }) =>
-                                    <View>
-                                        <Pressable onPress={() => {
-                                            {
-                                                item.medialistinlist ?
-                                                    navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
-                                                    :
-                                                    VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
-                                            }
-                                        }}>
-                                            <Image
-                                                style={[styles.imageSectionVertical,]}
-                                                resizeMode={FastImage.resizeMode.stretch}
-                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
-                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </Pressable>
-                                    </View>
-                            }
-                        />
+                        {isTablet ?
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={false}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                }
+                                            }}>
+                                                <Image
+                                                    style={[styles.imageSectionVerticalTab,]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            </Pressable>
+                                        </View>
+                                }
+                            />
+                            :
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={false}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                numColumns={3}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                }
+                                            }}>
+                                                <Image
+                                                    style={[styles.imageSectionVertical,]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            </Pressable>
+                                        </View>
+                                }
+                            />
+                        }
                     </View>
                     : ""}
 
@@ -765,35 +883,67 @@ function Home({ navigation, route }) {
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
                             {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
-                        <FlatList
-                            data={item.data}
-                            keyExtractor={(x, i) => i.toString()}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.containerMargin}
-                            renderItem={
-                                ({ item, index }) =>
-                                    <View style={{ width: PAGE_WIDTH / 2.06, }}>
-                                        <Pressable onPress={() => {
-                                            {
-                                                item.medialistinlist ?
-                                                    navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
-                                                    :
-                                                    VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
-                                            }
-                                        }}>
-                                            <Image
-                                                style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
-                                                resizeMode={FastImage.resizeMode.stretch}
-                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
-                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </Pressable>
-                                        <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center', marginBottom: 20 }}>{item.displayTitle}</Text>
-                                    </View>
-                            }
-                        />
+                        {isTablet ?
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View style={{  }}>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                }
+                                            }}>
+                                                <Image
+                                                    style={[styles.imageSectionHorizontalTab, { resizeMode: 'stretch', }]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            </Pressable>
+                                            <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center', marginBottom: 20 }}>{item.displayTitle}</Text>
+                                        </View>
+                                }
+                            />
+                            :
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View style={{ width: PAGE_WIDTH / 2.06, }}>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                }
+                                            }}>
+                                                <Image
+                                                    style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            </Pressable>
+                                            <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center', marginBottom: 20 }}>{item.displayTitle}</Text>
+                                        </View>
+                                }
+                            />
+                        }
                     </View> : ""}
 
             </View>
@@ -1037,6 +1187,14 @@ const styles = StyleSheet.create({
         width: "50%",
         textAlign: 'right'
     },
+    imageSectionHorizontalTab: {
+        width: 190,
+        height: 117,
+        marginHorizontal: 3,
+        borderRadius: 10,
+        marginBottom: 10,
+        borderWidth: 1
+    },
     imageSectionHorizontal: {
         width: PAGE_WIDTH / 2.06,
         height: 117,
@@ -1054,8 +1212,25 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         resizeMode: 'stretch'
     },
+    imageSectionHorizontalSingleTab: {
+        width: PAGE_WIDTH - 20,
+        height: 340,
+        marginHorizontal: 3,
+        borderRadius: 10,
+        marginBottom: 10,
+        borderWidth: 1,
+        resizeMode: 'contain'
+    },
     imageSectionVertical: {
         width: PAGE_WIDTH / 3.15,
+        height: 170,
+        marginHorizontal: 3,
+        borderRadius: 10,
+        marginBottom: 10,
+
+    },
+    imageSectionVerticalTab: {
+        width: 150,
         height: 170,
         marginHorizontal: 3,
         borderRadius: 10,
@@ -1068,6 +1243,13 @@ const styles = StyleSheet.create({
         width: (PAGE_WIDTH / 3) - 10,
         height: (PAGE_WIDTH / 3) - 10,
         borderRadius: ((PAGE_WIDTH / 3) - 10) / 2,
+    },
+    imageSectionCircleTab: {
+        marginHorizontal: 0,
+        marginBottom: 10,
+        width: 200,
+        height: 200,
+        borderRadius: 100,
     },
     imageSectionBig: {
         width: PAGE_WIDTH / 1.1,
@@ -1103,7 +1285,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         right: 0,
         resizeMode: 'stretch',
-        borderRadius: 10,
+        borderRadius: 20,
         height: 470
     },
     showsbannerimage: {

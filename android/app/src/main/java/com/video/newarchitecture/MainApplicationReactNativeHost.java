@@ -1,4 +1,4 @@
-package com.video.newarchitecture;
+package com.etvwin.mobile.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -20,9 +20,9 @@ import com.facebook.react.fabric.EmptyReactNativeConfig;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.fabric.ReactNativeConfig;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.video.BuildConfig;
-import com.video.newarchitecture.components.MainComponentsRegistry;
-import com.video.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.etvwin.mobile.BuildConfig;
+import com.etvwin.mobile.newarchitecture.components.MainComponentsRegistry;
+import com.etvwin.mobile.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 

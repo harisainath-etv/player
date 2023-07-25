@@ -147,7 +147,7 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
     defaultConfig {
-        applicationId 'com.video'
+        applicationId 'com.etvwin.mobile'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -225,10 +225,10 @@ android {
     }
     signingConfigs {
         debug {
-            storeFile file('firebase.keystore')
-            storePassword 'Firebase@123@@@'
-            keyAlias 'firebase'
-            keyPassword 'Firebase@123@@@'
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androidstagingkey'
+            keyPassword 'android'
         }
     }
     buildTypes {

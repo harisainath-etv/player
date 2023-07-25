@@ -1,6 +1,6 @@
-package com.video.Media;
+package com.etvwin.mobile.Media;
 
-import com.video.R;
+import com.etvwin.mobile.R;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
