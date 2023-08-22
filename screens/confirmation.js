@@ -42,6 +42,9 @@ export default function Confirmation({ navigation }) {
         var payable_upgrade = await AsyncStorage.getItem('payable_upgrade');
         var mobile_number = await AsyncStorage.getItem('mobile_number');
         var ext_account_email_id = await AsyncStorage.getItem('ext_account_email_id');
+        const brand = await DeviceInfo.getManufacturer();
+        const model = await DeviceInfo.getModel();
+        const network = await DeviceInfo.getCarrier();
         if (ext_account_email_id == "" || ext_account_email_id == null) {
             var user_email_id = await AsyncStorage.getItem('user_email_id');
             if (user_email_id == "" || user_email_id == null)
@@ -77,7 +80,7 @@ export default function Confirmation({ navigation }) {
                     transaction_info: { app_txn_id: 1, txn_message: payable_description, txn_status: 'init', order_id: "", pg_transaction_id: "" },
                     upgrade_plan: palnupgrade,
                     user_info: { email: email, mobile_number: mobile_number },
-                    miscellaneous: { browser: "chrome", device_brand: "unknown", device_IMEI: "NA", device_model: "NA", device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: "NA" }
+                    miscellaneous: { browser: "chrome", device_brand: brand, device_IMEI: "NA", device_model: model, device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: network }
                 }, {
                     headers: {
                         'Accept': 'application/json',
@@ -108,7 +111,7 @@ export default function Confirmation({ navigation }) {
                     transaction_info: { app_txn_id: 1, txn_message: payable_description, txn_status: 'init', order_id: "", pg_transaction_id: "" },
                     upgrade_plan: palnupgrade,
                     user_info: { email: email, mobile_number: mobile_number },
-                    miscellaneous: { browser: "chrome", device_brand: "unknown", device_IMEI: "NA", device_model: "NA", device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: "NA" }
+                    miscellaneous: { browser: "chrome", device_brand: brand, device_IMEI: "NA", device_model: model, device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: network }
                 }, {
                     headers: {
                         'Accept': 'application/json',
@@ -141,7 +144,7 @@ export default function Confirmation({ navigation }) {
                 transaction_info: { app_txn_id: 1, txn_message: payable_description, txn_status: 'init', order_id: "", pg_transaction_id: "" },
                 upgrade_plan: palnupgrade,
                 user_info: { email: email, mobile_number: mobile_number },
-                miscellaneous: { browser: "chrome", device_brand: "unknown", device_IMEI: "NA", device_model: "NA", device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: "NA" }
+                miscellaneous: { browser: "chrome", device_brand: brand, device_IMEI: "NA", device_model: model, device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: network }
             }, {
                 headers: {
                     'Accept': 'application/json',
