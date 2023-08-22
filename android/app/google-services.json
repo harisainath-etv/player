@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "416227379708",
+    "project_id": "etv-staging",
+    "storage_bucket": "etv-staging.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416227379708:android:4c1d767253d696f5430a79",
+        "android_client_info": {
+          "package_name": "com.etvwin.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416227379708-mvi5uqmvudfnb8lod2tkhjt6ujvmj7or.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.etvwin.mobile",
+            "certificate_hash": "c5ba3481a1ac969d0d831115ef97a83769e6c25f"
+          }
+        },
+        {
+          "client_id": "416227379708-naqjmgpfidspo7nqb77de795sqjcovg4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOGOZpK4pxA_ukicoEEQzuraQPJA3kFcY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416227379708-2da2m2qpl7cq0lqeni26obmvjum1p20f.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "416227379708-mongod9ipvkqlei0n2cl500eks00f5vv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.etvott.dev"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

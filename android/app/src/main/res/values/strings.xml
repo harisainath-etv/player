@@ -1,0 +1,9 @@
+<resources>
+  <string name="app_name">ETV Win</string>
+  <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
+  <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
+  <string name="notification_channel">channel</string>
+  <string name="notification_channel_description">Audio Broadcast</string>
+  <string name="facebook_app_id">1144978155688155</string>
+  <string name="facebook_client_token">90b7cabbd775c4b4361ccd9efb35a6b7</string>
+</resources>
