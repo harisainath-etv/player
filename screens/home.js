@@ -115,7 +115,7 @@ function Home({ navigation, route }) {
     }) : ({
         vertical: false,
         width: PAGE_WIDTH,
-        height: 300,
+        height: 238,
     });
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
@@ -201,9 +201,9 @@ function Home({ navigation, route }) {
                                     if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
                                         if (data.data.catalog_list_items[i].layout_type == "top_banner") {
                                             if (isTablet)
-                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_16_9.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres,"content_id":data.data.catalog_list_items[i].catalog_list_items[j].content_id,"catalog_id":data.data.catalog_list_items[i].catalog_list_items[j].catalog_id });
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_16_9.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id });
                                             else
-                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres,"content_id":data.data.catalog_list_items[i].catalog_list_items[j].content_id,"catalog_id":data.data.catalog_list_items[i].catalog_list_items[j].catalog_id });
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id });
                                         }
                                         else
                                             if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show") {
@@ -477,7 +477,7 @@ function Home({ navigation, route }) {
         }
         //console.log(selectedItem);
     }
-    const watchLater = async (catalogId,contentId) => {
+    const watchLater = async (catalogId, contentId) => {
         if (!loggedin) {
             navigation.dispatch(StackActions.replace("Login"));
         }
@@ -523,7 +523,7 @@ function Home({ navigation, route }) {
                             loop
                             pagingEnabled={pagingEnabled}
                             snapEnabled={snapEnabled}
-                            autoPlay={!autoPlay}
+                            autoPlay={autoPlay}
                             autoPlayInterval={5000}
                             onProgressChange={(_, absoluteProgress) =>
                                 (progressValue.value = absoluteProgress)
@@ -562,7 +562,7 @@ function Home({ navigation, route }) {
 
 
                                         {VIDEO_TYPES.includes(item.theme) ?
-                                            <Pressable onPress={() => {watchLater(item.catalog_id,item.content_id)}} style={styles.wishlistbutton}>
+                                            <Pressable onPress={() => { watchLater(item.catalog_id, item.content_id) }} style={styles.wishlistbutton}>
                                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}> + WatchList</Text>
                                             </Pressable>
                                             :
@@ -620,7 +620,7 @@ function Home({ navigation, route }) {
                             {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
 
                         </View>
-                        <View style={{ padding: 10 }}>
+                        <View style={{ }}>
                             <Carousel
                                 {...baseOptionsOtherSingle}
                                 loop
@@ -1070,7 +1070,7 @@ function Home({ navigation, route }) {
                 {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} style={{}}></ActivityIndicator> : ""}
             </View>
             <View style={{ position: 'absolute', backgroundColor: menubgcolor, width: PAGE_WIDTH }}>
-                <View style={{ marginTop: 10, justifyContent: 'center', alignContent: 'center', alignItems: 'center', flexDirection: 'row', }}>
+                <View style={{ marginTop: 25, justifyContent: 'center', alignContent: 'center', alignItems: 'center', flexDirection: 'row', }}>
                     <View style={styles.menulogo}>
                         <Image source={require('../assets/images/winlogo.png')} style={{ width: 95, height: 50 }}></Image>
                     </View>
@@ -1096,8 +1096,10 @@ function Home({ navigation, route }) {
 
 
             {subscription_title == '' || subscription_title == null || subscription_title == 'Free' ?
-                <View style={{ justifyContent: 'center', alignItems: 'center' }}><TouchableOpacity style={{ position: 'absolute', bottom: 0 }} onPress={() => navigation.navigate('Subscribe', {})}>
-                    <Image source={require('../assets/images/subscribe.png')} style={styles.subscribeImage}></Image>
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}><TouchableOpacity style={{ position: 'absolute', bottom: 10 }} onPress={() => navigation.navigate('Subscribe', {})}>
+                    <LinearGradient colors={[BACKGROUND_COLOR, TAB_COLOR]} style={styles.button}>
+                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Subscribe</Text>
+                    </LinearGradient>
                 </TouchableOpacity></View>
                 :
                 ""}
@@ -1192,9 +1194,9 @@ const PaginationItem = (props) => {
 
 const styles = StyleSheet.create({
     buttonsContainer: { width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', zIndex: 1000, },
-    buttonsPosition: { position: 'absolute', bottom: 20, flexDirection: 'row', },
-    button: { backgroundColor: TAB_COLOR, paddingLeft: 40, paddingRight: 40, paddingBottom: 10, paddingTop: 10, borderRadius: 40, marginRight: 10 },
-    wishlistbutton: { borderRadius: 40, borderWidth: 2, marginLeft: 10, borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 40, paddingRight: 40, paddingBottom: 10, paddingTop: 10 },
+    buttonsPosition: { position: 'absolute', bottom: 20, flexDirection: 'row',width:'100%',alignItems:'center',justifyContent:'center' },
+    button: { backgroundColor: TAB_COLOR, paddingLeft: 30, paddingRight: 30, paddingBottom: 8, paddingTop: 8, borderRadius: 40, marginRight: 5 },
+    wishlistbutton: { borderRadius: 40, borderWidth: 2,  borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 30, paddingRight: 30, paddingBottom: 8, paddingTop: 8 },
     subscribeImage: { width: 160, height: 85, resizeMode: 'contain', justifyContent: 'center', alignItems: 'center', },
     menulogo: { height: 35, justifyContent: 'center', alignItems: 'center', padding: 10, borderRadius: 10, flexDirection: 'row' },
     menuitem: { height: 35, justifyContent: 'center', alignItems: 'center', padding: 8, borderRadius: 15 },
@@ -1268,8 +1270,8 @@ const styles = StyleSheet.create({
         borderWidth: 1
     },
     imageSectionHorizontalSingle: {
-        width: PAGE_WIDTH - 20,
-        height: 300,
+        width: PAGE_WIDTH - 5,
+        height: 235,
         marginHorizontal: 3,
         borderRadius: 10,
         marginBottom: 10,

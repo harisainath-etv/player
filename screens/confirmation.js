@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { stringMd5 } from 'react-native-quick-md5';
 import { StackActions } from '@react-navigation/native';
+import DeviceInfo from 'react-native-device-info';
 
 export default function Confirmation({ navigation }) {
     const [amount, setAmount] = useState();

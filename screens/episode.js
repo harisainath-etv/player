@@ -76,6 +76,7 @@ export default function Episode({ navigation, route }) {
   const [introendtime, setintroendtime] = useState("");
   const [endcreditsstarttime, setendcreditsstarttime] = useState("");
   const [nextepisode, setnextepisode] = useState("");
+  const [fullscreentap, setfullscreentap] = useState(false);
   var multiTapCount = 10;
   var multiTapDelay = 300;
   var client = useRemoteMediaClient();
@@ -100,7 +101,11 @@ export default function Episode({ navigation, route }) {
   };
   const exitScreen = async () => {
     StatusBar.setHidden(false)
-    { fullscreen ? handleFullscreen() : navigation.goBack() }
+    { fullscreen ? handleFullscreen() : 
+    
+      navigation.canGoBack() ? navigation.goBack() : navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+    
+    }
   }
 
   const loadData = async () => {
@@ -288,9 +293,36 @@ export default function Episode({ navigation, route }) {
     else {
       navigationConfigVisible();
     }
-    BackHandler.addEventListener('hardwareBackPress', exitScreen);
+  })
+  useEffect(() => {
+      Orientation.getDeviceOrientation((orientation) => {
+        if (orientation === 'LANDSCAPE-LEFT') {
+          setFullscreen(true);
+          StatusBar.setHidden(true)
+          Orientation.lockToLandscapeLeft();
+          return true;
+        }
+        else
+          if (orientation === 'LANDSCAPE-RIGHT') {
+            setFullscreen(true);
+            StatusBar.setHidden(true)
+            Orientation.lockToLandscapeRight();
+            return true;
+          }
+
+          if (!fullscreentap) {
+            if (orientation === 'PORTRAIT' || orientation === 'UNKNOWN' || orientation === '') {
+              setFullscreen(false);
+              StatusBar.setHidden(false)
+              Orientation.lockToPortrait();
+              return true;
+            }
+          }
+      })
+      BackHandler.addEventListener('hardwareBackPress', exitScreen);
   })
   function handleFullscreen() {
+    setfullscreentap(!fullscreentap);
     Orientation.getOrientation((orientation) => {
       if (orientation === 'LANDSCAPE-LEFT' || orientation === 'LANDSCAPE-RIGHT') {
         setFullscreen(false);
@@ -722,7 +754,7 @@ export default function Episode({ navigation, route }) {
               {state.showControls && (
                 <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50 }}>
                   {preview ?
-                    <View style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: NORMAL_TEXT_COLOR }}>You are watching Trailer</Text></View>
+                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}><Text style={{ color: NORMAL_TEXT_COLOR }}>You are watching Trailer</Text></View>
                     :
                     ""}
                   <TouchableOpacity

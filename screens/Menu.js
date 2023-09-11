@@ -220,7 +220,7 @@ export default function Menu() {
             <View style={{ padding: 15 }}>
               <View style={{ alignItems: 'center', marginBottom: 20, }}>
                 <Text style={{ fontWeight: 'bold', color: NORMAL_TEXT_COLOR, fontSize: 18 }}>Activate ETV WIN on your TV</Text>
-                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Enter the Activation code displayed on your TV screen</Text>
+                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Enter the Activation code displayed on your TV screen</Text>
                 <View style={{flexDirection:'row'}}>
                   <TextInput
                     textAlign='center'
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     borderRightColor: BACKGROUND_COLOR,
     borderLeftColor: BACKGROUND_COLOR,
     color: NORMAL_TEXT_COLOR,
-    fontSize: 25
+    fontSize: 20
   },
   button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 15, borderRadius: 10, marginRight: 20 },
 });
