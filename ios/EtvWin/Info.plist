@@ -27,10 +27,22 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.278069225987-bdkionscp9ct0q2n5e44md299tlbg5k9</string>
+				<string>com.googleusercontent.apps.416227379708-mongod9ipvkqlei0n2cl500eks00f5vv</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb1144978155688155</string>
 			</array>
 		</dict>
 	</array>
+	<key>FacebookAppID</key>
+	<string>1144978155688155</string>
+	<key>FacebookClientToken</key>
+	<string>90b7cabbd775c4b4361ccd9efb35a6b7</string>
+	<key>FacebookDisplayName</key>
+	<string>ETVWin</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -52,6 +64,20 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>${PRODUCT_NAME} uses Bluetooth to discover nearby Cast devices.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>${PRODUCT_NAME} uses Bluetooth to discover nearby Cast devices.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_googlecast._tcp</string>
+		<string>_A9D22CD6._googlecast._tcp</string>
+	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>${PRODUCT_NAME} uses the local network to discover Cast-enabled devices on your WiFi network.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>${PRODUCT_NAME} uses microphone access to listen for ultrasonic tokens
+	when pairing with nearby Cast devices.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
@@ -101,19 +127,12 @@
 	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSBonjourServices</key>
+	<key>LSApplicationQueriesSchemes</key>
 	<array>
-	<string>_googlecast._tcp</string>
-	<string>_A9D22CD6._googlecast._tcp</string>
+	<string>fbapi</string>
+	<string>fb-messenger-api</string>
+	<string>fbauth2</string>
+	<string>fbshareextension</string>
 	</array>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>${PRODUCT_NAME} uses the local network to discover Cast-enabled devices on your WiFi network.</string>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>${PRODUCT_NAME} uses Bluetooth to discover nearby Cast devices.</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>${PRODUCT_NAME} uses Bluetooth to discover nearby Cast devices.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>${PRODUCT_NAME} uses microphone access to listen for ultrasonic tokens
-	when pairing with nearby Cast devices.</string>
 </dict>
 </plist>

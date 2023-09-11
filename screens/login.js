@@ -6,6 +6,9 @@ import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
+import { AppleButton, appleAuth } from '@invertase/react-native-apple-authentication';
+import auth from '@react-native-firebase/auth';
+import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
 
 export default function Login({ navigation }) {
     const [email, setEmail] = useState('');
@@ -413,18 +416,18 @@ export default function Login({ navigation }) {
         setOtpError("");
         const region = await AsyncStorage.getItem('country_code');
         if (ValidateEmail(Mobile)) {
-        axios.post(FIRETV_BASE_URL_STAGING + "users/resend_verification_link", {
-            auth_token: AUTH_TOKEN,
-            access_token: ACCESS_TOKEN,
-            user: { email_id: Mobile, region: region, type: "email" }
-        }, {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            }
-        }).then(sentotp => {
-            setOtpError('Verification link has been sent to \r\n \r\n' + Mobile + '.\r\n \r\nPlease click the link in that email to continue.');
-        }).catch(errorotp => { setOtpError(errorotp.response.data.error.message) })
+            axios.post(FIRETV_BASE_URL_STAGING + "users/resend_verification_link", {
+                auth_token: AUTH_TOKEN,
+                access_token: ACCESS_TOKEN,
+                user: { email_id: Mobile, region: region, type: "email" }
+            }, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }).then(sentotp => {
+                setOtpError('Verification link has been sent to \r\n \r\n' + Mobile + '.\r\n \r\nPlease click the link in that email to continue.');
+            }).catch(errorotp => { setOtpError(errorotp.response.data.error.message) })
         }
     }
 
@@ -678,7 +681,7 @@ export default function Login({ navigation }) {
                     axios.post(FIRETV_BASE_URL_STAGING + "users/resend_verification_link", {
                         auth_token: AUTH_TOKEN,
                         access_token: ACCESS_TOKEN,
-                        user: { user_id: calling_code+Mobile, region: region, type: "msisdn" }
+                        user: { user_id: calling_code + Mobile, region: region, type: "msisdn" }
                     }, {
                         headers: {
                             'Accept': 'application/json',
@@ -686,7 +689,7 @@ export default function Login({ navigation }) {
                         }
                     }).then(sentotp => {
                         setshowresend(true);
-                        navigation.navigate('Otp',{ 'otpkey': 'loginMobile' })
+                        navigation.navigate('Otp', { 'otpkey': 'loginMobile' })
                     }).catch(errorotp => { setOtpError(errorotp.response.data.error.message) })
                 }
             })
@@ -694,9 +697,296 @@ export default function Login({ navigation }) {
 
         }
     }
+
+    async function onAppleButtonPress() {
+        // Start the sign-in request
+        const appleAuthRequestResponse = await appleAuth.performRequest({
+            requestedOperation: appleAuth.Operation.LOGIN,
+            requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+        });
+
+        // Ensure Apple returned a user identityToken
+        if (!appleAuthRequestResponse.identityToken) {
+            throw new Error('Apple Sign-In failed - no identify token returned');
+        }
+
+        // Create a Firebase credential from the response
+        const { identityToken, nonce } = appleAuthRequestResponse;
+        const appleCredential = auth.AppleAuthProvider.credential(identityToken, nonce);
+
+        // Sign the user in with the credential
+        return auth().signInWithCredential(appleCredential);
+    }
+
+    // const applesignin = async (userinfo) => {
+    //     try {
+    //         const region = await AsyncStorage.getItem('country_code');
+    //         var frontpagedob = await AsyncStorage.getItem('frontpagedob');
+    //         var frontpagegender = await AsyncStorage.getItem('frontpagegender');
+    //         var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
+    //         setuser(userinfo)
+    //         axios.post(FIRETV_BASE_URL_STAGING + '/users/external_auth/sign_in',
+    //             {
+    //                 access_token: ACCESS_TOKEN,
+    //                 auth_token: VIDEO_AUTH_TOKEN,
+    //                 user: {
+    //                     ext_account_email_id: userinfo.user.email,
+    //                     firstname: userinfo.user.displayName,
+    //                     provider: "apple",
+    //                     region: region,
+    //                     uid: userinfo.user.uid
+    //                 }
+    //             },
+    //             {
+    //                 headers: {
+    //                     'Accept': 'application/json',
+    //                     'Content-Type': 'application/json',
+    //                 }
+    //             }).then(response => {
+    //                 AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
+    //                 AsyncStorage.setItem('ext_account_email_id', response.data.data.ext_account_email_id)
+    //                 AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
+    //                 AsyncStorage.setItem('ext_user_id', response.data.data.ext_user_id)
+    //                 AsyncStorage.setItem('firstname', response.data.data.firstname)
+    //                 AsyncStorage.setItem('login_type', response.data.data.login_type)
+    //                 AsyncStorage.setItem('profile_pic', userinfo.user.photoURL)
+    //                 AsyncStorage.setItem('session', response.data.data.session)
+    //                 AsyncStorage.setItem('user_id', response.data.data.user_id)
+    //                 AsyncStorage.setItem('email_id', userinfo.user.email)
+    //                 AsyncStorage.setItem('mobile_number', response.data.data.mobile_number)
+    //                 if ((frontpagedob != "" && frontpagedob != null) || (frontpagegender != "" && frontpagegender != null) || (frontpagepincode != "" && frontpagepincode != null)) {
+
+    //                     axios.put(FIRETV_BASE_URL_STAGING + 'users/' + response.data.data.session + '/account', {
+    //                         access_token: ACCESS_TOKEN,
+    //                         auth_token: VIDEO_AUTH_TOKEN,
+    //                         user: {
+    //                             birthdate: frontpagedob,
+    //                             gender: frontpagegender,
+    //                             address: frontpagepincode
+    //                         }
+    //                     }).then(resp => {
+    //                         AsyncStorage.removeItem('frontpagedob');
+    //                         AsyncStorage.removeItem('frontpagegender');
+    //                         AsyncStorage.removeItem('frontpagepincode');
+    //                     }).catch(error => { console.log(error.response.data); })
+    //                 }
+
+    //                 axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
+    //                     AsyncStorage.setItem('address', resp.data.data.address)
+    //                     AsyncStorage.setItem('age', resp.data.data.age)
+    //                     AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
+    //                     AsyncStorage.setItem('email_id', resp.data.data.email_id)
+    //                     AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
+    //                     AsyncStorage.setItem('firstname', resp.data.data.firstname)
+    //                     AsyncStorage.setItem('gender', resp.data.data.gender)
+    //                     AsyncStorage.setItem('lastname', JSON.stringify(resp.data.data.lastname))
+    //                     AsyncStorage.setItem('login_type', resp.data.data.login_type)
+    //                     AsyncStorage.setItem('mobile_number', resp.data.data.mobile_number)
+    //                     AsyncStorage.setItem('profile_pic', resp.data.data.profile_pic)
+    //                     AsyncStorage.setItem('user_id', resp.data.data.user_id)
+    //                 }).catch(err => {
+    //                     alert("Error in fetching account details. Please try again later.")
+    //                 })
+
+    //                 axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
+    //                     if (planresponse.data.data.length > 0) {
+    //                         AsyncStorage.setItem('subscription', 'done');
+    //                         AsyncStorage.setItem('user_id', planresponse.data.data[0].user_id);
+    //                         AsyncStorage.setItem('subscription_id', planresponse.data.data[0].subscription_id);
+    //                         AsyncStorage.setItem('plan_id', planresponse.data.data[0].plan_id);
+    //                         AsyncStorage.setItem('category', planresponse.data.data[0].category);
+    //                         AsyncStorage.setItem('valid_till', planresponse.data.data[0].valid_till);
+    //                         AsyncStorage.setItem('start_date', planresponse.data.data[0].start_date);
+    //                         AsyncStorage.setItem('transaction_id', planresponse.data.data[0].transaction_id);
+    //                         AsyncStorage.setItem('created_at', planresponse.data.data[0].created_at);
+    //                         AsyncStorage.setItem('updated_at', planresponse.data.data[0].updated_at);
+    //                         AsyncStorage.setItem('plan_status', planresponse.data.data[0].plan_status);
+    //                         AsyncStorage.setItem('invoice_inc_id', JSON.stringify(planresponse.data.data[0].invoice_inc_id));
+    //                         AsyncStorage.setItem('price_charged', JSON.stringify(planresponse.data.data[0].price_charged));
+    //                         AsyncStorage.setItem('email_id', JSON.stringify(planresponse.data.data[0].email_id));
+    //                         AsyncStorage.setItem('plan_title', JSON.stringify(planresponse.data.data[0].plan_title));
+    //                         AsyncStorage.setItem('subscription_title', JSON.stringify(planresponse.data.data[0].subscription_title));
+    //                         AsyncStorage.setItem('invoice_id', JSON.stringify(planresponse.data.data[0].invoice_id));
+    //                         AsyncStorage.setItem('currency', JSON.stringify(planresponse.data.data[0].currency));
+    //                         AsyncStorage.setItem('currency_symbol', JSON.stringify(planresponse.data.data[0].currency_symbol));
+    //                         AsyncStorage.setItem('status', JSON.stringify(planresponse.data.data[0].status));
+    //                     }
+    //                 }).catch(planerror => {
+    //                     console.log(planerror.response.data);
+    //                 })
+    //                 console.log(JSON.stringify(response.data.data));
+
+    //                 navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: false }))
+
+    //             }).catch(err => {
+    //                 console.log(JSON.stringify(err));
+    //                 //alert(err.response.data.message)
+    //             })
+    //     }
+    //     catch (error) {
+    //         console.log(error.message);
+    //         if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+    //             console.log("sign in cancelled");
+    //         }
+    //         else if (error.code === statusCodes.IN_PROGRESS) {
+    //             console.log("signing in");
+    //         }
+    //         else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+    //             console.log("not available");
+    //         }
+    //         else {
+    //             console.log("some error");
+    //         }
+    //     }
+    // }
+
+    async function onFacebookButtonPress() {
+        // Attempt login with permissions
+        const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+      
+        if (result.isCancelled) {
+          throw 'User cancelled the login process';
+        }
+      
+        // Once signed in, get the users AccessToken
+        const data = await AccessToken.getCurrentAccessToken();
+      
+        if (!data) {
+          throw 'Something went wrong obtaining access token';
+        }
+      
+        // Create a Firebase credential with the AccessToken
+        const facebookCredential = auth.FacebookAuthProvider.credential(data.accessToken);
+      
+        // Sign-in the user with the credential
+        return auth().signInWithCredential(facebookCredential);
+      }
+      
+    const socialsignin = async (userinfo) => {
+        try {
+            const region = await AsyncStorage.getItem('country_code');
+            var frontpagedob = await AsyncStorage.getItem('frontpagedob');
+            var frontpagegender = await AsyncStorage.getItem('frontpagegender');
+            var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
+            setuser(userinfo)
+            axios.post(FIRETV_BASE_URL_STAGING + '/users/external_auth/sign_in',
+                {
+                    access_token: ACCESS_TOKEN,
+                    auth_token: VIDEO_AUTH_TOKEN,
+                    user: {
+                        ext_account_email_id: userinfo.user.email,
+                        firstname: userinfo.user.displayName,
+                        provider: "apple",
+                        region: region,
+                        uid: userinfo.user.uid
+                    }
+                },
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    }
+                }).then(response => {
+                    AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
+                    AsyncStorage.setItem('ext_account_email_id', response.data.data.ext_account_email_id)
+                    AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
+                    AsyncStorage.setItem('ext_user_id', response.data.data.ext_user_id)
+                    AsyncStorage.setItem('firstname', response.data.data.firstname)
+                    AsyncStorage.setItem('login_type', response.data.data.login_type)
+                    AsyncStorage.setItem('profile_pic', userinfo.user.photoURL)
+                    AsyncStorage.setItem('session', response.data.data.session)
+                    AsyncStorage.setItem('user_id', response.data.data.user_id)
+                    AsyncStorage.setItem('email_id', userinfo.user.email)
+                    AsyncStorage.setItem('mobile_number', response.data.data.mobile_number)
+                    if ((frontpagedob != "" && frontpagedob != null) || (frontpagegender != "" && frontpagegender != null) || (frontpagepincode != "" && frontpagepincode != null)) {
+
+                        axios.put(FIRETV_BASE_URL_STAGING + 'users/' + response.data.data.session + '/account', {
+                            access_token: ACCESS_TOKEN,
+                            auth_token: VIDEO_AUTH_TOKEN,
+                            user: {
+                                birthdate: frontpagedob,
+                                gender: frontpagegender,
+                                address: frontpagepincode
+                            }
+                        }).then(resp => {
+                            AsyncStorage.removeItem('frontpagedob');
+                            AsyncStorage.removeItem('frontpagegender');
+                            AsyncStorage.removeItem('frontpagepincode');
+                        }).catch(error => { console.log(error.response.data); })
+                    }
+
+                    axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
+                        AsyncStorage.setItem('address', resp.data.data.address)
+                        AsyncStorage.setItem('age', resp.data.data.age)
+                        AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
+                        AsyncStorage.setItem('email_id', resp.data.data.email_id)
+                        AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
+                        AsyncStorage.setItem('firstname', resp.data.data.firstname)
+                        AsyncStorage.setItem('gender', resp.data.data.gender)
+                        AsyncStorage.setItem('lastname', JSON.stringify(resp.data.data.lastname))
+                        AsyncStorage.setItem('login_type', resp.data.data.login_type)
+                        AsyncStorage.setItem('mobile_number', resp.data.data.mobile_number)
+                        AsyncStorage.setItem('profile_pic', resp.data.data.profile_pic)
+                        AsyncStorage.setItem('user_id', resp.data.data.user_id)
+                    }).catch(err => {
+                        alert("Error in fetching account details. Please try again later.")
+                    })
+
+                    axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
+                        if (planresponse.data.data.length > 0) {
+                            AsyncStorage.setItem('subscription', 'done');
+                            AsyncStorage.setItem('user_id', planresponse.data.data[0].user_id);
+                            AsyncStorage.setItem('subscription_id', planresponse.data.data[0].subscription_id);
+                            AsyncStorage.setItem('plan_id', planresponse.data.data[0].plan_id);
+                            AsyncStorage.setItem('category', planresponse.data.data[0].category);
+                            AsyncStorage.setItem('valid_till', planresponse.data.data[0].valid_till);
+                            AsyncStorage.setItem('start_date', planresponse.data.data[0].start_date);
+                            AsyncStorage.setItem('transaction_id', planresponse.data.data[0].transaction_id);
+                            AsyncStorage.setItem('created_at', planresponse.data.data[0].created_at);
+                            AsyncStorage.setItem('updated_at', planresponse.data.data[0].updated_at);
+                            AsyncStorage.setItem('plan_status', planresponse.data.data[0].plan_status);
+                            AsyncStorage.setItem('invoice_inc_id', JSON.stringify(planresponse.data.data[0].invoice_inc_id));
+                            AsyncStorage.setItem('price_charged', JSON.stringify(planresponse.data.data[0].price_charged));
+                            AsyncStorage.setItem('email_id', JSON.stringify(planresponse.data.data[0].email_id));
+                            AsyncStorage.setItem('plan_title', JSON.stringify(planresponse.data.data[0].plan_title));
+                            AsyncStorage.setItem('subscription_title', JSON.stringify(planresponse.data.data[0].subscription_title));
+                            AsyncStorage.setItem('invoice_id', JSON.stringify(planresponse.data.data[0].invoice_id));
+                            AsyncStorage.setItem('currency', JSON.stringify(planresponse.data.data[0].currency));
+                            AsyncStorage.setItem('currency_symbol', JSON.stringify(planresponse.data.data[0].currency_symbol));
+                            AsyncStorage.setItem('status', JSON.stringify(planresponse.data.data[0].status));
+                        }
+                    }).catch(planerror => {
+                        console.log(planerror.response.data);
+                    })
+                    console.log(JSON.stringify(response.data.data));
+
+                    navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: false }))
+
+                }).catch(err => {
+                    console.log(JSON.stringify(err));
+                    //alert(err.response.data.message)
+                })
+        }
+        catch (error) {
+            console.log(error.message);
+            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+                console.log("sign in cancelled");
+            }
+            else if (error.code === statusCodes.IN_PROGRESS) {
+                console.log("signing in");
+            }
+            else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+                console.log("not available");
+            }
+            else {
+                console.log("some error");
+            }
+        }
+    }
+
     return (
         <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
-            <View style={{ flex: 1,marginTop:40 }}>
+            <View style={{ flex: 1, marginTop: 40 }}>
 
                 <View style={styles.header}>
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Sign In</Text>
@@ -739,9 +1029,48 @@ export default function Login({ navigation }) {
 
                                 <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
 
+                                    <AppleButton
+                                        buttonStyle={AppleButton.Style.WHITE}
+                                        buttonType={AppleButton.Type.SIGN_IN}
+                                        style={{
+                                            width: 200,
+                                            height: 50,
+                                            marginBottom: 20
+                                        }}
+                                        onPress={() => onAppleButtonPress().then((resp) => {
+                                            console.log('Apple sign-in complete!');
+                                            console.log(resp);
+                                            socialsignin(resp);
+                                        })}
+                                    />
+
+
+                                    <Pressable
+                                        style={{
+                                            width: 200,
+                                            height: 50,
+                                            marginBottom: 20,
+                                            backgroundColor:'#39529a',
+                                            alignContent:'center',
+                                            justifyContent:'center',
+                                            alignItems:'center',
+                                            flexDirection:'row',
+                                            borderRadius:5
+                                        }}
+                                        onPress={() => onFacebookButtonPress().then((resp) => 
+                                            {
+                                                console.log('Signed in with Facebook!');
+                                                console.log(resp);
+                                                socialsignin(resp);
+                                            }
+                                            )}
+                                    >
+                                        <Text style={{color:NORMAL_TEXT_COLOR,fontWeight:'bold'}}>Sign in with Facebook</Text>
+                                        </Pressable>
+
                                     {/* {!user.idToken ? */}
                                     <GoogleSigninButton
-                                        style={{ width: 200, height: 50 }}
+                                        style={{ width: 205, height: 50 }}
                                         size={GoogleSigninButton.Size.Wide}
                                         color={GoogleSigninButton.Color.Dark}
                                         onPress={signin}
@@ -774,7 +1103,7 @@ export default function Login({ navigation }) {
                                 <TextInput secureTextEntry={true} onChangeText={setnewpassword} value={newpassword} style={styles.textinput} placeholder="Password*" placeholderTextColor={NORMAL_TEXT_COLOR} />
                                 <Text style={styles.errormessage}>{newpasswordError}</Text>
                                 <View>
-                                    <TouchableOpacity style={{ position: 'absolute', right: 20 }} onPress={()=>navigation.navigate('ForgotPassword')}>
+                                    <TouchableOpacity style={{ position: 'absolute', right: 20 }} onPress={() => navigation.navigate('ForgotPassword')}>
                                         <Text style={{ color: NORMAL_TEXT_COLOR }}>Forgot Password?</Text>
                                     </TouchableOpacity>
                                 </View>

@@ -57,6 +57,7 @@ export default function Header(props) {
         //console.log(profile_pic);
         if (session != "" && session != null) {
             setLogin(true)
+            if(firstname!='' && firstname!=null && firstname!='null')
             setName(firstname.split('"').join(""));
             if(email!='' && email!=null && email!='null')
             setEmail(email.split('"').join(""));

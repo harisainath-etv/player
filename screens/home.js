@@ -8,18 +8,19 @@ import Animated, {
     useAnimatedStyle,
     useSharedValue,
 } from 'react-native-reanimated';
+import { Image } from 'react-native-elements';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE } from '../constants';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Image } from 'react-native-elements';
 // import RNBackgroundDownloader from 'react-native-background-downloader';
 import axios from 'axios';
 import Modal from "react-native-modal";
 import Footer from './footer';
 import Header from './header';
+import DeviceInfo from 'react-native-device-info';
 
 export const ElementsText = {
     AUTOPLAY: 'AutoPlay',
@@ -28,8 +29,7 @@ export const ElementsText = {
 var page = 'featured-1';
 var selectedItem = 0;
 var popup = false;
-var alreadyloaded = [];
-var SQLite = require('react-native-sqlite-storage')
+var isTablet = DeviceInfo.isTablet();
 function Home({ navigation, route }) {
 
     const [colors, setColors] = useState([
@@ -84,17 +84,29 @@ function Home({ navigation, route }) {
     const dataFetchedRef = useRef(false);
     const paginationLoadCount = 10;
 
-    const baseOptions = ({
+    const baseOptions = isTablet ? ({
+        vertical: false,
+        width: PAGE_WIDTH,
+        height: 430,
+    }) : ({
         vertical: false,
         width: PAGE_WIDTH * 0.9,
         height: 430,
     });
-    const baseOptionsOther = ({
+    const baseOptionsOther = isTablet ? ({
+        vertical: false,
+        width: PAGE_WIDTH,
+        height: 260,
+    }) : ({
         vertical: false,
         width: PAGE_WIDTH * 0.9,
         height: 260,
     });
-    const baseOptionsOtherSingle = ({
+    const baseOptionsOtherSingle = isTablet ? ({
+        vertical: false,
+        width: PAGE_WIDTH,
+        height: 355,
+    }) : ({
         vertical: false,
         width: PAGE_WIDTH * 0.95,
         height: 250,
@@ -102,21 +114,8 @@ function Home({ navigation, route }) {
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
-    const errorCB = (err) => {
-        console.log("SQL Error: " + JSON.stringify(err));
-    }
-
-    const successCB = () => {
-        console.log("SQL executed fine");
-    }
-
-    const openCB = () => {
-        console.log("Database OPENED");
-    }
-
 
     async function loadData(p) {
-        var db = SQLite.openDatabase(DATABASE_NAME, DATABASE_VERSION, DATABASE_DISPLAY_NAME, DATABASE_SIZE, openCB, errorCB);
         const mobile = await AsyncStorage.getItem('mobile_number');
         const session = await AsyncStorage.getItem('session');
         var region = await AsyncStorage.getItem('country_code');
@@ -155,196 +154,216 @@ function Home({ navigation, route }) {
                     definedPageName = "home";
                 else
                     definedPageName = pageName;
+                const region = await AsyncStorage.getItem('country_code');
                 const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
-                if (!alreadyloaded.includes(url)) {
-                    alreadyloaded.push(url);
-                    const resp = await fetch(url);
-                    const data = await resp.json();
-                    setPagenumber(p + 1);
-                    if (data.data.catalog_list_items.length > 0) {
-                        for (var i = 0; i < data.data.catalog_list_items.length; i++) {
-                            if (data.data.catalog_list_items[i].hasOwnProperty('catalog_list_items')) {
-                                for (var j = 0; j < data.data.catalog_list_items[i].catalog_list_items.length; j++) {
+                const resp = await fetch(url);
+                const data = await resp.json();
+                setPagenumber(p + 1);
+                if (data.data.catalog_list_items.length > 0) {
+                    for (var i = 0; i < data.data.catalog_list_items.length; i++) {
+                        if (data.data.catalog_list_items[i].hasOwnProperty('catalog_list_items')) {
+                            for (var j = 0; j < data.data.catalog_list_items[i].catalog_list_items.length; j++) {
 
-                                    if (data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('access_control')) {
-                                        premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].access_control);
-                                        if (premiumCheckData != "") {
-                                            if (premiumCheckData['is_free']) {
-                                                premiumContent = false;
-                                            }
-                                            else {
-                                                premiumContent = true;
-                                            }
+                                if (data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('access_control')) {
+                                    premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].access_control);
+                                    if (premiumCheckData != "") {
+                                        if (premiumCheckData['is_free']) {
+                                            premiumContent = false;
+                                        }
+                                        else {
+                                            premiumContent = true;
                                         }
                                     }
-                                    var displayTitle = data.data.catalog_list_items[i].catalog_list_items[j].title
-                                    if (displayTitle.length > 19)
-                                        displayTitle = displayTitle.substr(0, 19) + "\u2026";
-                                    if (data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list) {
-                                        var splitted = data.data.catalog_list_items[i].catalog_list_items[j].seo_url.split("/");
-                                        var friendlyId = splitted[splitted.length - 1];
-                                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
-                                    }
-                                    else {
-                                        if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
-                                            if (data.data.catalog_list_items[i].layout_type == "top_banner")
-                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": "" });
+                                }
+                                var displayTitle = data.data.catalog_list_items[i].catalog_list_items[j].title
+                                if (displayTitle.length > 19)
+                                    displayTitle = displayTitle.substr(0, 19) + "\u2026";
+                                if (data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list) {
+                                    var splitted = data.data.catalog_list_items[i].catalog_list_items[j].seo_url.split("/");
+                                    var friendlyId = splitted[splitted.length - 1];
+                                    All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
+                                }
+                                else {
+                                    if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
+                                        if (data.data.catalog_list_items[i].layout_type == "top_banner") {
+                                            if (isTablet)
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_16_9.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": "" });
                                             else
-                                                if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show")
-                                                    All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": "" });
+                                        }
+                                        else
+                                            if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show") {
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                            }
+                                            else
+                                                if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner") {
+                                                    if (isTablet)
+                                                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.web_banner.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                    else
+                                                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                }
                                                 else
-                                                    if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
-                                                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
-                                                    else
-                                                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
-
-                                        }
-                                    }
-
-
-                                    if (data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('catalog_list_items')) {
-
-
-                                        for (var k = 0; k < data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items.length; k++) {
-
-                                            if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].hasOwnProperty('access_control')) {
-                                                premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].access_control);
-                                                if (premiumCheckData != "") {
-                                                    if (premiumCheckData['is_free']) {
-                                                        premiumContent = false;
-                                                    }
-                                                    else {
-                                                        premiumContent = true;
-                                                    }
-                                                }
-                                            }
-                                            var displayTitle = data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].title
-                                            if (displayTitle.length > 19)
-                                                displayTitle = displayTitle.substr(0, 19) + "\u2026";
-                                            if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list) {
-                                                var splitted = data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url.split("/");
-                                                var friendlyId = splitted[splitted.length - 1];
-                                                internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
-                                            }
-                                            else {
-                                                if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_16_9')) {
-                                                    if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "top_banner")
-                                                        internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": "" });
-                                                    else
-                                                        if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "tv_shows" || data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "show")
-                                                            internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
-                                                        else
-                                                            if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "tv_shows_banner")
-                                                                internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
-                                                            else
-                                                                internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
-
-                                                }
-                                            }
-
-                                        }
-                                        Final.push({ "friendlyId": data.data.catalog_list_items[i].catalog_list_items[j].friendly_id, "data": internalAll, "layoutType": data.data.catalog_list_items[i].catalog_list_items[j].layout_type, "displayName": data.data.catalog_list_items[i].catalog_list_items[j].display_title });
-                                        internalAll = [];
+                                                    All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
 
                                     }
                                 }
-                                if (data.data.catalog_list_items[i].layout_type == "continue_watching") {
-                                    var sessionId = await AsyncStorage.getItem('session');
-                                    if (sessionId != "" && sessionId != null) {
-                                        const continueresp = await fetch(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchhistory/listitems.gzip?&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&item_language=eng&region=" + region);
-                                        const continuedata = await continueresp.json();
 
-                                        for (var c = 0; c < continuedata.data.items.length; c++) {
-                                            All.push({ "uri": continuedata.data.items[c].thumbnails.high_4_3.url, "theme": continuedata.data.items[c].theme, "premium": false, "seoUrl": continuedata.data.items[c].seo_url, "medialistinlist": false, "friendlyId": "", "displayTitle": continuedata.data.items[c].title });
+
+                                if (data.data.catalog_list_items[i].catalog_list_items[j].hasOwnProperty('catalog_list_items')) {
+
+
+                                    for (var k = 0; k < data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items.length; k++) {
+
+                                        if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].hasOwnProperty('access_control')) {
+                                            premiumCheckData = (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].access_control);
+                                            if (premiumCheckData != "") {
+                                                if (premiumCheckData['is_free']) {
+                                                    premiumContent = false;
+                                                }
+                                                else {
+                                                    premiumContent = true;
+                                                }
+                                            }
+                                        }
+                                        var displayTitle = data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].title
+                                        if (displayTitle.length > 19)
+                                            displayTitle = displayTitle.substr(0, 19) + "\u2026";
+                                        if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list) {
+                                            var splitted = data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url.split("/");
+                                            var friendlyId = splitted[splitted.length - 1];
+                                            internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
+                                        }
+                                        else {
+                                            if (data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.hasOwnProperty('high_16_9')) {
+                                                if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "top_banner")
+                                                    internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": "" });
+                                                else
+                                                    if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "tv_shows" || data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "show")
+                                                        internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                    else
+                                                        if (data.data.catalog_list_items[i].catalog_list_items[j].layout_type == "tv_shows_banner")
+                                                            internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                        else
+                                                            internalAll.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].catalog_list_items[k].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+
+                                            }
                                         }
 
-
                                     }
+                                    Final.push({ "friendlyId": data.data.catalog_list_items[i].catalog_list_items[j].friendly_id, "data": internalAll, "layoutType": data.data.catalog_list_items[i].catalog_list_items[j].layout_type, "displayName": data.data.catalog_list_items[i].catalog_list_items[j].display_title });
+                                    internalAll = [];
 
-                                    // console.log(JSON.stringify(All));
                                 }
                             }
+                            if (data.data.catalog_list_items[i].layout_type == "continue_watching") {
+                                var sessionId = await AsyncStorage.getItem('session');
+                                if (sessionId != "" && sessionId != null) {
+                                    const continueresp = await fetch(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchhistory/listitems.gzip?&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&item_language=eng&region=" + region);
+                                    const continuedata = await continueresp.json();
 
-                            Final.push({ "friendlyId": data.data.catalog_list_items[i].friendly_id, "data": All, "layoutType": data.data.catalog_list_items[i].layout_type, "displayName": data.data.catalog_list_items[i].display_title });
-                            All = [];
+                                    for (var c = 0; c < continuedata.data.items.length; c++) {
+                                        All.push({ "uri": continuedata.data.items[c].thumbnails.high_4_3.url, "theme": continuedata.data.items[c].theme, "premium": false, "seoUrl": continuedata.data.items[c].seo_url, "medialistinlist": false, "friendlyId": "", "displayTitle": continuedata.data.items[c].title });
+                                    }
+
+
+                                }
+
+                                // console.log(JSON.stringify(All));
+                            }
                         }
-                    }
-                    if (Final.length <= 0)
-                        settoload(false);
-                    //settotalHomeData(Final);
-                    settotalHomeData((totalHomeData) => [...totalHomeData, ...Final]);
-                    setloading(false)
-                }
 
-                //watchlater content
-                var allkeys = await AsyncStorage.getAllKeys();
-                for (let a = 0; a < allkeys.length; a++) {
-                    //checking for watchlater content
-                    if (allkeys[a].includes("watchLater_")) {
-                        await AsyncStorage.removeItem(allkeys[a]);
-                    }
-                    //checking for like content
-                    if (allkeys[a].includes("like_")) {
-                        await AsyncStorage.removeItem(allkeys[a]);
+                        Final.push({ "friendlyId": data.data.catalog_list_items[i].friendly_id, "data": All, "layoutType": data.data.catalog_list_items[i].layout_type, "displayName": data.data.catalog_list_items[i].display_title });
+                        All = [];
                     }
                 }
-                var sessionId = await AsyncStorage.getItem('session');
-                var region = await AsyncStorage.getItem('country_code');
-                if (sessionId != null && sessionId != "") {
-                    //setting watch later content
-                    await axios.get(FIRETV_BASE_URL_STAGING + "/users/" + sessionId + "/playlists/watchlater/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(response => {
+                if (Final.length <= 0)
+                    settoload(false);
+                //settotalHomeData(Final);
+                settotalHomeData((totalHomeData) => [...totalHomeData, ...Final]);
+                setloading(false)
+            }
+            //offline downloads
+            // let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
+            // for (let task of lostTasks) {
+            //     task.begin(expectedBytes => {
+            //         //console.log('Expected: ' + expectedBytes);
+            //     }).progress((percent) => {
+            //         AsyncStorage.setItem('download_' + task.id, JSON.stringify(percent * 100));
+            //         //console.log(`Downloaded: ${percent * 100}%`);
+            //     }).done(() => {
+            //         AsyncStorage.setItem('download_' + task.id, JSON.stringify(1 * 100));
+            //         //console.log('Downlaod is done!');
+            //     }).error((error) => {
+            //         //console.log('Download canceled due to error: ', error);
+            //     });
 
-                        for (var i = 0; i < response.data.data.items.length; i++) {
-                            AsyncStorage.setItem("watchLater_" + response.data.data.items[i].content_id, response.data.data.items[i].content_id);
-                        }
-                    }).catch(error => {
-                        //console.log(JSON.stringify(error.response.data));
-                        if(error.response.data.error.code=='1016')
-                        {
-                            removeunwanted();
-                        }
-                    })
+            // }
 
-                    //setting like content
-                    await axios.get(FIRETV_BASE_URL_STAGING + "/users/" + sessionId + "/playlists/like/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(response => {
-
-                        for (var i = 0; i < response.data.data.items.length; i++) {
-                            AsyncStorage.setItem("like_" + response.data.data.items[i].content_id, response.data.data.items[i].content_id);
-                        }
-                    }).catch(error => {
-                        //console.log(JSON.stringify(error.response.data));
-                        if(error.response.data.error.code=='1016')
-                        {
-                            removeunwanted();
-                        }
-                    })
+            //watchlater content
+            var allkeys = await AsyncStorage.getAllKeys();
+            for (let a = 0; a < allkeys.length; a++) {
+                //checking for watchlater content
+                if (allkeys[a].includes("watchLater_")) {
+                    await AsyncStorage.removeItem(allkeys[a]);
                 }
-                else
-                {
-                    await AsyncStorage.clear();
-                    await loadasyncdata();
+                //checking for like content
+                if (allkeys[a].includes("like_")) {
+                    await AsyncStorage.removeItem(allkeys[a]);
                 }
             }
+            var sessionId = await AsyncStorage.getItem('session');
+            var region = await AsyncStorage.getItem('country_code');
+            if (sessionId != null && sessionId != "") {
+                //setting watch later content
+                await axios.get(FIRETV_BASE_URL_STAGING + "/users/" + sessionId + "/playlists/watchlater/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(response => {
+
+                    for (var i = 0; i < response.data.data.items.length; i++) {
+                        AsyncStorage.setItem("watchLater_" + response.data.data.items[i].content_id, response.data.data.items[i].content_id);
+                    }
+                }).catch(error => {
+                    //console.log(JSON.stringify(error.response.data));
+                    if (error.response.data.error.code == '1016') {
+                        removeunwanted()
+                    }
+                })
+
+                //setting like content
+                await axios.get(FIRETV_BASE_URL_STAGING + "/users/" + sessionId + "/playlists/like/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(response => {
+
+                    for (var i = 0; i < response.data.data.items.length; i++) {
+                        AsyncStorage.setItem("like_" + response.data.data.items[i].content_id, response.data.data.items[i].content_id);
+                    }
+                }).catch(error => {
+                    //console.log(JSON.stringify(error.response.data));
+                    if (error.response.data.error.code == '1016') {
+                        removeunwanted()
+                    }
+                })
+            }
+            else {
+                await AsyncStorage.clear();
+                await loadasyncdata()
+            }
+
             //like content
 
         }
-
-        alreadyloaded=[];
     }
-    const removeunwanted= async()=>{
+    const removeunwanted = async () => {
         await AsyncStorage.clear();
         await loadasyncdata()
-        navigation.push("Home",{
-            screen:'Home',
-            params:{
-                pageFriendlyId:'featured-1'
-            }
-        })
-      }
-      const loadasyncdata = async () => {
+        navigation.push("Home", {
+            screen: 'Home',
+            params: {
+                pageFriendlyId: "featured-1",
+            },
+        });
+
+    }
+    const loadasyncdata = async () => {
         await AsyncStorage.setItem('firstload', 'no');
         const getCurrentVersion = await AsyncStorage.getItem('currentVersion');
-    
+
         //fetching ip data
         const ipdetails = FIRETV_BASE_URL + "/regions/autodetect/ip.gzip?auth_token=" + AUTH_TOKEN;
         const ipResp = await fetch(ipdetails);
@@ -360,8 +379,8 @@ function Home({ navigation, route }) {
         await AsyncStorage.setItem('calling_code', ipData.region.calling_code)
         await AsyncStorage.setItem('min_digits', JSON.stringify(ipData.region.min_digits))
         await AsyncStorage.setItem('max_digits', JSON.stringify(ipData.region.max_digits))
-    
-    
+
+
         if (getCurrentVersion != APP_VERSION) {
             //fetching app config data
             const appConfig = FIRETV_BASE_URL + "/catalogs/message/items/app-config-params.gzip?region=" + ipData.region.country_code2 + "&auth_token=" + AUTH_TOKEN + "&current_version=" + APP_VERSION;
@@ -422,6 +441,7 @@ function Home({ navigation, route }) {
         }
     }
 
+
     async function getTopMenu() {
         var TopMenu = [];
         const region = await AsyncStorage.getItem('country_code');
@@ -445,6 +465,15 @@ function Home({ navigation, route }) {
     }
 
     const renderItem = ({ item, index }) => {
+        const modeconfigobj = isTablet ? ({
+            parallaxScrollingScale: 0.90,
+            parallaxScrollingOffset: 65,
+            parallaxAdjacentItemScale: 0.90,
+        }) : ({
+            parallaxScrollingScale: 0.82,
+            parallaxScrollingOffset: 50,
+            parallaxAdjacentItemScale: 0.82,
+        });
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
 
@@ -463,11 +492,7 @@ function Home({ navigation, route }) {
                             mode="parallax"
                             windowSize={3}
                             panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
-                            modeConfig={{
-                                parallaxScrollingScale: 0.82,
-                                parallaxScrollingOffset: 50,
-                                parallaxAdjacentItemScale: 0.82,
-                            }}
+                            modeConfig={modeconfigobj}
                             data={item.data}
                             style={{ top: -15, }}
                             renderItem={({ item, index }) => <Pressable onPress={() => {
@@ -479,7 +504,7 @@ function Home({ navigation, route }) {
                                             navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                 }
 
-                            }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
+                            }}><FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
                         : ""}
 
@@ -528,11 +553,7 @@ function Home({ navigation, route }) {
                             mode="parallax"
                             windowSize={3}
                             panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
-                            modeConfig={{
-                                parallaxScrollingScale: 0.82,
-                                parallaxScrollingOffset: 50,
-                                parallaxAdjacentItemScale: 0.82,
-                            }}
+                            modeConfig={modeconfigobj}
                             data={item.data}
                             style={{}}
                             renderItem={({ item, index }) => <Pressable onPress={() => {
@@ -543,7 +564,7 @@ function Home({ navigation, route }) {
                                         VIDEO_TYPES.includes(item.theme) ?
                                             navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                 }
-                            }}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
+                            }}><Image key={index} style={styles.showsbannerimage} source={{ uri: item.uri,   }} /></Pressable>}
                         />
                     </View>
                     : ""}
@@ -583,7 +604,7 @@ function Home({ navigation, route }) {
                                             VIDEO_TYPES.includes(item.theme) ?
                                                 navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                     }
-                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
+                                }}><Image resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri,   }} /></Pressable>}
                             />
                         </View>
                     </View>
@@ -620,7 +641,7 @@ function Home({ navigation, route }) {
                                             VIDEO_TYPES.includes(item.theme) ?
                                                 navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                     }
-                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
+                                }}><Image resizeMode={FastImage.resizeMode.stretch} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri,   }} /></Pressable>}
                             />
                         </View>
                         {!!progressValue3 ?
@@ -656,34 +677,65 @@ function Home({ navigation, route }) {
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
                             {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
-                        <FlatList
-                            data={item.data}
-                            keyExtractor={(x, i) => i.toString()}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.containerMargin}
-                            renderItem={
-                                ({ item, index }) =>
-                                    <View>
-                                        <Pressable onPress={() => {
-                                            {
-                                                item.medialistinlist ?
-                                                    navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
-                                                    :
-                                                    VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
-                                            }
-                                        }}>
-                                            <FastImage
-                                                style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
-                                                resizeMode={FastImage.resizeMode.stretch}
-                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                        </Pressable>
-                                        {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
-                                        {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                    </View>
-                            }
-                        />
+                        {isTablet ?
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                }
+                                            }}>
+                                                <Image
+                                                    style={[styles.imageSectionVerticalTab, { resizeMode: 'stretch', }]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri,   }} />
+                                            </Pressable>
+                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                        </View>
+                                }
+                            />
+                            :
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                }
+                                            }}>
+                                                <Image
+                                                    style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri,   }} />
+                                            </Pressable>
+                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                        </View>
+                                }
+                            />
+                        }
                     </View>
                     : ""}
 
@@ -694,16 +746,83 @@ function Home({ navigation, route }) {
                             {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
                         <View style={{ flexDirection: 'column' }}>
+                            {isTablet ?
+                                <FlatList
+                                    data={item.data}
+                                    keyExtractor={(x, i) => i.toString()}
+                                    horizontal={false}
+                                    showsHorizontalScrollIndicator={false}
+                                    style={styles.containerMargin}
+                                    numColumns={3}
+                                    renderItem={
+                                        ({ item, index }) =>
+                                            <View style={{ marginRight: 5, marginLeft: 5 }}>
+                                                <Pressable onPress={() => {
+                                                    {
+                                                        item.medialistinlist ?
+                                                            navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                            :
+                                                            VIDEO_TYPES.includes(item.theme) ?
+                                                                navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                    }
+                                                }}>
+                                                    <Image
+                                                        style={[styles.imageSectionCircleTab,]}
+                                                        resizeMode={FastImage.resizeMode.stretch}
+                                                        source={{ uri: item.uri,   }} />
+                                                    {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                    {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                                </Pressable>
+                                            </View>
+                                    }
+                                />
+                                :
+                                <FlatList
+                                    data={item.data}
+                                    keyExtractor={(x, i) => i.toString()}
+                                    horizontal={false}
+                                    showsHorizontalScrollIndicator={false}
+                                    style={styles.containerMargin}
+                                    numColumns={3}
+                                    renderItem={
+                                        ({ item, index }) =>
+                                            <View style={{ marginRight: 5, marginLeft: 5 }}>
+                                                <Pressable onPress={() => {
+                                                    {
+                                                        item.medialistinlist ?
+                                                            navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                            :
+                                                            VIDEO_TYPES.includes(item.theme) ?
+                                                                navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                    }
+                                                }}>
+                                                    <Image
+                                                        style={[styles.imageSectionCircle,]}
+                                                        resizeMode={FastImage.resizeMode.stretch}
+                                                        source={{ uri: item.uri,   }} />
+                                                    {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                    {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                                </Pressable>
+                                            </View>
+                                    }
+                                />
+                            }
+                        </View>
+                    </View>
+                    : ""}
+
+                {item.layoutType == 'live' && item.data.length != 0 ?
+                    <View>
+                        {isTablet ?
                             <FlatList
                                 data={item.data}
                                 keyExtractor={(x, i) => i.toString()}
                                 horizontal={false}
                                 showsHorizontalScrollIndicator={false}
                                 style={styles.containerMargin}
-                                numColumns={3}
                                 renderItem={
                                     ({ item, index }) =>
-                                        <View style={{ marginRight: 5, marginLeft: 5 }}>
+                                        <View>
                                             <Pressable onPress={() => {
                                                 {
                                                     item.medialistinlist ?
@@ -713,51 +832,47 @@ function Home({ navigation, route }) {
                                                             navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
                                                 }
                                             }}>
-                                                <FastImage
-                                                    style={[styles.imageSectionCircle,]}
+                                                <Image
+                                                    style={[styles.imageSectionVerticalTab,]}
                                                     resizeMode={FastImage.resizeMode.stretch}
-                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                    source={{ uri: item.uri,   }} />
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                         </View>
                                 }
                             />
-                        </View>
-                    </View>
-                    : ""}
-
-                {item.layoutType == 'live' && item.data.length != 0 ?
-                    <View>
-                        <FlatList
-                            data={item.data}
-                            keyExtractor={(x, i) => i.toString()}
-                            horizontal={false}
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.containerMargin}
-                            numColumns={3}
-                            renderItem={
-                                ({ item, index }) =>
-                                    <View>
-                                        <Pressable onPress={() => {
-                                            {
-                                                item.medialistinlist ?
-                                                    navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
-                                                    :
-                                                    VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
-                                            }
-                                        }}>
-                                            <FastImage
-                                                style={[styles.imageSectionVertical,]}
-                                                resizeMode={FastImage.resizeMode.stretch}
-                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
-                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </Pressable>
-                                    </View>
-                            }
-                        />
+                            :
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={false}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                numColumns={3}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                }
+                                            }}>
+                                                <Image
+                                                    style={[styles.imageSectionVertical,]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri,   }} />
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            </Pressable>
+                                        </View>
+                                }
+                            />
+                        }
                     </View>
                     : ""}
 
@@ -767,35 +882,67 @@ function Home({ navigation, route }) {
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
                             {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
                         </View>
-                        <FlatList
-                            data={item.data}
-                            keyExtractor={(x, i) => i.toString()}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.containerMargin}
-                            renderItem={
-                                ({ item, index }) =>
-                                    <View style={{ width: PAGE_WIDTH / 2.06, }}>
-                                        <Pressable onPress={() => {
-                                            {
-                                                item.medialistinlist ?
-                                                    navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
-                                                    :
-                                                    VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
-                                            }
-                                        }}>
-                                            <FastImage
-                                                style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
-                                                resizeMode={FastImage.resizeMode.stretch}
-                                                source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
-                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                        </Pressable>
-                                        <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center', marginBottom: 20 }}>{item.displayTitle}</Text>
-                                    </View>
-                            }
-                        />
+                        {isTablet ?
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View style={{}}>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                }
+                                            }}>
+                                                <Image
+                                                    style={[styles.imageSectionHorizontalTab, { resizeMode: 'stretch', }]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri,   }} />
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            </Pressable>
+                                            <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center', marginBottom: 20 }}>{item.displayTitle}</Text>
+                                        </View>
+                                }
+                            />
+                            :
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View style={{ width: PAGE_WIDTH / 2.06, }}>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                }
+                                            }}>
+                                                <Image
+                                                    style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri,   }} />
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            </Pressable>
+                                            <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center', marginBottom: 20 }}>{item.displayTitle}</Text>
+                                        </View>
+                                }
+                            />
+                        }
                     </View> : ""}
 
             </View>
@@ -809,7 +956,7 @@ function Home({ navigation, route }) {
     }
     const menuRender = ({ item, index }) => {
         return (
-            <View style={{ backgroundColor: BACKGROUND_COLOR, marginBottom: 25, padding: 5 }}>
+            <View style={{ backgroundColor: BACKGROUND_COLOR, marginBottom: 15, padding: 5 }}>
                 {item.friendlyId == pageName ?
 
                     <View style={{ backgroundColor: TAB_COLOR, padding: 8, height: 35, borderRadius: 15, marginRight: 15, justifyContent: 'center', alignItems: 'center' }}>
@@ -1039,6 +1186,14 @@ const styles = StyleSheet.create({
         width: "50%",
         textAlign: 'right'
     },
+    imageSectionHorizontalTab: {
+        width: 190,
+        height: 117,
+        marginHorizontal: 3,
+        borderRadius: 10,
+        marginBottom: 10,
+        borderWidth: 1
+    },
     imageSectionHorizontal: {
         width: PAGE_WIDTH / 2.06,
         height: 117,
@@ -1056,8 +1211,25 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         resizeMode: 'stretch'
     },
+    imageSectionHorizontalSingleTab: {
+        width: PAGE_WIDTH - 20,
+        height: 340,
+        marginHorizontal: 3,
+        borderRadius: 10,
+        marginBottom: 10,
+        borderWidth: 1,
+        resizeMode: 'contain'
+    },
     imageSectionVertical: {
         width: PAGE_WIDTH / 3.15,
+        height: 170,
+        marginHorizontal: 3,
+        borderRadius: 10,
+        marginBottom: 10,
+
+    },
+    imageSectionVerticalTab: {
+        width: 150,
         height: 170,
         marginHorizontal: 3,
         borderRadius: 10,
@@ -1070,6 +1242,13 @@ const styles = StyleSheet.create({
         width: (PAGE_WIDTH / 3) - 10,
         height: (PAGE_WIDTH / 3) - 10,
         borderRadius: ((PAGE_WIDTH / 3) - 10) / 2,
+    },
+    imageSectionCircleTab: {
+        marginHorizontal: 0,
+        marginBottom: 10,
+        width: 200,
+        height: 200,
+        borderRadius: 100,
     },
     imageSectionBig: {
         width: PAGE_WIDTH / 1.1,
@@ -1105,7 +1284,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         right: 0,
         resizeMode: 'stretch',
-        borderRadius: 10,
+        borderRadius: 20,
         height: 470
     },
     showsbannerimage: {

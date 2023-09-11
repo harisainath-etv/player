@@ -35,18 +35,82 @@ import Confirmation from './screens/confirmation';
 import Shorts from './screens/ShortVideos';
 import TransparentHeader from './screens/transparentHeader';
 import Reload from './screens/reload';
-import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING } from './constants';
-import { View, Dimensions, Platform } from 'react-native';
+import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN } from './constants';
+import { View, Dimensions, Platform, Linking, Alert } from 'react-native';
 //import SplashScreen from 'react-native-splash-screen'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
+import messaging from '@react-native-firebase/messaging';
+import queryString from 'query-string';
+
 
 const Stack = createStackNavigator();
+
+const useInitialURL = () => {
+  const [url, setUrl] = React.useState(null);
+  const [processing, setProcessing] = React.useState(true);
+  React.useEffect(() => {
+    const getUrlAsync = async () => {
+      // Get the deep link used to open the app      
+      const initialUrl = await Linking.getInitialURL();
+      // The setTimeout is just for testing purpose      
+      if (initialUrl != "" && initialUrl != null && initialUrl != 'null') {
+        setTimeout(() => {
+          setUrl(initialUrl);
+          setProcessing(false);
+          console.log(initialUrl);
+          const parsed = queryString.parseUrl(initialUrl);
+          if (parsed.query.device_code != "" && parsed.query.device_code != null && parsed.query.device_code != 'null') activateTv(parsed.query.device_code)
+        }, 1000);
+      }
+    };
+    getUrlAsync();
+  }, []);
+  return { url, processing };
+};
+
+const activateTv = async (otp) => {
+  var sessionId = await AsyncStorage.getItem('session');
+  var region = await AsyncStorage.getItem('country_code');
+  if (sessionId != "" && sessionId != null && sessionId != 'null') {
+    axios.post(FIRETV_BASE_URL_STAGING + "/generate_session_tv", {
+      auth_token: VIDEO_AUTH_TOKEN,
+      access_token: ACCESS_TOKEN,
+      region: region,
+      user: { session_id: sessionId, token: otp }
+    }, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+    }).then(response => { alert("Activated"); }).catch(error => { })
+  }
+}
+
+
+async function requestUserPermission() {
+  const authStatus = await messaging().requestPermission();
+  const enabled =
+    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+    authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+  if (enabled) {
+    console.log('Authorization status:', authStatus);
+  }
+}
+
 export default function App() {
+  const { url: initialUrl, processing } = useInitialURL();
   const width = Dimensions.get('window').width;
   const height = Dimensions.get('window').height;
   async function loadDefaultData() {
+
+    {
+      processing
+        ? console.log('Processing the initial url from a deep link')
+        : console.log(`The deep link is: ${initialUrl || 'None'}`)
+    }
 
     const getCurrentVersion = await AsyncStorage.getItem('currentVersion');
     const firstload = await AsyncStorage.getItem('firstload');
@@ -103,12 +167,10 @@ export default function App() {
         }
       if (appConfigData.data.params_hash2.config_params.popup_details.show_popup) {
         await AsyncStorage.setItem('show_popup', 'yes');
-        if(ipData.region.country_code2=='IN')
-        {
+        if (ipData.region.country_code2 == 'IN') {
           await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.images.high_3_4);
         }
-        else
-        {
+        else {
           await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.other_region_images.high_3_4);
         }
         await AsyncStorage.setItem('redirect_type', appConfigData.data.params_hash2.config_params.popup_details.redirect_type);
@@ -137,7 +199,7 @@ export default function App() {
 
     var session = await AsyncStorage.getItem('session');
     var region = await AsyncStorage.getItem('country_code');
-    const removeunwanted= async()=>{
+    const removeunwanted = async () => {
       await AsyncStorage.clear();
       await loadasyncdata()
     }
@@ -167,7 +229,7 @@ export default function App() {
         }
       }).catch(planerror => {
         console.log(planerror.response.data);
-        if(planerror.response.data.error.code == '1016'){
+        if (planerror.response.data.error.code == '1016') {
           removeunwanted();
         }
       })
@@ -177,7 +239,7 @@ export default function App() {
         AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
         AsyncStorage.setItem('email_id', resp.data.data.email_id)
         AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
-        AsyncStorage.setItem('ext_user_id',resp.data.data.ext_user_id)
+        AsyncStorage.setItem('ext_user_id', resp.data.data.ext_user_id)
         AsyncStorage.setItem('firstname', resp.data.data.firstname)
         AsyncStorage.setItem('gender', resp.data.data.gender)
         //AsyncStorage.setItem('is_mobile_verify',JSON.stringify(resp.data.data.is_mobile_verify))
@@ -189,17 +251,15 @@ export default function App() {
         AsyncStorage.setItem('profile_pic', resp.data.data.profile_pic)
         AsyncStorage.setItem('user_email_id', resp.data.data.user_email_id)
         AsyncStorage.setItem('user_id', resp.data.data.user_id)
-        if(resp.data.data.isUserSubscribed)
-        {
-          AsyncStorage.setItem('isUserSubscribed','yes')
+        if (resp.data.data.isUserSubscribed) {
+          AsyncStorage.setItem('isUserSubscribed', 'yes')
         }
-        else
-        {
-          AsyncStorage.setItem('isUserSubscribed','no')
+        else {
+          AsyncStorage.setItem('isUserSubscribed', 'no')
         }
 
       }).catch(err => {
-         removeunwanted()
+        removeunwanted()
       })
     }
     //SplashScreen.hide();
@@ -228,69 +288,80 @@ export default function App() {
 
 
     if (getCurrentVersion != APP_VERSION) {
-        //fetching app config data
-        const appConfig = FIRETV_BASE_URL + "/catalogs/message/items/app-config-params.gzip?region=" + ipData.region.country_code2 + "&auth_token=" + AUTH_TOKEN + "&current_version=" + APP_VERSION;
-        const appConfigResp = await fetch(appConfig);
-        const appConfigData = await appConfigResp.json();
-        await AsyncStorage.setItem('configTitle', appConfigData.data.title);
-        if (Platform.OS == "android") {
-            await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.android_version.current_version);
-            await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.android_version.min_version);
-            await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.android_version.force_upgrade);
-            await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.android_version.message);
-            if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.android_version.force_upgrade == true) {
-                alert(appConfigData.data.params_hash2.config_params.android_version.message);
-                return true;
-            }
+      //fetching app config data
+      const appConfig = FIRETV_BASE_URL + "/catalogs/message/items/app-config-params.gzip?region=" + ipData.region.country_code2 + "&auth_token=" + AUTH_TOKEN + "&current_version=" + APP_VERSION;
+      const appConfigResp = await fetch(appConfig);
+      const appConfigData = await appConfigResp.json();
+      await AsyncStorage.setItem('configTitle', appConfigData.data.title);
+      if (Platform.OS == "android") {
+        await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.android_version.current_version);
+        await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.android_version.min_version);
+        await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.android_version.force_upgrade);
+        await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.android_version.message);
+        if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.android_version.force_upgrade == true) {
+          alert(appConfigData.data.params_hash2.config_params.android_version.message);
+          return true;
         }
-        else
-            if (Platform.OS == "ios") {
-                await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.ios_version.current_version);
-                await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.ios_version.min_version);
-                await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.ios_version.force_upgrade);
-                await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.ios_version.message);
-                if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.ios_version.force_upgrade == true) {
-                    alert(appConfigData.data.params_hash2.config_params.android_version.message);
-                    return true;
-                }
-            }
-        if (appConfigData.data.params_hash2.config_params.popup_details.show_popup) {
-            await AsyncStorage.setItem('show_popup', 'yes');
-            if (ipData.region.country_code2 == 'IN') {
-                await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.images.high_3_4);
-            }
-            else {
-                await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.other_region_images.high_3_4);
-            }
-            await AsyncStorage.setItem('redirect_type', appConfigData.data.params_hash2.config_params.popup_details.redirect_type);
+      }
+      else
+        if (Platform.OS == "ios") {
+          await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.ios_version.current_version);
+          await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.ios_version.min_version);
+          await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.ios_version.force_upgrade);
+          await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.ios_version.message);
+          if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.ios_version.force_upgrade == true) {
+            alert(appConfigData.data.params_hash2.config_params.android_version.message);
+            return true;
+          }
         }
-        else
-            await AsyncStorage.setItem('show_popup', 'no');
-        await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
-        await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);
-        await AsyncStorage.setItem('faq', appConfigData.data.params_hash2.config_params.faq);
-        await AsyncStorage.setItem('contactUs', appConfigData.data.params_hash2.config_params.contact_us);
-        const jsonData = ((appConfigData.data.params_hash2.config_params))
-        for (var t in jsonData) {
-            if (t == 't&c') {
-                await AsyncStorage.setItem('termsCondition', jsonData[t]);
-            }
+      if (appConfigData.data.params_hash2.config_params.popup_details.show_popup) {
+        await AsyncStorage.setItem('show_popup', 'yes');
+        if (ipData.region.country_code2 == 'IN') {
+          await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.images.high_3_4);
         }
-        await AsyncStorage.setItem('privacy', appConfigData.data.params_hash2.config_params.privacy_policy);
-        await AsyncStorage.setItem('about', appConfigData.data.params_hash2.config_params.about_us);
-        await AsyncStorage.setItem('webPortalUrl', appConfigData.data.params_hash2.config_params.web_portal_url);
-        await AsyncStorage.setItem('offlineDeleteDays', appConfigData.data.params_hash2.config_params.offline_deletion_days);
-        await AsyncStorage.setItem('globalViewCount', JSON.stringify(appConfigData.data.params_hash2.config_params.global_view_count));
-        await AsyncStorage.setItem('commentable', JSON.stringify(appConfigData.data.params_hash2.config_params.commentable));
-        await AsyncStorage.setItem('subscriptionUrl', appConfigData.data.params_hash2.config_params.subscription_url);
-        await AsyncStorage.setItem('tvLoginUrl', appConfigData.data.params_hash2.config_params.tv_login_url);
+        else {
+          await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.other_region_images.high_3_4);
+        }
+        await AsyncStorage.setItem('redirect_type', appConfigData.data.params_hash2.config_params.popup_details.redirect_type);
+      }
+      else
+        await AsyncStorage.setItem('show_popup', 'no');
+      await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
+      await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);
+      await AsyncStorage.setItem('faq', appConfigData.data.params_hash2.config_params.faq);
+      await AsyncStorage.setItem('contactUs', appConfigData.data.params_hash2.config_params.contact_us);
+      const jsonData = ((appConfigData.data.params_hash2.config_params))
+      for (var t in jsonData) {
+        if (t == 't&c') {
+          await AsyncStorage.setItem('termsCondition', jsonData[t]);
+        }
+      }
+      await AsyncStorage.setItem('privacy', appConfigData.data.params_hash2.config_params.privacy_policy);
+      await AsyncStorage.setItem('about', appConfigData.data.params_hash2.config_params.about_us);
+      await AsyncStorage.setItem('webPortalUrl', appConfigData.data.params_hash2.config_params.web_portal_url);
+      await AsyncStorage.setItem('offlineDeleteDays', appConfigData.data.params_hash2.config_params.offline_deletion_days);
+      await AsyncStorage.setItem('globalViewCount', JSON.stringify(appConfigData.data.params_hash2.config_params.global_view_count));
+      await AsyncStorage.setItem('commentable', JSON.stringify(appConfigData.data.params_hash2.config_params.commentable));
+      await AsyncStorage.setItem('subscriptionUrl', appConfigData.data.params_hash2.config_params.subscription_url);
+      await AsyncStorage.setItem('tvLoginUrl', appConfigData.data.params_hash2.config_params.tv_login_url);
     }
-}
+  }
 
 
   React.useEffect(() => {
+    requestUserPermission();
     loadDefaultData();
+    gettoken();
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    });
+    return unsubscribe;
+
   })
+  const gettoken = async () => {
+    const token = await messaging().getToken();
+    console.log(token);
+  }
   return (
     <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
       <NavigationContainer>

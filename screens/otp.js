@@ -400,7 +400,7 @@ export default function Otp({ navigation, route }) {
     }
     return (
         <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
-            <View style={{ flex: 1, padding: 10 }}>
+            <View style={{ flex: 1, padding: 10,marginTop:50 }}>
 
                 <View style={styles.header}>
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>OTP Verification</Text>

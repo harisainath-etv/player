@@ -3,23 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>278069225987-bdkionscp9ct0q2n5e44md299tlbg5k9.apps.googleusercontent.com</string>
+	<string>416227379708-mongod9ipvkqlei0n2cl500eks00f5vv.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.278069225987-bdkionscp9ct0q2n5e44md299tlbg5k9</string>
-	<key>ANDROID_CLIENT_ID</key>
-	<string>278069225987-g07s3ac73qn9kk91na58oi0tur1uqqm8.apps.googleusercontent.com</string>
+	<string>com.googleusercontent.apps.416227379708-mongod9ipvkqlei0n2cl500eks00f5vv</string>
 	<key>API_KEY</key>
-	<string>AIzaSyARw9yVcigwp2iT5lZ6QH844Z_ow75Uc5s</string>
+	<string>AIzaSyAZHrhdfWMxpu7enoGExr9CjHMnX_apyu4</string>
 	<key>GCM_SENDER_ID</key>
-	<string>278069225987</string>
+	<string>416227379708</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.etv.ott</string>
+	<string>com.etvott.dev</string>
 	<key>PROJECT_ID</key>
-	<string>etv-win-r-login</string>
+	<string>etv-staging</string>
 	<key>STORAGE_BUCKET</key>
-	<string>etv-win-r-login.appspot.com</string>
+	<string>etv-staging.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:278069225987:ios:b8b36e39540211377e3c36</string>
+	<string>1:416227379708:ios:b60fbf414e44b5a2430a79</string>
 </dict>
 </plist>

@@ -34,9 +34,11 @@ export default function Profile({ navigation }) {
         const address = await AsyncStorage.getItem('address');
         const valid_till = await AsyncStorage.getItem('valid_till');
         var datetime= new Date(valid_till);
+        console.log(valid_till);
         const subscriptiontitle = await AsyncStorage.getItem('subscription_title');
         if (session != "" && session != null) {
             setLogin(true)
+            if(firstname!='' && firstname!=null && firstname!='null')
             setName(firstname.split('"').join(""));
             if(email!='' && email!=null && email!='null')
             setEmail(email.split('"').join(""));
@@ -44,7 +46,9 @@ export default function Profile({ navigation }) {
             setdob(birthdate);
             setgender(gender)
             setaddress(address)
+            if(subscriptiontitle!='' && subscriptiontitle!=null && subscriptiontitle!='null')
             setsubscription_title(subscriptiontitle.split('"').join(""))
+            if(valid_till!='' && valid_till!=null && valid_till!='null')
             setexpireson(datetime.getDate()+"-"+datetime.getMonth()+"-"+datetime.getFullYear())
         }
         if (profile_pic != "" && profile_pic != null)
@@ -346,7 +350,7 @@ export default function Profile({ navigation }) {
                         :
                         <Pressable onPress={() => navigation.navigate('Subscribe')}><Text style={styles.detailsvalue}>{subscription_title}</Text></Pressable>
                     }
-                    {expireson != "" && expireson != null && subscription_title != "" || subscription_title != null?
+                    {expireson.trim() != "" && expireson.trim() != null && subscription_title.trim() != "" || subscription_title.trim() != null?
                         <Text style={styles.detailsheader}>Expires on {expireson}</Text>
                         : ""}
                 </View>
