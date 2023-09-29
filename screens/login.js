@@ -78,6 +78,7 @@ export default function Login({ navigation }) {
             var frontpagegender = await AsyncStorage.getItem('frontpagegender');
             var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
             const user_id = await AsyncStorage.getItem('user_id');
+            const device_token = await AsyncStorage.getItem('fcm_token');
             const uniqueid = await DeviceInfo.getUniqueId();
             setuser(userinfo)
             axios.post(FIRETV_BASE_URL_STAGING + '/users/external_auth/sign_in',
@@ -89,7 +90,8 @@ export default function Login({ navigation }) {
                         firstname: userinfo.user.givenName,
                         provider: "google",
                         region: region,
-                        uid: userinfo.user.id
+                        uid: userinfo.user.id,
+                        device_token:device_token
                     }
                 },
                 {
@@ -204,6 +206,7 @@ export default function Login({ navigation }) {
             var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
             const user_id = await AsyncStorage.getItem('user_id');
             const uniqueid = await DeviceInfo.getUniqueId();
+            const device_token = await AsyncStorage.getItem('fcm_token');
             setuser(userinfo)
             axios.post(FIRETV_BASE_URL_STAGING + '/users/external_auth/sign_in',
                 {
@@ -214,7 +217,8 @@ export default function Login({ navigation }) {
                         firstname: userinfo.user.displayName,
                         provider: "google",
                         region: region,
-                        uid: userinfo.user.uid
+                        uid: userinfo.user.uid,
+                        device_token:device_token
                     }
                 },
                 {
@@ -424,12 +428,12 @@ export default function Login({ navigation }) {
             var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
             const user_id = await AsyncStorage.getItem('user_id');
             const uniqueid = await DeviceInfo.getUniqueId();
-
+            const device_token = await AsyncStorage.getItem('fcm_token');
             //if (CheckPassword(newpassword)) {
             const region = await AsyncStorage.getItem('country_code');
             axios.post(FIRETV_BASE_URL_STAGING + "users/sign_in", {
                 auth_token: AUTH_TOKEN,
-                user: { email_id: email, region: region, password: newpassword }
+                user: { email_id: email, region: region, password: newpassword,device_token:device_token }
             }, {
                 headers: {
                     'Accept': 'application/json',
@@ -603,11 +607,12 @@ export default function Login({ navigation }) {
             var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
             const user_id = await AsyncStorage.getItem('user_id');
             const uniqueid = await DeviceInfo.getUniqueId();
+            const device_token = await AsyncStorage.getItem('fcm_token');
             //if (CheckPassword(newpassword)) {
             const region = await AsyncStorage.getItem('country_code');
             axios.post(FIRETV_BASE_URL_STAGING + "users/sign_in", {
                 auth_token: AUTH_TOKEN,
-                user: { email_id: Mobile, region: region, password: pass }
+                user: { email_id: Mobile, region: region, password: pass,device_token:device_token }
             }, {
                 headers: {
                     'Accept': 'application/json',

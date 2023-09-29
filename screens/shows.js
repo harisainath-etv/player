@@ -386,7 +386,7 @@ export default function Shows({ navigation, route }) {
                                     {height: 270,width: PAGE_WIDTH,}
                             }
                             >
-                                <Pressable onPress={() => navigation.navigate('Episode', { seoUrl: episodeSeoUrl, theme: 'video' })}>
+                                <Pressable onPress={() => navigation.navigate('Episode', { seoUrl: episodeSeoUrl, theme: 'video',showname:title, showcontentId:contentId })}>
                                     <FastImage resizeMode={FastImage.resizeMode.stretch} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={
                                         isTablet?
                                         { width: '100%', height: 450 }

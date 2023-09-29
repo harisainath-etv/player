@@ -22,9 +22,10 @@ import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, } from 're
 // import VideoViewAndroid from '../components/VideoViewAndroid';
 // import VideoViewIos from '../components/VideoViewIos';
 import DeviceInfo from 'react-native-device-info';
+import analytics from '@react-native-firebase/analytics';
 var isTablet = DeviceInfo.isTablet();
 export default function Episode({ navigation, route }) {
-  const { seoUrl, theme } = route.params;
+  const { seoUrl, theme, showname, showcontentId } = route.params;
   const [seourl, setSeourl] = useState(seoUrl);
   const [passedtheme, setpassedtheme] = useState(theme);
   const filterItems = (stringNeeded, arrayvalues) => {
@@ -77,6 +78,16 @@ export default function Episode({ navigation, route }) {
   const [endcreditsstarttime, setendcreditsstarttime] = useState("");
   const [nextepisode, setnextepisode] = useState("");
   const [fullscreentap, setfullscreentap] = useState(false);
+  const [contenttype, setcontenttype] = useState();
+  const [contentprovider, setcontentprovider] = useState();
+  const [contentvalue, setcontentvalue] = useState();
+  const [contentlanguage, setcontentlanguage] = useState();
+  const [seriesname, setseriesname] = useState();
+  const [seriesid, setseriesid] = useState();
+  const [streemexceedlimit, setstreemexceedlimit] = useState(false);
+  const [streemexceedlimitmessage, setstreemexceedlimitmessage] = useState("Screen Limit Exceeded");
+  const [loginrequired, setloginrequired] = useState(false);
+  const [isfree, setisfree] = useState(false);
   var multiTapCount = 10;
   var multiTapDelay = 300;
   var client = useRemoteMediaClient();
@@ -101,10 +112,11 @@ export default function Episode({ navigation, route }) {
   };
   const exitScreen = async () => {
     StatusBar.setHidden(false)
-    { fullscreen ? handleFullscreen() : 
-    
-      navigation.canGoBack() ? navigation.goBack() : navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
-    
+    {
+      fullscreen ? handleFullscreen() :
+
+        navigation.canGoBack() ? navigation.goBack() : navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+
     }
   }
 
@@ -177,6 +189,16 @@ export default function Episode({ navigation, route }) {
         setintroendtime(response.data.data.intro_end_time_sec);
         setendcreditsstarttime(response.data.data.end_credits_start_time_sec)
         setnextepisode(response.data.data.next_item)
+        setcontenttype(response.data.data.media_type)
+        setcontentprovider(response.data.data.content_provider)
+        setcontentvalue(response.data.data.content_value)
+        setcontentlanguage(response.data.data.language)
+        setloginrequired(response.data.data.access_control.login_required)
+        setisfree(response.data.data.access_control.is_free)
+        if (response.data.data.hasOwnProperty('subcategory_object')) {
+          setseriesname(response.data.data.subcategory_object.parentree.sub_name)
+          setseriesid(response.data.data.subcategory_object.parentree.sub_id)
+        }
         AsyncStorage.getItem("watchLater_" + response.data.data.content_id).then(resp => {
           if (resp != "" && resp != null)
             setwatchlatercontent(true);
@@ -210,10 +232,24 @@ export default function Episode({ navigation, route }) {
         })
           .then(response => {
             checkOfflineDownload();
+            setstreemexceedlimit(response.data.data.stream_info.is_stream_limit_exceed)
+            setstreemexceedlimitmessage(response.data.data.stream_info.message);
             if (onlineplayUrl == false) {
               if (response.data.data.stream_info.adaptive_url != "") {
                 setPlayUrl(response.data.data.stream_info.adaptive_url);
                 setseektime(response.data.data.stream_info.play_back_time);
+                if (response.data.data.access_control.login_required == true) {
+                  if (sessionId == "" || sessionId == null) {
+                    setPlayUrl("");
+                  }
+                  axios.get(FIRETV_BASE_URL_STAGING + "user/session/" + sessionId + "?auth_token=" + AUTH_TOKEN).then(resp => {
+                    if (resp.data.message != 'Valid session id.') {
+                      setPlayUrl("");
+                    }
+                  }).catch(err => {
+                    setPlayUrl("");
+                  })
+                }
               }
               else
                 if (response.data.data.stream_info.preview.adaptive_url != "") {
@@ -251,6 +287,47 @@ export default function Episode({ navigation, route }) {
     if (lostTasks.length > 0)
       setIsresumeDownloading(true);
   }
+
+  const triggeranalytics = async (name, sec) => {
+    var chromeCastConnected = 0;
+    GoogleCast.getCastState().then(state => {
+      if (state == 'connected') {
+        chromeCastConnected = 1;
+      }
+      else {
+        chromeCastConnected = 0;
+      }
+    })
+    const uniqueid = await DeviceInfo.getUniqueId();
+    const sessionId = await AsyncStorage.getItem('session');
+    const user_id = await AsyncStorage.getItem('user_id');
+    await analytics().logEvent(name, {
+      content_provider: contentprovider,
+      consumption_type: downloadedStatus == 1 ? "Offline" : "Online",
+      content_type: contenttype,
+      content_value: contentvalue,
+      chromecast: chromeCastConnected,
+      device_id: uniqueid,
+      genre: displayGenres,
+      quality: videoresolution,
+      source: 'banner',
+      show_name: showname,
+      show_id: showcontentId,
+      series_name: seriesname,
+      series_id: seriesid,
+      session_id: sessionId,
+      tray_name: "",
+      u_id: user_id,
+      value: sec,
+      video_id: contentId,
+      video_name: title,
+      video_language: contentlanguage
+    }).then(resp => { }).catch(err => { console.log(err); })
+  }
+  const triggerOtherAnalytics = async (name, obj) => {
+    await analytics().logEvent(name, obj).then(resp => { console.log(resp); }).catch(err => { console.log(err); })
+  }
+
   const checkOfflineDownload = async () => {
     var sessionId = await AsyncStorage.getItem('session');
     if (offlineUrl != "") {
@@ -295,31 +372,31 @@ export default function Episode({ navigation, route }) {
     }
   })
   useEffect(() => {
-      Orientation.getDeviceOrientation((orientation) => {
-        if (orientation === 'LANDSCAPE-LEFT') {
+    Orientation.getDeviceOrientation((orientation) => {
+      if (orientation === 'LANDSCAPE-LEFT') {
+        setFullscreen(true);
+        StatusBar.setHidden(true)
+        Orientation.lockToLandscapeLeft();
+        return true;
+      }
+      else
+        if (orientation === 'LANDSCAPE-RIGHT') {
           setFullscreen(true);
           StatusBar.setHidden(true)
-          Orientation.lockToLandscapeLeft();
+          Orientation.lockToLandscapeRight();
           return true;
         }
-        else
-          if (orientation === 'LANDSCAPE-RIGHT') {
-            setFullscreen(true);
-            StatusBar.setHidden(true)
-            Orientation.lockToLandscapeRight();
-            return true;
-          }
 
-          if (!fullscreentap) {
-            if (orientation === 'PORTRAIT' || orientation === 'UNKNOWN' || orientation === '') {
-              setFullscreen(false);
-              StatusBar.setHidden(false)
-              Orientation.lockToPortrait();
-              return true;
-            }
-          }
-      })
-      BackHandler.addEventListener('hardwareBackPress', exitScreen);
+      if (!fullscreentap) {
+        if (orientation === 'PORTRAIT' || orientation === 'UNKNOWN' || orientation === '') {
+          setFullscreen(false);
+          StatusBar.setHidden(false)
+          Orientation.lockToPortrait();
+          return true;
+        }
+      }
+    })
+    BackHandler.addEventListener('hardwareBackPress', exitScreen);
   })
   function handleFullscreen() {
     setfullscreentap(!fullscreentap);
@@ -393,7 +470,7 @@ export default function Episode({ navigation, route }) {
     }
   }
 
-  const startDownloading = async (playback_url, offlineUrl, downloaddirectory) => {
+  const startDownloading = async (playback_url, offlineUrl, downloaddirectory, downloadquality) => {
     var splittedOfflineUrl = offlineUrl.split("/");
     AsyncStorage.setItem('download_url' + splittedOfflineUrl[splittedOfflineUrl.length - 1], playback_url);
     AsyncStorage.setItem('download_path' + splittedOfflineUrl[splittedOfflineUrl.length - 1], `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts.download`);
@@ -410,6 +487,9 @@ export default function Episode({ navigation, route }) {
       console.log(`Going to download ${expectedBytes} bytes!`);
       toggleModal()
     }).progress((percent) => {
+      let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "download_quality": downloadquality, "source": "source", "percentage_downloaded": `${percent * 100}` };
+      triggerOtherAnalytics('download_video', jsonObj)
+
       AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(percent * 100));
       console.log(`Downloaded: ${percent * 100}%`);
     }).done(() => {
@@ -480,6 +560,8 @@ export default function Episode({ navigation, route }) {
       }).then(response => {
         alert("Added to watchlist");
         AsyncStorage.setItem("watchLater_" + contentId, contentId);
+        let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage };
+        triggerOtherAnalytics('watch_later', jsonObj);
         setwatchlatercontent(true);
       }).catch(error => {
         alert("Unable to add to watchlist. Please try again later.");
@@ -504,6 +586,8 @@ export default function Episode({ navigation, route }) {
       }).then(response => {
         AsyncStorage.setItem("like_" + contentId, contentId);
         setlikecontent(true);
+        let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "content_value": contentvalue };
+        triggerOtherAnalytics('like_button', jsonObj)
       }).catch(error => {
         alert("Unable to like the content. Please try again later.");
       })
@@ -532,6 +616,9 @@ export default function Episode({ navigation, route }) {
       failOnCancel: false,
       urls: [shareUrl],
     };
+    let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "content_value": contentvalue };
+    triggerOtherAnalytics('share', jsonObj)
+
     const ShareResponse = await Share.open(shareOptions);
   }
   // const onAdsLoaded = () => {
@@ -548,6 +635,7 @@ export default function Episode({ navigation, route }) {
   //   setPlay(false);
   // }
   const toHoursAndMinutes = async (totalSeconds) => {
+    triggeranalytics("playback_end", totalSeconds);
     const totalMinutes = Math.floor(totalSeconds / 60);
 
     var seconds = totalSeconds % 60;
@@ -682,7 +770,7 @@ export default function Episode({ navigation, route }) {
     <View style={styles.mainContainer}>
       <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
         <View style={styles.container}>
-          {playUrl != "" && playUrl != null && !showupgrade ?
+          {playUrl != "" && playUrl != null && streemexceedlimit == false && !showupgrade ?
 
             <Pressable onPress={showControls}>
               <Video
@@ -718,6 +806,7 @@ export default function Episode({ navigation, route }) {
                 }}
                 onLoad={(data) => {
                   setDuration(data.duration)
+                  triggeranalytics("playback_start", 1);
                   if (seektime != "" && seektime != null && data != '' && data != null) {
                     var splittedtime = seektime.split(":");
                     videoRef.current.seek(+(splittedtime[0] * 3600) + +(splittedtime[1] * 60) + +(splittedtime[2]));
@@ -873,13 +962,16 @@ export default function Episode({ navigation, route }) {
               </TouchableOpacity>
               {loading ? <ActivityIndicator size={'large'} color={"#ffffff"}></ActivityIndicator> :
 
-                loggedin ? <TouchableOpacity onPress={() => navigation.navigate('Subscribe')} style={[styles.button, { width: 200 }]}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Upgrade / Subscribe</Text></TouchableOpacity>
+                streemexceedlimit == true ?
+                  <TouchableOpacity style={[styles.button, { width: 200 }]}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>{streemexceedlimitmessage}</Text></TouchableOpacity>
                   :
-                  <View style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
-                    <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>LOGIN</Text></TouchableOpacity>
+                  loggedin ? <TouchableOpacity onPress={() => navigation.navigate('Subscribe')} style={[styles.button, { width: 200 }]}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Upgrade / Subscribe</Text></TouchableOpacity>
+                    :
+                    <View style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
+                      <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>LOGIN</Text></TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>SIGN UP</Text></TouchableOpacity>
-                  </View>
+                      <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>SIGN UP</Text></TouchableOpacity>
+                    </View>
 
               }
             </View>
@@ -978,7 +1070,7 @@ export default function Episode({ navigation, route }) {
               {prefrence.map((pref, ind) => {
                 return (
                   pref.display_name != "" ?
-                    <TouchableOpacity key={'pref' + ind} onPress={() => { startDownloading(pref.playback_url, pref.offlineUrl, pref.downloaddirectory) }}>
+                    <TouchableOpacity key={'pref' + ind} onPress={() => { startDownloading(pref.playback_url, pref.offlineUrl, pref.downloaddirectory, pref.display_name) }}>
                       <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5 }}>
                         <Text style={{ color: NORMAL_TEXT_COLOR }}>{pref.display_name}</Text>
                       </View>

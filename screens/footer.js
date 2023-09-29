@@ -21,6 +21,7 @@ export default function Footer(props) {
     const [mobile, setMobile] = useState("");
     const [profilePic, setProfilePic] = useState();
     const [subscription_title, setsubscription_title] = useState("");
+    const [castDisplay,setCastDisplay] = useState('basic_plan');
 
 
     const toggleModal = () => {
@@ -36,6 +37,8 @@ export default function Footer(props) {
         const session = await AsyncStorage.getItem('session');
         const profile_pic = await AsyncStorage.getItem('profile_pic');
         const subscriptiontitle = await AsyncStorage.getItem('subscription_title');
+        const plandetail = await AsyncStorage.getItem('plan_id');
+        setCastDisplay(plandetail);
         //console.log(profile_pic);
         if (session != "" && session != null) {
             setLogin(true)
@@ -205,7 +208,7 @@ export default function Footer(props) {
 
             </View>
 
-            {castState != NO_CAST_DEVICES ?
+            {castState != NO_CAST_DEVICES && castDisplay!='basic_plan' && castDisplay!=''?
                 castSet ?
                     <TouchableOpacity onPress={CastSession}><View style={styles.chromeCast}><MaterialCommunityIcons name="cast-connected" size={20} color="white" /></View></TouchableOpacity>
                     :

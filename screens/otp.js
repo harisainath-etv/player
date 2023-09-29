@@ -68,11 +68,11 @@ export default function Otp({ navigation, route }) {
         var frontpagedob = await AsyncStorage.getItem('frontpagedob');
         var frontpagegender = await AsyncStorage.getItem('frontpagegender');
         var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
-
+        const device_token = await AsyncStorage.getItem('fcm_token');
         if (otpkey == "loginMobile") {
             axios.post(FIRETV_BASE_URL_STAGING + "users/verify_otp", {
                 auth_token: AUTH_TOKEN,
-                user: { action: "signin", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: loginMobile, mobile_number: loginMobile }
+                user: { action: "signin", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: loginMobile, mobile_number: loginMobile,device_token:device_token }
             }, {
                 headers: {
                     'Accept': 'application/json',
@@ -179,7 +179,7 @@ export default function Otp({ navigation, route }) {
             if (otpkey == "signupMobile") {
 
 
-                axios.get(FIRETV_BASE_URL_STAGING + "users/verification/" + otp1 + otp2 + otp3 + otp4 + otp5 + otp6 + "?mobile_number=" + loginMobile + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN)
+                axios.get(FIRETV_BASE_URL_STAGING + "users/verification/" + otp1 + otp2 + otp3 + otp4 + otp5 + otp6 + "?mobile_number=" + loginMobile + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN+ "&device_token=" + device_token)
                     .then(response => {
                         triggersuccessanalytics('signup_success','phone number',user_id,uniqueid)
                         AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
@@ -283,7 +283,7 @@ export default function Otp({ navigation, route }) {
 
                     axios.post(FIRETV_BASE_URL_STAGING + "users/verify_otp", {
                         auth_token: AUTH_TOKEN,
-                        user: { action: "update_mobile", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: email_id, mobile_number: loginMobile, session_id: session_id }
+                        user: { action: "update_mobile", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: email_id, mobile_number: loginMobile, session_id: session_id,device_token:device_token }
                     }, {
                         headers: {
                             'Accept': 'application/json',
