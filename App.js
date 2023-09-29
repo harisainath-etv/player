@@ -204,6 +204,13 @@ export default function App() {
       await loadasyncdata()
     }
     if (session != "" && session != null) {
+      axios.get(FIRETV_BASE_URL_STAGING + "user/session/"+session+"?auth_token="+AUTH_TOKEN).then(resp=>{
+        if(resp.data.message!='Valid session id.'){
+          removeunwanted();
+        }
+      }).catch(err=>{
+        removeunwanted();
+      })
       axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
         if (planresponse.data.data.length > 0) {
           AsyncStorage.setItem('subscription', 'done');
@@ -347,7 +354,8 @@ export default function App() {
     loadDefaultData();
     gettoken();
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+      var notficationData = (remoteMessage.data.data);
+      Alert.alert('A new FCM message arrived!', notficationData);
     });
     return unsubscribe;
 
@@ -355,6 +363,7 @@ export default function App() {
   const gettoken = async () => {
     const token = await messaging().getToken();
     console.log(token);
+    await AsyncStorage.setItem('fcm_token',token);
   }
 
 

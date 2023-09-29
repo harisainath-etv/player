@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground, StyleSheet, TouchableOpacity, Image, ScrollView, Pressable, Platform } from 'react-native'
+import { View, Text, ImageBackground, StyleSheet, TouchableOpacity, Image, ScrollView, Pressable, Platform, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -44,7 +44,7 @@ export default function Profile({ navigation }) {
             setgender(gender)
             setaddress(address)
             setsubscription_title(subscriptiontitle)
-            setexpireson(datetime.getDate()+"-"+datetime.getMonth()+"-"+datetime.getFullYear())
+            setexpireson(datetime.getDate() + "-" + datetime.getMonth() + "-" + datetime.getFullYear())
         }
         if (profile_pic != "" && profile_pic != null)
             setProfilePic(profile_pic)
@@ -196,6 +196,37 @@ export default function Profile({ navigation }) {
             await AsyncStorage.setItem('tvLoginUrl', appConfigData.data.params_hash2.config_params.tv_login_url);
         }
     }
+    const deleteMyAccount = async () => {
+        const sessionId = await AsyncStorage.getItem('session');
+        var userinfoid = await AsyncStorage.getItem('appleuserid');
+        Alert.alert("Delete My Account", "Are you sure you want to delete the account?", [
+            {
+                text: 'Cancel',
+                style: 'cancel',
+            },
+            { text: 'OK', onPress: () => {
+                if(Platform.OS=='android')
+                {
+                    axios.get(FIRETV_BASE_URL_STAGING + 'users/'+sessionId+'/false/delete_user_account?auth_token='+AUTH_TOKEN+'&access_token='+ACCESS_TOKEN).then(resp=>{
+                        alert(resp.data.message);
+                        signoutall();
+                    }).catch(error=>{
+                        alert('Something went wrong. Please try again later.');
+                    })
+                }
+                else
+                if(Platform.OS=='ios')
+                {
+                    axios.get(FIRETV_BASE_URL_STAGING + 'users/'+sessionId+'/'+userinfoid+'/delete_user_account?auth_token='+AUTH_TOKEN+'&access_token='+ACCESS_TOKEN).then(resp=>{
+                        alert(resp.data.message);
+                        signoutall();
+                    }).catch(error=>{
+                        alert('Something went wrong. Please try again later.');
+                    })
+                }
+            } },
+        ])
+    }
     return (
         <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
             <View style={{ marginTop: 20, marginLeft: 10 }}>
@@ -321,6 +352,10 @@ export default function Profile({ navigation }) {
 
                 <Pressable style={styles.inneroption} onPress={signoutall}>
                     <Text style={styles.detailsvalue}>Sign Out All Devices</Text>
+                </Pressable>
+
+                <Pressable style={styles.inneroption} onPress={deleteMyAccount}>
+                    <Text style={styles.detailsvalue}>Delete My Account</Text>
                 </Pressable>
             </ScrollView>
         </View>
