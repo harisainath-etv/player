@@ -868,7 +868,7 @@ export default function Login({ navigation }) {
             var frontpagedob = await AsyncStorage.getItem('frontpagedob');
             var frontpagegender = await AsyncStorage.getItem('frontpagegender');
             var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
-            var userinfoid = await AsyncStorage.setItem('appleuserid',userinfo.user.uid);
+            await AsyncStorage.setItem('appleuserid',userinfo.user.uid);
             setuser(userinfo)
             axios.post(FIRETV_BASE_URL_STAGING + '/users/external_auth/sign_in',
                 {
