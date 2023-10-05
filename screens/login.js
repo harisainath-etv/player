@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressa
 import React, { useState, useEffect } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
-import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR, FIRETV_BASE_URL_STAGING, WEB_CLIENT_ID, ACCESS_TOKEN, VIDEO_AUTH_TOKEN, SLIDER_PAGINATION_SELECTED_COLOR } from '../constants'
+import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR, FIRETV_BASE_URL_STAGING, WEB_CLIENT_ID, ACCESS_TOKEN, VIDEO_AUTH_TOKEN, SLIDER_PAGINATION_SELECTED_COLOR, BUTTON_COLOR } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
@@ -10,6 +10,8 @@ import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
 import auth from '@react-native-firebase/auth';
 import analytics from '@react-native-firebase/analytics';
 import DeviceInfo from 'react-native-device-info';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
 
 export default function Login({ navigation }) {
     const [email, setEmail] = useState('');
@@ -61,13 +63,13 @@ export default function Login({ navigation }) {
         // Sign-in the user with the credential
         return auth().signInWithCredential(facebookCredential);
     }
-    const triggersuccessanalytics = async(name,method,u_id,device_id) =>{
+    const triggersuccessanalytics = async (name, method, u_id, device_id) => {
         await analytics().logEvent(name, {
-          method: method,
-          u_id: u_id,
-          device_id:device_id
-        }).then(resp=>{console.log(resp);}).catch(err=>{console.log(err);})
-  }
+            method: method,
+            u_id: u_id,
+            device_id: device_id
+        }).then(resp => { console.log(resp); }).catch(err => { console.log(err); })
+    }
     const signin = async () => {
         try {
             await signOut();
@@ -91,7 +93,7 @@ export default function Login({ navigation }) {
                         provider: "google",
                         region: region,
                         uid: userinfo.user.id,
-                        device_token:device_token
+                        device_token: device_token
                     }
                 },
                 {
@@ -100,7 +102,7 @@ export default function Login({ navigation }) {
                         'Content-Type': 'application/json',
                     }
                 }).then(response => {
-                    triggersuccessanalytics('login_success','social',user_id,uniqueid)
+                    triggersuccessanalytics('login_success', 'social', user_id, uniqueid)
                     AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                     AsyncStorage.setItem('ext_account_email_id', response.data.data.ext_account_email_id)
                     AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
@@ -218,7 +220,7 @@ export default function Login({ navigation }) {
                         provider: "google",
                         region: region,
                         uid: userinfo.user.uid,
-                        device_token:device_token
+                        device_token: device_token
                     }
                 },
                 {
@@ -227,7 +229,7 @@ export default function Login({ navigation }) {
                         'Content-Type': 'application/json',
                     }
                 }).then(response => {
-                    triggersuccessanalytics('login_success','social',user_id,uniqueid)
+                    triggersuccessanalytics('login_success', 'social', user_id, uniqueid)
                     AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                     AsyncStorage.setItem('ext_account_email_id', response.data.data.ext_account_email_id)
                     AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
@@ -433,7 +435,7 @@ export default function Login({ navigation }) {
             const region = await AsyncStorage.getItem('country_code');
             axios.post(FIRETV_BASE_URL_STAGING + "users/sign_in", {
                 auth_token: AUTH_TOKEN,
-                user: { email_id: email, region: region, password: newpassword,device_token:device_token }
+                user: { email_id: email, region: region, password: newpassword, device_token: device_token }
             }, {
                 headers: {
                     'Accept': 'application/json',
@@ -441,7 +443,7 @@ export default function Login({ navigation }) {
                 }
             }).then(response => {
                 setemailRegError("");
-                triggersuccessanalytics('login_success','email id',user_id,uniqueid)
+                triggersuccessanalytics('login_success', 'email id', user_id, uniqueid)
                 AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                 AsyncStorage.setItem('add_profile', JSON.stringify(response.data.data.add_profile))
                 AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
@@ -612,14 +614,14 @@ export default function Login({ navigation }) {
             const region = await AsyncStorage.getItem('country_code');
             axios.post(FIRETV_BASE_URL_STAGING + "users/sign_in", {
                 auth_token: AUTH_TOKEN,
-                user: { email_id: Mobile, region: region, password: pass,device_token:device_token }
+                user: { email_id: Mobile, region: region, password: pass, device_token: device_token }
             }, {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 }
             }).then(response => {
-                triggersuccessanalytics('login_success','email id',user_id,uniqueid)
+                triggersuccessanalytics('login_success', 'email id', user_id, uniqueid)
                 console.log(response.data.data);
                 AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                 AsyncStorage.setItem('add_profile', JSON.stringify(response.data.data.add_profile))
@@ -871,44 +873,57 @@ export default function Login({ navigation }) {
 
                 <View style={styles.header}>
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Sign In</Text>
-                    <TouchableOpacity style={{ position: 'absolute', right: 20, }} onPress={() => navigation.navigate('Home')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>SKIP</Text></TouchableOpacity>
+                    <TouchableOpacity style={{ position: 'absolute', right: 20, }} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>SKIP</Text></TouchableOpacity>
                 </View>
 
                 {region == 'IN' ?
                     <View>
 
                         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 15, }}>
-                            <Pressable onPress={() => setSelected('mobile')} style={[selected == 'mobile' ? styles.selectedBackground : styles.unselectedBackground, { borderTopLeftRadius: 10, borderBottomLeftRadius: 10 }]}><View style={styles.innerView}><Text style={{ fontWeight: 'bold' }}>Mobile No</Text></View></Pressable>
-                            <Pressable onPress={() => setSelected('email')} style={[selected == 'email' ? styles.selectedBackground : styles.unselectedBackground, { borderTopRightRadius: 10, borderBottomRightRadius: 10 }]}><View style={styles.innerView}><Text style={{ fontWeight: 'bold' }}>Email Id</Text></View></Pressable>
+                            <Pressable onPress={() => setSelected('mobile')} style={[selected == 'mobile' ? styles.selectedBackground : styles.unselectedBackground, { borderTopLeftRadius: 10, borderBottomLeftRadius: 10 }]}><View style={styles.innerView}>
+                                <Text style={selected == 'mobile' ? { fontWeight: 'bold', color: NORMAL_TEXT_COLOR } : { fontWeight: 'bold' }}>Mobile No</Text>
+                            </View></Pressable>
+                            <Pressable onPress={() => setSelected('email')} style={[selected == 'email' ? styles.selectedBackground : styles.unselectedBackground, { borderTopRightRadius: 10, borderBottomRightRadius: 10 }]}><View style={styles.innerView}>
+                                <Text style={selected == 'email' ? { fontWeight: 'bold', color: NORMAL_TEXT_COLOR } : { fontWeight: 'bold' }}>Email Id</Text>
+                            </View></Pressable>
                         </View>
                         {selected == 'mobile' ?
                             <View style={styles.body}>
                                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                                     <Text style={styles.errormessage}>{otpError}</Text>
+                                    <Text style={styles.errormessage}>{MobileError}</Text>
                                 </View>
-                                <TextInput maxLength={10} onChangeText={setMobile} value={Mobile} style={styles.textinput} placeholder="Mobile Number*" placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='phone-pad' />
-                                <Text style={styles.errormessage}>{MobileError}</Text>
-
-                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text style={styles.errormessage}>{signinError}</Text>
-                                    <Text style={styles.successmessage}>{signinSuccess}</Text>
-                                    <View style={{ flexDirection: 'row', width: '100%' }}>
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                            <TouchableOpacity onPress={signinMobileUser} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text></TouchableOpacity>
-                                        </View>
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                            <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Not a Member?</Text>
-                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign Up</Text>
-                                            </TouchableOpacity>
-                                        </View>
+                                <View style={{ flexDirection: 'row', width: "100%", justifyContent: 'center', alignItems: 'center', }}>
+                                    <View style={[styles.textinput, { width: "15%", justifyContent: 'center', alignItems: 'center' }]}>
+                                        <TextInput value="+91" style={{ color: NORMAL_TEXT_COLOR }} placeholder="Country Code." editable={false} placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='phone-pad' />
+                                    </View>
+                                    <View style={[styles.textinput, { width: "85%", justifyContent: 'center', alignItems: 'center' }]}>
+                                        <TextInput maxLength={10} onChangeText={setMobile} value={Mobile} style={{ width: '100%', color: NORMAL_TEXT_COLOR }} placeholder="Mobile Number*" placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='phone-pad' />
                                     </View>
                                 </View>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', width: '50%', marginTop: 15 }}>
+                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Signup'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 15 }}>Not a Member? <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Sign Up</Text></Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={{ justifyContent: 'center', alignItems: 'flex-end', width: '50%', marginTop: 15 }}>
+                                        <TouchableOpacity onPress={signinMobileUser}>
+                                            <LinearGradient colors={[BUTTON_COLOR, TAB_COLOR]} style={styles.button}>
+                                                <Ionicons name='arrow-forward' size={20} color={NORMAL_TEXT_COLOR} />
+                                            </LinearGradient>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                                <Text style={styles.errormessage}>{signinError}</Text>
+                                <Text style={styles.successmessage}>{signinSuccess}</Text>
 
-                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+
+
+                                <View style={{ justifyContent: 'center', alignItems: 'center', }}>
                                     <Text style={{ color: DETAILS_TEXT_COLOR }}>----- OR -----</Text>
                                 </View>
 
-                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
 
 
                                     <Pressable
@@ -955,31 +970,35 @@ export default function Login({ navigation }) {
 
                                 <TextInput secureTextEntry={true} onChangeText={setnewpassword} value={newpassword} style={styles.textinput} placeholder="Password*" placeholderTextColor={NORMAL_TEXT_COLOR} />
                                 <Text style={styles.errormessage}>{newpasswordError}</Text>
-                                <View>
-                                    <TouchableOpacity style={{ position: 'absolute', right: 20 }} onPress={() => navigation.navigate('ForgotPassword')}>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
+                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Signup'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 15 }}>Not a Member? <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Sign Up</Text></Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <TouchableOpacity style={{ position: 'absolute', right: 20 }} onPress={() => navigation.dispatch(StackActions.replace('ForgotPassword'))}>
                                         <Text style={{ color: NORMAL_TEXT_COLOR }}>Forgot Password?</Text>
                                     </TouchableOpacity>
                                 </View>
+
                                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                                     <Text style={styles.errormessage}>{signinError}</Text>
                                     <Text style={styles.successmessage}>{signinSuccess}</Text>
-                                    <View style={{ flexDirection: 'row', width: '100%' }}>
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                            <TouchableOpacity onPress={signinEmailUser} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text></TouchableOpacity>
-                                        </View>
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                            <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Not a Member?</Text>
-                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign Up</Text>
-                                            </TouchableOpacity>
-                                        </View>
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+
+                                        <TouchableOpacity onPress={signinEmailUser}>
+                                            <LinearGradient colors={[BUTTON_COLOR, TAB_COLOR]} style={styles.button}>
+                                                <Ionicons name='arrow-forward' size={20} color={NORMAL_TEXT_COLOR} />
+                                            </LinearGradient>
+                                        </TouchableOpacity>
+
                                     </View>
                                 </View>
 
-                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
                                     <Text style={{ color: DETAILS_TEXT_COLOR }}>----- OR -----</Text>
                                 </View>
 
-                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
 
 
                                     <Pressable
@@ -1028,46 +1047,37 @@ export default function Login({ navigation }) {
                             <TextInput onChangeText={setpass} value={pass} style={styles.textinput} placeholder="Password*" placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='default' secureTextEntry={true} />
                             <Text style={styles.errormessage}>{passwordError}</Text>
 
+                            <View style={{ flexDirection: 'row' }}>
+                                <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
+                                    <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Signup'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 15 }}>Not a Member? <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Sign Up</Text></Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <TouchableOpacity style={{ position: 'absolute', right: 20 }} onPress={() => navigation.dispatch(StackActions.replace('ForgotPassword'))}>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR }}>Forgot Password?</Text>
+                                </TouchableOpacity>
+                            </View>
+
                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                                 <Text style={styles.errormessage}>{signinError}</Text>
                                 <Text style={styles.successmessage}>{signinSuccess}</Text>
                                 <View style={{ flexDirection: 'row', width: '100%' }}>
                                     <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                        <TouchableOpacity onPress={signinMobileUserInternational} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign In</Text></TouchableOpacity>
+                                        <TouchableOpacity onPress={signinMobileUserInternational}>
+
+                                            <LinearGradient colors={[BUTTON_COLOR, TAB_COLOR]} style={styles.button}>
+                                                <Ionicons name='arrow-forward' size={20} color={NORMAL_TEXT_COLOR} />
+                                            </LinearGradient>
+
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
                             </View>
 
-                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
                                 <Text style={{ color: DETAILS_TEXT_COLOR }}>----- OR -----</Text>
                             </View>
 
-                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
-
-                                {/* {!user.idToken ? */}
-                                <GoogleSigninButton
-                                    style={{ width: 200, height: 50 }}
-                                    size={GoogleSigninButton.Size.Wide}
-                                    color={GoogleSigninButton.Color.Dark}
-                                    onPress={signin}
-                                ></GoogleSigninButton>
-                                {/* :
-                                ""
-                            } */}
-
-                            </View>
-                            <View style={{ flexDirection: 'row', width: '100%', marginTop: 20 }}>
-                                <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                    <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign Up</Text></TouchableOpacity>
-                                </View>
-                            </View>
-
-
-                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
-                                <Text style={{ color: DETAILS_TEXT_COLOR }}>----- OR -----</Text>
-                            </View>
-
-                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
 
 
                                 <Pressable
@@ -1105,8 +1115,8 @@ export default function Login({ navigation }) {
 const styles = StyleSheet.create({
     header: { justifyContent: 'center', alignItems: 'center', height: 80 },
     body: { backgroundColor: BACKGROUND_COLOR, height: "100%", padding: 20, },
-    textinput: { borderBottomColor: SLIDER_PAGINATION_UNSELECTED_COLOR, borderBottomWidth: 1, marginTop: 40, fontSize: 18, color: NORMAL_TEXT_COLOR, padding: 5 },
-    button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 18, borderRadius: 10, marginRight: 20 },
+    textinput: { borderColor: SLIDER_PAGINATION_UNSELECTED_COLOR, borderWidth: 1, marginTop: 10, fontSize: 15, color: NORMAL_TEXT_COLOR, padding: 10, borderRadius: 5, marginRight: 5, },
+    button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 50, padding: 8, borderRadius: 10, },
     errormessage: { color: 'red', fontSize: 15 },
     successmessage: { color: NORMAL_TEXT_COLOR, fontSize: 15 },
     unselectedBackground: { backgroundColor: NORMAL_TEXT_COLOR, },

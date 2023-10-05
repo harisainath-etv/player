@@ -2,12 +2,13 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressa
 import React, { useEffect, useState } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
-import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, ACCESS_TOKEN, MORE_LINK_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, SLIDER_PAGINATION_SELECTED_COLOR } from '../constants'
+import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, ACCESS_TOKEN, MORE_LINK_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, SLIDER_PAGINATION_SELECTED_COLOR, BUTTON_COLOR } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import analytics from '@react-native-firebase/analytics';
 import DeviceInfo from 'react-native-device-info';
+import LinearGradient from 'react-native-linear-gradient';
 
 export default function Signup({ navigation }) {
     const [name, setName] = useState('');
@@ -49,19 +50,19 @@ export default function Signup({ navigation }) {
         else
             return false;
     }
-    const triggersuccessanalytics = async(name,method,u_id,device_id) =>{
-          await analytics().logEvent(name, {
+    const triggersuccessanalytics = async (name, method, u_id, device_id) => {
+        await analytics().logEvent(name, {
             method: method,
             u_id: u_id,
-            device_id:device_id
-          }).then(resp=>{console.log(resp);}).catch(err=>{console.log(err);})
+            device_id: device_id
+        }).then(resp => { console.log(resp); }).catch(err => { console.log(err); })
     }
-    const triggerfailureanalytics = async(name,error_type,method,device_id) =>{
+    const triggerfailureanalytics = async (name, error_type, method, device_id) => {
         await analytics().logEvent(name, {
             error_type: error_type,
             method: method,
             device_id: device_id
-          }).then(resp=>{console.log(resp);}).catch(err=>{console.log(err);})
+        }).then(resp => { console.log(resp); }).catch(err => { console.log(err); })
     }
     async function postData(type) {
         const region = await AsyncStorage.getItem('country_code');
@@ -85,13 +86,13 @@ export default function Signup({ navigation }) {
                 setOtpError('')
                 setOtpError('Verification link has been sent to \r\n \r\n ' + userId + '. \r\n \r\n Please click the link in that email to continue.');
                 setshowresend(true);
-                triggersuccessanalytics('signup_success','email id',user_id,uniqueid)
+                triggersuccessanalytics('signup_success', 'email id', user_id, uniqueid)
 
             }).catch(error => {
                 //console.log(error.response.status);
                 //console.log(error.response.headers);
                 setOtpError(error.response.data.error.message)
-                triggerfailureanalytics('signup_failure',error.response.data.error.message,'email id',uniqueid)
+                triggerfailureanalytics('signup_failure', error.response.data.error.message, 'email id', uniqueid)
             }
             );
     }
@@ -214,11 +215,11 @@ export default function Signup({ navigation }) {
                 setOtpError('')
                 {
                     type == 'email' ?
-                    setOtpError('Verification link has been sent to \r\n \r\n ' + userId + '. \r\n \r\n Please click the link in that email to continue.')
-                    :
-                    navigation.navigate('Otp',{ 'otpkey': 'signupMobile' })
+                        setOtpError('Verification link has been sent to \r\n \r\n ' + userId + '. \r\n \r\n Please click the link in that email to continue.')
+                        :
+                        navigation.navigate('Otp', { 'otpkey': 'signupMobile' })
 
-                    type == 'email' ? triggersuccessanalytics('signup_success','email id',user_id,uniqueid) : ""
+                    type == 'email' ? triggersuccessanalytics('signup_success', 'email id', user_id, uniqueid) : ""
                 }
                 setshowresend(true);
 
@@ -226,7 +227,7 @@ export default function Signup({ navigation }) {
                 //console.log(error.response.status);
                 //console.log(error.response.headers);
                 setOtpError(error.response.data.error.message)
-                type == 'email' ? triggerfailureanalytics('signup_failure',error.response.data.error.message,'email id',uniqueid) : ""
+                type == 'email' ? triggerfailureanalytics('signup_failure', error.response.data.error.message, 'email id', uniqueid) : ""
             }
             );
     }
@@ -254,8 +255,8 @@ export default function Signup({ navigation }) {
             }
         }
         else {
-            
-            
+
+
             setemailMobileError("");
             if (CheckPassword(newpassword)) {
                 setnewpasswordError("");
@@ -284,8 +285,8 @@ export default function Signup({ navigation }) {
                         <TouchableOpacity style={{ position: 'absolute', right: 20, }} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>SKIP</Text></TouchableOpacity>
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 15, }}>
-                        <Pressable onPress={() => { setSelected('mobile'); setTermsCheck(false); }} style={[selected == 'mobile' ? styles.selectedBackground : styles.unselectedBackground, { borderTopLeftRadius: 10, borderBottomLeftRadius: 10 }]}><View style={styles.innerView}><Text style={{ fontWeight: 'bold' }}>Mobile No</Text></View></Pressable>
-                        <Pressable onPress={() => { setSelected('email'); setTermsCheck(false); }} style={[selected == 'email' ? styles.selectedBackground : styles.unselectedBackground, { borderTopRightRadius: 10, borderBottomRightRadius: 10 }]}><View style={styles.innerView}><Text style={{ fontWeight: 'bold' }}>Email Id</Text></View></Pressable>
+                        <Pressable onPress={() => { setSelected('mobile'); setTermsCheck(false); }} style={[selected == 'mobile' ? styles.selectedBackground : styles.unselectedBackground, { borderTopLeftRadius: 10, borderBottomLeftRadius: 10 }]}><View style={styles.innerView}><Text style={selected == 'mobile' ? { fontWeight: 'bold', color: NORMAL_TEXT_COLOR } : { fontWeight: 'bold' }}>Mobile No</Text></View></Pressable>
+                        <Pressable onPress={() => { setSelected('email'); setTermsCheck(false); }} style={[selected == 'email' ? styles.selectedBackground : styles.unselectedBackground, { borderTopRightRadius: 10, borderBottomRightRadius: 10 }]}><View style={styles.innerView}><Text style={selected == 'email' ? { fontWeight: 'bold', color: NORMAL_TEXT_COLOR } : { fontWeight: 'bold' }}>Email Id</Text></View></Pressable>
                     </View>
 
                     {selected == 'mobile' ?
@@ -311,10 +312,14 @@ export default function Signup({ navigation }) {
                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                                 <View style={{ flexDirection: 'row', width: '100%' }}>
                                     <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                        <TouchableOpacity onPress={signUpMobileUser} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text></TouchableOpacity>
+                                        <TouchableOpacity onPress={signUpMobileUser}>
+                                            <LinearGradient colors={[BUTTON_COLOR, TAB_COLOR]} style={styles.button}>
+                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text>
+                                            </LinearGradient>
+                                        </TouchableOpacity>
                                     </View>
                                     <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                        <TouchableOpacity onPress={() => navigation.navigate('Login')} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Already a Member?</Text>
+                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Login'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Already a Member?</Text>
                                             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign In</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -359,10 +364,16 @@ export default function Signup({ navigation }) {
                                     <Text style={styles.errormessage}>{registerError}</Text>
                                     <Text style={styles.successmessage}>{registerSuccess}</Text>
                                     <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                        <TouchableOpacity onPress={registerEmailUser} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text></TouchableOpacity>
+                                        <TouchableOpacity onPress={registerEmailUser}>
+
+                                            <LinearGradient colors={[BUTTON_COLOR, TAB_COLOR]} style={styles.button}>
+                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text>
+                                            </LinearGradient>
+
+                                        </TouchableOpacity>
                                     </View>
                                     <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                        <TouchableOpacity onPress={() => navigation.navigate('Login')} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Already a Member?</Text>
+                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Login'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Already a Member?</Text>
                                             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign In</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -417,7 +428,7 @@ export default function Signup({ navigation }) {
                         </View>
 
                         <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', marginTop: 50 }}>
-                            <TouchableOpacity onPress={() => navigation.navigate('Login')} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Already a Member?</Text>
+                            <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Login'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Already a Member?</Text>
                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign In</Text>
                             </TouchableOpacity>
                         </View>
@@ -432,7 +443,7 @@ export default function Signup({ navigation }) {
 const styles = StyleSheet.create({
     header: { justifyContent: 'center', alignItems: 'center', height: 80 },
     body: { backgroundColor: BACKGROUND_COLOR, height: "100%", padding: 20, },
-    textinput: { borderBottomColor: SLIDER_PAGINATION_UNSELECTED_COLOR, borderBottomWidth: 1, marginTop: 40, fontSize: 18, color: NORMAL_TEXT_COLOR, padding: 5 },
+    textinput: { borderBottomColor: SLIDER_PAGINATION_UNSELECTED_COLOR, borderBottomWidth: 1, marginTop: 20, fontSize: 18, color: NORMAL_TEXT_COLOR, padding: 5 },
     button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 18, borderRadius: 10, marginRight: 20 },
     errormessage: { color: 'red', fontSize: 15 },
     successmessage: { color: NORMAL_TEXT_COLOR, fontSize: 15 },

@@ -8,8 +8,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Modal from "react-native-modal";
 import { useNavigation } from '@react-navigation/native';
 import { StackActions } from '@react-navigation/native';
-import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, MORE_LINK_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, } from '../constants';
+import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, MORE_LINK_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, BUTTON_COLOR, } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LinearGradient from 'react-native-linear-gradient';
 
 export default function Header(props) {
     const pageName = props.pageName;
@@ -223,7 +224,7 @@ export default function Header(props) {
                         else
                             navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
                     }}>
-                        <Ionicons name="arrow-back" size={30} color="#ffffff" style={{ }} />
+                        <Ionicons name="arrow-back" size={30} color="#ffffff" style={{}} />
                     </TouchableOpacity>
 
                     <Image source={require('../assets/images/winlogo.png')} style={styles.logoImage}></Image>
@@ -232,7 +233,17 @@ export default function Header(props) {
                 <View style={styles.rightItems}>
                     {subscription_title == '' || subscription_title == null || subscription_title == 'Free' ?
                         <TouchableOpacity onPress={() => navigation.navigate('Subscribe', {})} >
-                            <Image source={require('../assets/images/subscribe.png')} style={styles.subscribeImage}></Image>
+                            <LinearGradient
+                                useAngle={true}
+                                angle={125}
+                                angleCenter={{ x: 0.5, y: 0.5 }}
+                                colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                                style={styles.button}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <FontAwesome5 name='lock' size={15} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
+                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>Subscribe</Text>
+                                </View>
+                            </LinearGradient>
                         </TouchableOpacity>
                         :
                         ""}
@@ -255,5 +266,6 @@ const styles = StyleSheet.create({
     leftItems: { width: '50%', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', },
     rightItems: { width: '50%', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', },
     logoImage: { width: 100, height: 55, resizeMode: 'contain', marginLeft: 5 },
-    subscribeImage: { width: 100, height: 50, resizeMode: 'contain', }
+    subscribeImage: { width: 100, height: 50, resizeMode: 'contain', },
+    button: { paddingLeft: 10, paddingRight: 10, paddingBottom: 2, paddingTop: 2, borderRadius: 15, marginRight: 5 },
 });

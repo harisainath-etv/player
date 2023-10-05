@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet, Text, Pressable, ActivityIndicator, RefreshControl, TouchableOpacity, Image, LogBox } from 'react-native';
+import { View, FlatList, StyleSheet, Text, Pressable, ActivityIndicator, RefreshControl, TouchableOpacity, Image, LogBox, StatusBar } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -9,12 +9,12 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU } from '../constants';
-import { StatusBar } from 'expo-status-bar';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 // import RNBackgroundDownloader from 'react-native-background-downloader';
 import axios from 'axios';
 import Modal from "react-native-modal";
@@ -115,7 +115,7 @@ function Home({ navigation, route }) {
     }) : ({
         vertical: false,
         width: PAGE_WIDTH,
-        height: 238,
+        height: 268,
     });
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
@@ -515,7 +515,6 @@ function Home({ navigation, route }) {
         });
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
-
                 <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                     {item.layoutType == 'top_banner' ?
                         <Carousel
@@ -555,15 +554,23 @@ function Home({ navigation, route }) {
                                             }
 
                                         }}>
-                                            <LinearGradient colors={[BACKGROUND_COLOR, TAB_COLOR]} style={styles.button}>
-                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Watch Now</Text>
+                                            <LinearGradient
+                                                useAngle={true}
+                                                angle={125}
+                                                angleCenter={{ x: 0.5, y: 0.5 }}
+                                                colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                                                style={[styles.button, { borderColor: BACKGROUND_COLOR, borderWidth: 0.5, borderRadius: 40 }]}>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                    <FontAwesome5 name='play' size={18} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
+                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: 'bold' }}>Watch Now</Text>
+                                                </View>
                                             </LinearGradient>
                                         </Pressable>
 
 
                                         {VIDEO_TYPES.includes(item.theme) ?
                                             <Pressable onPress={() => { watchLater(item.catalog_id, item.content_id) }} style={styles.wishlistbutton}>
-                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}> + WatchList</Text>
+                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: 'bold' }}> + Watch Later</Text>
                                             </Pressable>
                                             :
                                             ""}
@@ -588,7 +595,7 @@ function Home({ navigation, route }) {
                             loop
                             pagingEnabled={pagingEnabled}
                             snapEnabled={snapEnabled}
-                            autoPlay={autoPlay}
+                            autoPlay={page=='featured-1' ? !autoPlay : autoPlay}
                             autoPlayInterval={2000}
                             onProgressChange={(_, absoluteProgress) =>
                                 (progressValue1.value = absoluteProgress)
@@ -620,13 +627,13 @@ function Home({ navigation, route }) {
                             {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
 
                         </View>
-                        <View style={{ }}>
+                        <View style={{}}>
                             <Carousel
                                 {...baseOptionsOtherSingle}
                                 loop
                                 pagingEnabled={pagingEnabled}
                                 snapEnabled={snapEnabled}
-                                autoPlay={autoPlay}
+                                autoPlay={page=='featured-1' ? !autoPlay : autoPlay}
                                 autoPlayInterval={2000}
                                 onProgressChange={(_, absoluteProgress) =>
                                     (progressValue2.value = absoluteProgress)
@@ -659,7 +666,7 @@ function Home({ navigation, route }) {
                                 loop
                                 pagingEnabled={pagingEnabled}
                                 snapEnabled={snapEnabled}
-                                autoPlay={autoPlay}
+                                autoPlay={page=='featured-1' ? !autoPlay : autoPlay}
                                 autoPlayInterval={2000}
                                 onProgressChange={(_, absoluteProgress) =>
                                     (progressValue3.value = absoluteProgress)
@@ -736,7 +743,7 @@ function Home({ navigation, route }) {
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             </Pressable>
-                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                            {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </View>
                                 }
@@ -765,7 +772,7 @@ function Home({ navigation, route }) {
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             </Pressable>
-                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                            {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </View>
                                 }
@@ -835,7 +842,7 @@ function Home({ navigation, route }) {
                                                         style={[styles.imageSectionCircle,]}
                                                         resizeMode={FastImage.resizeMode.stretch}
                                                         source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                    {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                    {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
                                                     {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                                 </Pressable>
                                             </View>
@@ -940,7 +947,7 @@ function Home({ navigation, route }) {
                                                     style={[styles.imageSectionHorizontalTab, { resizeMode: 'stretch', }]}
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                             <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center', marginBottom: 20 }}>{item.displayTitle}</Text>
@@ -970,7 +977,7 @@ function Home({ navigation, route }) {
                                                     style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
+                                                {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                             <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center', marginBottom: 20 }}>{item.displayTitle}</Text>
@@ -991,17 +998,17 @@ function Home({ navigation, route }) {
     }
     const menuRender = ({ item, index }) => {
         return (
-            <View style={{ padding: 5, flexDirection: 'row' }}>
+            <View style={{paddingTop:5, flexDirection: 'row' }}>
 
                 {item.friendlyId == pageName ?
 
                     <View style={styles.menuitem}>
-                        <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold', marginRight: 5, marginLeft: 5 }}>{item.displayName}</Text>
+                        <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold',  }}>{item.displayName}</Text>
                     </View>
                     :
                     <Pressable onPress={() => changeTabData(item.friendlyId)}>
                         <View style={styles.menuitem}>
-                            <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold', marginRight: 5, marginLeft: 5 }}>{item.displayName}</Text>
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold', }}>{item.displayName}</Text>
                         </View>
                     </Pressable>
                 }
@@ -1071,26 +1078,38 @@ function Home({ navigation, route }) {
                 {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} style={{}}></ActivityIndicator> : ""}
             </View>
             <View style={{ position: 'absolute', backgroundColor: menubgcolor, width: PAGE_WIDTH }}>
-                <View style={{ marginTop: 25, justifyContent: 'center', alignContent: 'center', alignItems: 'center', flexDirection: 'row', }}>
-                    <View style={styles.menulogo}>
-                        <Image source={require('../assets/images/winlogo.png')} style={{ width: 95, height: 50 }}></Image>
-                    </View>
+                <View style={{ marginTop: 30, justifyContent: 'center', alignContent: 'center', alignItems: 'center', flexDirection: 'row', width: "100%" }}>
 
-                    {currentIndexValue >= 0 ?
-                        <FlatList
-                            data={totalMenuData}
-                            initialNumToRender={8}
-                            initialScrollIndex={currentIndexValue}
-                            renderItem={menuRender}
-                            keyExtractor={(x, i) => i.toString()}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                            ref={menuref}
-                            style={{ zIndex: 100, }}
-                        />
-                        :
-                        ""
-                    }
+                    <View style={[styles.menulogo, { width: "20%" }]}>
+                        <Image source={require('../assets/images/winlogo.png')} style={{ width: 70, height: 40 }}></Image>
+                    </View>
+                    <View style={{ width: "53%" }}>
+                        {currentIndexValue >= 0 ?
+                            <FlatList
+                                data={totalMenuData}
+                                initialNumToRender={8}
+                                initialScrollIndex={currentIndexValue}
+                                renderItem={menuRender}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                ref={menuref}
+                                style={{ zIndex: 100, }}
+                            />
+                            :
+                            ""
+                        }
+                    </View>
+                    <View style={{ width: "27%",flexDirection:'row' }}>
+                        <TouchableOpacity onPress={()=>navigation.dispatch(StackActions.replace('OtherResponse', { pageFriendlyId: 'live' }))} style={{backgroundColor:BACKGROUND_COLOR,width:38,height:38,borderRadius:19,justifyContent:'center',alignItems:'center',marginLeft:5}}>
+                            <MaterialCommunityIcons name='youtube-tv' size={18} color={NORMAL_TEXT_COLOR} />
+                            <Text style={{color:NORMAL_TEXT_COLOR,fontSize:8,fontWeight:'bold'}}>Live Tv</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Search', {}))} style={{backgroundColor:BACKGROUND_COLOR,width:38,height:38,borderRadius:19,justifyContent:'center',alignItems:'center',marginLeft:5}}>
+                            <MaterialIcons name='search' size={30} color={NORMAL_TEXT_COLOR} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
             </View>
@@ -1098,8 +1117,16 @@ function Home({ navigation, route }) {
 
             {subscription_title == '' || subscription_title == null || subscription_title == 'Free' ?
                 <View style={{ justifyContent: 'center', alignItems: 'center' }}><TouchableOpacity style={{ position: 'absolute', bottom: 10 }} onPress={() => navigation.navigate('Subscribe', {})}>
-                    <LinearGradient colors={[BACKGROUND_COLOR, TAB_COLOR]} style={styles.button}>
-                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Subscribe</Text>
+                    <LinearGradient
+                        useAngle={true}
+                        angle={125}
+                        angleCenter={{ x: 0.5, y: 0.5 }}
+                        colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                        style={styles.button}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <FontAwesome5 name='lock' size={20} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Subscribe</Text>
+                        </View>
                     </LinearGradient>
                 </TouchableOpacity></View>
                 :
@@ -1132,7 +1159,12 @@ function Home({ navigation, route }) {
             </Modal>
 
 
-            <StatusBar style="auto" />
+            <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="light-content"
+                translucent={true}
+            />
         </View>
     );
 }
@@ -1195,11 +1227,11 @@ const PaginationItem = (props) => {
 
 const styles = StyleSheet.create({
     buttonsContainer: { width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', zIndex: 1000, },
-    buttonsPosition: { position: 'absolute', bottom: 20, flexDirection: 'row',width:'100%',alignItems:'center',justifyContent:'center' },
-    button: { backgroundColor: TAB_COLOR, paddingLeft: 30, paddingRight: 30, paddingBottom: 8, paddingTop: 8, borderRadius: 40, marginRight: 5 },
-    wishlistbutton: { borderRadius: 40, borderWidth: 2,  borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 30, paddingRight: 30, paddingBottom: 8, paddingTop: 8 },
+    buttonsPosition: { position: 'absolute', bottom: 20, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center' },
+    button: { paddingLeft: 22, paddingRight: 22, paddingBottom: 7, paddingTop: 7, borderRadius: 40, marginRight: 5 },
+    wishlistbutton: { borderRadius: 40, borderWidth: 2, borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 22, paddingRight: 22, paddingBottom: 7, paddingTop: 7 },
     subscribeImage: { width: 160, height: 85, resizeMode: 'contain', justifyContent: 'center', alignItems: 'center', },
-    menulogo: { height: 35, justifyContent: 'center', alignItems: 'center', padding: 10, borderRadius: 10, flexDirection: 'row' },
+    menulogo: { height: 35, justifyContent: 'center', alignItems: 'center', },
     menuitem: { height: 35, justifyContent: 'center', alignItems: 'center', padding: 8, borderRadius: 15 },
     playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
     crownIcon: { position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
@@ -1272,9 +1304,8 @@ const styles = StyleSheet.create({
     },
     imageSectionHorizontalSingle: {
         width: PAGE_WIDTH - 5,
-        height: 235,
+        height: 265,
         marginHorizontal: 3,
-        borderRadius: 10,
         marginBottom: 10,
         borderWidth: 1,
         resizeMode: 'stretch'

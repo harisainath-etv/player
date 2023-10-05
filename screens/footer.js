@@ -89,7 +89,7 @@ export default function Footer(props) {
         })
     })
     return (
-        <View style={{ backgroundColor: BACKGROUND_TRANSPARENT_COLOR, }}>
+        <View style={{ backgroundColor: BACKGROUND_COLOR, }}>
             {/* <View style={{ zIndex: 1000, justifyContent: 'center', alignContent: 'center', alignSelf: 'center', alignItems: 'center' }}>
                 <View style={{ backgroundColor: BACKGROUND_COLOR, width: 86, position: 'absolute', padding: 5, borderTopRightRadius: 43, borderTopLeftRadius: 43, bottom: -20 }}>
 
