@@ -2,6 +2,7 @@ import { StatusBar, } from 'expo-status-bar';
 import { StyleSheet, View, Text, Pressable, ScrollView, FlatList, Image, LogBox, Alert, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { Rating, AirbnbRating } from 'react-native-ratings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -11,8 +12,10 @@ import { StackActions, useFocusEffect } from '@react-navigation/native';
 import Modal from "react-native-modal";
 import Share from 'react-native-share';
 import NormalHeader from './normalHeader';
-import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR, DETAILS_TEXT_COLOR, DARKED_BORDER_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN } from '../constants';
+import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR, DETAILS_TEXT_COLOR, DARKED_BORDER_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR } from '../constants';
 import DeviceInfo from 'react-native-device-info';
+import LinearGradient from 'react-native-linear-gradient';
+import { TouchableOpacity } from 'react-native';
 var indexValue = 0;
 var isTablet = DeviceInfo.isTablet();
 export default function Shows({ navigation, route }) {
@@ -91,7 +94,7 @@ export default function Shows({ navigation, route }) {
         const url = urlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
         await axios.get(url).then(response => {
             setTitle(response.data.data.title);
-            setThumbnail(response.data.data.last_episode.thumbnails.high_4_3.url);
+            setThumbnail(response.data.data.last_episode.thumbnails.high_3_4.url);
             setEpisodeSeoUrl(response.data.data.last_episode.seo_url);
             setUserRating(Math.round(response.data.data.average_user_rating));
             setChannel(response.data.data.channel_object.name);
@@ -185,14 +188,14 @@ export default function Shows({ navigation, route }) {
     function renderSubcat({ item }) {
 
         return (
-            <View>
+            <View style={{}}>
 
                 {item.map((subcat, i) => {
                     return (
                         <View style={{}} key={'main' + i}>
                             {subcat.thumbnails.length > 0 ?
                                 <View>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10 }} key={'heading' + i}>{subcat.display_title}</Text>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 15, marginBottom: 10 }} key={'heading' + i}>{subcat.display_title}</Text>
                                     {subcat.name != 'related' ? <Pressable style={{ position: 'absolute', right: 30 }} onPress={() => navigation.navigate('EpisodesMoreList', { firendlyId: subcat.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
 
                                 </View> : ""}
@@ -231,7 +234,7 @@ export default function Shows({ navigation, route }) {
 
                                                     ""}>
                                                     {subcat.display_title == 'Episodes' ?
-                                                        <View style={{ justifyContent: 'center', }}><Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 12 }}>{items.item.title} | {dateArray[2]}-{dateArray[1]}-{dateArray[0]}</Text></View> : ""
+                                                        <View style={{ justifyContent: 'center', }}><Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 10 }}>{items.item.title} | {dateArray[2]}-{dateArray[1]}-{dateArray[0]}</Text></View> : ""
                                                     }
                                                 </View>
                                             </View>
@@ -300,7 +303,7 @@ export default function Shows({ navigation, route }) {
             })
         }
         else {
-            navigation.dispatch(StackActions.replace('Login'))
+            navigation.navigate('Login')
         }
 
     }
@@ -380,25 +383,32 @@ export default function Shows({ navigation, route }) {
                         <View style={styles.container}>
                             <View
                                 style={
-                                    isTablet?
-                                    {height: 450,width: PAGE_WIDTH,}
-                                    :
-                                    {height: 270,width: PAGE_WIDTH,}
-                            }
+                                    isTablet ?
+                                        { height: 600, width: PAGE_WIDTH, }
+                                        :
+                                        { height: 420, width: PAGE_WIDTH, }
+                                }
                             >
-                                <Pressable onPress={() => navigation.navigate('Episode', { seoUrl: episodeSeoUrl, theme: 'video',showname:title, showcontentId:contentId })}>
+                                <Pressable style={{ justifyContent: 'center', alignItems: 'center' }} onPress={() => navigation.navigate('Episode', { seoUrl: episodeSeoUrl, theme: 'video', showname: title, showcontentId: contentId })}>
                                     <FastImage resizeMode={FastImage.resizeMode.stretch} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={
-                                        isTablet?
-                                        { width: '100%', height: 450 }
-                                        :
-                                        { width: '100%', height: 270 }
-                                        }></FastImage>
-                                    <MaterialCommunityIcons name="play-circle-outline" size={60} color={NORMAL_TEXT_COLOR} style={
-                                        isTablet?
-                                        { position: 'absolute', right: ((PAGE_WIDTH / 2 - 20)), top: 200, }
-                                        :
-                                        { position: 'absolute', right: ((PAGE_WIDTH / 2 - 20)), top: 100, }
-                                        } />
+                                        isTablet ?
+                                            { width: '100%', height: 600 }
+                                            :
+                                            { width: '100%', height: 420 }
+                                    }></FastImage>
+
+                                    <LinearGradient
+                                        useAngle={true}
+                                        angle={125}
+                                        angleCenter={{ x: 0.5, y: 0.5 }}
+                                        colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                                        style={[styles.button]} >
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            <FontAwesome5 name='play' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
+                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Watch Now</Text>
+                                        </View>
+                                    </LinearGradient>
+
                                 </Pressable>
                                 {seasons.length > 1 ? <View style={{ position: 'absolute', backgroundColor: 'rgba(0, 0, 0, 0.7)', height: 50, width: '100%', bottom: 0, justifyContent: 'center', padding: 5 }}>
                                     <Pressable onPress={() => setModalVisible(true)}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>{selectTitle ? selectTitle : "Select Season"} <MaterialCommunityIcons name="chevron-double-down" size={20} color={NORMAL_TEXT_COLOR} /></Text></Pressable>
@@ -408,15 +418,23 @@ export default function Shows({ navigation, route }) {
 
                             <View style={styles.bodyContent}>
                                 <View style={styles.marginContainer}>
-                                    <Text style={styles.headingLabel}>{title}</Text>
-                                    <Text style={styles.detailsText}>{channel}</Text>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <Text style={styles.detailsText}>{contentRating}</Text>
-                                        <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', borderRightColor: TAB_COLOR, borderWidth: 2 }]}></Text>
+                                    <Text style={styles.headingLabel}>
+                                        <Text style={[{ color: TAB_COLOR, fontWeight: 'bold',}]}>| </Text>
+                                        {title}</Text>
+                                    <View style={{ flexDirection: 'row',marginTop:5 }}>
+                                        <Text style={styles.detailsText}>{channel}</Text>
+                                        
+                                        {/* <Text style={styles.detailsText}>{contentRating}</Text>
+                                        <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', borderRightColor: TAB_COLOR, borderWidth: 2 }]}></Text> */}
 
                                         {displayGenres.map((resp, index) => {
 
-                                            return (<Text key={index} style={[styles.detailsText, { borderWidth: 1, borderStyle: 'dashed', borderColor: TAB_COLOR, marginLeft: 10, borderRadius: 10 }]}>{resp}</Text>)
+                                            return (
+                                            <View key={index} style={{flexDirection:'row',justifyContent:'center',alignItems:'center',marginLeft:5}}>
+                                            <FontAwesome5 name='dot-circle' size={10} color={TAB_COLOR}/>
+                                            <Text key={index} style={[styles.detailsText, { color:TAB_COLOR,fontWeight:'bold', }]}>{resp}</Text>
+                                            </View>
+                                            )
 
                                         })}
 
@@ -434,7 +452,7 @@ export default function Shows({ navigation, route }) {
                                                     showRating={false}
                                                     count={5}
                                                     defaultRating={userRating}
-                                                    size={18} />
+                                                    size={15} />
                                                 <Pressable onPress={() => alert('You have already rated the content.')} style={{ width: '100%', height: "100%", position: 'absolute' }}></Pressable>
                                             </View>
 
@@ -443,18 +461,18 @@ export default function Shows({ navigation, route }) {
                                                 showRating={false}
                                                 count={5}
                                                 defaultRating={userRating}
-                                                size={18} />
+                                                size={13} />
                                         }
                                     </View>
 
                                     <View style={styles.singleoption}>
-                                        <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable></View>
+                                        <TouchableOpacity onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={20} color={NORMAL_TEXT_COLOR} /></TouchableOpacity></View>
                                     <View style={styles.singleoption}>
 
                                         {toggle ?
-                                            <Pressable onPress={unfollowContent}><MaterialCommunityIcons name="toggle-switch" size={40} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                            <TouchableOpacity onPress={unfollowContent}><MaterialCommunityIcons name="toggle-switch" size={30} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
                                             :
-                                            <Pressable onPress={followContent}><MaterialCommunityIcons name="toggle-switch-off" size={40} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                            <TouchableOpacity onPress={followContent}><MaterialCommunityIcons name="toggle-switch-off" size={30} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
                                         }
 
                                     </View>
@@ -462,10 +480,10 @@ export default function Shows({ navigation, route }) {
 
                             </View>
 
-                            <Pressable onPress={() => navigation.navigate('Calendarscreen', { episodeUrl: episodeUrl })} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', padding: 20 }}>
-                                <MaterialCommunityIcons name="calendar-month" size={40} color={NORMAL_TEXT_COLOR} />
-                                <Text style={{ fontSize: 18, color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}> FILTER BY DATE</Text>
-                            </Pressable>
+                            <TouchableOpacity onPress={() => navigation.navigate('Calendarscreen', { episodeUrl: episodeUrl })} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', padding: 20 }}>
+                                <MaterialCommunityIcons name="calendar-month" size={20} color={NORMAL_TEXT_COLOR} />
+                                <Text style={{ fontSize: 13, color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}> FILTER BY DATE</Text>
+                            </TouchableOpacity>
                             <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', alignContent: 'flex-start', width: '100%' }}>
 
                                 {/* <Text style={{color:NORMAL_TEXT_COLOR}}>{JSON.stringify(subcategoryImages)}</Text> */}
@@ -507,6 +525,7 @@ export default function Shows({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
+    button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, width: "95%", position: 'absolute', bottom: 10, justifyContent: 'center', alignItems: 'center',borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5 },
     playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
     crownIcon: { position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
     container: {
@@ -516,10 +535,10 @@ const styles = StyleSheet.create({
     },
     mainContainer: { flex: 1, backgroundColor: BACKGROUND_COLOR },
     bodyContent: { backgroundColor: BACKGROUND_COLOR },
-    headingLabel: { fontSize: 25, marginBottom: 5, color: NORMAL_TEXT_COLOR, padding: 6 },
-    detailsText: { fontSize: 13, marginBottom: 5, color: DETAILS_TEXT_COLOR, padding: 6 },
-    options: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
-    singleoption: { width: "33.33%", alignItems: 'center', justifyContent: 'center', borderColor: DARKED_BORDER_COLOR, borderWidth: 1, height: 55 },
+    headingLabel: { fontSize: 20, color: NORMAL_TEXT_COLOR, padding: 4, justifyContent: 'center', alignItems: 'center', width: "100%", borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, },
+    detailsText: { fontSize: 11, marginBottom: 5, color: DETAILS_TEXT_COLOR, padding: 4 },
+    options: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row',padding:4 },
+    singleoption: { width: "33.33%", alignItems: 'center', justifyContent: 'center', borderColor: DARKED_BORDER_COLOR, borderWidth: 1, height: 45 },
     marginContainer: { marginLeft: 5, marginRight: 5 },
     imageSectionHorizontal: {
         width: PAGE_WIDTH / 2.06,

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Alert, StatusBar, Pressable, ScrollView, FlatList, } from 'react-native'
+import { View, Text, StyleSheet, Alert, StatusBar, Pressable, FlatList, } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import RNBackgroundDownloader from 'react-native-background-downloader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -177,7 +177,12 @@ export default function Offline({ navigation }) {
       <View style={{ position: 'absolute', bottom: 0 }}>
         <Footer pageName="OFFLINE"></Footer>
       </View>
-      <StatusBar style="auto" />
+      <StatusBar
+        animated
+        backgroundColor="transparent"
+        barStyle="light-content"
+        translucent={true}
+      />
     </View>
   )
 }

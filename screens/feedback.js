@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Pressable, StatusBar, TextInput, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState, } from 'react'
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import NormalHeader from './normalHeader'
 import axios from 'axios'
@@ -84,7 +84,7 @@ export default function Feedback({ navigation }) {
     <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
       <NormalHeader></NormalHeader>
       {submitted ?
-        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ justifyContent: 'center', alignItems: 'center',marginTop:60 }}>
           <Image source={require("../assets/images/icn_successfull.png")} style={{ width: '100%' }} resizeMode='contain' />
           <Text style={{ color: NORMAL_TEXT_COLOR, marginTop: 20, fontSize: 20, marginBottom: 20 }}>Successfully Submitted.</Text>
           <Text style={{ color: NORMAL_TEXT_COLOR, marginTop: 20, fontSize: 16, marginBottom: 20 }}>We appreciate for your valuable time.</Text>
@@ -95,14 +95,14 @@ export default function Feedback({ navigation }) {
         </View>
         :
         <View>
-          <View style={{ justifyContent: 'center', alignItems: 'center', padding: 15 }}>
-            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16, }}>Your opinions, your feedback, your suggestions, let them flow. This is your space. It will help us in improving the app.</Text>
+          <View style={{ justifyContent: 'center', alignItems: 'center', padding: 15,marginTop:60 }}>
+            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 14, }}>Your opinions, your feedback, your suggestions, let them flow. This is your space. It will help us in improving the app.</Text>
           </View>
           
             <View style={styles.dropdowncontainer}>
               <View style={styles.dropdowninnerview}>
                 <View style={{ marginTop: 20 }}>
-                  <TextInput onChangeText={setemail} value={email} placeholder='Email Id *' placeholderTextColor={SLIDER_PAGINATION_UNSELECTED_COLOR} style={{ color: NORMAL_TEXT_COLOR, width: '100%', padding: 10, fontSize: 18, }} />
+                  <TextInput onChangeText={setemail} value={email} placeholder='Email Id *' placeholderTextColor={FOOTER_DEFAULT_TEXT_COLOR} style={{ color: NORMAL_TEXT_COLOR, width: '100%', padding: 5, fontSize: 15, }} />
                 </View>
               </View>
             </View>
@@ -115,9 +115,9 @@ export default function Feedback({ navigation }) {
                   {selectedchannel != "" ?
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18, padding: 10 }}>{selectedchannel}</Text>
                     :
-                    <Text style={{ color: SLIDER_PAGINATION_UNSELECTED_COLOR, fontSize: 18, padding: 10 }}>Select Any Channel</Text>
+                    <Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 15, padding: 5 }}>Select Any Channel</Text>
                   }
-                  <MaterialIcons name='arrow-drop-down' size={25} color={SLIDER_PAGINATION_UNSELECTED_COLOR} style={{ position: 'absolute', right: 15, top: 10 }} />
+                  <MaterialIcons name='arrow-drop-down' size={25} color={FOOTER_DEFAULT_TEXT_COLOR} style={{ position: 'absolute', right: 15, top: 5 }} />
                 </View>
               </View>
             </View>
@@ -127,7 +127,7 @@ export default function Feedback({ navigation }) {
           <View style={styles.dropdowncontainer}>
             <View style={styles.dropdowninnerview}>
               <View style={{}}>
-                <TextInput onChangeText={setshowname} value={showname} placeholder='Show Name *' placeholderTextColor={SLIDER_PAGINATION_UNSELECTED_COLOR} style={{ color: NORMAL_TEXT_COLOR, width: '100%', padding: 10, fontSize: 18, }} />
+                <TextInput onChangeText={setshowname} value={showname} placeholder='Show Name *' placeholderTextColor={FOOTER_DEFAULT_TEXT_COLOR} style={{ color: NORMAL_TEXT_COLOR, width: '100%', padding: 5, fontSize: 15, }} />
               </View>
             </View>
           </View>
@@ -135,7 +135,7 @@ export default function Feedback({ navigation }) {
           <View style={styles.dropdowncontainer}>
             <View style={styles.dropdowninnerview}>
               <View style={{ marginTop: 20 }}>
-                <TextInput onChangeText={setcomments} multiline={true} value={comments} placeholder='Comments *' placeholderTextColor={SLIDER_PAGINATION_UNSELECTED_COLOR} style={{ color: NORMAL_TEXT_COLOR, width: '100%', padding: 10, fontSize: 18, }} />
+                <TextInput onChangeText={setcomments} multiline={true} value={comments} placeholder='Comments *' placeholderTextColor={FOOTER_DEFAULT_TEXT_COLOR} style={{ color: NORMAL_TEXT_COLOR, width: '100%', padding: 5, fontSize: 15, }} />
               </View>
             </View>
           </View>

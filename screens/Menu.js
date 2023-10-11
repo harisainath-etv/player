@@ -1,16 +1,21 @@
 import React from 'react'
 import { useState, useEffect, useRef } from 'react';
 import { StackActions } from '@react-navigation/native';
-import { NORMAL_TEXT_COLOR, BACKGROUND_COLOR, TAB_COLOR, MORE_LINK_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, SIDEBAR_BACKGROUND_COLOR, PAGE_HEIGHT, PAGE_WIDTH, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, DARKED_BORDER_COLOR } from '../constants';
+import { NORMAL_TEXT_COLOR, BACKGROUND_COLOR, TAB_COLOR, BUTTON_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, SIDEBAR_BACKGROUND_COLOR, PAGE_HEIGHT, PAGE_WIDTH, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, DARKED_BORDER_COLOR, FOOTER_DEFAULT_TEXT_COLOR, ANDROID_PACKAGE_NAME, ANDROID_SHARE_MESSAGE, ANDROID_SHARE_URL } from '../constants';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, TouchableOpacity, ImageBackground, Text, Pressable, StyleSheet, ScrollView, TextInput } from 'react-native';
+import { View, TouchableOpacity, ImageBackground, Text, Pressable, StyleSheet, ScrollView, TextInput, StatusBar } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { Image } from 'react-native-elements';
 import Footer from './footer';
 import axios from 'axios';
 import FastImage from 'react-native-fast-image';
+import LinearGradient from 'react-native-linear-gradient';
+import Rate, { AndroidMarket } from 'react-native-rate';
+import Share from 'react-native-share';
 var watchlaterTasks = [];
 export default function Menu() {
   const pageName = "";
@@ -100,21 +105,43 @@ export default function Menu() {
       setotpactivatteError(error.response.data.error.message)
     })
   }
-
+  const loadView = async (key) => {
+    var url = await AsyncStorage.getItem(key);
+    navigation.navigate('Webview', { uri: url })
+  }
+  const navigatetopage = async () => {
+    navigation.navigate('Feedback')
+  }
+  const [shareUrl, setShareUrl] = useState(ANDROID_SHARE_URL);
+  const shareOptions = async () => {
+    const shareOptions = {
+      title: "Check out the ETV Win App",
+      failOnCancel: false,
+      message: ANDROID_SHARE_MESSAGE + shareUrl,
+    };
+    const ShareResponse = await Share.open(shareOptions);
+  }
+  const options = {
+    AppleAppID: "",
+    GooglePackageName: ANDROID_PACKAGE_NAME,
+    preferredAndroidMarket: AndroidMarket.Google,
+    preferInApp: false,
+    openAppStoreIfInAppFails: true,
+  }
   return (
     <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
       <ScrollView style={{ flex: 1 }}>
-        <View style={{ width: PAGE_WIDTH, flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ width: PAGE_WIDTH, flexDirection: 'row', alignItems: 'center', marginTop: 30 }}>
           <View style={styles.leftItems}>
             <Image source={require('../assets/images/winlogo.png')} style={styles.logoImage}></Image>
           </View>
-          <View style={{ position: 'absolute', right: 30 }}>
+          {/* <View style={{ position: 'absolute', right: 30 }}>
             <Pressable onPress={() => { navigation.navigate('More') }}>
               <FontAwesome name='support' color={NORMAL_TEXT_COLOR} size={40} />
             </Pressable>
-          </View>
+          </View> */}
         </View>
-        <View style={{marginBottom:50}}>
+        <View style={{ marginBottom: 50 }}>
           {!login ?
 
             <ImageBackground
@@ -137,13 +164,13 @@ export default function Menu() {
             :
             <Pressable onPress={() => { navigation.navigate('Profile') }}>
               <View style={styles.drawerHeaderImage}>
-                <View style={{ padding: 15, height: 70, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ padding: 0,  backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
                   <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 60, height: 60, borderRadius: 30 }}>
 
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 40, fontWeight: 'bold' }}><MaterialCommunityIcons name='account-edit' color={NORMAL_TEXT_COLOR} size={50} style={{}}></MaterialCommunityIcons></Text>
+                    <MaterialCommunityIcons name='account-edit' color={NORMAL_TEXT_COLOR} size={25} style={{}}></MaterialCommunityIcons>
 
                   </View>
-                  <View style={{ bottom: 0, flexDirection: 'row', marginTop: 10 }}>
+                  <View style={{ bottom: 0, flexDirection: 'row', marginTop: 0 }}>
                     <View style={{ justifyContent: 'center', alignItems: 'flex-start' }}>
                       <Text style={styles.drawerHeaderText}>Hi {name}</Text>
                       {email != "" && email != null && email != 'null' ?
@@ -158,32 +185,52 @@ export default function Menu() {
               </View>
             </Pressable>
           }
+          {/* <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>{subscription_title.split('"').join("")}</Text> */}
           {login ?
             subscription_title == '' || subscription_title == null || subscription_title == 'Free' ?
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', padding: 15 }}>
-                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 22 }}>{subscription_title.split('"').join("")}</Text>
-                <Pressable onPress={() => navigation.navigate('Subscribe', {})} style={{ position: 'absolute', right: 20 }}>
-                  <Image source={require('../assets/images/subscribe.png')} style={styles.subscribeImage}></Image>
-                </Pressable>
-              </TouchableOpacity>
+              <Pressable onPress={() => navigation.navigate('Subscribe', {})} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 8 }}>
+                <LinearGradient
+                  useAngle={true}
+                  angle={125}
+                  angleCenter={{ x: 0.5, y: 0.5 }}
+                  colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                  style={[styles.button, { width: "95%" }]}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <FontAwesome5 name='lock' size={16} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Subscribe</Text>
+                  </View>
+                </LinearGradient>
+
+
+              </Pressable>
+
               :
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', padding: 15 }}>
-                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 22 }}>{subscription_title.split('"').join("")}</Text>
-                <Pressable onPress={() => navigation.navigate('Subscribe', {})} style={{ backgroundColor: TAB_COLOR, paddingRight: 15, paddingLeft: 15, paddingTop: 10, paddingBottom: 10, borderRadius: 25, position: 'absolute', right: 20 }}>
-                  <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20, fontWeight: 'bold' }}>Upgrade</Text>
-                </Pressable>
-              </TouchableOpacity>
+              <Pressable onPress={() => navigation.navigate('Subscribe', {})} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 8 }}>
+                <LinearGradient
+                  useAngle={true}
+                  angle={125}
+                  angleCenter={{ x: 0.5, y: 0.5 }}
+                  colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                  style={[styles.button, { width: "95%" }]}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <FontAwesome5 name='lock' size={16} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Upgrade</Text>
+                  </View>
+                </LinearGradient>
+
+
+              </Pressable>
             :
             ""
           }
-          {login ?
+          {/* {login ?
             <View style={{ padding: 15 }}>
-              {watchlistVideo ?
+               {watchlistVideo ?
 
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20, marginTop: 10 }}>
                   <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 22 }}>Watch List</Text>
                   <Pressable onPress={() => { navigation.navigate('WatchLater') }} style={{ position: 'absolute', right: 20 }}>
-                    <Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 15 }}>More</Text>
+                  <MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />
                   </Pressable>
                 </View>
                 : ""}
@@ -201,9 +248,9 @@ export default function Menu() {
                               source={{ uri: singleVideo.thumbnail, priority: FastImage.priority.high }}
                               resizeMode={FastImage.resizeMode.stretch}
                             />
-                            {/* <View style={{ justifyContent: 'center', alignSelf: 'center', width: "100%", marginRight: 2 }}>
+                            <View style={{ justifyContent: 'center', alignSelf: 'center', width: "100%", marginRight: 2 }}>
                           <Text style={{ color: NORMAL_TEXT_COLOR }}>{singleVideo.title}</Text>
-                        </View> */}
+                        </View>
                           </Pressable>
                           : ""}
                       </View>
@@ -215,13 +262,13 @@ export default function Menu() {
               </ScrollView>
             </View>
             :
-            ""}
+            ""}  */}
           {login ?
-            <View style={{ padding: 15 }}>
+            <View style={{ padding: 10, marginTop: 10 }}>
               <View style={{ alignItems: 'center', marginBottom: 20, }}>
-                <Text style={{ fontWeight: 'bold', color: NORMAL_TEXT_COLOR, fontSize: 18 }}>Activate ETV WIN on your TV</Text>
-                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Enter the Activation code displayed on your TV screen</Text>
-                <View style={{flexDirection:'row'}}>
+                <Text style={{ fontWeight: 'bold', color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Activate ETV WIN on your TV</Text>
+                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>Enter the Activation code displayed on your TV screen</Text>
+                <View style={{ flexDirection: 'row', marginTop: 20 }}>
                   <TextInput
                     textAlign='center'
                     style={styles.input}
@@ -232,9 +279,83 @@ export default function Menu() {
                     placeholderTextColor={NORMAL_TEXT_COLOR}
                   />
                   <View style={{ justifyContent: 'center', alignItems: 'center', }}>
-                    <TouchableOpacity onPress={activateTv} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Activate</Text></TouchableOpacity>
+                    <TouchableOpacity onPress={activateTv}>
+
+                      <LinearGradient
+                        useAngle={true}
+                        angle={125}
+                        angleCenter={{ x: 0.5, y: 0.5 }}
+                        colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                        style={[styles.button]}>
+
+                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Activate</Text>
+
+                      </LinearGradient>
+
+                    </TouchableOpacity>
                   </View>
                 </View>
+              </View>
+
+              <View style={{}}>
+                <Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold', marginBottom: 10 }}>PROFILE</Text>
+
+                <Pressable style={styles.tabBlock} onPress={() => navigation.navigate('Offline')}>
+                  <MaterialCommunityIcons name='download' size={18} color={NORMAL_TEXT_COLOR} />
+                  <Text style={styles.listitemsText}>Offline Downloads</Text>
+                </Pressable>
+
+                <Pressable style={styles.tabBlock} onPress={() => navigation.navigate('WatchLater')}>
+                  <MaterialIcons name='watch-later' size={18} color={NORMAL_TEXT_COLOR} />
+                  <Text style={styles.listitemsText}>Watch Later</Text>
+                </Pressable>
+
+              </View>
+
+              <View style={{ marginTop: 15 }}>
+                <Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold', marginBottom: 10 }}>EXTRAS</Text>
+
+                <TouchableOpacity style={{marginBottom:7}} onPress={() => loadView('about')}>
+                  <Text style={styles.listitemsText}>About Us</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{marginBottom:7}} onPress={()=>loadView('contactUs')}>
+                  <Text style={styles.listitemsText}>Contact Us</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{marginBottom:7}} onPress={()=>loadView('privacy')}>
+                  <Text style={styles.listitemsText}>Privacy Policy</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{marginBottom:7}} onPress={()=>loadView('termsCondition')}>
+                  <Text style={styles.listitemsText}>Terms of Service</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{marginBottom:7}} onPress={()=>loadView('faq')}>
+                  <Text style={styles.listitemsText}>FAQ</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{marginBottom:7}} onPress={navigatetopage}>
+                  <Text style={styles.listitemsText}>Feedback</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{marginBottom:7}} onPress={shareOptions}>
+                  <Text style={styles.listitemsText}>Share the app</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{marginBottom:7}} onPress={()=>{
+                Rate.rate(options, (success, errorMessage)=>{
+                    if (success) {
+                    }
+                    if (errorMessage) {
+                      // errorMessage comes from the native code. Useful for debugging, but probably not for users to view
+                      console.error(`Example page Rate.rate() error: ${errorMessage}`)
+                    }
+                  })
+        
+            }}>
+                  <Text style={styles.listitemsText}>Rate the app</Text>
+                </TouchableOpacity>
+
               </View>
             </View>
             :
@@ -244,14 +365,22 @@ export default function Menu() {
       <View style={{ position: 'absolute', bottom: 0 }}>
         <Footer pageName="MENU" />
       </View>
+      <StatusBar
+        animated
+        backgroundColor="transparent"
+        barStyle="light-content"
+        translucent={true}
+      />
     </View>
   )
 }
 
 const styles = StyleSheet.create({
+  listitemsText: { color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: '500', marginLeft: 8 },
+  tabBlock: { width: "100%", backgroundColor: DARKED_BORDER_COLOR, height: 35, borderRadius: 3, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center', padding: 3, marginBottom: 3 },
   menuItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 30 },
-  drawerHeaderText: { color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' },
-  drawerHeaderImage: { width: "100%", height: 120 },
+  drawerHeaderText: { color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold' },
+  drawerHeaderImage: { width: "100%",  },
   drawerContainer: { flex: 1, backgroundColor: SIDEBAR_BACKGROUND_COLOR, height: PAGE_HEIGHT, width: (PAGE_WIDTH / 1.3), left: -20, position: 'absolute' },
   headerContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 5 },
   leftItems: { width: '50%', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', },
@@ -259,16 +388,15 @@ const styles = StyleSheet.create({
   logoImage: { width: 100, height: 55, resizeMode: 'contain', marginLeft: 5 },
   subscribeImage: { width: 150, height: 80, resizeMode: 'contain', },
   input: {
-    margin: 12,
     borderWidth: 1,
-    padding: 10,
+    padding: 0,
     width: '70%',
     borderBottomColor: NORMAL_TEXT_COLOR,
     borderTopColor: BACKGROUND_COLOR,
     borderRightColor: BACKGROUND_COLOR,
     borderLeftColor: BACKGROUND_COLOR,
     color: NORMAL_TEXT_COLOR,
-    fontSize: 20
+    fontSize: 15
   },
-  button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 15, borderRadius: 10, marginRight: 20 },
+  button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 5, borderRadius: 20, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
 });

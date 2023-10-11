@@ -3,12 +3,13 @@ import React, { useCallback, useRef, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, FIRETV_BASE_URL_STAGING, SLIDER_PAGINATION_UNSELECTED_COLOR, } from '../constants';
+import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, FIRETV_BASE_URL_STAGING, SLIDER_PAGINATION_UNSELECTED_COLOR, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, } from '../constants';
 import { DETAILS_TEXT_COLOR } from '../constants';
 import { StackActions } from '@react-navigation/native';
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
 import DatePicker from 'react-native-date-picker';
+import LinearGradient from 'react-native-linear-gradient';
 
 
 
@@ -205,7 +206,20 @@ export default function EditProfile({ navigation }) {
 
                 
                 <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}>
-                    <TouchableOpacity onPress={updateUser} style={{ backgroundColor: TAB_COLOR, paddingTop: 10, paddingBottom: 10, paddingLeft: 22, paddingRight: 22, borderRadius: 20 }}><Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}>Update</Text></TouchableOpacity>
+                    <TouchableOpacity onPress={updateUser}>
+                        
+                    <LinearGradient
+                    useAngle={true}
+                    angle={125}
+                    angleCenter={{ x: 0.5, y: 0.5 }}
+                    colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                    style={{ backgroundColor: TAB_COLOR, paddingTop: 10, paddingBottom: 10, paddingLeft: 22, paddingRight: 22, borderRadius: 20,borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>Update</Text>
+                    </View>
+                  </LinearGradient>
+                        
+                        </TouchableOpacity>
                 </View>
             </ScrollView>
 

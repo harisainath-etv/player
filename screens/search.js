@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import FastImage from 'react-native-fast-image';
 import { StackActions } from '@react-navigation/native';
+import Footer from './footer';
 
 export default function Search({ navigation }) {
     const [search, setSearch] = useState("");
@@ -165,6 +166,7 @@ export default function Search({ navigation }) {
                     </View>
                 </View>
             }
+            <Footer pageName="SEARCH"></Footer>
             <StatusBar style="auto" />
 
         </View>

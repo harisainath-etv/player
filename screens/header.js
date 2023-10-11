@@ -8,7 +8,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Modal from "react-native-modal";
 import { useNavigation } from '@react-navigation/native';
 import { StackActions } from '@react-navigation/native';
-import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, MORE_LINK_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, BUTTON_COLOR, } from '../constants';
+import { NORMAL_TEXT_COLOR, PAGE_WIDTH, PAGE_HEIGHT, SIDEBAR_BACKGROUND_COLOR, TAB_COLOR, MORE_LINK_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -267,5 +267,5 @@ const styles = StyleSheet.create({
     rightItems: { width: '50%', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', },
     logoImage: { width: 100, height: 55, resizeMode: 'contain', marginLeft: 5 },
     subscribeImage: { width: 100, height: 50, resizeMode: 'contain', },
-    button: { paddingLeft: 10, paddingRight: 10, paddingBottom: 2, paddingTop: 2, borderRadius: 15, marginRight: 5 },
+    button: { paddingLeft: 10, paddingRight: 10, paddingBottom: 2, paddingTop: 2, borderRadius: 20, marginRight: 5,borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5 },
 });

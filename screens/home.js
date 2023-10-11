@@ -9,7 +9,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR } from '../constants';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -22,6 +22,8 @@ import Footer from './footer';
 import Header from './header';
 import DeviceInfo from 'react-native-device-info';
 import LinearGradient from 'react-native-linear-gradient';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 export const ElementsText = {
     AUTOPLAY: 'AutoPlay',
@@ -68,7 +70,7 @@ function Home({ navigation, route }) {
     const [autoPlay, setAutoPlay] = useState(true);
     const [pagingEnabled, setPagingEnabled] = useState(true);
     const [snapEnabled, setSnapEnabled] = useState(true);
-    const [currentIndexValue, setcurrentIndexValue] = useState();
+    const [currentIndexValue, setcurrentIndexValue] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
     const [pagenumber, setPagenumber] = useState(0);
     const [toload, settoload] = useState(true);
@@ -206,7 +208,7 @@ function Home({ navigation, route }) {
                                                 All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id });
                                         }
                                         else
-                                            if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show") {
+                                            if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show" || data.data.catalog_list_items[i].layout_type == "movie_poster") {
                                                 All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
                                             }
                                             else
@@ -502,6 +504,10 @@ function Home({ navigation, route }) {
         }
     }
 
+    const naviagtetopage = async (page, url, theme) => {
+        settotalHomeData([]);
+        navigation.navigate(page, { seoUrl: url, theme: theme })
+    }
 
     const renderItem = ({ item, index }) => {
         const modeconfigobj = isTablet ? ({
@@ -550,7 +556,7 @@ function Home({ navigation, route }) {
                                                     navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                        naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                             }
 
                                         }}>
@@ -559,10 +565,10 @@ function Home({ navigation, route }) {
                                                 angle={125}
                                                 angleCenter={{ x: 0.5, y: 0.5 }}
                                                 colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
-                                                style={[styles.button, { borderColor: BACKGROUND_COLOR, borderWidth: 0.5, borderRadius: 40 }]}>
+                                                style={[styles.button, { borderRadius: 40 }]}>
                                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                    <FontAwesome5 name='play' size={18} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
-                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: 'bold' }}>Watch Now</Text>
+                                                    <FontAwesome5 name='play' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
+                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Watch Now</Text>
                                                 </View>
                                             </LinearGradient>
                                         </Pressable>
@@ -570,7 +576,7 @@ function Home({ navigation, route }) {
 
                                         {VIDEO_TYPES.includes(item.theme) ?
                                             <Pressable onPress={() => { watchLater(item.catalog_id, item.content_id) }} style={styles.wishlistbutton}>
-                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: 'bold' }}> + Watch Later</Text>
+                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}> + Watch Later</Text>
                                             </Pressable>
                                             :
                                             ""}
@@ -588,14 +594,16 @@ function Home({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
+                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>
+                                <MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />
+                            </Text></Pressable> : ""}
                         </View>
                         <Carousel
                             {...baseOptionsOther}
                             loop
                             pagingEnabled={pagingEnabled}
                             snapEnabled={snapEnabled}
-                            autoPlay={page=='featured-1' ? !autoPlay : autoPlay}
+                            autoPlay={page == 'featured-1' ? !autoPlay : autoPlay}
                             autoPlayInterval={2000}
                             onProgressChange={(_, absoluteProgress) =>
                                 (progressValue1.value = absoluteProgress)
@@ -612,7 +620,7 @@ function Home({ navigation, route }) {
                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                         :
                                         VIDEO_TYPES.includes(item.theme) ?
-                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                 }
                             }}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
@@ -624,7 +632,7 @@ function Home({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
+                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
 
                         </View>
                         <View style={{}}>
@@ -633,7 +641,7 @@ function Home({ navigation, route }) {
                                 loop
                                 pagingEnabled={pagingEnabled}
                                 snapEnabled={snapEnabled}
-                                autoPlay={page=='featured-1' ? !autoPlay : autoPlay}
+                                autoPlay={page == 'featured-1' ? !autoPlay : autoPlay}
                                 autoPlayInterval={2000}
                                 onProgressChange={(_, absoluteProgress) =>
                                     (progressValue2.value = absoluteProgress)
@@ -648,7 +656,7 @@ function Home({ navigation, route }) {
                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -666,7 +674,7 @@ function Home({ navigation, route }) {
                                 loop
                                 pagingEnabled={pagingEnabled}
                                 snapEnabled={snapEnabled}
-                                autoPlay={page=='featured-1' ? !autoPlay : autoPlay}
+                                autoPlay={page == 'featured-1' ? !autoPlay : autoPlay}
                                 autoPlayInterval={2000}
                                 onProgressChange={(_, absoluteProgress) =>
                                     (progressValue3.value = absoluteProgress)
@@ -681,7 +689,7 @@ function Home({ navigation, route }) {
                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -717,7 +725,7 @@ function Home({ navigation, route }) {
                     <View style={index == 0 ? { marginTop: 60 } : {}}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
+                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
                         </View>
                         {isTablet ?
                             <FlatList
@@ -735,7 +743,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                                 }
                                             }}>
                                                 <FastImage
@@ -764,7 +772,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                                 }
                                             }}>
                                                 <FastImage
@@ -785,7 +793,7 @@ function Home({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
+                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
                         </View>
                         <View style={{ flexDirection: 'column' }}>
                             {isTablet ?
@@ -805,7 +813,7 @@ function Home({ navigation, route }) {
                                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                             :
                                                             VIDEO_TYPES.includes(item.theme) ?
-                                                                navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                                naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                                     }
                                                 }}>
                                                     <FastImage
@@ -835,7 +843,7 @@ function Home({ navigation, route }) {
                                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                             :
                                                             VIDEO_TYPES.includes(item.theme) ?
-                                                                navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                                naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                                     }
                                                 }}>
                                                     <FastImage
@@ -871,7 +879,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                                 }
                                             }}>
                                                 <FastImage
@@ -901,7 +909,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                                 }
                                             }}>
                                                 <FastImage
@@ -918,11 +926,200 @@ function Home({ navigation, route }) {
                     </View>
                     : ""}
 
-                {item.layoutType != 'tv_shows' && item.layoutType != 'show' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'banner' && item.layoutType != 'channels' && item.layoutType != 'live' && item.data.length != 0 ?
+                {item.layoutType == 'movie_poster' && item.data.length != 0 ?
+                    <View>
+                        <View style={styles.sectionHeaderView}>
+                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
+                        </View>
+                        {isTablet ?
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={false}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                }
+                                            }}>
+                                                <FastImage
+                                                    style={[styles.imageSectionVerticalMoviePoster,]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            </Pressable>
+                                        </View>
+                                }
+                            />
+                            :
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                }
+                                            }}>
+                                                <FastImage
+                                                    style={[styles.imageSectionVerticalMoviePoster,]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            </Pressable>
+                                        </View>
+                                }
+                            />
+                        }
+                    </View>
+                    : ""}
+
+
+                {item.layoutType == 'mini_movie_poster' && item.data.length != 0 ?
+                    <View>
+                        <View style={styles.sectionHeaderView}>
+                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
+                        </View>
+                        {isTablet ?
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={false}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                }
+                                            }}>
+                                                <FastImage
+                                                    style={[styles.imageSectionMiniMoviePoster,]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            </Pressable>
+                                        </View>
+                                }
+                            />
+                            :
+                            <FlatList
+                                data={item.data}
+                                keyExtractor={(x, i) => i.toString()}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.containerMargin}
+                                renderItem={
+                                    ({ item, index }) =>
+                                        <View>
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                }
+                                            }}>
+                                                <FastImage
+                                                    style={[styles.imageSectionMiniMoviePoster,]}
+                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                                {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
+                                            </Pressable>
+                                        </View>
+                                }
+                            />
+                        }
+                    </View>
+                    : ""}
+
+                {item.layoutType == 'news_slider' && item.data.length != 0 ?
+                    <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={styles.sectionHeaderView}>
+                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
+
+                        </View>
+                        <View style={{}}>
+                            <Carousel
+                                {...baseOptionsOtherSingle}
+                                loop
+                                pagingEnabled={pagingEnabled}
+                                snapEnabled={snapEnabled}
+                                autoPlay={page == 'featured-1' ? !autoPlay : autoPlay}
+                                autoPlayInterval={2000}
+                                onProgressChange={(_, absoluteProgress) =>
+                                    (progressValue2.value = absoluteProgress)
+                                }
+                                windowSize={3}
+                                panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
+                                data={item.data}
+                                style={{}}
+                                renderItem={({ item, index }) => <Pressable onPress={() => {
+                                    {
+                                        item.medialistinlist ?
+                                            navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                            :
+                                            VIDEO_TYPES.includes(item.theme) ?
+                                                naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                    }
+                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+
+                                    <LinearGradient
+                                        useAngle={true}
+                                        angle={125}
+                                        angleCenter={{ x: 0.5, y: 0.5 }}
+                                        colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                                        style={[styles.button,{position:'absolute',bottom:10,width:"100%"}]}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center',justifyContent:'center' }}>
+                                            <FontAwesome5 name='play' size={16} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
+                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>Watch Now</Text>
+                                        </View>
+                                    </LinearGradient>
+
+                                </Pressable>}
+                            />
+                        </View>
+                    </View>
+                    : ""}
+
+
+
+                {item.layoutType != 'tv_shows' && item.layoutType != 'show' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'banner' && item.layoutType != 'channels' && item.layoutType != 'live' && item.layoutType != 'movie_poster' && item.layoutType != 'mini_movie_poster' && item.layoutType != 'news_slider' && item.data.length != 0 ?
                     <View style={index == 0 ? { marginTop: 60 } : {}}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
+                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
                         </View>
                         {isTablet ?
                             <FlatList
@@ -940,7 +1137,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                                 }
                                             }}>
                                                 <FastImage
@@ -970,7 +1167,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                                 }
                                             }}>
                                                 <FastImage
@@ -998,17 +1195,17 @@ function Home({ navigation, route }) {
     }
     const menuRender = ({ item, index }) => {
         return (
-            <View style={{paddingTop:5, flexDirection: 'row' }}>
+            <View style={{ paddingTop: 5, flexDirection: 'row' }}>
 
                 {item.friendlyId == pageName ?
 
                     <View style={styles.menuitem}>
-                        <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold',  }}>{item.displayName}</Text>
+                        <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold',fontSize:13 }}>{item.displayName}</Text>
                     </View>
                     :
                     <Pressable onPress={() => changeTabData(item.friendlyId)}>
                         <View style={styles.menuitem}>
-                            <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold', }}>{item.displayName}</Text>
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold',fontSize:13 }}>{item.displayName}</Text>
                         </View>
                     </Pressable>
                 }
@@ -1019,6 +1216,9 @@ function Home({ navigation, route }) {
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         setTimeout(() => {
+            settotalHomeData([]);
+            settotalMenuData([]);
+            settoload(true);
             getTopMenu();
             loadData(0);
             if (selectedItem == "") {
@@ -1030,16 +1230,21 @@ function Home({ navigation, route }) {
     const loadNextData = async () => {
         loadData(pagenumber);
     }
-    useEffect(() => {
-        if (dataFetchedRef.current) return;
-        dataFetchedRef.current = true;
-        getTopMenu();
-        loadData(pagenumber);
-        if (selectedItem == "") {
-            selectedItem = 0;
-        }
-        LogBox.ignoreLogs(['`new NativeEventEmitter()` was called with a non-null']);
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+
+
+            // if (dataFetchedRef.current) return;
+            // dataFetchedRef.current = true;
+            getTopMenu();
+            loadData(0);
+            if (selectedItem == "") {
+                selectedItem = 0;
+            }
+            LogBox.ignoreLogs(['`new NativeEventEmitter()` was called with a non-null']);
+        }, [totalHomeData])
+    );
+
 
     const memoizedValue = useMemo(() => renderItem, [totalHomeData]);
     const loadFilters = async () => {
@@ -1083,8 +1288,8 @@ function Home({ navigation, route }) {
                     <View style={[styles.menulogo, { width: "20%" }]}>
                         <Image source={require('../assets/images/winlogo.png')} style={{ width: 70, height: 40 }}></Image>
                     </View>
-                    <View style={{ width: "53%" }}>
-                        {currentIndexValue >= 0 ?
+                    <View style={{ width: "80%" }}>
+                        
                             <FlatList
                                 data={totalMenuData}
                                 initialNumToRender={8}
@@ -1096,19 +1301,6 @@ function Home({ navigation, route }) {
                                 ref={menuref}
                                 style={{ zIndex: 100, }}
                             />
-                            :
-                            ""
-                        }
-                    </View>
-                    <View style={{ width: "27%",flexDirection:'row' }}>
-                        <TouchableOpacity onPress={()=>navigation.dispatch(StackActions.replace('OtherResponse', { pageFriendlyId: 'live' }))} style={{backgroundColor:BACKGROUND_COLOR,width:38,height:38,borderRadius:19,justifyContent:'center',alignItems:'center',marginLeft:5}}>
-                            <MaterialCommunityIcons name='youtube-tv' size={18} color={NORMAL_TEXT_COLOR} />
-                            <Text style={{color:NORMAL_TEXT_COLOR,fontSize:8,fontWeight:'bold'}}>Live Tv</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Search', {}))} style={{backgroundColor:BACKGROUND_COLOR,width:38,height:38,borderRadius:19,justifyContent:'center',alignItems:'center',marginLeft:5}}>
-                            <MaterialIcons name='search' size={30} color={NORMAL_TEXT_COLOR} />
-                        </TouchableOpacity>
                     </View>
                 </View>
 
@@ -1116,7 +1308,7 @@ function Home({ navigation, route }) {
 
 
             {subscription_title == '' || subscription_title == null || subscription_title == 'Free' ?
-                <View style={{ justifyContent: 'center', alignItems: 'center' }}><TouchableOpacity style={{ position: 'absolute', bottom: 10 }} onPress={() => navigation.navigate('Subscribe', {})}>
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}><TouchableOpacity style={{ position: 'absolute', bottom: 50 }} onPress={() => navigation.navigate('Subscribe', {})}>
                     <LinearGradient
                         useAngle={true}
                         angle={125}
@@ -1124,15 +1316,14 @@ function Home({ navigation, route }) {
                         colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
                         style={styles.button}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <FontAwesome5 name='lock' size={20} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
-                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Subscribe</Text>
+                            <FontAwesome5 name='lock' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13,fontWeight:'bold' }}>Subscribe</Text>
                         </View>
                     </LinearGradient>
                 </TouchableOpacity></View>
                 :
                 ""}
 
-            <View style={{ height: 25 }}></View>
             <Footer
                 pageName="Home"
             ></Footer>
@@ -1227,9 +1418,9 @@ const PaginationItem = (props) => {
 
 const styles = StyleSheet.create({
     buttonsContainer: { width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', zIndex: 1000, },
-    buttonsPosition: { position: 'absolute', bottom: 20, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center' },
-    button: { paddingLeft: 22, paddingRight: 22, paddingBottom: 7, paddingTop: 7, borderRadius: 40, marginRight: 5 },
-    wishlistbutton: { borderRadius: 40, borderWidth: 2, borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 22, paddingRight: 22, paddingBottom: 7, paddingTop: 7 },
+    buttonsPosition: { position: 'absolute', bottom: 20, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-evenly' },
+    button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, marginRight: 5,borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5 },
+    wishlistbutton: { borderRadius: 40, borderWidth: 1.5, borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7 },
     subscribeImage: { width: 160, height: 85, resizeMode: 'contain', justifyContent: 'center', alignItems: 'center', },
     menulogo: { height: 35, justifyContent: 'center', alignItems: 'center', },
     menuitem: { height: 35, justifyContent: 'center', alignItems: 'center', padding: 8, borderRadius: 15 },
@@ -1266,14 +1457,14 @@ const styles = StyleSheet.create({
     },
     sectionHeaderView: {
         flexDirection: 'row',
-        marginVertical: 10,
+        marginTop:10,
         width: '100%',
         justifyContent: 'space-between',
 
     },
     sectionHeader: {
         color: HEADING_TEXT_COLOR,
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '400',
         left: 3,
 
@@ -1326,6 +1517,20 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 10,
 
+    },
+    imageSectionVerticalMoviePoster: {
+        width: PAGE_WIDTH / 1.35,
+        height: 370,
+        marginHorizontal: 3,
+        borderRadius: 10,
+        marginBottom: 10,
+    },
+    imageSectionMiniMoviePoster: {
+        width: PAGE_WIDTH / 4,
+        height: 70,
+        marginHorizontal: 3,
+        borderRadius: 10,
+        marginBottom: 10,
     },
     imageSectionVerticalTab: {
         width: 150,

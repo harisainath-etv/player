@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressa
 import React, { useState, useEffect } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
-import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR, FIRETV_BASE_URL_STAGING, WEB_CLIENT_ID, ACCESS_TOKEN, VIDEO_AUTH_TOKEN, SLIDER_PAGINATION_SELECTED_COLOR, BUTTON_COLOR } from '../constants'
+import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR, FIRETV_BASE_URL_STAGING, WEB_CLIENT_ID, ACCESS_TOKEN, VIDEO_AUTH_TOKEN, SLIDER_PAGINATION_SELECTED_COLOR, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
@@ -1116,7 +1116,7 @@ const styles = StyleSheet.create({
     header: { justifyContent: 'center', alignItems: 'center', height: 80 },
     body: { backgroundColor: BACKGROUND_COLOR, height: "100%", padding: 20, },
     textinput: { borderColor: SLIDER_PAGINATION_UNSELECTED_COLOR, borderWidth: 1, marginTop: 10, fontSize: 15, color: NORMAL_TEXT_COLOR, padding: 10, borderRadius: 5, marginRight: 5, },
-    button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 50, padding: 8, borderRadius: 10, },
+    button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 50, padding: 8, borderRadius: 10,borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5 },
     errormessage: { color: 'red', fontSize: 15 },
     successmessage: { color: NORMAL_TEXT_COLOR, fontSize: 15 },
     unselectedBackground: { backgroundColor: NORMAL_TEXT_COLOR, },

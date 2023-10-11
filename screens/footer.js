@@ -2,11 +2,13 @@ import { View, StyleSheet, Text, TouchableOpacity, FlatList } from 'react-native
 import React, { useState, useEffect, } from 'react'
 import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, } from 'react-native-google-cast';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Modal from "react-native-modal";
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation, StackActions } from '@react-navigation/native';
-import { PAGE_WIDTH, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, NO_CAST_DEVICES, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR } from '../constants'
+import { PAGE_WIDTH, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, NO_CAST_DEVICES, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR,FIRETV_BASE_URL_STAGING,AUTH_TOKEN, FOOTER_DEFAULT_TEXT_COLOR } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 export default function Footer(props) {
     const pageName = props.pageName;
@@ -39,13 +41,19 @@ export default function Footer(props) {
         const subscriptiontitle = await AsyncStorage.getItem('subscription_title');
         const plandetail = await AsyncStorage.getItem('plan_id');
         setCastDisplay(plandetail);
-        //console.log(profile_pic);
         if (session != "" && session != null) {
-            setLogin(true)
-            setName(firstname);
-            setEmail(email);
-            setMobile(mobile_number);
-            setsubscription_title(subscriptiontitle)
+            await axios.get(FIRETV_BASE_URL_STAGING + "user/session/"+session+"?auth_token="+AUTH_TOKEN).then(resp=>{
+                if(resp.data.message=='Valid session id.'){
+                    setLogin(true)
+                    setName(firstname);
+                    setEmail(email);
+                    setMobile(mobile_number);
+                    setsubscription_title(subscriptiontitle)
+                }
+              }).catch(err=>{
+                console.log(err);
+                setLogin(false)
+              })
         }
         if (profile_pic != "" && profile_pic != null)
             setProfilePic(profile_pic)
@@ -89,60 +97,32 @@ export default function Footer(props) {
         })
     })
     return (
-        <View style={{ backgroundColor: BACKGROUND_COLOR, }}>
-            {/* <View style={{ zIndex: 1000, justifyContent: 'center', alignContent: 'center', alignSelf: 'center', alignItems: 'center' }}>
-                <View style={{ backgroundColor: BACKGROUND_COLOR, width: 86, position: 'absolute', padding: 5, borderTopRightRadius: 43, borderTopLeftRadius: 43, bottom: -20 }}>
-
-                    {pageName == 'SHORTS' ?
-                        <View style={styles.iconContainer}>
-                            <MaterialCommunityIcons name="video-check" size={43} color={SLIDER_PAGINATION_SELECTED_COLOR} />
-                            <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 15, fontWeight: 'bold' }]}>SHORTS</Text>
-                        </View>
-                        :
-                        <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Shorts', { pageFriendlyId: 'channels' }))}>
-                            <MaterialCommunityIcons name="video-check" size={43} color={NORMAL_TEXT_COLOR} />
-                            <Text style={[styles.footerText, { fontSize: 15, fontWeight: 'bold' }]}>SHORTS</Text>
-                        </TouchableOpacity>
-                    }
-
-                </View>
-            </View> */}
+        <View style={{ backgroundColor: BACKGROUND_COLOR,position:'absolute',bottom:0 }}>
             <View style={styles.footerContainer}>
-                {pageName == 'Home' || pageName == 'live' ?
+                {pageName == 'Home' ?
 
                     <View style={styles.iconContainer}>
-                        <MaterialCommunityIcons name="home" size={28} color={SLIDER_PAGINATION_SELECTED_COLOR} />
-                        <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>HOME</Text>
+                        <MaterialCommunityIcons name="home" size={20} color={NORMAL_TEXT_COLOR} />
+                        <Text style={[styles.footerText, { color: NORMAL_TEXT_COLOR }]}>Home</Text>
                     </View>
                     :
                     <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}>
-                        <MaterialCommunityIcons name="home" size={28} color={NORMAL_TEXT_COLOR} />
-                        <Text style={styles.footerText}>HOME</Text>
+                        <MaterialCommunityIcons name="home" size={20} color={FOOTER_DEFAULT_TEXT_COLOR} />
+                        <Text style={styles.footerText}>Home</Text>
                     </TouchableOpacity>
 
                 }
 
-                {/* {pageName == 'TV-CHANNELS' ?
-                    <View style={styles.iconContainer}>
-                        <MaterialCommunityIcons name="television-classic" size={28} color={SLIDER_PAGINATION_SELECTED_COLOR} />
-                        <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>TV CHANNELS</Text>
-                    </View>
-                    :
-                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Channels', { pageFriendlyId: 'channels' }))}>
-                        <MaterialCommunityIcons name="television-classic" size={28} color={NORMAL_TEXT_COLOR} />
-                        <Text style={styles.footerText}>TV CHANNELS</Text>
-                    </TouchableOpacity>
-                } */}
-                {pageName == 'NEWS' ?
+                {pageName == 'LIVE' || pageName == 'live' ?
 
                     <View style={styles.iconContainer}>
-                        <MaterialCommunityIcons name="newspaper-variant-multiple-outline" size={28} color={SLIDER_PAGINATION_SELECTED_COLOR} />
-                        <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>NEWS</Text>
+                        <MaterialCommunityIcons name="youtube-tv" size={20} color={NORMAL_TEXT_COLOR} />
+                        <Text style={[styles.footerText, { color: NORMAL_TEXT_COLOR }]}>Live</Text>
                     </View>
                     :
-                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('News', { pageFriendlyId: 'news' }))}>
-                        <MaterialCommunityIcons name="newspaper-variant-multiple-outline" size={28} color={NORMAL_TEXT_COLOR} />
-                        <Text style={styles.footerText}>NEWS</Text>
+                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('OtherResponse', { pageFriendlyId: 'live' }))}>
+                        <MaterialCommunityIcons name="youtube-tv" size={20} color={FOOTER_DEFAULT_TEXT_COLOR} />
+                        <Text style={styles.footerText}>Live</Text>
                     </TouchableOpacity>
                 }
 
@@ -151,34 +131,34 @@ export default function Footer(props) {
                 <View style={styles.iconContainer}>
                     {pageName == 'SHORTS' ?
                         <View style={styles.iconContainer}>
-                            <MaterialCommunityIcons name="video-box" size={28} color={SLIDER_PAGINATION_SELECTED_COLOR} />
-                            <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR, }]}>SHORTS</Text>
+                            <MaterialCommunityIcons name="video-box" size={20} color={NORMAL_TEXT_COLOR} />
+                            <Text style={[styles.footerText, { color: NORMAL_TEXT_COLOR, }]}>Shorts</Text>
                         </View>
                         :
                         <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Shorts', { pageFriendlyId: 'channels' }))}>
-                            <MaterialCommunityIcons name="video-box" size={28} color={NORMAL_TEXT_COLOR} />
-                            <Text style={[styles.footerText]}>SHORTS</Text>
+                            <MaterialCommunityIcons name="video-box" size={20} color={FOOTER_DEFAULT_TEXT_COLOR} />
+                            <Text style={[styles.footerText]}>Shorts</Text>
                         </TouchableOpacity>
                     }
                 </View>
 
-                {pageName == 'OFFLINE' ?
+                {pageName == 'SEARCH' ?
 
                     <View style={styles.iconContainer}>
-                        <MaterialCommunityIcons name="download" size={28} color={SLIDER_PAGINATION_SELECTED_COLOR} />
-                        <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>OFFLINE</Text>
+                        <MaterialIcons name="search" size={20} color={NORMAL_TEXT_COLOR} />
+                        <Text style={[styles.footerText, { color: NORMAL_TEXT_COLOR }]}>Search</Text>
                     </View>
                     :
-                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Offline', { pageFriendlyId: 'Offline' }))}>
-                        <MaterialCommunityIcons name="download" size={28} color={NORMAL_TEXT_COLOR} />
-                        <Text style={styles.footerText}>OFFLINE</Text>
+                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Search', { }))}>
+                        <MaterialIcons name="search" size={20} color={FOOTER_DEFAULT_TEXT_COLOR} />
+                        <Text style={styles.footerText}>Search</Text>
                     </TouchableOpacity>
                 }
                 {pageName == 'MENU' ?
 
                     <View style={styles.iconContainer}>
-                        <MaterialCommunityIcons name="account-wrench" size={28} color={SLIDER_PAGINATION_SELECTED_COLOR} />
-                        <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>My Space</Text>
+                        <MaterialCommunityIcons name="account-wrench" size={20} color={NORMAL_TEXT_COLOR} />
+                        <Text style={[styles.footerText, { color: NORMAL_TEXT_COLOR }]}>My Space</Text>
                     </View>
                     :
                     <TouchableOpacity style={styles.iconContainer} onPress={() =>
@@ -187,25 +167,10 @@ export default function Footer(props) {
                             :
                             navigation.dispatch(StackActions.replace('Login'))
                     }>
-                        <MaterialCommunityIcons name="account-wrench" size={28} color={NORMAL_TEXT_COLOR} />
+                        <MaterialCommunityIcons name="account-wrench" size={20} color={FOOTER_DEFAULT_TEXT_COLOR} />
                         <Text style={styles.footerText}>My Space</Text>
                     </TouchableOpacity>
                 }
-                {/* {pageName == 'WATCH-LATER' ?
-
-                    <View style={styles.iconContainer}>
-                        <MaterialCommunityIcons name="sticker-plus" size={28} color={SLIDER_PAGINATION_SELECTED_COLOR} />
-                        <Text style={[styles.footerText, { color: SLIDER_PAGINATION_SELECTED_COLOR }]}>WATCH LATER</Text>
-                    </View>
-                    :
-                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('WatchLater', { pageFriendlyId: 'WatchLater' }))}>
-                        <View style={styles.iconContainer}>
-                            <MaterialCommunityIcons name="sticker-plus" size={28} color={NORMAL_TEXT_COLOR} />
-                            <Text style={styles.footerText}>WATCH LATER</Text>
-                        </View>
-                    </TouchableOpacity>
-                } */}
-
             </View>
 
             {castState != NO_CAST_DEVICES && castDisplay!='basic_plan' && castDisplay!=''?
@@ -246,7 +211,7 @@ export default function Footer(props) {
 
 const styles = StyleSheet.create({
     drawerContainer: { backgroundColor: NORMAL_TEXT_COLOR, height: 'auto', justifyContent: 'center', alignItems: 'center' },
-    devicesList: { fontSize: 18, justifyContent: 'center', alignItems: 'center', padding: 10 },
+    devicesList: { fontSize: 14, justifyContent: 'center', alignItems: 'center', padding: 10 },
     deviceContainer: { borderBottomColor: BACKGROUND_COLOR, borderBottomWidth: 1, width: "100%", justifyContent: 'center', alignItems: 'center' },
     chromeCast: {
         width: 56,
@@ -254,13 +219,13 @@ const styles = StyleSheet.create({
         borderRadius: 28,
         backgroundColor: BACKGROUND_TRANSPARENT_COLOR,
         position: 'absolute',
-        bottom: 70,
+        bottom: 50,
         right: 10,
         alignItems: 'center',
         justifyContent: 'center',
         alignSelf: 'flex-end'
     },
-    footerText: { color: NORMAL_TEXT_COLOR, fontSize: 12 },
-    footerContainer: { width: PAGE_WIDTH, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 30, borderTopLeftRadius: 15, borderTopRightRadius: 15, flexDirection: 'row', justifyContent: 'space-around', alignItems: "center", paddingLeft: 10, paddingRight: 10, marginBottom: 20 },
+    footerText: { color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 9,marginTop:2 },
+    footerContainer: { width: PAGE_WIDTH, flexDirection: 'row', justifyContent: 'space-around', alignItems: "center", paddingLeft: 10, paddingRight: 10, marginBottom: 6, marginTop: 6 },
     iconContainer: { justifyContent: 'center', alignItems: 'center' },
 })

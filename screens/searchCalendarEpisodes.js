@@ -200,6 +200,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center',
+        marginBottom:50
     },
     sectionHeader: {
         color: HEADING_TEXT_COLOR,

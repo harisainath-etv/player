@@ -28,7 +28,7 @@ export default function Calendarscreen({ navigation, route }) {
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
             <NormalHeader></NormalHeader>
             <ScrollView style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', marginBottom: 50 }}>
+                <View style={{ flexDirection: 'row', marginBottom: 50,marginTop:50 }}>
                     <TextInput onChangeText={setfromDate} editable={false} value={fromDate} style={[styles.textinput, { color: counter == 0 ? TAB_COLOR : NORMAL_TEXT_COLOR }]} placeholder="From Date" placeholderTextColor={
                         counter == 0 ? TAB_COLOR : NORMAL_TEXT_COLOR
                     } />

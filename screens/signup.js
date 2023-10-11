@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressa
 import React, { useEffect, useState } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
-import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, ACCESS_TOKEN, MORE_LINK_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, SLIDER_PAGINATION_SELECTED_COLOR, BUTTON_COLOR } from '../constants'
+import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, ACCESS_TOKEN, MORE_LINK_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, SLIDER_PAGINATION_SELECTED_COLOR, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
     header: { justifyContent: 'center', alignItems: 'center', height: 80 },
     body: { backgroundColor: BACKGROUND_COLOR, height: "100%", padding: 20, },
     textinput: { borderBottomColor: SLIDER_PAGINATION_UNSELECTED_COLOR, borderBottomWidth: 1, marginTop: 20, fontSize: 18, color: NORMAL_TEXT_COLOR, padding: 5 },
-    button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 18, borderRadius: 10, marginRight: 20 },
+    button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 18, borderRadius: 10, marginRight: 20,borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5 },
     errormessage: { color: 'red', fontSize: 15 },
     successmessage: { color: NORMAL_TEXT_COLOR, fontSize: 15 },
     unselectedBackground: { backgroundColor: NORMAL_TEXT_COLOR, },

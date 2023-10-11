@@ -97,10 +97,10 @@ function EpisodesMoreList({ navigation, route }) {
                             data={item.data}
                             keyExtractor={(x, i) => i.toString()}
                             horizontal={false}
-                            numColumns={3}
                             onEndReached={loadNextData}
                             showsHorizontalScrollIndicator={false}
                             style={styles.containerMargin}
+                            numColumns={3}
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
@@ -135,11 +135,11 @@ function EpisodesMoreList({ navigation, route }) {
                             horizontal={false}
                             onEndReached={loadNextData}
                             showsHorizontalScrollIndicator={false}
+                            numColumns={2}
                             style={styles.containerMargin}
-                            numColumns={3}
                             renderItem={
                                 ({ item, index }) =>
-                                    <View style={{ width: PAGE_WIDTH / 2.06, }}>
+                                    <View style={{ width: PAGE_WIDTH / 2.06,}}>
                                         <Pressable onPress={() => {
                                             {
                                                 item.medialistinlist ?
@@ -192,7 +192,7 @@ function EpisodesMoreList({ navigation, route }) {
                 keyExtractor={(x, i) => i.toString()}
                 horizontal={false}
                 contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap' }}
-                style={{ height: PAGE_HEIGHT }}
+                style={{ height: PAGE_HEIGHT,}}
                 renderItem={renderItem}
             /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} /></View>}
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -242,6 +242,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center',
+        marginBottom:50
     },
     sectionHeader: {
         color: HEADING_TEXT_COLOR,
