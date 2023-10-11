@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Pressable } from 'react-native'
+import { View, Text, ImageBackground, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Pressable, ActivityIndicator } from 'react-native'
 import React, { useCallback, useRef, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -49,7 +49,7 @@ export default function EditProfile({ navigation }) {
                 setdob(birthdate);
             setgender(gender)
             if (address != "" && address != null)
-            setaddress(address)
+                setaddress(address)
             setsubscription_title(subscriptiontitle)
             setexpireson(valid_till)
         }
@@ -61,21 +61,21 @@ export default function EditProfile({ navigation }) {
 
     useFocusEffect(
         useCallback(() => {
-            loadData()  
+            loadData()
         }, [])
-      );
-      function validURL(str) {
-        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    );
+    function validURL(str) {
+        var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+            '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
         return !!pattern.test(str);
-      }
+    }
     const updateUser = async () => {
         var session = await AsyncStorage.getItem('session');
-        var dateofbirth = datofBirth.getDate() + "-" +  (+datofBirth.getMonth() + 1) + "-" + datofBirth.getFullYear() ;
+        var dateofbirth = datofBirth.getDate() + "-" + (+datofBirth.getMonth() + 1) + "-" + datofBirth.getFullYear();
         await axios.put(FIRETV_BASE_URL_STAGING + 'users/' + session + '/account', {
             access_token: ACCESS_TOKEN,
             auth_token: VIDEO_AUTH_TOKEN,
@@ -83,23 +83,23 @@ export default function EditProfile({ navigation }) {
                 firstname: name,
                 birthdate: dateofbirth,
                 gender: gender,
-                address:address
+                address: address
             }
         }).then(resp => {
             AsyncStorage.setItem('firstname', name);
             AsyncStorage.setItem('birthdate', dateofbirth);
             AsyncStorage.setItem('gender', gender);
-            AsyncStorage.removeItem('address').then(respo=>{
-            AsyncStorage.setItem('address', address);
-            }).catch(err=>{})
+            AsyncStorage.removeItem('address').then(respo => {
+                AsyncStorage.setItem('address', address);
+            }).catch(err => { })
             alert('Updated');
-            navigation.dispatch(StackActions.replace('Home',{ pageFriendlyId: 'featured-1' }))
+            navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
         }).catch(error => { console.log(error.response.data); })
 
     }
     return (
         <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
-            <View style={{ marginTop: 20, marginLeft: 10 }}>
+            <View style={{ marginTop: 30, marginLeft: 10 }}>
                 <TouchableOpacity onPress={() => {
                     if (navigation.canGoBack())
                         navigation.goBack()
@@ -111,45 +111,32 @@ export default function EditProfile({ navigation }) {
             </View>
             {!login ?
 
-                <ImageBackground
-                    source={require('../assets/images/drawer_header.png')}
-                    resizeMode="cover"
-                    style={styles.drawerHeaderImage}>
-                    <View style={{ padding: 25 }}>
-                        <Text style={styles.drawerHeaderText}>Hi Guest User!</Text>
-                        <View style={{ flexDirection: 'row', marginTop: 25 }}>
-                            <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Login', {})); }} style={{ backgroundColor: TAB_COLOR, padding: 13, borderRadius: 10, marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={styles.drawerHeaderText}>SIGN IN</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Signup', {})); }} style={{ borderColor: TAB_COLOR, padding: 13, borderRadius: 10, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={styles.drawerHeaderText}>SIGN UP</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </ImageBackground>
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size={'large'} color={NORMAL_TEXT_COLOR} />
+                </View>
 
                 :
-                profilePic != "" && profilePic != null && validURL(profilePic)?
+                // profilePic != "" && profilePic != null && validURL(profilePic) ?
+
+                //     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                //         <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
+                //             {name != "" && name != null ?
+                //                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
+                //                 :
+                //                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
+                //             }
+                //         </View>
+                //     </View>
+
+
+                //     :
 
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 60, height: 60, borderRadius: 30 }}>
                             {name != "" && name != null ?
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
                                 :
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
-                            }
-                        </View>
-                    </View>
-
-
-                    :
-
-                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
-                            {name != "" && name != null ?
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
-                                :
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>-</Text>
                             }
                         </View>
                     </View>
@@ -181,45 +168,45 @@ export default function EditProfile({ navigation }) {
                     <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
                         {gender == 'Male' ?
                             <Pressable style={{ flexDirection: 'row' }}>
-                                <MaterialCommunityIcons name='radiobox-marked' size={25} color={NORMAL_TEXT_COLOR} />
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>Male</Text>
+                                <MaterialCommunityIcons name='radiobox-marked' size={20} color={NORMAL_TEXT_COLOR} />
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Male</Text>
                             </Pressable>
                             :
                             <Pressable style={{ flexDirection: 'row' }} onPress={() => { setgender('Male') }}>
-                                <MaterialCommunityIcons name='radiobox-blank' size={25} color={NORMAL_TEXT_COLOR} />
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>Male</Text>
+                                <MaterialCommunityIcons name='radiobox-blank' size={20} color={NORMAL_TEXT_COLOR} />
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Male</Text>
                             </Pressable>
                         }
                         {gender == 'Female' ?
                             <Pressable style={{ flexDirection: 'row' }}>
-                                <MaterialCommunityIcons name='radiobox-marked' size={25} color={NORMAL_TEXT_COLOR} />
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>Female</Text>
+                                <MaterialCommunityIcons name='radiobox-marked' size={20} color={NORMAL_TEXT_COLOR} />
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Female</Text>
                             </Pressable>
                             :
                             <Pressable style={{ flexDirection: 'row' }} onPress={() => { setgender('Female') }}>
-                                <MaterialCommunityIcons name='radiobox-blank' size={25} color={NORMAL_TEXT_COLOR} />
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>Female</Text>
+                                <MaterialCommunityIcons name='radiobox-blank' size={20} color={NORMAL_TEXT_COLOR} />
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Female</Text>
                             </Pressable>
                         }
                     </View>
                 </View>
 
-                
+
                 <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}>
                     <TouchableOpacity onPress={updateUser}>
-                        
-                    <LinearGradient
-                    useAngle={true}
-                    angle={125}
-                    angleCenter={{ x: 0.5, y: 0.5 }}
-                    colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
-                    style={{ backgroundColor: TAB_COLOR, paddingTop: 10, paddingBottom: 10, paddingLeft: 22, paddingRight: 22, borderRadius: 20,borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>Update</Text>
-                    </View>
-                  </LinearGradient>
-                        
-                        </TouchableOpacity>
+
+                        <LinearGradient
+                            useAngle={true}
+                            angle={125}
+                            angleCenter={{ x: 0.5, y: 0.5 }}
+                            colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                            style={{ backgroundColor: TAB_COLOR, paddingTop: 7, paddingBottom: 7, paddingLeft: 22, paddingRight: 22, borderRadius: 20, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Update</Text>
+                            </View>
+                        </LinearGradient>
+
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
 
@@ -243,8 +230,8 @@ export default function EditProfile({ navigation }) {
 const styles = StyleSheet.create({
     drawerHeaderText: { color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: 'bold' },
     drawerHeaderImage: { width: "100%", height: 120 },
-    inneroption: { borderTopColor: DETAILS_TEXT_COLOR, borderBottomColor: DETAILS_TEXT_COLOR, borderWidth: 0.5, padding: 10 },
-    detailsheader: { color: DETAILS_TEXT_COLOR, fontSize: 14 },
-    detailsvalue: { color: NORMAL_TEXT_COLOR, fontSize: 17 },
-    textinput: { width: "100%", color: NORMAL_TEXT_COLOR, padding: 10 }
+    inneroption: { borderTopColor: DETAILS_TEXT_COLOR, borderBottomColor: DETAILS_TEXT_COLOR, borderWidth: 0.5, padding: 5 },
+    detailsheader: { color: DETAILS_TEXT_COLOR, fontSize: 11 },
+    detailsvalue: { color: NORMAL_TEXT_COLOR, fontSize: 14 },
+    textinput: { width: "100%", color: NORMAL_TEXT_COLOR, padding: 5 }
 });

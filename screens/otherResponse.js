@@ -584,7 +584,12 @@ function OtherResponse({ navigation, route }) {
             <Footer
                 pageName={page}
             ></Footer>
-            <StatusBar style="auto" />
+            <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
         </View>
     );
 }

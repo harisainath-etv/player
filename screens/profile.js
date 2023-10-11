@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground, StyleSheet, TouchableOpacity, Image, ScrollView, Pressable, Platform, Alert } from 'react-native'
+import { View, Text, ImageBackground, StyleSheet, TouchableOpacity, Image, ScrollView, Pressable, Platform, Alert, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -205,32 +205,32 @@ export default function Profile({ navigation }) {
                 text: 'Cancel',
                 style: 'cancel',
             },
-            { text: 'OK', onPress: () => {
-                if(Platform.OS=='android')
-                {
-                    axios.get(FIRETV_BASE_URL_STAGING + 'users/'+sessionId+'/false/delete_user_account?auth_token='+AUTH_TOKEN+'&access_token='+ACCESS_TOKEN).then(resp=>{
-                        alert(resp.data.message);
-                        signoutall();
-                    }).catch(error=>{
-                        alert('Something went wrong. Please try again later.');
-                    })
+            {
+                text: 'OK', onPress: () => {
+                    if (Platform.OS == 'android') {
+                        axios.get(FIRETV_BASE_URL_STAGING + 'users/' + sessionId + '/false/delete_user_account?auth_token=' + AUTH_TOKEN + '&access_token=' + ACCESS_TOKEN).then(resp => {
+                            alert(resp.data.message);
+                            signoutall();
+                        }).catch(error => {
+                            alert('Something went wrong. Please try again later.');
+                        })
+                    }
+                    else
+                        if (Platform.OS == 'ios') {
+                            axios.get(FIRETV_BASE_URL_STAGING + 'users/' + sessionId + '/' + userinfoid + '/delete_user_account?auth_token=' + AUTH_TOKEN + '&access_token=' + ACCESS_TOKEN).then(resp => {
+                                alert(resp.data.message);
+                                signoutall();
+                            }).catch(error => {
+                                alert('Something went wrong. Please try again later.');
+                            })
+                        }
                 }
-                else
-                if(Platform.OS=='ios')
-                {
-                    axios.get(FIRETV_BASE_URL_STAGING + 'users/'+sessionId+'/'+userinfoid+'/delete_user_account?auth_token='+AUTH_TOKEN+'&access_token='+ACCESS_TOKEN).then(resp=>{
-                        alert(resp.data.message);
-                        signoutall();
-                    }).catch(error=>{
-                        alert('Something went wrong. Please try again later.');
-                    })
-                }
-            } },
+            },
         ])
     }
     return (
         <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
-            <View style={{ marginTop: 20, marginLeft: 10 }}>
+            <View style={{ marginTop: 30, marginLeft: 10 }}>
                 <TouchableOpacity onPress={() => {
                     if (navigation.canGoBack())
                         navigation.goBack()
@@ -242,75 +242,62 @@ export default function Profile({ navigation }) {
             </View>
             {!login ?
 
-                <ImageBackground
-                    source={require('../assets/images/drawer_header.png')}
-                    resizeMode="cover"
-                    style={styles.drawerHeaderImage}>
-                    <View style={{ padding: 25 }}>
-                        <Text style={styles.drawerHeaderText}>Hi Guest User!</Text>
-                        <View style={{ flexDirection: 'row', marginTop: 25 }}>
-                            <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Login', {})); }} style={{ backgroundColor: TAB_COLOR, padding: 10, borderRadius: 10, marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={styles.drawerHeaderText}>SIGN IN</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Signup', {})); }} style={{ borderColor: TAB_COLOR, padding: 10, borderRadius: 10, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={styles.drawerHeaderText}>SIGN UP</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </ImageBackground>
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size={'large'} color={NORMAL_TEXT_COLOR} />
+                </View>
 
                 :
-                profilePic != "" && profilePic != null && validURL(profilePic) ?
+                // profilePic != "" && profilePic != null && validURL(profilePic) ?
 
-                    <View style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
-                            {name != "" && name != null && name != 'null' ?
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
-                                :
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
-                            }
-                        </View>
-                        <Text style={styles.drawerHeaderText}>{name}</Text>
-                        {email != "" && email != null && email != 'null' ?
-                            <Text style={styles.drawerHeaderText}>{email}</Text>
+                //     <View style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}>
+                //         <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
+                //             {name != "" && name != null && name != 'null' ?
+                //                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 30, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
+                //                 :
+                //                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 30, fontWeight: 'bold' }}>-</Text>
+                //             }
+                //         </View>
+                //         <Text style={styles.drawerHeaderText}>{name}</Text>
+                //         {email != "" && email != null && email != 'null' ?
+                //             <Text style={styles.drawerHeaderText}>{email}</Text>
+                //             :
+                //             ""}
+                //     </View>
+
+
+                //     :
+
+                <View style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 60, height: 60, borderRadius: 30 }}>
+                        {name != "" && name != null && name != 'null' ?
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
                             :
-                            ""}
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>-</Text>
+                        }
                     </View>
-
-
-                    :
-
-                    <View style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 100, height: 100, borderRadius: 50 }}>
-                            {name != "" && name != null && name != 'null' ?
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
-                                :
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 50, fontWeight: 'bold' }}>-</Text>
-                            }
-                        </View>
-                        <Text style={styles.drawerHeaderText}>{name}</Text>
-                        {email != "" && email != null && email != 'null' ?
-                            <Text style={styles.drawerHeaderText}>{email}</Text>
-                            :
-                            ""}
-                    </View>
+                    <Text style={styles.drawerHeaderText}>{name}</Text>
+                    {email != "" && email != null && email != 'null' ?
+                        <Text style={styles.drawerHeaderText}>{email}</Text>
+                        :
+                        ""}
+                </View>
 
             }
-            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}>
-                <TouchableOpacity onPress={() => { navigation.navigate('EditProfile') }} style={{ }}>
-                    
+            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                <TouchableOpacity onPress={() => { navigation.navigate('EditProfile') }} style={{}}>
+
                     <LinearGradient
-                    useAngle={true}
-                    angle={125}
-                    angleCenter={{ x: 0.5, y: 0.5 }}
-                    colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
-                    style={{paddingTop: 10, paddingBottom: 10, paddingLeft: 22, paddingRight: 22, borderRadius: 20,borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>Edit Profile</Text>
-                    </View>
-                  </LinearGradient>
-                    
-                    </TouchableOpacity>
+                        useAngle={true}
+                        angle={125}
+                        angleCenter={{ x: 0.5, y: 0.5 }}
+                        colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                        style={{ paddingTop: 7, paddingBottom: 7, paddingLeft: 22, paddingRight: 22, borderRadius: 20, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Edit Profile</Text>
+                        </View>
+                    </LinearGradient>
+
+                </TouchableOpacity>
             </View>
             <ScrollView style={{ marginTop: 20 }}>
                 {dob != "" && dob != null ?
@@ -355,7 +342,7 @@ export default function Profile({ navigation }) {
                         :
                         <Pressable onPress={() => navigation.navigate('Subscribe')}><Text style={styles.detailsvalue}>{subscription_title}</Text></Pressable>
                     }
-                    {expireson != "" && expireson != null ?
+                    {expireson != "" && expireson != null && expireson!='1-0-1970' ?
                         <Text style={styles.detailsheader}>Expires on {expireson}</Text>
                         : ""}
                 </View>
@@ -376,9 +363,9 @@ export default function Profile({ navigation }) {
     )
 }
 const styles = StyleSheet.create({
-    drawerHeaderText: { color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: 'bold' },
+    drawerHeaderText: { color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold',marginBottom:5 },
     drawerHeaderImage: { width: "100%", height: 120 },
-    inneroption: { borderTopColor: DETAILS_TEXT_COLOR, borderBottomColor: DETAILS_TEXT_COLOR, borderWidth: 0.5, padding: 10 },
-    detailsheader: { color: DETAILS_TEXT_COLOR, fontSize: 14 },
-    detailsvalue: { color: NORMAL_TEXT_COLOR, fontSize: 17 }
+    inneroption: { borderTopColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5, paddingLeft: 10,paddingRight:10,paddingTop:5,paddingBottom:5 },
+    detailsheader: { color: DETAILS_TEXT_COLOR, fontSize: 11 },
+    detailsvalue: { color: NORMAL_TEXT_COLOR, fontSize: 14 }
 });

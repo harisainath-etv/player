@@ -54,7 +54,12 @@ export default function ActivateTv() {
             <View style={{ justifyContent: 'center', alignItems: 'center', }}>
                 <TouchableOpacity onPress={activateTv} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Activate</Text></TouchableOpacity>
             </View>
-            <StatusBar style="auto" />
+            <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
         </View>
     )
 }

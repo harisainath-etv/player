@@ -240,8 +240,8 @@ export default function Header(props) {
                                 colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
                                 style={styles.button}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <FontAwesome5 name='lock' size={15} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
-                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>Subscribe</Text>
+                                    <FontAwesome5 name='lock' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
+                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Subscribe</Text>
                                 </View>
                             </LinearGradient>
                         </TouchableOpacity>

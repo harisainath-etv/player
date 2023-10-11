@@ -159,7 +159,12 @@ function SearchCalendarEpisodes({ navigation, route }) {
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} ></ActivityIndicator> : ""}
             </View>
-            <StatusBar style="auto" />
+            <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
         </View>
     );
 }

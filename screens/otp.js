@@ -483,7 +483,12 @@ export default function Otp({ navigation, route }) {
                 </View>
 
             </View>
-            <StatusBar style="auto" />
+            <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
         </ScrollView>
     )
 }

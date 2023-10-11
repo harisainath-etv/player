@@ -32,7 +32,12 @@ export default function HtmlWebview({ navigation, route }) {
 
                     }} />
                
-            <StatusBar barStyle={'default'}></StatusBar>
+               <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
         </View>
     )
 }

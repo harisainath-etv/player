@@ -133,12 +133,17 @@ export default function More({navigation}) {
                 </View>
             </View>
             </Pressable>
-            <StatusBar barStyle={'default'}></StatusBar>
             </ScrollView>
             <View style={{ height: 25 }}></View>
             <View style={{position:'absolute',bottom:0}}>
             <Footer pageName="MENU"/>
             </View>
+            <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
         </View>
     )
 }

@@ -1116,7 +1116,12 @@ export default function Episode({ navigation, route }) {
           </Modal>
 
 
-          <StatusBar style="auto" />
+          <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
         </View>
       </ScrollView>
     </View>

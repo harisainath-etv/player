@@ -86,7 +86,12 @@ export default function MobileUpdate({ navigation }) {
                    
 
             </View>
-            <StatusBar style="auto" />
+            <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
         </ScrollView>
     )
 }

@@ -1353,7 +1353,7 @@ function Home({ navigation, route }) {
             <StatusBar
                 animated
                 backgroundColor="transparent"
-                barStyle="light-content"
+                barStyle="dark-content"
                 translucent={true}
             />
         </View>

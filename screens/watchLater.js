@@ -58,8 +58,8 @@ export default function WatchLater({ navigation }) {
         <View style={styles.mainContainer}>
             <Header pageName="WATCH-LATER"></Header>
             <ScrollView style={{ padding: 10 }}>
-                <Text style={{ color: NORMAL_TEXT_COLOR }}>Watchlist</Text>
-                <View style={{}}>
+                <Text style={{ color: NORMAL_TEXT_COLOR,fontSize:13,fontWeight:'500' }}>Watchlist</Text>
+                <View style={{marginTop:15}}>
                     {watchlistVideo ?
                         // <Text style={{color:'white'}}>{JSON.stringify(watchlistVideo[0].title)}</Text>
                         watchlistVideo.map((singleVideo, index) => {
@@ -99,7 +99,12 @@ export default function WatchLater({ navigation }) {
             <View style={{ position: 'absolute', bottom: 0 }}>
                 <Footer pageName="WATCH-LATER"></Footer>
             </View>
-            <StatusBar style="auto" />
+            <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
         </View>
     )
 }

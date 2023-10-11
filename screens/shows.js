@@ -517,7 +517,12 @@ export default function Shows({ navigation, route }) {
                             })}
                         </View>
                     </Modal>
-                    <StatusBar style="auto" />
+                    <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
                 </View>
             }
         </View>

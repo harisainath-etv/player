@@ -157,7 +157,12 @@ export default function FilterData({ navigation,route }) {
 
                 </View>
             
-            <StatusBar style="auto" />
+                <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
 
         </View>
     )

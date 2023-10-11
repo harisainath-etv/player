@@ -160,8 +160,8 @@ export default function Offline({ navigation }) {
     <View style={styles.mainContainer}>
       <Header pageName="OFFLINE"></Header>
       <View style={{ padding: 10 }}>
-        <Text style={{ color: NORMAL_TEXT_COLOR }}>Offline Downloads</Text>
-        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ color: NORMAL_TEXT_COLOR,fontSize:13,fontWeight:'500' }}>Offline Downloads</Text>
+        <View style={{ justifyContent: 'center', alignItems: 'center',marginTop:15 }}>
           {offlineVideo ?
             <FlatList
               data={offlineVideo[0].data}
@@ -178,11 +178,11 @@ export default function Offline({ navigation }) {
         <Footer pageName="OFFLINE"></Footer>
       </View>
       <StatusBar
-        animated
-        backgroundColor="transparent"
-        barStyle="light-content"
-        translucent={true}
-      />
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
     </View>
   )
 }

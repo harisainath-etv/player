@@ -310,7 +310,12 @@ export default function Video({navigation}) {
             </View>
           </View>: ""}
           
-        <StatusBar style="auto" />
+          <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
       </View>
     </View>
   );

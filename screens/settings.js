@@ -97,7 +97,12 @@ export default function Settings() {
             </TouchableOpacity>
 
 
-            <StatusBar barStyle={'default'}></StatusBar>
+            <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
 
         </ScrollView>
     )

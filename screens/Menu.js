@@ -4,7 +4,7 @@ import { StackActions } from '@react-navigation/native';
 import { NORMAL_TEXT_COLOR, BACKGROUND_COLOR, TAB_COLOR, BUTTON_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, SIDEBAR_BACKGROUND_COLOR, PAGE_HEIGHT, PAGE_WIDTH, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, DARKED_BORDER_COLOR, FOOTER_DEFAULT_TEXT_COLOR, ANDROID_PACKAGE_NAME, ANDROID_SHARE_MESSAGE, ANDROID_SHARE_URL } from '../constants';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, TouchableOpacity, ImageBackground, Text, Pressable, StyleSheet, ScrollView, TextInput, StatusBar } from 'react-native';
+import { View, TouchableOpacity, ImageBackground, Text, Pressable, StyleSheet, ScrollView, TextInput, StatusBar, ActivityIndicator } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -143,23 +143,9 @@ export default function Menu() {
         </View>
         <View style={{ marginBottom: 50 }}>
           {!login ?
-
-            <ImageBackground
-              source={require('../assets/images/drawer_header.png')}
-              resizeMode="cover"
-              style={styles.drawerHeaderImage}>
-              <View style={{ padding: 25 }}>
-                <Text style={styles.drawerHeaderText}>Hi Guest User!</Text>
-                <View style={{ flexDirection: 'row', }}>
-                  <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Login', {})); }} style={{ backgroundColor: TAB_COLOR, padding: 13, borderRadius: 10, marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={styles.drawerHeaderText}>SIGN IN</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => { toggleModal(); navigation.dispatch(StackActions.replace('Signup', {})); }} style={{ borderColor: TAB_COLOR, padding: 13, borderRadius: 10, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={styles.drawerHeaderText}>SIGN UP</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </ImageBackground>
+            <View style={{justifyContent:'center',alignItems:'center'}}>
+            <ActivityIndicator size={'large'} color={NORMAL_TEXT_COLOR} />
+            </View>
 
             :
             <Pressable onPress={() => { navigation.navigate('Profile') }}>
@@ -366,11 +352,11 @@ export default function Menu() {
         <Footer pageName="MENU" />
       </View>
       <StatusBar
-        animated
-        backgroundColor="transparent"
-        barStyle="light-content"
-        translucent={true}
-      />
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
     </View>
   )
 }

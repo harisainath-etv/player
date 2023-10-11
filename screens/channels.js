@@ -585,7 +585,12 @@ function Channels({ navigation, route }) {
             <Footer
                 pageName="TV-CHANNELS"
             ></Footer>
-            <StatusBar style="auto" />
+            <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
         </View>
     );
 }

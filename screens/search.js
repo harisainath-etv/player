@@ -167,7 +167,12 @@ export default function Search({ navigation }) {
                 </View>
             }
             <Footer pageName="SEARCH"></Footer>
-            <StatusBar style="auto" />
+            <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
 
         </View>
     )
