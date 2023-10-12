@@ -179,7 +179,7 @@ export default function Menu() {
                   useAngle={true}
                   angle={125}
                   angleCenter={{ x: 0.5, y: 0.5 }}
-                  colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                  colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
                   style={[styles.button, { width: "95%" }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <FontAwesome5 name='lock' size={16} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
@@ -196,7 +196,7 @@ export default function Menu() {
                   useAngle={true}
                   angle={125}
                   angleCenter={{ x: 0.5, y: 0.5 }}
-                  colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                  colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
                   style={[styles.button, { width: "95%" }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <FontAwesome5 name='lock' size={16} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
@@ -271,7 +271,7 @@ export default function Menu() {
                         useAngle={true}
                         angle={125}
                         angleCenter={{ x: 0.5, y: 0.5 }}
-                        colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                        colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
                         style={[styles.button]}>
 
                         <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Activate</Text>

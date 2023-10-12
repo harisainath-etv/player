@@ -401,7 +401,7 @@ export default function Shows({ navigation, route }) {
                                         useAngle={true}
                                         angle={125}
                                         angleCenter={{ x: 0.5, y: 0.5 }}
-                                        colors={[BUTTON_COLOR, BUTTON_COLOR, BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR]}
+                                        colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
                                         style={[styles.button]} >
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <FontAwesome5 name='play' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
