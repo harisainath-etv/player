@@ -131,15 +131,15 @@ export default function EditProfile({ navigation }) {
 
                 //     :
 
-                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 60, height: 60, borderRadius: 30 }}>
-                            {name != "" && name != null ?
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
-                                :
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>-</Text>
-                            }
-                        </View>
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 60, height: 60, borderRadius: 30 }}>
+                        {name != "" && name != null ?
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
+                            :
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>-</Text>
+                        }
                     </View>
+                </View>
 
             }
 
@@ -199,7 +199,7 @@ export default function EditProfile({ navigation }) {
                             useAngle={true}
                             angle={125}
                             angleCenter={{ x: 0.5, y: 0.5 }}
-                            colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
+                            colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
                             style={{ backgroundColor: TAB_COLOR, paddingTop: 7, paddingBottom: 7, paddingLeft: 22, paddingRight: 22, borderRadius: 20, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Update</Text>

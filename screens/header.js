@@ -237,7 +237,7 @@ export default function Header(props) {
                                 useAngle={true}
                                 angle={125}
                                 angleCenter={{ x: 0.5, y: 0.5 }}
-                                colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
+                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
                                 style={styles.button}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <FontAwesome5 name='lock' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
@@ -267,5 +267,5 @@ const styles = StyleSheet.create({
     rightItems: { width: '50%', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', },
     logoImage: { width: 100, height: 55, resizeMode: 'contain', marginLeft: 5 },
     subscribeImage: { width: 100, height: 50, resizeMode: 'contain', },
-    button: { paddingLeft: 10, paddingRight: 10, paddingBottom: 2, paddingTop: 2, borderRadius: 20, marginRight: 5,borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5 },
+    button: { paddingLeft: 10, paddingRight: 10, paddingBottom: 2, paddingTop: 2, borderRadius: 20, marginRight: 5, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
 });

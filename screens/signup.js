@@ -281,8 +281,8 @@ export default function Signup({ navigation }) {
             {region == 'IN' ?
                 <View style={{ flex: 1, }}>
                     <View style={styles.header}>
-                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Sign Up</Text>
-                        <TouchableOpacity style={{ position: 'absolute', right: 20, }} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>SKIP</Text></TouchableOpacity>
+                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 17, fontWeight: '500' }}>Sign Up</Text>
+                        <TouchableOpacity style={{ position: 'absolute', right: 20, }} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: '500' }}>SKIP</Text></TouchableOpacity>
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 15, }}>
                         <Pressable onPress={() => { setSelected('mobile'); setTermsCheck(false); }} style={[selected == 'mobile' ? styles.selectedBackground : styles.unselectedBackground, { borderTopLeftRadius: 10, borderBottomLeftRadius: 10 }]}><View style={styles.innerView}><Text style={selected == 'mobile' ? { fontWeight: 'bold', color: NORMAL_TEXT_COLOR } : { fontWeight: 'bold' }}>Mobile No</Text></View></Pressable>
@@ -301,11 +301,19 @@ export default function Signup({ navigation }) {
                             <Text style={styles.errormessage}>{MobileError}</Text>
                             <View style={{ marginBottom: 10, marginTop: 10, flexDirection: 'row', width: '100%', }}>
                                 {termscheck ?
-                                    <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={35} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                    <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                                     :
-                                    <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={35} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                    <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                                 }
-                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16, marginLeft: 10, flex: 1, flexWrap: 'wrap' }}>I agree to the <Pressable onPress={() => navigatetopage('termsCondition')}><Text style={{ color: NORMAL_TEXT_COLOR }}>TERMS OF USE</Text></Pressable> and <Pressable><Text style={{ color: NORMAL_TEXT_COLOR }} onPress={() => navigatetopage('privacy')}>PRIVACY POLICY</Text></Pressable></Text>
+                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 14, marginLeft: 10, flex: 1, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>I agree to the
+
+                                    <Pressable onPress={() => navigatetopage('termsCondition')}>
+                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }}> TERMS OF USE </Text>
+                                    </Pressable> and
+
+                                    <Pressable onPress={() => navigatetopage('privacy')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }} > PRIVACY POLICY </Text></Pressable>
+
+                                </Text>
 
 
                             </View>
@@ -313,7 +321,11 @@ export default function Signup({ navigation }) {
                                 <View style={{ flexDirection: 'row', width: '100%' }}>
                                     <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
                                         <TouchableOpacity onPress={signUpMobileUser}>
-                                            <LinearGradient colors={[BUTTON_COLOR, TAB_COLOR]} style={styles.button}>
+                                            <LinearGradient
+                                                useAngle={true}
+                                                angle={125}
+                                                angleCenter={{ x: 0.5, y: 0.5 }}
+                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text>
                                             </LinearGradient>
                                         </TouchableOpacity>
@@ -352,11 +364,19 @@ export default function Signup({ navigation }) {
 
                             <View style={{ marginBottom: 10, marginTop: 10, flexDirection: 'row', width: '100%', }}>
                                 {termscheck ?
-                                    <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={35} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                    <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                                     :
-                                    <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={35} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                    <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                                 }
-                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16, marginLeft: 10, flex: 1, flexWrap: 'wrap' }}>I agree to the <Pressable onPress={() => navigatetopage('termsCondition')}><Text style={{ color: NORMAL_TEXT_COLOR }}>TERMS OF USE</Text></Pressable> and <Pressable><Text style={{ color: NORMAL_TEXT_COLOR }} onPress={() => navigatetopage('privacy')}>PRIVACY POLICY</Text></Pressable></Text>
+                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 14, marginLeft: 10, flex: 1, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>I agree to the
+
+                                    <Pressable onPress={() => navigatetopage('termsCondition')}>
+                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }}> TERMS OF USE </Text>
+                                    </Pressable> and
+
+                                    <Pressable onPress={() => navigatetopage('privacy')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }} > PRIVACY POLICY </Text></Pressable>
+
+                                </Text>
                             </View>
 
                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -366,7 +386,11 @@ export default function Signup({ navigation }) {
                                     <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
                                         <TouchableOpacity onPress={registerEmailUser}>
 
-                                            <LinearGradient colors={[BUTTON_COLOR, TAB_COLOR]} style={styles.button}>
+                                            <LinearGradient
+                                                useAngle={true}
+                                                angle={125}
+                                                angleCenter={{ x: 0.5, y: 0.5 }}
+                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text>
                                             </LinearGradient>
 
@@ -385,8 +409,8 @@ export default function Signup({ navigation }) {
                 :
                 <View style={{ flex: 1, }}>
                     <View style={styles.body}>
-                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 30 }}>Sign Up</Text>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 17, fontWeight: '500' }}>Sign Up</Text>
                         </View>
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                             <Text style={styles.errormessage}>{otpError}</Text>
@@ -410,11 +434,19 @@ export default function Signup({ navigation }) {
 
                         <View style={{ marginBottom: 10, marginTop: 10, flexDirection: 'row', width: '100%', }}>
                             {termscheck ?
-                                <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={35} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                                 :
-                                <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={35} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                             }
-                            <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16, marginLeft: 10, flex: 1, flexWrap: 'wrap' }}>I agree to the <Pressable onPress={() => navigatetopage('termsCondition')}><Text style={{ color: NORMAL_TEXT_COLOR }}>TERMS OF USE</Text></Pressable> and <Pressable><Text style={{ color: NORMAL_TEXT_COLOR }} onPress={() => navigatetopage('privacy')}>PRIVACY POLICY</Text></Pressable></Text>
+                            <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 14, marginLeft: 10, flex: 1, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>I agree to the
+
+                                <Pressable onPress={() => navigatetopage('termsCondition')}>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }}> TERMS OF USE </Text>
+                                </Pressable> and
+
+                                <Pressable onPress={() => navigatetopage('privacy')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }} > PRIVACY POLICY </Text></Pressable>
+
+                            </Text>
                         </View>
 
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -422,7 +454,17 @@ export default function Signup({ navigation }) {
                                 <Text style={styles.errormessage}>{registerError}</Text>
                                 <Text style={styles.successmessage}>{registerSuccess}</Text>
                                 <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                    <TouchableOpacity onPress={registerEmailUserInternational} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign Up</Text></TouchableOpacity>
+                                    <TouchableOpacity onPress={registerEmailUserInternational}>
+
+                                        <LinearGradient
+                                            useAngle={true}
+                                            angle={125}
+                                            angleCenter={{ x: 0.5, y: 0.5 }}
+                                            colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
+                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign Up</Text>
+                                        </LinearGradient>
+
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         </View>
@@ -446,10 +488,10 @@ export default function Signup({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    header: { justifyContent: 'center', alignItems: 'center', height: 80 },
+    header: { justifyContent: 'center', alignItems: 'center', marginTop: 50 },
     body: { backgroundColor: BACKGROUND_COLOR, height: "100%", padding: 20, },
-    textinput: { borderBottomColor: SLIDER_PAGINATION_UNSELECTED_COLOR, borderBottomWidth: 1, marginTop: 20, fontSize: 18, color: NORMAL_TEXT_COLOR, padding: 5 },
-    button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 18, borderRadius: 10, marginRight: 20,borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5 },
+    textinput: { borderBottomColor: SLIDER_PAGINATION_UNSELECTED_COLOR, borderBottomWidth: 1, marginTop: 20, fontSize: 12, color: NORMAL_TEXT_COLOR, padding: 2 },
+    button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 10, borderRadius: 10, marginRight: 20, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
     errormessage: { color: 'red', fontSize: 15 },
     successmessage: { color: NORMAL_TEXT_COLOR, fontSize: 15 },
     unselectedBackground: { backgroundColor: NORMAL_TEXT_COLOR, },

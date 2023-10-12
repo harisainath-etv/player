@@ -872,8 +872,8 @@ export default function Login({ navigation }) {
             <View style={{ flex: 1, }}>
 
                 <View style={styles.header}>
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Sign In</Text>
-                    <TouchableOpacity style={{ position: 'absolute', right: 20, }} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>SKIP</Text></TouchableOpacity>
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 17, fontWeight: '500' }}>Sign In</Text>
+                    <TouchableOpacity style={{ position: 'absolute', right: 20, }} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: '500' }}>SKIP</Text></TouchableOpacity>
                 </View>
 
                 {region == 'IN' ?
@@ -908,7 +908,11 @@ export default function Login({ navigation }) {
                                     </View>
                                     <View style={{ justifyContent: 'center', alignItems: 'flex-end', width: '50%', marginTop: 15 }}>
                                         <TouchableOpacity onPress={signinMobileUser}>
-                                            <LinearGradient colors={[BUTTON_COLOR, TAB_COLOR]} style={styles.button}>
+                                            <LinearGradient
+                                                useAngle={true}
+                                                angle={125}
+                                                angleCenter={{ x: 0.5, y: 0.5 }}
+                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                                 <Ionicons name='arrow-forward' size={20} color={NORMAL_TEXT_COLOR} />
                                             </LinearGradient>
                                         </TouchableOpacity>
@@ -986,7 +990,11 @@ export default function Login({ navigation }) {
                                     <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
 
                                         <TouchableOpacity onPress={signinEmailUser}>
-                                            <LinearGradient colors={[BUTTON_COLOR, TAB_COLOR]} style={styles.button}>
+                                            <LinearGradient
+                                                useAngle={true}
+                                                angle={125}
+                                                angleCenter={{ x: 0.5, y: 0.5 }}
+                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                                 <Ionicons name='arrow-forward' size={20} color={NORMAL_TEXT_COLOR} />
                                             </LinearGradient>
                                         </TouchableOpacity>
@@ -1064,7 +1072,11 @@ export default function Login({ navigation }) {
                                     <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                         <TouchableOpacity onPress={signinMobileUserInternational}>
 
-                                            <LinearGradient colors={[BUTTON_COLOR, TAB_COLOR]} style={styles.button}>
+                                            <LinearGradient
+                                                useAngle={true}
+                                                angle={125}
+                                                angleCenter={{ x: 0.5, y: 0.5 }}
+                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                                 <Ionicons name='arrow-forward' size={20} color={NORMAL_TEXT_COLOR} />
                                             </LinearGradient>
 
@@ -1118,10 +1130,10 @@ export default function Login({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    header: { justifyContent: 'center', alignItems: 'center', height: 80 },
+    header: { justifyContent: 'center', alignItems: 'center', marginTop: 50 },
     body: { backgroundColor: BACKGROUND_COLOR, height: "100%", padding: 20, },
     textinput: { borderColor: SLIDER_PAGINATION_UNSELECTED_COLOR, borderWidth: 1, marginTop: 10, fontSize: 15, color: NORMAL_TEXT_COLOR, padding: 10, borderRadius: 5, marginRight: 5, },
-    button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 50, padding: 8, borderRadius: 10,borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5 },
+    button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 50, padding: 8, borderRadius: 10, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
     errormessage: { color: 'red', fontSize: 15 },
     successmessage: { color: NORMAL_TEXT_COLOR, fontSize: 15 },
     unselectedBackground: { backgroundColor: NORMAL_TEXT_COLOR, },
