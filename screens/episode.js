@@ -5,8 +5,9 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, } from '../constants';
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, } from '../constants';
 import axios from 'axios';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
@@ -841,14 +842,14 @@ export default function Episode({ navigation, route }) {
                 }}
               />
               {state.showControls && (
-                <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50 }}>
-                  {preview ?
-                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}><Text style={{ color: NORMAL_TEXT_COLOR }}>You are watching Trailer</Text></View>
+                <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 60 }}>
+                  {!preview ?
+                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 35 }}><Text style={{ color: NORMAL_TEXT_COLOR }}>You are watching Trailer</Text></View>
                     :
                     ""}
                   <TouchableOpacity
                     onPress={() => { fullscreen ? handleFullscreen() : checkgoback() }}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    hitSlop={{ top: 35, bottom: 10, left: 10, right: 10 }}
                     style={styles.navigationBack}>
                     <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
                   </TouchableOpacity>
@@ -925,7 +926,7 @@ export default function Episode({ navigation, route }) {
               )}
 
               {state.showControls && (
-                <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 50, bottom: 10, flexDirection: 'row' }}>
+                <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 60, bottom: 0, flexDirection: 'row' }}>
                   <View style={{ width: "85%", top: 20 }}>
                     <Slider
                       style={{ width: "100%", height: 40 }}
@@ -980,18 +981,23 @@ export default function Episode({ navigation, route }) {
 
           {!fullscreen ? <View style={styles.bodyContent}>
             <View style={styles.marginContainer}>
-              <Text style={styles.headingLabel}>{title}</Text>
-              {channel ? <Text style={styles.detailsText}>{channel}</Text> : ""}
+              <Text style={styles.headingLabel}>
+                <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', }]}>| </Text>
+                {title}</Text>
               <View style={{ flexDirection: 'row' }}>
-                <Text style={styles.detailsText}>{contentRating}</Text>
-                <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', borderRightColor: TAB_COLOR, borderWidth: 2 }]}></Text>
+                {channel ? <Text style={styles.detailsText}>{channel} - {contentRating} </Text> : ""}
                 {displayGenres.map((resp, index) => {
 
-                  return (<Text key={index} style={[styles.detailsText, { borderWidth: 1, borderStyle: 'dashed', borderColor: TAB_COLOR, marginLeft: 10, borderRadius: 10 }]}>{resp}</Text>)
+                  return (
+                    <View key={index} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginLeft: 5 }}>
+                      <FontAwesome5 name='dot-circle' size={10} color={TAB_COLOR} />
+                      <Text key={index} style={[styles.detailsText, { color: TAB_COLOR, fontWeight: 'bold', }]}>{resp}</Text>
+                    </View>
+                  )
 
                 })}
               </View>
-              <ReadMore numberOfLines={4} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
+              <ReadMore numberOfLines={25} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
                 <Text style={styles.detailsText}>{description}</Text>
               </ReadMore>
             </View>
@@ -1000,48 +1006,48 @@ export default function Episode({ navigation, route }) {
               <View style={styles.options}>
                 <View style={styles.singleoption}>
                   {!likecontent ?
-                    <Pressable onPress={likeContent}><MaterialIcons name="thumb-up-off-alt" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                    <Pressable onPress={likeContent}><MaterialIcons name="thumb-up-off-alt" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                     :
-                    <Pressable onPress={() => deleteLike(catalogId, contentId)}><MaterialIcons name="thumb-up" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                    <Pressable onPress={() => deleteLike(catalogId, contentId)}><MaterialIcons name="thumb-up" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                   }
                 </View>
 
                 <View style={styles.singleoption}>
-                  <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                  <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                 </View>
 
                 {passedtheme != 'live' && passedtheme != 'livetv' && !preview ?
                   <View style={styles.singleoption}>
-                    {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
-                    {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                    {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={22} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                    {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={22} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
                     {downloadedStatus == 2 ?
 
                       pauseDownload ?
                         isresumeDownloading ?
-                          <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                          <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                           :
-                          <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                          <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                         :
                         isresumeDownloading ?
-                          <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                          <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                           :
-                          <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                          <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
 
                       : ""}
 
                   </View>
                   :
                   <View style={styles.singleoption}>
-                    <MaterialCommunityIcons name="download" size={30} color={DARKED_BORDER_COLOR} />
+                    <MaterialCommunityIcons name="download" size={22} color={DARKED_BORDER_COLOR} />
                   </View>
                 }
 
                 <View style={styles.singleoption}>
 
                   {!watchlatercontent ?
-                    <Pressable onPress={watchLater}><MaterialIcons name="watch-later" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                    <Pressable onPress={watchLater}><MaterialIcons name="watch-later" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                     :
-                    <Pressable onPress={() => { navigation.dispatch(StackActions.replace('WatchLater')) }}><MaterialIcons name="watch-later" size={30} color={DARKED_BORDER_COLOR} /></Pressable>
+                    <Pressable onPress={() => { navigation.dispatch(StackActions.replace('WatchLater')) }}><MaterialIcons name="watch-later" size={22} color={DARKED_BORDER_COLOR} /></Pressable>
                   }
 
                 </View>
@@ -1117,11 +1123,11 @@ export default function Episode({ navigation, route }) {
 
 
           <StatusBar
-                animated
-                backgroundColor="transparent"
-                barStyle="dark-content"
-                translucent={true}
-            />
+            animated
+            backgroundColor="transparent"
+            barStyle="dark-content"
+            translucent={true}
+          />
         </View>
       </ScrollView>
     </View>
@@ -1164,13 +1170,13 @@ const styles = StyleSheet.create({
   navigationBack: {
     position: 'absolute',
     left: 15,
-    top: 20,
+    top: 35,
     paddingLeft: 10,
   },
   mainContainer: { flex: 1, backgroundColor: BACKGROUND_COLOR },
   bodyContent: { backgroundColor: BACKGROUND_COLOR },
-  headingLabel: { fontSize: 25, marginBottom: 5, color: NORMAL_TEXT_COLOR, padding: 6 },
-  detailsText: { fontSize: 13, marginBottom: 5, color: DETAILS_TEXT_COLOR, padding: 6 },
+  headingLabel: { fontSize: 20, color: NORMAL_TEXT_COLOR, padding: 4, justifyContent: 'center', alignItems: 'center', width: "100%", borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, },
+  detailsText: { fontSize: 11, marginBottom: 5, color: DETAILS_TEXT_COLOR, padding: 4 },
   options: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
   singleoption: { width: "25%", alignItems: 'center', justifyContent: 'center', borderColor: DARKED_BORDER_COLOR, borderWidth: 1, height: 55 },
   marginContainer: { marginLeft: 5, marginRight: 5 },

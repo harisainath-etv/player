@@ -9,7 +9,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR } from '../constants';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, DARKED_BORDER_COLOR, BACKGROUND_TRANSPARENT_COLOR } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -87,6 +87,7 @@ function Home({ navigation, route }) {
     const progressValue2 = useSharedValue(0);
     const progressValue3 = useSharedValue(0);
     const dataFetchedRef = useRef(false);
+    const scrollx = useRef(new Animated.Value(0)).current;
 
     const [subscription_title, setsubscription_title] = useState("");
 
@@ -509,7 +510,37 @@ function Home({ navigation, route }) {
         navigation.navigate(page, { seoUrl: url, theme: theme })
     }
 
+    // const blockStyle = useAnimatedStyle(() => {
+    //     const translateX = interpolate(
+    //       animationValue.value,
+    //       [-1, 0, 1],
+    //       [0, 60, 60],
+    //     );
+
+    //     const translateY = interpolate(
+    //       animationValue.value,
+    //       [-1, 0, 1],
+    //       [0, -40, -40],
+    //     );
+
+    //     const rotateZ = interpolate(
+    //       animationValue.value,
+    //       [-1, 0, 1],
+    //       [0, 0, -25],
+    //     );
+
+    //     return {
+    //       transform: [
+    //         { translateX },
+    //         { translateY },
+    //         { rotateZ: `${rotateZ}deg` },
+    //       ],
+    //     };
+    //   }, []);
+
     const renderItem = ({ item, index }) => {
+        const inputRange = [(index-1)*PAGE_WIDTH,index*PAGE_WIDTH,(index+1)*PAGE_WIDTH];
+        const translateX = scrollx.interpolate({inputRange,outputRange:[-PAGE_WIDTH * 0.5,0,PAGE_WIDTH*0.5]})
         const modeconfigobj = isTablet ? ({
             parallaxScrollingScale: 0.90,
             parallaxScrollingOffset: 65,
@@ -522,6 +553,13 @@ function Home({ navigation, route }) {
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
                 <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+
+                    {item.layoutType == 'top_banner' ?
+
+                        ""
+
+                        : ""}
+
                     {item.layoutType == 'top_banner' ?
                         <Carousel
                             {...baseOptions}
@@ -533,59 +571,103 @@ function Home({ navigation, route }) {
                             onProgressChange={(_, absoluteProgress) =>
                                 (progressValue.value = absoluteProgress)
                             }
-
+                            withAnimation={{
+                                type: "spring",
+                                config: {
+                                    damping: 13,
+                                },
+                            }}
                             windowSize={3}
                             panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
                             data={item.data}
                             style={{ top: -15, }}
-                            renderItem={({ item, index }) => <View style={{ height: '100%', }}>
-
-                                <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.stretch} key={index} style={[styles.image, { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-
-                                <View style={styles.buttonsContainer}>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR, bottom: 120, position: 'absolute', fontSize: 13, }}>{JSON.stringify(item.genres).toUpperCase().split('["').join(".").split('"]').join("").split('","').join("  .")}</Text>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR, bottom: 90, position: 'absolute', fontSize: 20, fontWeight: 'bold' }}>
-                                        <FontAwesome5 size={20} color={TAB_COLOR} name="grip-lines-vertical" />
-                                        {item.displayTitle}
-                                    </Text>
-                                    <View style={styles.buttonsPosition}>
-
-                                        <Pressable onPress={() => {
-                                            {
-                                                item.medialistinlist ?
-                                                    navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
-                                                    :
-                                                    VIDEO_TYPES.includes(item.theme) ?
-                                                        naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
-                                            }
-
-                                        }}>
-                                            <LinearGradient
-                                                useAngle={true}
-                                                angle={125}
-                                                angleCenter={{ x: 0.5, y: 0.5 }}
-                                                colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
-                                                style={[styles.button, { borderRadius: 40 }]}>
-                                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                    <FontAwesome5 name='play' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
-                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Watch Now</Text>
-                                                </View>
-                                            </LinearGradient>
-                                        </Pressable>
+                            renderItem={({ item, index, animationValue }) =>
 
 
-                                        {VIDEO_TYPES.includes(item.theme) ?
-                                            <Pressable onPress={() => { watchLater(item.catalog_id, item.content_id) }} style={styles.wishlistbutton}>
-                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}> + Watch Later</Text>
+                                <View style={{ height: '100%', }}>
+                                    {/* <LinearGradient
+                                        colors={[BACKGROUND_TRANSPARENT_COLOR_MENU,BACKGROUND_TRANSPARENT_COLOR_MENU]}
+                                        style={{width:"100%",height:90,zIndex:1000000,position:'absolute'}}>
+                                    </LinearGradient> */}
+
+                                    <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.stretch} key={index} style={[styles.image, { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+
+                                    <View style={styles.buttonsContainer}>
+                                        <Text style={{ color: NORMAL_TEXT_COLOR, bottom: 65, position: 'absolute', fontSize: 11, fontWeight: '500' }}>{JSON.stringify(item.genres).toUpperCase().split('["').join(".").split('"]').join("").split('","').join("  .").split("_").join(" ")}</Text>
+                                        <Text style={{ color: NORMAL_TEXT_COLOR, bottom: 40, position: 'absolute', fontSize: 15, fontWeight: 'bold' }}>
+                                            <FontAwesome5 size={11} color={TAB_COLOR} name="grip-lines-vertical" /> {item.displayTitle}
+                                        </Text>
+                                        <View style={styles.buttonsPosition}>
+
+                                            <Pressable onPress={() => {
+                                                {
+                                                    item.medialistinlist ?
+                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                        :
+                                                        VIDEO_TYPES.includes(item.theme) ?
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                }
+
+                                            }}>
+                                                <LinearGradient
+                                                    useAngle={true}
+                                                    angle={125}
+                                                    angleCenter={{ x: 0.5, y: 0.5 }}
+                                                    colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                                                    style={[styles.button, { borderRadius: 40 }]}>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                        <FontAwesome5 name='play' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
+                                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Watch Now</Text>
+                                                    </View>
+                                                </LinearGradient>
                                             </Pressable>
-                                            :
-                                            ""}
 
+
+                                            {VIDEO_TYPES.includes(item.theme) ?
+                                                <Pressable onPress={() => { watchLater(item.catalog_id, item.content_id) }} style={styles.wishlistbutton}>
+                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}> + Watch Later</Text>
+                                                </Pressable>
+                                                :
+                                                ""}
+
+                                        </View>
                                     </View>
+
+                                    <LinearGradient
+                                        colors={[BACKGROUND_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR]}
+                                        style={{ width: "100%", height: 90, position: 'absolute', bottom: 0 }}>
+                                    </LinearGradient>
+
+                                    <Animated.View
+                                        style={{
+                                            flex: 1,
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                        }}
+                                    >
+
+                                        <Animated.Image
+                                            source={{ uri: 'https://raw.githubusercontent.com/dohooo/react-native-reanimated-carousel/main/example/app/assets/fruit-0.png' }}
+                                            style={[
+                                                {
+                                                    width: 200,
+                                                    justifyContent: "center",
+                                                    height:300,
+                                                    alignItems: "center",
+                                                    position: "absolute",
+                                                    zIndex: 999,
+                                                    bottom:0,
+                                                    transform:[{translateX}]
+                                                },
+                                            ]}
+                                            resizeMode={"contain"}
+                                        />
+
+                                    </Animated.View>
                                 </View>
 
 
-                            </View>}
+                            }
                         />
                         : ""}
                 </View>
@@ -594,9 +676,12 @@ function Home({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}>
-                                <MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />
-                            </Text></Pressable> : ""}
+                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => {
+                                settotalHomeData([]);
+                                navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })
+                            }}><Text style={styles.sectionHeaderMore}>
+                                    <MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />
+                                </Text></Pressable> : ""}
                         </View>
                         <Carousel
                             {...baseOptionsOther}
@@ -632,7 +717,10 @@ function Home({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
+                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => {
+                                settotalHomeData([]);
+                                navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })
+                            }}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
 
                         </View>
                         <View style={{}}>
@@ -725,7 +813,10 @@ function Home({ navigation, route }) {
                     <View style={index == 0 ? { marginTop: 60 } : {}}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
+                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => {
+                                settotalHomeData([]);
+                                navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })
+                            }}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
                         </View>
                         {isTablet ?
                             <FlatList
@@ -793,7 +884,10 @@ function Home({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
+                            {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => {
+                                settotalHomeData([]);
+                                navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })
+                            }}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
                         </View>
                         <View style={{ flexDirection: 'column' }}>
                             {isTablet ?
@@ -930,7 +1024,10 @@ function Home({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
+                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => {
+                                settotalHomeData([]);
+                                navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })
+                            }}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
                         </View>
                         {isTablet ?
                             <FlatList
@@ -999,7 +1096,10 @@ function Home({ navigation, route }) {
                     <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
+                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => {
+                                settotalHomeData([]);
+                                navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })
+                            }}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
                         </View>
                         {isTablet ?
                             <FlatList
@@ -1067,7 +1167,10 @@ function Home({ navigation, route }) {
                     <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
+                            {item.data.length > 1 ? <Pressable style={{ width: "100%" }} onPress={() => {
+                                settotalHomeData([]);
+                                navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })
+                            }}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
 
                         </View>
                         <View style={{}}>
@@ -1099,9 +1202,9 @@ function Home({ navigation, route }) {
                                         useAngle={true}
                                         angle={125}
                                         angleCenter={{ x: 0.5, y: 0.5 }}
-                                        colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
-                                        style={[styles.button,{position:'absolute',bottom:10,width:"100%"}]}>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center',justifyContent:'center' }}>
+                                        colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                                        style={[styles.button, { position: 'absolute', bottom: 10, width: "100%" }]}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                                             <FontAwesome5 name='play' size={16} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
                                             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>Watch Now</Text>
                                         </View>
@@ -1119,7 +1222,10 @@ function Home({ navigation, route }) {
                     <View style={index == 0 ? { marginTop: 60 } : {}}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
+                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => {
+                                settotalHomeData([]);
+                                navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })
+                            }}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
                         </View>
                         {isTablet ?
                             <FlatList
@@ -1200,12 +1306,12 @@ function Home({ navigation, route }) {
                 {item.friendlyId == pageName ?
 
                     <View style={styles.menuitem}>
-                        <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold',fontSize:13 }}>{item.displayName}</Text>
+                        <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold', fontSize: 13 }}>{item.displayName}</Text>
                     </View>
                     :
                     <Pressable onPress={() => changeTabData(item.friendlyId)}>
                         <View style={styles.menuitem}>
-                            <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold',fontSize:13 }}>{item.displayName}</Text>
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold', fontSize: 13 }}>{item.displayName}</Text>
                         </View>
                     </Pressable>
                 }
@@ -1261,7 +1367,7 @@ function Home({ navigation, route }) {
                 ""}
 
             {/* body content */}
-            {totalHomeData ? <FlatList
+            {totalHomeData ? <Animated.FlatList
                 data={totalHomeData}
                 keyExtractor={(x, i) => i.toString()}
                 horizontal={false}
@@ -1289,18 +1395,18 @@ function Home({ navigation, route }) {
                         <Image source={require('../assets/images/winlogo.png')} style={{ width: 70, height: 40 }}></Image>
                     </View>
                     <View style={{ width: "80%" }}>
-                        
-                            <FlatList
-                                data={totalMenuData}
-                                initialNumToRender={8}
-                                initialScrollIndex={currentIndexValue}
-                                renderItem={menuRender}
-                                keyExtractor={(x, i) => i.toString()}
-                                horizontal={true}
-                                showsHorizontalScrollIndicator={false}
-                                ref={menuref}
-                                style={{ zIndex: 100, }}
-                            />
+
+                        <FlatList
+                            data={totalMenuData}
+                            // initialNumToRender={8}
+                            // initialScrollIndex={currentIndexValue}
+                            renderItem={menuRender}
+                            keyExtractor={(x, i) => i.toString()}
+                            horizontal={true}
+                            showsHorizontalScrollIndicator={false}
+                            ref={menuref}
+                            style={{ zIndex: 100, }}
+                        />
                     </View>
                 </View>
 
@@ -1313,11 +1419,11 @@ function Home({ navigation, route }) {
                         useAngle={true}
                         angle={125}
                         angleCenter={{ x: 0.5, y: 0.5 }}
-                        colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
+                        colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
                         style={styles.button}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <FontAwesome5 name='lock' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
-                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13,fontWeight:'bold' }}>Subscribe</Text>
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Subscribe</Text>
                         </View>
                     </LinearGradient>
                 </TouchableOpacity></View>
@@ -1418,8 +1524,8 @@ const PaginationItem = (props) => {
 
 const styles = StyleSheet.create({
     buttonsContainer: { width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', zIndex: 1000, },
-    buttonsPosition: { position: 'absolute', bottom: 20, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-evenly' },
-    button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, marginRight: 5,borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5 },
+    buttonsPosition: { position: 'absolute', bottom: 0, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-evenly' },
+    button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, marginRight: 5, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
     wishlistbutton: { borderRadius: 40, borderWidth: 1.5, borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7 },
     subscribeImage: { width: 160, height: 85, resizeMode: 'contain', justifyContent: 'center', alignItems: 'center', },
     menulogo: { height: 35, justifyContent: 'center', alignItems: 'center', },
@@ -1457,7 +1563,7 @@ const styles = StyleSheet.create({
     },
     sectionHeaderView: {
         flexDirection: 'row',
-        marginTop:10,
+        marginTop: 10,
         width: '100%',
         justifyContent: 'space-between',
 

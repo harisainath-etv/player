@@ -2,12 +2,14 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressa
 import React, { useEffect, useState, useRef } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
-import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, FIRETV_BASE_URL_STAGING, ACCESS_TOKEN, VIDEO_AUTH_TOKEN } from '../constants'
+import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, FIRETV_BASE_URL_STAGING, ACCESS_TOKEN, VIDEO_AUTH_TOKEN, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StackActions } from '@react-navigation/native';
 import analytics from '@react-native-firebase/analytics';
 import DeviceInfo from 'react-native-device-info';
+import LinearGradient from 'react-native-linear-gradient';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 
 export default function Otp({ navigation, route }) {
@@ -39,20 +41,20 @@ export default function Otp({ navigation, route }) {
     useEffect(() => {
         getData();
     })
-    const triggersuccessanalytics = async(name,method,u_id,device_id) =>{
+    const triggersuccessanalytics = async (name, method, u_id, device_id) => {
         await analytics().logEvent(name, {
-          method: method,
-          u_id: u_id,
-          device_id:device_id
-        }).then(resp=>{console.log(resp);}).catch(err=>{console.log(err);})
-  }
-  const triggerfailureanalytics = async(name,error_type,method,device_id) =>{
-      await analytics().logEvent(name, {
-          error_type: error_type,
-          method: method,
-          device_id: device_id
-        }).then(resp=>{console.log(resp);}).catch(err=>{console.log(err);})
-  }
+            method: method,
+            u_id: u_id,
+            device_id: device_id
+        }).then(resp => { console.log(resp); }).catch(err => { console.log(err); })
+    }
+    const triggerfailureanalytics = async (name, error_type, method, device_id) => {
+        await analytics().logEvent(name, {
+            error_type: error_type,
+            method: method,
+            device_id: device_id
+        }).then(resp => { console.log(resp); }).catch(err => { console.log(err); })
+    }
 
     const verifyOtp = async () => {
         const region = await AsyncStorage.getItem('country_code');
@@ -61,8 +63,7 @@ export default function Otp({ navigation, route }) {
         var email_id = await AsyncStorage.getItem('email_id');
         const user_id = await AsyncStorage.getItem('user_id');
         const uniqueid = await DeviceInfo.getUniqueId();
-        if(email_id=="" || email_id==null)
-        {
+        if (email_id == "" || email_id == null) {
             email_id = await AsyncStorage.getItem('ext_user_id');
         }
         var frontpagedob = await AsyncStorage.getItem('frontpagedob');
@@ -72,7 +73,7 @@ export default function Otp({ navigation, route }) {
         if (otpkey == "loginMobile") {
             axios.post(FIRETV_BASE_URL_STAGING + "users/verify_otp", {
                 auth_token: AUTH_TOKEN,
-                user: { action: "signin", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: loginMobile, mobile_number: loginMobile,device_token:device_token }
+                user: { action: "signin", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: loginMobile, mobile_number: loginMobile, device_token: device_token }
             }, {
                 headers: {
                     'Accept': 'application/json',
@@ -80,7 +81,7 @@ export default function Otp({ navigation, route }) {
                 }
             })
                 .then(response => {
-                    triggersuccessanalytics('login_success','phone number',user_id,uniqueid)
+                    triggersuccessanalytics('login_success', 'phone number', user_id, uniqueid)
                     AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                     AsyncStorage.setItem('add_profile', JSON.stringify(response.data.data.add_profile))
                     AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
@@ -179,9 +180,9 @@ export default function Otp({ navigation, route }) {
             if (otpkey == "signupMobile") {
 
 
-                axios.get(FIRETV_BASE_URL_STAGING + "users/verification/" + otp1 + otp2 + otp3 + otp4 + otp5 + otp6 + "?mobile_number=" + loginMobile + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN+ "&device_token=" + device_token)
+                axios.get(FIRETV_BASE_URL_STAGING + "users/verification/" + otp1 + otp2 + otp3 + otp4 + otp5 + otp6 + "?mobile_number=" + loginMobile + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&device_token=" + device_token)
                     .then(response => {
-                        triggersuccessanalytics('signup_success','phone number',user_id,uniqueid)
+                        triggersuccessanalytics('signup_success', 'phone number', user_id, uniqueid)
                         AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                         AsyncStorage.setItem('add_profile', JSON.stringify(response.data.data.add_profile))
                         AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
@@ -273,7 +274,7 @@ export default function Otp({ navigation, route }) {
                         //console.log(error.response.status);
                         //console.log(error.response.headers);
                         setOtpError(error.response.data.error.message)
-                        triggerfailureanalytics('signup_failure',error.response.data.error.message,'phone number',uniqueid)
+                        triggerfailureanalytics('signup_failure', error.response.data.error.message, 'phone number', uniqueid)
                     }
                     );
 
@@ -283,7 +284,7 @@ export default function Otp({ navigation, route }) {
 
                     axios.post(FIRETV_BASE_URL_STAGING + "users/verify_otp", {
                         auth_token: AUTH_TOKEN,
-                        user: { action: "update_mobile", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: email_id, mobile_number: loginMobile, session_id: session_id,device_token:device_token }
+                        user: { action: "update_mobile", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: email_id, mobile_number: loginMobile, session_id: session_id, device_token: device_token }
                     }, {
                         headers: {
                             'Accept': 'application/json',
@@ -375,37 +376,37 @@ export default function Otp({ navigation, route }) {
             })
         }
         else
-        if (otpkey == "loginMobile") {
-            axios.post(FIRETV_BASE_URL_STAGING + "users/generate_signin_otp", {
-                auth_token: AUTH_TOKEN,
-                user: { region: region, type: "msisdn", user_id: loginMobile }
-            }, {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                }
-            }).then(updatesresp => {
-                setSeconds(60);
-                setOtpError("Message Sent");
-            }).catch(updateerror => {
-                setOtpError(updateerror.response.data.error.message)
-            })
-        }
-        else {
-            axios.post(FIRETV_BASE_URL_STAGING + "users/resend_verification_link", {
-                auth_token: AUTH_TOKEN,
-                access_token: ACCESS_TOKEN,
-                user: { email_id: loginMobile, region: region, type: "msisdn" }
-            }, {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                }
-            }).then(sentotp => {
-                setSeconds(60);
-                setOtpError("Message Sent");
-            }).catch(errorotp => { setOtpError(errorotp.response.data.error.message) })
-        }
+            if (otpkey == "loginMobile") {
+                axios.post(FIRETV_BASE_URL_STAGING + "users/generate_signin_otp", {
+                    auth_token: AUTH_TOKEN,
+                    user: { region: region, type: "msisdn", user_id: loginMobile }
+                }, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    }
+                }).then(updatesresp => {
+                    setSeconds(60);
+                    setOtpError("Message Sent");
+                }).catch(updateerror => {
+                    setOtpError(updateerror.response.data.error.message)
+                })
+            }
+            else {
+                axios.post(FIRETV_BASE_URL_STAGING + "users/resend_verification_link", {
+                    auth_token: AUTH_TOKEN,
+                    access_token: ACCESS_TOKEN,
+                    user: { email_id: loginMobile, region: region, type: "msisdn" }
+                }, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    }
+                }).then(sentotp => {
+                    setSeconds(60);
+                    setOtpError("Message Sent");
+                }).catch(errorotp => { setOtpError(errorotp.response.data.error.message) })
+            }
 
     }
     const gobacknavigation = (key) => {
@@ -423,7 +424,7 @@ export default function Otp({ navigation, route }) {
     }
     return (
         <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
-            <View style={{ flex: 1, padding: 10 }}>
+            <View style={{ flex: 1, padding: 10, marginTop: 30 }}>
 
                 <View style={styles.header}>
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>OTP Verification</Text>
@@ -454,9 +455,10 @@ export default function Otp({ navigation, route }) {
                             otp6ref.current.focus()
                         }}></TextInput>
                         <TextInput ref={otp6ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp6} value={otp6} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad'></TextInput>
-                        <View style={styles.timer}>
-                            <Text>{seconds} Sec</Text>
-                        </View>
+                    </View>
+
+                    <View style={styles.timer}>
+                        <Text style={{color:NORMAL_TEXT_COLOR}}>{seconds} Sec</Text>
                     </View>
 
                     {seconds == 0 ?
@@ -473,13 +475,26 @@ export default function Otp({ navigation, route }) {
                     <Text style={styles.errormessage}>{otpError}</Text>
                 </View>
 
-                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+                {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
                     <Text style={{ color: DETAILS_TEXT_COLOR }}>OTP will be sent to the above mentioned </Text>
                     <Text style={{ color: DETAILS_TEXT_COLOR }}>Mobile Number </Text>
-                </View>
+                </View> */}
 
                 <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
-                    <TouchableOpacity onPress={verifyOtp} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Verify OTP</Text></TouchableOpacity>
+                    <TouchableOpacity onPress={verifyOtp}>
+                        <LinearGradient
+                            useAngle={true}
+                            angle={125}
+                            angleCenter={{ x: 0.5, y: 0.5 }}
+                            colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                            style={styles.button}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <FontAwesome5 name='lock' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Verify OTP</Text>
+                            </View>
+                        </LinearGradient>
+
+                    </TouchableOpacity>
                 </View>
 
             </View>
@@ -497,8 +512,8 @@ const styles = StyleSheet.create({
     header: { justifyContent: 'center', alignItems: 'center', height: 80 },
     body: { backgroundColor: BACKGROUND_COLOR, height: "100%", padding: 20, },
     textinput: { borderBottomColor: SLIDER_PAGINATION_UNSELECTED_COLOR, borderBottomWidth: 1, marginTop: 40, fontSize: 18, color: NORMAL_TEXT_COLOR, padding: 5 },
-    button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 18, borderRadius: 10, },
-    otp: { width: '12.5%', justifyContent: 'center', alignItems: 'center', padding: 15, backgroundColor: DARKED_BORDER_COLOR, borderRadius: 10, borderColor: DETAILS_TEXT_COLOR, borderWidth: 1, marginRight: 3, color: NORMAL_TEXT_COLOR },
-    timer: { width: '20%', justifyContent: 'center', alignItems: 'center', padding: 15, backgroundColor: DETAILS_TEXT_COLOR, borderRadius: 10, borderColor: DETAILS_TEXT_COLOR, borderWidth: 1, color: NORMAL_TEXT_COLOR },
+    button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 12, borderRadius: 10, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
+    otp: { width: '15%', justifyContent: 'center', alignItems: 'center', padding: 15, backgroundColor: DARKED_BORDER_COLOR, borderRadius: 10, borderColor: DETAILS_TEXT_COLOR, borderWidth: 1, marginRight: 6, color: NORMAL_TEXT_COLOR,height:50 },
+    timer: { width: '100%', justifyContent: 'center', alignItems: 'center', padding: 15, },
     errormessage: { color: 'red', fontSize: 15 },
 });

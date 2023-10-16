@@ -184,9 +184,8 @@ function MoreList({ navigation, route }) {
     return (
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR, }}>
 
-
+            <NormalHeader></NormalHeader>
             <View style={styles.sectionHeaderView}>
-                <NormalHeader></NormalHeader>
                 <Text style={styles.sectionHeader}>{displayTitle}</Text>
             </View>
 
@@ -252,6 +251,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center',
+        marginTop:80
     },
     sectionHeader: {
         color: HEADING_TEXT_COLOR,

@@ -42,18 +42,24 @@ export default function Footer(props) {
         const plandetail = await AsyncStorage.getItem('plan_id');
         setCastDisplay(plandetail);
         if (session != "" && session != null) {
-            await axios.get(FIRETV_BASE_URL_STAGING + "user/session/"+session+"?auth_token="+AUTH_TOKEN).then(resp=>{
-                if(resp.data.message=='Valid session id.'){
-                    setLogin(true)
-                    setName(firstname);
-                    setEmail(email);
-                    setMobile(mobile_number);
-                    setsubscription_title(subscriptiontitle)
-                }
-              }).catch(err=>{
-                console.log(err);
-                setLogin(false)
-              })
+            setLogin(true)
+            setName(firstname);
+            setEmail(email);
+            setMobile(mobile_number);
+            setsubscription_title(subscriptiontitle)
+
+            // await axios.get(FIRETV_BASE_URL_STAGING + "user/session/"+session+"?auth_token="+AUTH_TOKEN).then(resp=>{
+            //     if(resp.data.message=='Valid session id.'){
+            //         setLogin(true)
+            //         setName(firstname);
+            //         setEmail(email);
+            //         setMobile(mobile_number);
+            //         setsubscription_title(subscriptiontitle)
+            //     }
+            //   }).catch(err=>{
+            //     console.log(err);
+            //     setLogin(false)
+            //   })
         }
         if (profile_pic != "" && profile_pic != null)
             setProfilePic(profile_pic)
@@ -101,10 +107,10 @@ export default function Footer(props) {
             <View style={styles.footerContainer}>
                 {pageName == 'Home' ?
 
-                    <View style={styles.iconContainer}>
+                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}>
                         <MaterialCommunityIcons name="home" size={20} color={NORMAL_TEXT_COLOR} />
                         <Text style={[styles.footerText, { color: NORMAL_TEXT_COLOR }]}>Home</Text>
-                    </View>
+                    </TouchableOpacity>
                     :
                     <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}>
                         <MaterialCommunityIcons name="home" size={20} color={FOOTER_DEFAULT_TEXT_COLOR} />
@@ -122,7 +128,7 @@ export default function Footer(props) {
                     :
                     <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('OtherResponse', { pageFriendlyId: 'live' }))}>
                         <MaterialCommunityIcons name="youtube-tv" size={20} color={FOOTER_DEFAULT_TEXT_COLOR} />
-                        <Text style={styles.footerText}>Live</Text>
+                        <Text style={styles.footerText}>Live Tv</Text>
                     </TouchableOpacity>
                 }
 
