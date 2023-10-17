@@ -9,7 +9,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, DARKED_BORDER_COLOR, BACKGROUND_TRANSPARENT_COLOR } from '../constants';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, DARKED_BORDER_COLOR, BACKGROUND_TRANSPARENT_COLOR, BACKGROUND_TRANSPARENT_GRADIENT_MENU } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -554,11 +554,6 @@ function Home({ navigation, route }) {
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
                 <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
 
-                    {item.layoutType == 'top_banner' ?
-
-                        ""
-
-                        : ""}
 
                     {item.layoutType == 'top_banner' ?
                         <Carousel
@@ -586,11 +581,11 @@ function Home({ navigation, route }) {
 
                                 <View style={{ height: '100%', }}>
                                     {/* <LinearGradient
-                                        colors={[BACKGROUND_TRANSPARENT_COLOR_MENU,BACKGROUND_TRANSPARENT_COLOR_MENU]}
+                                        colors={[BACKGROUND_TRANSPARENT_COLOR,BACKGROUND_TRANSPARENT_COLOR]}
                                         style={{width:"100%",height:90,zIndex:1000000,position:'absolute'}}>
                                     </LinearGradient> */}
 
-                                    <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.stretch} key={index} style={[styles.image, { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                    <FastImage resizeMode={isTablet ? FastImage.resizeMode.cover : FastImage.resizeMode.cover} key={index} style={[styles.image, { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
 
                                     <View style={styles.buttonsContainer}>
                                         <Text style={{ color: NORMAL_TEXT_COLOR, bottom: 65, position: 'absolute', fontSize: 11, fontWeight: '500' }}>{JSON.stringify(item.genres).toUpperCase().split('["').join(".").split('"]').join("").split('","').join("  .").split("_").join(" ")}</Text>
@@ -633,10 +628,10 @@ function Home({ navigation, route }) {
                                         </View>
                                     </View>
 
-                                    {/* <LinearGradient
-                                        colors={[BACKGROUND_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR]}
-                                        style={{ width: "100%", height: 90, position: 'absolute', bottom: 0 }}>
-                                    </LinearGradient> */}
+                                    <LinearGradient
+                                        colors={[BACKGROUND_TRANSPARENT_GRADIENT_MENU, BACKGROUND_COLOR]}
+                                        style={{ width: "100%", height: 80, position: 'absolute', bottom: 0 }}>
+                                    </LinearGradient>
 
                                     {/* <Animated.View
                                         style={{
@@ -1692,9 +1687,9 @@ const styles = StyleSheet.create({
         left: 0,
         bottom: 0,
         right: 0,
-        resizeMode: 'stretch',
         borderRadius: 10,
-        height: 540
+        height: "100%",
+        width:"100%"
     },
     showsbannerimage: {
         top: 0,

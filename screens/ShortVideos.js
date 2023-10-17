@@ -1,4 +1,4 @@
-import { View, ActivityIndicator, FlatList, Pressable, StyleSheet, Text, StatusBar } from 'react-native'
+import { View, ActivityIndicator, FlatList, Pressable, StyleSheet, Text, StatusBar, TouchableOpacity } from 'react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, SHORTS_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
 import TransparentHeader from './transparentHeader';
@@ -8,9 +8,9 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from './footer';
 import { stringMd5 } from 'react-native-quick-md5';
-var loadedindex = [];
-var loadedvideos = [];
-export default function Shorts() {
+import Share from 'react-native-share';
+import { StackActions } from '@react-navigation/native';
+export default function Shorts({navigation}) {
     const [startindex, setstartindex] = useState(0);
     var limit = 3;
     const dataFetch = useRef(null);
@@ -21,16 +21,12 @@ export default function Shorts() {
     const [currentIndexValue, setcurrentIndexValue] = useState(0);
     const [showcontrols, setshowcontrols] = useState(true);
     const [state, setState] = useState({ opacity: 0 });
-    const [likes, setlikes] = useState(0);
-    const [views, setviews] = useState(0);
-    const [likedvideo, setlikedvideo] = useState(false);
-    const [dislikedvideo, setdislikedvideo] = useState(false);
-    const [currentid, setcurrentid] = useState();
+    const [stoploading, setstoploading] = useState(false);
+    const [likecontent, setlikecontent] = useState(false);
+    const [loggedin, setloggedin] = useState(false);
     const [scrollvideoid, setscrollvideoid] = useState();
-    const [loading, setloading] = useState(false);
-    const [totallikes, settotallikes] = useState(0);
-    const [totaldislikes, settotaldislikes] = useState(0);
-    const [stoploading,setstoploading] = useState(false);
+
+
     const loadcontrols = async () => {
         //setshowcontrols(!showcontrols)
     }
@@ -44,7 +40,6 @@ export default function Shorts() {
     }
     const onLoad = (val) => {
         setState({ opacity: 0 });
-        getlikes(val)
     }
     const onBuffer = ({ isBuffering }) => {
         setState({ opacity: isBuffering ? 1 : 0 });
@@ -56,24 +51,31 @@ export default function Shorts() {
     }
 
     const getData = async () => {
-        var loginiddetails = "";
         const email = await AsyncStorage.getItem('email_id');
         const mobile_number = await AsyncStorage.getItem('mobile_number');
         const session = await AsyncStorage.getItem('session');
         const region = await AsyncStorage.getItem('country_code');
         var sessionId = await AsyncStorage.getItem('session');
         if (session != "" && session != null) {
-            if (mobile_number != "" && mobile_number != null) {
-                setloginid(mobile_number);
-                loginiddetails = mobile_number;
-            }
-            else
-                if (email != "" && email != null) {
-                    setloginid(email);
-                    loginiddetails = email;
+
+            await axios.get(FIRETV_BASE_URL_STAGING + "user/session/" + session + "?auth_token=" + AUTH_TOKEN).then(resp => {
+                if (resp.data.message == 'Valid session id.') {
+                    setloggedin(true)
+                    if (mobile_number != "" && mobile_number != null) {
+                        setloginid(mobile_number);
+                        loginiddetails = mobile_number;
+                    }
+                    else
+                        if (email != "" && email != null) {
+                            setloginid(email);
+                            loginiddetails = email;
+                        }
                 }
+            }).catch(err => {
+                console.log(err);
+                setloggedin(false)
+            })
         }
-        console.log(FIRETV_BASE_URL_STAGING + "catalog_lists/shorts-data?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&page=" + startindex + "&page_size=" + limit);
         axios.get(FIRETV_BASE_URL_STAGING + "catalog_lists/shorts-data?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&page=" + startindex + "&page_size=" + limit).then(resp => {
             for (var s = 0; s < resp.data.data.catalog_list_items.length; s++) {
                 var removequeryStrings = resp.data.data.catalog_list_items[s].seo_url.split("?");
@@ -108,25 +110,27 @@ export default function Shorts() {
                 loadGenereratedApiDetails(url)
             }
             setstartindex(startindex + 1);
-            if(resp.data.data.catalog_list_items.length==0)
-            setstoploading(true);
+            if (resp.data.data.catalog_list_items.length == 0)
+                setstoploading(true);
         }).catch(err => {
-            console.log("main error"+err);
+            console.log("main error" + err);
         })
 
 
-        const loadGenereratedApiDetails = async(url) =>{
+        const loadGenereratedApiDetails = async (url) => {
             axios.get(url).then(response => {
-                    var currentTimestamp = Math.floor(Date.now() / 1000).toString();
-                    if (sessionId == null)
-                        sessionId = "";
-                    var md5String = stringMd5(response.data.data.catalog_id + response.data.data.content_id + sessionId + currentTimestamp + SECRET_KEY)
-                    getDetails(response.data.data.catalog_id,response.data.data.content_id,currentTimestamp,md5String);
-                }).catch(error => {
-                    console.log("forloop"+error);
-                })
+                var currentTimestamp = Math.floor(Date.now() / 1000).toString();
+                if (sessionId == null)
+                    sessionId = "";
+                var md5String = stringMd5(response.data.data.catalog_id + response.data.data.content_id + sessionId + currentTimestamp + SECRET_KEY)
+                var likecontent = false;
+                setlikecontent(false);
+                getDetails(response.data.data.catalog_id, response.data.data.content_id, currentTimestamp, md5String, response.data.data.dynamic_url, response.data.data.title,likecontent);
+            }).catch(error => {
+                console.log("forloop" + error);
+            })
         }
-        const getDetails = async(catalog_id,content_id,currentTimestamp,md5String) =>{
+        const getDetails = async (catalog_id, content_id, currentTimestamp, md5String, shareUrl, title, likecontent) => {
             axios.post(FIRETV_BASE_URL + "v2/users/get_all_details", {
                 catalog_id: catalog_id,
                 content_id: content_id,
@@ -142,84 +146,24 @@ export default function Shorts() {
                     'Content-Type': 'application/json',
                 }
             }).then(res => {
-                console.log(res.data.data.stream_info.adaptive_url);
-                setVideos((Videos) => [...Videos, ...[{ "video": res.data.data.stream_info.adaptive_url }]]);
+                setVideos((Videos) => [...Videos, ...[{ "video": res.data.data.stream_info.adaptive_url, "catalog_id": catalog_id, "content_id": content_id, "shareUrl": shareUrl, "title": title, "likecontent":likecontent }]]);
             }).catch(er => {
                 console.log("getall" + er);
             })
         }
-        // axios.get(SHORTS_BASE_URL + 'welcome/getToken').then(response => {
-        //     axios.post(SHORTS_BASE_URL + 'welcome/shorts', {
-        //         token: response.data.token,
-        //         startindex: startindex,
-        //         limit: limit,
-        //         loginid: loginiddetails
-        //     }, { headers: {} }).then(resp => {
-        //         var jsonObj = JSON.parse(resp.data);
-        //         for (var s = 0; s < jsonObj.data.length; s++) {
-        //             var indvideo = jsonObj.data[s].shorts_url;
-        //             var indid = jsonObj.data[s].id;
-        //             var liked = jsonObj.data[s].liked;
-        //             var disliked = jsonObj.data[s].disliked;
-        //             var totallikes = jsonObj.data[s].total_likes;
-        //             var totalviews = jsonObj.data[s].total_views;
-        //             var totaldislikes = jsonObj.data[s].total_dislikes;
-        //             loadedvideos.push({ "id": indid, "video": indvideo, "liked": liked, "disliked": disliked, "totallikes": totallikes, "totalviews": totalviews, "totaldislikes": totaldislikes })
-        //         }
-        //         setVideos((Videos) => [...Videos, ...loadedvideos]);
-        //     }).catch(err => {
-        //         console.log(err);
-        //     })
-        // }).catch(error => { })
     }
     useEffect(() => {
-        // if (dataFetch.current) return;
+        // if (dataFetch.current) {
+        //     return
+        // }else{
+        //     getlikes(0);
+        // }
         // dataFetch.current = true;
         getData()
+
     }, [])
 
-    // const likevideo = async (videoid) => {
-    //     if (loginid != "" && loginid != null && loginid != 'null' && loginid != 'undefined') {
-    //         console.log(likedvideo);
-    //         setcurrentid(videoid);
-    //         axios.post(SHORTS_BASE_URL + "Welcome/likevideo", {
-    //             loginid: loginid,
-    //             videoid: videoid
-    //         }, { headers: {} }).then(response => {
-    //             console.log(response.data);
-    //             setlikedvideo(!likedvideo);
-    //         }).catch(error => {
-    //             console.log(error);
-    //         })
-    //     }
-    //     else {
-    //         alert("Please login to like the video");
-    //     }
-    // }
-
-    // const dislikevideo = async (videoid) => {
-    //     if (loginid != "" && loginid != null && loginid != 'null' && loginid != 'undefined') {
-    //         setdislikedvideo(!dislikedvideo);
-    //         setcurrentid(videoid);
-    //         axios.post(SHORTS_BASE_URL + "Welcome/dislikevideo", {
-    //             loginid: loginid,
-    //             videoid: videoid
-    //         }, { headers: {} }).then(response => {
-    //         }).catch(error => {
-    //             console.log(error);
-    //         })
-    //     }
-    //     else {
-    //         alert("Please login to dislike the video");
-    //     }
-    // }
-
-    // const shareVideo = async () => {
-
-    // }
-
-
-    const likevideo = async () => {
+    const likevideo = async (catalogId, contentId) => {
         if (!loggedin) {
             navigation.dispatch(StackActions.replace("Login"));
         }
@@ -237,8 +181,6 @@ export default function Shorts() {
             }).then(response => {
                 AsyncStorage.setItem("like_" + contentId, contentId);
                 setlikecontent(true);
-                let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "content_value": contentvalue };
-                triggerOtherAnalytics('like_button', jsonObj)
             }).catch(error => {
                 alert("Unable to like the content. Please try again later.");
             })
@@ -248,64 +190,56 @@ export default function Shorts() {
         var sessionId = await AsyncStorage.getItem('session');
         var region = await AsyncStorage.getItem('country_code');
         await axios.get(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/like/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region + '&content_id=' + contentId + '&catalog_id=' + catalog_id).then(response => {
-            //console.log(JSON.stringify(response.data.data.items[0]));
+            
             axios.delete(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/like/listitems/" + response.data.data.items[0].listitem_id + "?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(resp => {
                 AsyncStorage.removeItem('like_' + contentId)
-                setlikecontent(false);
-            }).catch(err => { })
+            }).catch(err => {
+                console.log("hihih"); 
+                console.log(err);
+            })
 
 
         }).catch(error => {
-            //console.log(JSON.stringify(error.response.data));
+            console.log("hellooooo"); 
+            console.log(JSON.stringify(error));
         })
+
+        setlikecontent(false);
 
     }
 
-    const shareOptions = async () => {
+    const shareOptions = async (shareUrl, title) => {
         const shareOptions = {
             title: title,
             failOnCancel: false,
             urls: [shareUrl],
         };
-        let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "content_value": contentvalue };
-        triggerOtherAnalytics('share', jsonObj)
-
         const ShareResponse = await Share.open(shareOptions);
     }
-    function kFormatter(num) {
-        return Math.abs(num) > 999 ? Math.sign(num) * ((Math.abs(num) / 1000).toFixed(1)) + 'k' : Math.sign(num) * Math.abs(num)
-    }
     const getlikes = async (val) => {
-        setloading(true);
         var videoslist = JSON.parse(JSON.stringify(Videos));
         var currentvideo = JSON.parse(JSON.stringify(videoslist[val]));
-        axios.post(SHORTS_BASE_URL + "Welcome/getVideoLike", {
-            videoid: currentvideo.id,
-            loginid: loginid
-        }, { headers: {} }).then(resp => {
-            setloading(false);
-            if (resp.data.userlike == 1) {
-                setlikedvideo(true);
-            }
-            else {
-                setlikedvideo(false);
+            var sessionId = await AsyncStorage.getItem('session');
+            var region = await AsyncStorage.getItem('country_code');
+
+            if (sessionId != null) {
+                axios.get(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/like/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region + "&content_id=" + currentvideo.content_id + "&catalog_id=" + currentvideo.catalog_id).then(likeresp => {
+                    console.log(likeresp.data.data.items[0].content_id);
+                    console.log(currentvideo.content_id);
+                    if(likeresp.data.data.items[0].content_id==currentvideo.content_id)
+                    {
+                        setlikecontent(true);
+                    }
+                    else{
+                        setlikecontent(true);
+                    }
+                }).catch(likeerror => {
+                    console.log(likeerror);
+                    setlikecontent(false);
+                })
             }
 
-            if (resp.data.userdislike == 1) {
-                setdislikedvideo(true);
-            }
-            else {
-                setdislikedvideo(false);
-            }
-
-
-            settotallikes(resp.data.totallikes[0].total_likes)
-            settotaldislikes(resp.data.totaldislikes[0].total_dislikes)
-        }).catch(err => {
-            setloading(false);
-            console.log(err);
-        })
-        setscrollvideoid(val);
+            setscrollvideoid(val); 
     }
     return (
         <View style={{ height: PAGE_HEIGHT, width: PAGE_WIDTH, backgroundColor: BACKGROUND_COLOR }}>
@@ -322,9 +256,11 @@ export default function Shorts() {
                 onScroll={e => {
                     var val = Math.round(e.nativeEvent.contentOffset.y.toFixed(0) / PAGE_HEIGHT);
                     setcurrentIndexValue(Math.round(e.nativeEvent.contentOffset.y.toFixed(0) / PAGE_HEIGHT));
-                    if(currentIndexValue != (Math.round(e.nativeEvent.contentOffset.y.toFixed(0) / PAGE_HEIGHT)) && stoploading==false)
-                    {
+                    if (currentIndexValue != (Math.round(e.nativeEvent.contentOffset.y.toFixed(0) / PAGE_HEIGHT)) && stoploading == false) {
                         getData()
+                    }
+                    if (val != scrollvideoid) {
+                        getlikes(val);
                     }
                 }}
                 contentContainerStyle={{ minHeight: '100%', }}
@@ -351,7 +287,7 @@ export default function Shorts() {
                                         style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flexGrow: 1, flex: 1 }}
                                         playWhenInactive={false}
                                     />
-                                    {/* {currentIndexValue === index ?
+                                    {state.opacity === 1 ?
                                         <ActivityIndicator
                                             animating
                                             size="large"
@@ -359,23 +295,26 @@ export default function Shorts() {
                                             style={[styles.activityIndicator, { opacity: state.opacity }]}
                                         />
                                         :
-                                        ""} */}
+                                        ""}
                                 </View>
                                 <View style={{ position: 'absolute', right: 15, top: '50%', }}>
-
                                     {
-                                        likedvideo == true ?
+                                        item.likecontent ?
 
-                                            <Pressable onPress={() => likevideo(item.id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like1" size={35} color={SLIDER_PAGINATION_SELECTED_COLOR} style={{}} />
-                                            </Pressable>
+                                            <TouchableOpacity onPress={() => deleteLike(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like1" size={25} color={NORMAL_TEXT_COLOR} style={{}} /></TouchableOpacity>
 
                                             :
-                                            <Pressable onPress={() => likevideo(item.id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like2" size={35} color={SLIDER_PAGINATION_SELECTED_COLOR} style={{}} /></Pressable>
+                                            likecontent ?
+                                            <TouchableOpacity onPress={() => deleteLike(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like1" size={25} color={NORMAL_TEXT_COLOR} style={{}} /></TouchableOpacity>
+                                            :
+
+                                            <TouchableOpacity onPress={() => likevideo(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like2" size={25} color={NORMAL_TEXT_COLOR} style={{}} />
+                                            </TouchableOpacity>
 
                                     }
 
 
-                                    {
+                                    {/* {
                                         dislikedvideo == true ?
 
                                             <Pressable onPress={() => dislikevideo(item.id)} style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}><AntDesign name="dislike1" size={35} color={SLIDER_PAGINATION_SELECTED_COLOR} style={{}} /></Pressable>
@@ -383,10 +322,10 @@ export default function Shorts() {
                                             :
                                             <Pressable onPress={() => dislikevideo(item.id)} style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}><AntDesign name="dislike2" size={35} color={SLIDER_PAGINATION_SELECTED_COLOR} style={{}} /></Pressable>
 
-                                    }
+                                    } */}
 
 
-                                    {/* <Pressable onPress={shareVideo}><AntDesign name="sharealt" size={35} color={SLIDER_PAGINATION_SELECTED_COLOR} style={{ marginTop: 50 }} /></Pressable> */}
+                                    <Pressable onPress={() => shareOptions(item.shareUrl, item.title)}><AntDesign name="sharealt" size={25} color={NORMAL_TEXT_COLOR} style={{ marginTop: 50 }} /></Pressable>
 
                                     {/* <Pressable style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="eye" size={30} color="#ffffff" style={{ marginTop: 40 }} />
                                         <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}>{kFormatter(item.totalviews)}</Text></Pressable> */}

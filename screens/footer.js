@@ -42,24 +42,18 @@ export default function Footer(props) {
         const plandetail = await AsyncStorage.getItem('plan_id');
         setCastDisplay(plandetail);
         if (session != "" && session != null) {
-            setLogin(true)
-            setName(firstname);
-            setEmail(email);
-            setMobile(mobile_number);
-            setsubscription_title(subscriptiontitle)
-
-            // await axios.get(FIRETV_BASE_URL_STAGING + "user/session/"+session+"?auth_token="+AUTH_TOKEN).then(resp=>{
-            //     if(resp.data.message=='Valid session id.'){
-            //         setLogin(true)
-            //         setName(firstname);
-            //         setEmail(email);
-            //         setMobile(mobile_number);
-            //         setsubscription_title(subscriptiontitle)
-            //     }
-            //   }).catch(err=>{
-            //     console.log(err);
-            //     setLogin(false)
-            //   })
+            await axios.get(FIRETV_BASE_URL_STAGING + "user/session/"+session+"?auth_token="+AUTH_TOKEN).then(resp=>{
+                if(resp.data.message=='Valid session id.'){
+                    setLogin(true)
+                    setName(firstname);
+                    setEmail(email);
+                    setMobile(mobile_number);
+                    setsubscription_title(subscriptiontitle)
+                }
+              }).catch(err=>{
+                console.log(err);
+                setLogin(false)
+              })
         }
         if (profile_pic != "" && profile_pic != null)
             setProfilePic(profile_pic)
