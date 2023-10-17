@@ -21,7 +21,7 @@ export default function TransparentHeader() {
                     else
                     navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
                     }}>
-                  <Ionicons name="arrow-back" size={30} color="#ffffff" style={{marginTop:10}}/>
+                  <Ionicons name="arrow-back" size={30} color="#ffffff" style={{marginTop:30}}/>
                 </TouchableOpacity>
                 </View>
 

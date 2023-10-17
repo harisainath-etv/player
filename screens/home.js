@@ -633,12 +633,12 @@ function Home({ navigation, route }) {
                                         </View>
                                     </View>
 
-                                    <LinearGradient
+                                    {/* <LinearGradient
                                         colors={[BACKGROUND_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR]}
                                         style={{ width: "100%", height: 90, position: 'absolute', bottom: 0 }}>
-                                    </LinearGradient>
+                                    </LinearGradient> */}
 
-                                    <Animated.View
+                                    {/* <Animated.View
                                         style={{
                                             flex: 1,
                                             justifyContent: "center",
@@ -663,7 +663,7 @@ function Home({ navigation, route }) {
                                             resizeMode={"contain"}
                                         />
 
-                                    </Animated.View>
+                                    </Animated.View> */}
                                 </View>
 
 
