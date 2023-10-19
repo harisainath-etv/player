@@ -585,7 +585,7 @@ function Home({ navigation, route }) {
                                         style={{width:"100%",height:90,zIndex:1000000,position:'absolute'}}>
                                     </LinearGradient> */}
 
-                                    <FastImage resizeMode={isTablet ? FastImage.resizeMode.cover : FastImage.resizeMode.cover} key={index} style={[styles.image, { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                    <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.cover} key={index} style={[styles.image, { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
 
                                     <View style={styles.buttonsContainer}>
                                         <Text style={{ color: NORMAL_TEXT_COLOR, bottom: 65, position: 'absolute', fontSize: 11, fontWeight: '500' }}>{JSON.stringify(item.genres).toUpperCase().split('["').join(".").split('"]').join("").split('","').join("  .").split("_").join(" ")}</Text>
@@ -1688,8 +1688,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         right: 0,
         borderRadius: 10,
-        height: "100%",
-        width:"100%"
+        height: 460
     },
     showsbannerimage: {
         top: 0,

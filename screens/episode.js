@@ -843,7 +843,7 @@ export default function Episode({ navigation, route }) {
               />
               {state.showControls && (
                 <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 60 }}>
-                  {!preview ?
+                  {preview ?
                     <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 35 }}><Text style={{ color: NORMAL_TEXT_COLOR }}>You are watching Trailer</Text></View>
                     :
                     ""}
