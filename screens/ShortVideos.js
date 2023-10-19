@@ -249,7 +249,7 @@ export default function Shorts({ navigation }) {
         const region = await AsyncStorage.getItem('country_code');
         var urlPath = FIRETV_BASE_URL + "catalogs/" + full_catalog_id + "/items/" + full_content_id+ ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;;
         axios.get(urlPath).then(response=>{
-            navigation.navigate('Episode', { seoUrl: response.data.data.seo_url, theme: response.data.data.theme })
+            navigation.dispatch(StackActions.replace('Episode', { seoUrl: response.data.data.seo_url, theme: response.data.data.theme,goto:'Shorts' }))
         }).catch(error=>{
             console.log(error);
         })
@@ -309,7 +309,7 @@ export default function Shorts({ navigation }) {
 
                             {item.full_catalog_id && item.full_content_id ?
                             <TouchableOpacity onPress={() => fullEpisode(item.full_catalog_id, item.full_content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <Ionicons name="navigate-circle" size={28} color={NORMAL_TEXT_COLOR} style={{ marginTop: 50 }} />
+                                <Ionicons name="navigate-circle" size={34} color={NORMAL_TEXT_COLOR} style={{ marginTop: 50 }} />
                             </TouchableOpacity>
                             :
 

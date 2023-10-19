@@ -26,7 +26,7 @@ import DeviceInfo from 'react-native-device-info';
 import analytics from '@react-native-firebase/analytics';
 var isTablet = DeviceInfo.isTablet();
 export default function Episode({ navigation, route }) {
-  const { seoUrl, theme, showname, showcontentId } = route.params;
+  const { seoUrl, theme, showname, showcontentId, goto } = route.params;
   const [seourl, setSeourl] = useState(seoUrl);
   const [passedtheme, setpassedtheme] = useState(theme);
   const filterItems = (stringNeeded, arrayvalues) => {
@@ -424,10 +424,15 @@ export default function Episode({ navigation, route }) {
     setTimeout(function () { setState({ ...state, showControls: false }) }, 10000)
   }
   const checkgoback = () => {
-    if (navigation.canGoBack())
-      navigation.goBack()
-    else
-      navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+    if (goto != '' && goto != null) {
+      navigation.dispatch(StackActions.replace(goto))
+    }
+    else {
+      if (navigation.canGoBack())
+        navigation.goBack()
+      else
+        navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+    }
   }
   const downloadFile = async () => {
     if (!loggedin) {
