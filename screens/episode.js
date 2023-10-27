@@ -656,7 +656,8 @@ export default function Episode({ navigation, route }) {
     if ((totalSeconds % 30) == 0) {
       var sessionId = await AsyncStorage.getItem('session');
       if (sessionId != "" && sessionId != null && timestamp != "" && timestamp != null) {
-        await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchhistory", {
+        const watchhistorybaseurl = await AsyncStorage.getItem('watchhistory_api');
+        await axios.post(watchhistorybaseurl + "users/" + sessionId + "/playlists/watchhistory", {
           listitem: {
             catalog_id: catalogId, content_id: contentId, like_count: "true", play_back_status: "playing",
             play_back_time: timestamp

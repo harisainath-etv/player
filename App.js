@@ -37,7 +37,7 @@ import TransparentHeader from './screens/transparentHeader';
 import HtmlWebview from './screens/HtmlWebview';
 import Menu from './screens/Menu';
 import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN } from './constants';
-import { View, Dimensions, Platform, Linking, Alert,Text,Image,StyleSheet} from 'react-native';
+import { View, Dimensions, Platform, Linking, Alert, Text, Image, StyleSheet } from 'react-native';
 import SplashScreen from 'react-native-splash-screen'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -100,7 +100,7 @@ const activateTv = async (otp) => {
 }
 
 
-
+var gateways = [];
 export default function App() {
   const { url: initialUrl, processing } = useInitialURL();
   const width = Dimensions.get('window').width;
@@ -138,64 +138,74 @@ export default function App() {
     await AsyncStorage.setItem('max_digits', JSON.stringify(ipData.region.max_digits))
 
 
-    if (getCurrentVersion != APP_VERSION) {
-      //fetching app config data
-      const appConfig = FIRETV_BASE_URL + "/catalogs/message/items/app-config-params.gzip?region=" + ipData.region.country_code2 + "&auth_token=" + AUTH_TOKEN + "&current_version=" + APP_VERSION;
-      const appConfigResp = await fetch(appConfig);
-      const appConfigData = await appConfigResp.json();
-      await AsyncStorage.setItem('configTitle', appConfigData.data.title);
-      if (Platform.OS == "android") {
-        await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.android_version.current_version);
-        await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.android_version.min_version);
-        await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.android_version.force_upgrade);
-        await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.android_version.message);
-        if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.android_version.force_upgrade == true) {
-          alert(appConfigData.data.params_hash2.config_params.android_version.message);
+    //if (getCurrentVersion != APP_VERSION) {
+    //fetching app config data
+    const appConfig = FIRETV_BASE_URL + "/catalogs/message/items/app-config-params.gzip?region=" + ipData.region.country_code2 + "&auth_token=" + AUTH_TOKEN + "&current_version=" + APP_VERSION;
+    const appConfigResp = await fetch(appConfig);
+    const appConfigData = await appConfigResp.json();
+    await AsyncStorage.setItem('configTitle', appConfigData.data.title);
+    if (Platform.OS == "android") {
+      await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.android_version.current_version);
+      await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.android_version.min_version);
+      await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.android_version.force_upgrade);
+      await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.android_version.message);
+      if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.android_version.force_upgrade == true) {
+        alert(appConfigData.data.params_hash2.config_params.android_version.message);
+        return true;
+      }
+    }
+    else
+      if (Platform.OS == "ios") {
+        await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.ios_version.current_version);
+        await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.ios_version.min_version);
+        await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.ios_version.force_upgrade);
+        await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.ios_version.message);
+        if (APP_VERSION < appConfigData.data.params_hash2.config_params.ios_version.min_version || appConfigData.data.params_hash2.config_params.ios_version.force_upgrade == true) {
+          alert(appConfigData.data.params_hash2.config_params.ios_version.message);
           return true;
         }
       }
-      else
-        if (Platform.OS == "ios") {
-          await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.ios_version.current_version);
-          await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.ios_version.min_version);
-          await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.ios_version.force_upgrade);
-          await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.ios_version.message);
-          if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.ios_version.force_upgrade == true) {
-            alert(appConfigData.data.params_hash2.config_params.android_version.message);
-            return true;
-          }
-        }
-      if (appConfigData.data.params_hash2.config_params.popup_details.show_popup) {
-        await AsyncStorage.setItem('show_popup', 'yes');
-        if (ipData.region.country_code2 == 'IN') {
-          await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.images.high_3_4);
-        }
-        else {
-          await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.other_region_images.high_3_4);
-        }
-        await AsyncStorage.setItem('redirect_type', appConfigData.data.params_hash2.config_params.popup_details.redirect_type);
+    if (appConfigData.data.params_hash2.config_params.popup_details.show_popup) {
+      await AsyncStorage.setItem('show_popup', 'yes');
+      if (ipData.region.country_code2 == 'IN') {
+        await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.images.high_3_4);
       }
-      else
-        await AsyncStorage.setItem('show_popup', 'no');
-      await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
-      await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);
-      await AsyncStorage.setItem('faq', appConfigData.data.params_hash2.config_params.faq);
-      await AsyncStorage.setItem('contactUs', appConfigData.data.params_hash2.config_params.contact_us);
-      const jsonData = ((appConfigData.data.params_hash2.config_params))
-      for (var t in jsonData) {
-        if (t == 't&c') {
-          await AsyncStorage.setItem('termsCondition', jsonData[t]);
-        }
+      else {
+        await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.other_region_images.high_3_4);
       }
-      await AsyncStorage.setItem('privacy', appConfigData.data.params_hash2.config_params.privacy_policy);
-      await AsyncStorage.setItem('about', appConfigData.data.params_hash2.config_params.about_us);
-      await AsyncStorage.setItem('webPortalUrl', appConfigData.data.params_hash2.config_params.web_portal_url);
-      await AsyncStorage.setItem('offlineDeleteDays', appConfigData.data.params_hash2.config_params.offline_deletion_days);
-      await AsyncStorage.setItem('globalViewCount', JSON.stringify(appConfigData.data.params_hash2.config_params.global_view_count));
-      await AsyncStorage.setItem('commentable', JSON.stringify(appConfigData.data.params_hash2.config_params.commentable));
-      await AsyncStorage.setItem('subscriptionUrl', appConfigData.data.params_hash2.config_params.subscription_url);
-      await AsyncStorage.setItem('tvLoginUrl', appConfigData.data.params_hash2.config_params.tv_login_url);
+      await AsyncStorage.setItem('redirect_type', appConfigData.data.params_hash2.config_params.popup_details.redirect_type);
     }
+    else
+      await AsyncStorage.setItem('show_popup', 'no');
+
+
+    for (var i = 0; i < appConfigData.data.params_hash2.config_params.payment_gateway.length; i++) {
+      if (appConfigData.data.params_hash2.config_params.payment_gateway[i].default == true) {
+        await AsyncStorage.setItem('payment_gateway', appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase())
+      }
+      gateways.push({"name":appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase()})
+    }
+    await AsyncStorage.setItem('availableGateways',JSON.stringify(gateways))
+    await AsyncStorage.setItem('watchhistory_api', appConfigData.data.params_hash2.config_params.watchhistory_api);
+    await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
+    await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);
+    await AsyncStorage.setItem('faq', appConfigData.data.params_hash2.config_params.faq);
+    await AsyncStorage.setItem('contactUs', appConfigData.data.params_hash2.config_params.contact_us);
+    const jsonData = ((appConfigData.data.params_hash2.config_params))
+    for (var t in jsonData) {
+      if (t == 't&c') {
+        await AsyncStorage.setItem('termsCondition', jsonData[t]);
+      }
+    }
+    await AsyncStorage.setItem('privacy', appConfigData.data.params_hash2.config_params.privacy_policy);
+    await AsyncStorage.setItem('about', appConfigData.data.params_hash2.config_params.about_us);
+    await AsyncStorage.setItem('webPortalUrl', appConfigData.data.params_hash2.config_params.web_portal_url);
+    await AsyncStorage.setItem('offlineDeleteDays', appConfigData.data.params_hash2.config_params.offline_deletion_days);
+    await AsyncStorage.setItem('globalViewCount', JSON.stringify(appConfigData.data.params_hash2.config_params.global_view_count));
+    await AsyncStorage.setItem('commentable', JSON.stringify(appConfigData.data.params_hash2.config_params.commentable));
+    await AsyncStorage.setItem('subscriptionUrl', appConfigData.data.params_hash2.config_params.subscription_url);
+    await AsyncStorage.setItem('tvLoginUrl', appConfigData.data.params_hash2.config_params.tv_login_url);
+    //}
 
     var session = await AsyncStorage.getItem('session');
     var region = await AsyncStorage.getItem('country_code');
@@ -204,11 +214,11 @@ export default function App() {
       await loadasyncdata()
     }
     if (session != "" && session != null) {
-      axios.get(FIRETV_BASE_URL_STAGING + "user/session/"+session+"?auth_token="+AUTH_TOKEN).then(resp=>{
-        if(resp.data.message!='Valid session id.'){
+      axios.get(FIRETV_BASE_URL_STAGING + "user/session/" + session + "?auth_token=" + AUTH_TOKEN).then(resp => {
+        if (resp.data.message != 'Valid session id.') {
           removeunwanted();
         }
-      }).catch(err=>{
+      }).catch(err => {
         removeunwanted();
       })
       axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
@@ -290,64 +300,72 @@ export default function App() {
     await AsyncStorage.setItem('max_digits', JSON.stringify(ipData.region.max_digits))
 
 
-    if (getCurrentVersion != APP_VERSION) {
-      //fetching app config data
-      const appConfig = FIRETV_BASE_URL + "/catalogs/message/items/app-config-params.gzip?region=" + ipData.region.country_code2 + "&auth_token=" + AUTH_TOKEN + "&current_version=" + APP_VERSION;
-      const appConfigResp = await fetch(appConfig);
-      const appConfigData = await appConfigResp.json();
-      await AsyncStorage.setItem('configTitle', appConfigData.data.title);
-      if (Platform.OS == "android") {
-        await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.android_version.current_version);
-        await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.android_version.min_version);
-        await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.android_version.force_upgrade);
-        await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.android_version.message);
-        if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.android_version.force_upgrade == true) {
-          alert(appConfigData.data.params_hash2.config_params.android_version.message);
+    //  if (getCurrentVersion != APP_VERSION) {
+    //fetching app config data
+    const appConfig = FIRETV_BASE_URL + "/catalogs/message/items/app-config-params.gzip?region=" + ipData.region.country_code2 + "&auth_token=" + AUTH_TOKEN + "&current_version=" + APP_VERSION;
+    const appConfigResp = await fetch(appConfig);
+    const appConfigData = await appConfigResp.json();
+    await AsyncStorage.setItem('configTitle', appConfigData.data.title);
+    if (Platform.OS == "android") {
+      await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.android_version.current_version);
+      await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.android_version.min_version);
+      await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.android_version.force_upgrade);
+      await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.android_version.message);
+      if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.android_version.force_upgrade == true) {
+        alert(appConfigData.data.params_hash2.config_params.android_version.message);
+        return true;
+      }
+    }
+    else
+      if (Platform.OS == "ios") {
+        await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.ios_version.current_version);
+        await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.ios_version.min_version);
+        await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.ios_version.force_upgrade);
+        await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.ios_version.message);
+        if (APP_VERSION < appConfigData.data.params_hash2.config_params.ios_version.min_version || appConfigData.data.params_hash2.config_params.ios_version.force_upgrade == true) {
+          alert(appConfigData.data.params_hash2.config_params.ios_version.message);
           return true;
         }
       }
-      else
-        if (Platform.OS == "ios") {
-          await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.ios_version.current_version);
-          await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.ios_version.min_version);
-          await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.ios_version.force_upgrade);
-          await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.ios_version.message);
-          if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.ios_version.force_upgrade == true) {
-            alert(appConfigData.data.params_hash2.config_params.android_version.message);
-            return true;
-          }
-        }
-      if (appConfigData.data.params_hash2.config_params.popup_details.show_popup) {
-        await AsyncStorage.setItem('show_popup', 'yes');
-        if (ipData.region.country_code2 == 'IN') {
-          await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.images.high_3_4);
-        }
-        else {
-          await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.other_region_images.high_3_4);
-        }
-        await AsyncStorage.setItem('redirect_type', appConfigData.data.params_hash2.config_params.popup_details.redirect_type);
+    if (appConfigData.data.params_hash2.config_params.popup_details.show_popup) {
+      await AsyncStorage.setItem('show_popup', 'yes');
+      if (ipData.region.country_code2 == 'IN') {
+        await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.images.high_3_4);
       }
-      else
-        await AsyncStorage.setItem('show_popup', 'no');
-      await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
-      await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);
-      await AsyncStorage.setItem('faq', appConfigData.data.params_hash2.config_params.faq);
-      await AsyncStorage.setItem('contactUs', appConfigData.data.params_hash2.config_params.contact_us);
-      const jsonData = ((appConfigData.data.params_hash2.config_params))
-      for (var t in jsonData) {
-        if (t == 't&c') {
-          await AsyncStorage.setItem('termsCondition', jsonData[t]);
-        }
+      else {
+        await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.other_region_images.high_3_4);
       }
-      await AsyncStorage.setItem('privacy', appConfigData.data.params_hash2.config_params.privacy_policy);
-      await AsyncStorage.setItem('about', appConfigData.data.params_hash2.config_params.about_us);
-      await AsyncStorage.setItem('webPortalUrl', appConfigData.data.params_hash2.config_params.web_portal_url);
-      await AsyncStorage.setItem('offlineDeleteDays', appConfigData.data.params_hash2.config_params.offline_deletion_days);
-      await AsyncStorage.setItem('globalViewCount', JSON.stringify(appConfigData.data.params_hash2.config_params.global_view_count));
-      await AsyncStorage.setItem('commentable', JSON.stringify(appConfigData.data.params_hash2.config_params.commentable));
-      await AsyncStorage.setItem('subscriptionUrl', appConfigData.data.params_hash2.config_params.subscription_url);
-      await AsyncStorage.setItem('tvLoginUrl', appConfigData.data.params_hash2.config_params.tv_login_url);
+      await AsyncStorage.setItem('redirect_type', appConfigData.data.params_hash2.config_params.popup_details.redirect_type);
     }
+    else
+      await AsyncStorage.setItem('show_popup', 'no');
+    for (var i = 0; i < appConfigData.data.params_hash2.config_params.payment_gateway.length; i++) {
+      if (appConfigData.data.params_hash2.config_params.payment_gateway[i].default == true) {
+        await AsyncStorage.setItem('payment_gateway', appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase())
+      }
+      gateways.push({"name":appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase()})
+    }
+    await AsyncStorage.setItem('availableGateways',JSON.stringify(gateways))
+    await AsyncStorage.setItem('watchhistory_api', appConfigData.data.params_hash2.config_params.watchhistory_api);
+    await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
+    await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);
+    await AsyncStorage.setItem('faq', appConfigData.data.params_hash2.config_params.faq);
+    await AsyncStorage.setItem('contactUs', appConfigData.data.params_hash2.config_params.contact_us);
+    const jsonData = ((appConfigData.data.params_hash2.config_params))
+    for (var t in jsonData) {
+      if (t == 't&c') {
+        await AsyncStorage.setItem('termsCondition', jsonData[t]);
+      }
+    }
+    await AsyncStorage.setItem('privacy', appConfigData.data.params_hash2.config_params.privacy_policy);
+    await AsyncStorage.setItem('about', appConfigData.data.params_hash2.config_params.about_us);
+    await AsyncStorage.setItem('webPortalUrl', appConfigData.data.params_hash2.config_params.web_portal_url);
+    await AsyncStorage.setItem('offlineDeleteDays', appConfigData.data.params_hash2.config_params.offline_deletion_days);
+    await AsyncStorage.setItem('globalViewCount', JSON.stringify(appConfigData.data.params_hash2.config_params.global_view_count));
+    await AsyncStorage.setItem('commentable', JSON.stringify(appConfigData.data.params_hash2.config_params.commentable));
+    await AsyncStorage.setItem('subscriptionUrl', appConfigData.data.params_hash2.config_params.subscription_url);
+    await AsyncStorage.setItem('tvLoginUrl', appConfigData.data.params_hash2.config_params.tv_login_url);
+    // }
   }
 
   React.useEffect(() => {
@@ -356,6 +374,7 @@ export default function App() {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       var notficationData = (remoteMessage.data.data);
       Alert.alert('A new FCM message arrived!', notficationData);
+      console.log(JSON.stringify(notficationData));
     });
     return unsubscribe;
 
@@ -363,7 +382,7 @@ export default function App() {
   const gettoken = async () => {
     const token = await messaging().getToken();
     console.log(token);
-    await AsyncStorage.setItem('fcm_token',token);
+    await AsyncStorage.setItem('fcm_token', token);
   }
 
 
@@ -409,7 +428,7 @@ export default function App() {
         }}
         drawerContent={(props) => <CustomDrawer {...props}></CustomDrawer>}
       >
-        <Drawer.Screen name='Home' component={Home} options={{header:()=>null}}></Drawer.Screen>
+        <Drawer.Screen name='Home' component={Home} options={{ header: () => null }}></Drawer.Screen>
       </Drawer.Navigator>
 
     );
@@ -460,20 +479,20 @@ export default function App() {
   );
 }
 const styles = StyleSheet.create({
-  FooterText:{
-    color:'#ffffff',
-    fontWeight:'bold',
+  FooterText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
   },
-  body:{
-    backgroundColor:'#191D4F',
-    flex:1,
+  body: {
+    backgroundColor: '#191D4F',
+    flex: 1,
   },
-  roundedTab:{
-    borderRadius:10,
+  roundedTab: {
+    borderRadius: 10,
   },
-  profilePic:{
-    width:60,
-    height:60,
-    borderRadius:30,
+  profilePic: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
   }
 });

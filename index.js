@@ -9,6 +9,7 @@ import { useEffect } from 'react';
 
 messaging().setBackgroundMessageHandler(async remoteMessage => {
     console.log('Message handled in the background!', remoteMessage);
+    console.log(JSON.stringify(remoteMessage));
 });
 
 messaging()

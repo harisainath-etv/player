@@ -1,15 +1,18 @@
-import { View, Text, FlatList, Pressable, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, FlatList, Pressable, ScrollView, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import NormalHeader from './normalHeader';
-import { ACCESS_TOKEN, BACKGROUND_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
+import { ACCESS_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, BUTTON_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import LinearGradient from 'react-native-linear-gradient';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { StackActions } from '@react-navigation/native';
 
 export default function Subscribe({ navigation }) {
     const [subscribeplans, setsubscribeplans] = useState([]);
     const dataFetchedRef = useRef(false);
-    const [selectedplan, setSelectedPlan] = useState('premium_plan');
+    const [selectedplan, setSelectedPlan] = useState('');
     const [selectedplandetails, setselectedplandetails] = useState([]);
     const [selectedprice, setselectedprice] = useState();
     const [packdetails, setpackdetails] = useState([]);
@@ -60,17 +63,87 @@ export default function Subscribe({ navigation }) {
 
     }
     const rendersubscriptionplans = (item, index) => {
+        const styles = StyleSheet.create({
+            container: {
+                width: "90%",
+                backgroundColor: "white",
+                alignSelf: "center",
+                marginTop: 20,
+                marginBottom: 20,
+                borderColor: TAB_COLOR,
+                borderWidth: 0.5,
+                elevation: 15,
+                borderTopLeftRadius: 12,
+                borderTopRightRadius: 12,
+                borderBottomLeftRadius: 10,
+                borderBottomRightRadius: 10
+            },
+            image: {
+                width: "100%",
+                height: 170,
+                borderTopLeftRadius: 11,
+                borderTopRightRadius: 11,
+            },
+            content: {
+                marginTop: 16,
+                marginLeft: 20,
+            },
+            pressable: {
+                width: "100%",
+                display: "flex",
+                alignSelf: "flex-end",
+                alignItems: "center",
+                justifyContent: "center",
+            },
+            gradirentButton: {
+                width: "100%",
+                display: "flex",
+                alignSelf: "flex-end",
+                alignItems: "center",
+                justifyContent: "center",
+                height: 30,
+                borderBottomLeftRadius: 10,
+                borderBottomRightRadius: 10
+            }
+        });
         return (
-            <View key={index} style={{ width: '50%', height: '100%' }}>
-                <View style={{ padding: 20, justifyContent: 'center', alignItems: 'center', width: '100%', height: 100, flexDirection: 'row' }}>
-                    {selectedplan == item.item.plan_id && item.item.status == 'published' ?
-                        <MaterialCommunityIcons name='radiobox-marked' color={NORMAL_TEXT_COLOR} size={30} />
-                        :
-                        <Pressable onPress={() => { setSelectedPlan(item.item.plan_id); setselectedprice(""); AsyncStorage.setItem('selectedplan', item.item.plan_id); loadpackdetails(); setselectedname(item.item.display_title); setselectedcategoryid(item.item.category_id); setcategory(item.item.category); setcatalogid(item.item.catalog_id) }}><MaterialCommunityIcons name='radiobox-blank' color={NORMAL_TEXT_COLOR} size={30} /></Pressable>
-                    }
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25 }}>{item.item.display_title}</Text>
+
+            <View>
+                <View style={styles.container} key={index}>
+
+
+                    <Pressable
+                        style={styles.pressable}
+                        onPress={() => { setSelectedPlan(item.item.plan_id); setselectedprice(""); AsyncStorage.setItem('selectedplan', item.item.plan_id); loadpackdetails(); setselectedname(item.item.display_title); setselectedcategoryid(item.item.category_id); setcategory(item.item.category); setcatalogid(item.item.catalog_id) }}
+                    >
+                        <Image
+                            style={styles.image}
+                            source={require('../assets/images/subscription_bg.jpg')} />
+
+                        <LinearGradient
+                            useAngle={true}
+                            angle={125}
+                            angleCenter={{ x: 0.5, y: 0.5 }}
+                            colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                            style={styles.gradirentButton}
+                        >
+                            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                <Text
+                                    style={{
+                                        color: NORMAL_TEXT_COLOR,
+                                        fontSize: 15,
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                                    {item.item.display_title.toUpperCase()}
+                                </Text>
+                            </View>
+                        </LinearGradient>
+                    </Pressable>
                 </View>
+
             </View>
+
         )
     }
     const proceedtopay = async () => {
@@ -93,10 +166,10 @@ export default function Subscribe({ navigation }) {
                     AsyncStorage.setItem('payable_catalog_id', resp.data.data.payable.subscription_catalog_id);
                     AsyncStorage.setItem('payable_plan_id', planid);
                     AsyncStorage.setItem('payable_description', description);
-                    if(resp.data.data.payable.allow_coupon==true)
-                    AsyncStorage.setItem('payable_coupon_display', 'yes');
+                    if (resp.data.data.payable.allow_coupon == true)
+                        AsyncStorage.setItem('payable_coupon_display', 'yes');
                     else
-                    AsyncStorage.setItem('payable_coupon_display', 'no');
+                        AsyncStorage.setItem('payable_coupon_display', 'no');
                     if (resp.data.data.existing_plan == null || resp.data.data.existing_plan == "") {
                         AsyncStorage.setItem('payable_upgrade', 'no');
                     }
@@ -106,7 +179,7 @@ export default function Subscribe({ navigation }) {
                     navigation.navigate("Confirmation");
                 }).catch(error => {
                     alert(error.response.data.error)
-                 })
+                })
             }
             else {
                 alert("Please select a plan to proceed.")
@@ -119,108 +192,360 @@ export default function Subscribe({ navigation }) {
         loadData();
         loadpackdetails();
     })
+    function renderProcessSection(val) {
+        const styles = StyleSheet.create({
+            container: {
+                justifyContent: "center",
+                alignItems: "center",
+                display: "flex",
+            },
+            number: {
+                color: "white",
+                fontSize: 14,
+            },
+            horizontalLine: {
+                width: 35,
+                height: 1,
+                backgroundColor: NORMAL_TEXT_COLOR,
+                marginTop: -10,
+                alignItems: "center",
+                justifyContent: "center",
+            },
+        });
+        return (
+            <View
+                style={{
+                    display: "flex",
+                    justifyContent: "space-evenly",
+                    flexDirection: "row",
+                    padding: 10,
+                }}
+            >
+                <View
+                    style={{
+                        alignItems: "center",
+                    }}
+                >
+                    {val == 1 ?
+                        <>
+                            <MaterialCommunityIcons
+                                name="check-circle"
+                                size={20}
+                                color={TAB_COLOR}
+                            />
+                            <Text style={{ fontSize: 12, paddingTop: 6, color: TAB_COLOR, fontWeight: '500' }}>Package</Text>
+                        </>
+                        :
+                        <>
+                            <MaterialCommunityIcons
+                                name="check-circle"
+                                size={20}
+                                color={NORMAL_TEXT_COLOR}
+                            />
+                            <Text style={{ fontSize: 12, paddingTop: 6, color: NORMAL_TEXT_COLOR, fontWeight: '500' }}>Package</Text>
+                        </>
+                    }
+
+                </View>
+                <View style={styles.container}>
+                    <View style={styles.horizontalLine} />
+                </View>
+                <View
+                    style={{
+                        alignItems: "center",
+                    }}
+                >
+
+                    {val == 2 ?
+                        <>
+                            <MaterialCommunityIcons
+                                name="check-circle"
+                                size={20}
+                                color={TAB_COLOR}
+                            />
+                            <Text style={{ fontSize: 12, paddingTop: 6, color: TAB_COLOR, fontWeight: '500' }}>Plan</Text>
+                        </>
+                        :
+                        <>
+                            <MaterialCommunityIcons
+                                name="check-circle"
+                                size={20}
+                                color={NORMAL_TEXT_COLOR}
+                            />
+                            <Text style={{ fontSize: 12, paddingTop: 6, color: NORMAL_TEXT_COLOR, fontWeight: '500' }}>Plan</Text>
+                        </>
+                    }
+
+
+                </View>
+                <View style={styles.container}>
+                    <View style={styles.horizontalLine} />
+                </View>
+                <View
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                    }}
+                >
+
+
+                    {val == 3 ?
+                        <>
+                            <MaterialCommunityIcons
+                                name="check-circle"
+                                size={20}
+                                color={TAB_COLOR}
+                            />
+                            <Text style={{ fontSize: 12, paddingTop: 6, color: TAB_COLOR, fontWeight: '500' }}>Payment</Text>
+                        </>
+                        :
+                        <>
+                            <MaterialCommunityIcons
+                                name="check-circle"
+                                size={20}
+                                color={NORMAL_TEXT_COLOR}
+                            />
+                            <Text style={{ fontSize: 12, paddingTop: 6, color: NORMAL_TEXT_COLOR, fontWeight: '500' }}>Payment</Text>
+                        </>
+                    }
+
+
+                </View>
+            </View>
+        );
+    }
     return (
         <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
-            <NormalHeader></NormalHeader>
-            <View style={{ padding: 20 }}>
-                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Subscription</Text>
-                <View style={{ backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, height: 100, borderRadius: 10, marginTop: 10, width: '100%' }}>
-                    {subscribeplans ?
+            <TouchableOpacity onPress={() => {
+                if (selectedplan != '')
+                    setSelectedPlan('');
+                else
+                    if (navigation.canGoBack())
+                        navigation.goBack()
+                    else
+                        navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+            }}>
+                <Ionicons name="arrow-back" size={30} color={NORMAL_TEXT_COLOR} style={{ marginTop: 60, marginLeft: 10 }} />
+            </TouchableOpacity>
+
+            <View style={{ padding: 2, }}>
+                {/* <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Subscription</Text> */}
+
+                {subscribeplans && selectedplan == "" ?
+                    <>
+                        {renderProcessSection(1)}
                         <FlatList
                             data={subscribeplans}
                             keyExtractor={(x, i) => i.toString()}
                             renderItem={rendersubscriptionplans}
-                            numColumns={2}
                         />
-                        : ""}
-                </View>
+                    </>
+                    : ""}
 
-                <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-                    {
-                        selectedplandetails.map((resp) => {
-                            return (
-                                <View key={resp.id} style={{ paddingTop: 20, paddingBottom: 20, backgroundColor: TAB_COLOR, borderWidth: 1, borderStyle: 'dashed', borderColor: DETAILS_TEXT_COLOR, marginTop: 20, borderRadius: 10, justifyContent: 'center', alignItems: 'center', width: (100 / resp.planlength) - 5 + "%", }}>
-                                    {selectedprice == resp.id ?
-                                        currentplan == resp.id ?
-                                            ""
-                                            :
-                                            <MaterialCommunityIcons name='radiobox-marked' size={30} color={NORMAL_TEXT_COLOR} style={{ position: 'absolute', left: 0, top: 0 }} />
-                                        :
-                                        currentplan == resp.id ?
-                                        ""
-                                        :
-                                        <Pressable style={{ position: 'absolute', left: 0, top: 0 }} onPress={() => { setselectedprice(resp.id); setselectedpriceforpayment(resp.price); setselectedpriceforduration(resp.display_period); setselectedpricecurrency(resp.currency_symbol); setcurrency(resp.currency); setplanid(resp.id); setdescription(resp.description); }}><MaterialCommunityIcons name='radiobox-blank' size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
-                                    
-                                    }
-                                    {currentplan == resp.id ?
-                                        <Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, position: 'absolute', right: 15, top: 5 }}>Active</Text>
-                                        :
-                                        ""}
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', }}>
-                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, marginRight: 10, marginTop: 10 }}>{resp.currency_symbol} {resp.price}</Text>
-                                        {resp.striked_price ?
-                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16, textDecorationLine: 'line-through', textDecorationStyle: 'solid' }}>{resp.striked_price}</Text>
-                                            :
-                                            ""}
-                                    </View>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }}>Per {resp.display_period}</Text>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }}>{resp.offer_description}</Text>
-                                </View>
-                            )
-                        })
-                    }
-                </View>
-                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
-                    <View style={{
-                        borderWidth: 1, borderColor: DETAILS_TEXT_COLOR, width: '100%'
-                        , padding: 15, borderTopRightRadius: 10, borderTopLeftRadius: 10
-                    }}>
-                        <Text style={{ color: NORMAL_TEXT_COLOR }}>Avalibale Features</Text>
-                    </View>
-                    <View style={{
-                        borderWidth: 1, borderColor: DETAILS_TEXT_COLOR, width: '100%'
-                        , padding: 15,
-                    }}>
+                {selectedplan != "" ?
+                    <>
+                        {renderProcessSection(2)}
+                        <View style={{ justifyContent: 'space-evenly' }}>
+                            {/* <Text style={{ fontSize: 22, fontWeight: "bold", margin: 10 }}>
+                                Choose Your Plan
+                            </Text> */}
+                            {
+                                selectedplandetails.map((resp, index) => {
+                                    const styles = StyleSheet.create({
+                                        container: {
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                        },
+                                        box: {
+                                            borderRadius: 30,
+                                            width: "70%",
+                                            borderWidth: 2,
+                                            alignItems: "center",
+                                            borderColor: selectedprice == resp.id && currentplan != resp.id ? TAB_COLOR : DETAILS_TEXT_COLOR,
+                                            backgroundColor: "white",
+                                        },
+                                        horizontalLine: {
+                                            marginTop: 5,
+                                            width: 70,
+                                            height: 1.5,
+                                            backgroundColor: DETAILS_TEXT_COLOR,
+                                        },
+                                        price: {
+                                            fontWeight: "bold",
+                                            fontSize: 22,
+                                        },
+                                        flexBox: {
+                                            marginTop: 10,
+                                            width: "100%",
+                                            justifyContent: "space-between",
+                                            padding: 5,
+                                            alignItems: "center",
+                                        },
+                                        button: {
+                                            paddingHorizontal: 22,
+                                            paddingVertical: 2,
+                                            borderRadius: 10,
+                                            // borderWidth: 1,
+                                            // borderColor: "green",
+                                        },
+                                        savingText: {
+                                            borderColor: "red",
+                                            color: "red",
+                                            padding: 2,
+                                            fontWeight: "bold",
+                                            fontSize: 16,
+                                            borderWidth: 1.5,
+                                            paddingHorizontal: 10,
+                                            borderRadius: 8,
+                                            marginTop: 10,
+                                        }
+                                    });
 
-                        {
-                            packdetails.map((resp) => {
-                                return (
-                                    <View style={{ alignItems: 'center', flexDirection: 'row' }}>
-                                        <View style={{ justifyContent: 'flex-start', width: '60%' }}>
-                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18, }}>{resp.info}</Text>
-                                        </View>
-                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>{resp.value}</Text>
-                                    </View>
-                                )
-                            })
-                        }
+                                    return (
+                                        <>
+                                            <TouchableOpacity key={resp.id} style={{}} onPress={() => { setselectedprice(resp.id); setselectedpriceforpayment(resp.price); setselectedpriceforduration(resp.display_period); setselectedpricecurrency(resp.currency_symbol); setcurrency(resp.currency); setplanid(resp.id); setdescription(resp.description); }}>
+
+                                                <View style={styles.container}>
+                                                    <View style={{ ...styles.box, marginBottom: 20 }} key={index}>
+                                                        {currentplan == resp.id ?
+                                                            <Text style={{ color: TAB_COLOR, position: 'absolute', right: 15, top: 5,fontWeight:'700',fontSize:13 }}>Active</Text>
+                                                            :
+                                                            ""}
+                                                        <Text style={{ marginTop: 14, fontWeight: "bold" }}>
+                                                            {resp.title} Plan
+                                                        </Text>
+                                                        <View style={styles.horizontalLine} />
+                                                        {resp.striked_price && (
+                                                            <Text
+                                                                style={styles.savingText}
+                                                            >
+                                                                Save{" "}
+                                                                {Math.round(
+                                                                    ((resp.striked_price - resp.price) / resp.striked_price) *
+                                                                    100
+                                                                )}
+                                                                %
+                                                            </Text>
+                                                        )}
+
+                                                        <View style={{ marginTop: resp.striked_price ? 10 : 20 }}>
+                                                            <Text style={styles.price}>
+                                                                {resp.currency_symbol} {resp.price}/{resp.period}
+                                                            </Text>
+                                                        </View>
+                                                        <Text style={{ color: "gray", marginTop: 10 }}>
+                                                            billed every {resp.period}
+                                                        </Text>
+                                                        <View style={styles.flexBox}>
+                                                            <View
+                                                                style={{
+                                                                    display: "flex",
+                                                                    flexDirection: "row",
+                                                                    justifyContent: "flex-start",
+                                                                    alignItems: "center",
+                                                                }}
+                                                            >
+                                                            </View>
+
+                                                        </View>
+                                                    </View>
+                                                </View>
 
 
-                    </View>
-                </View>
 
-                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20, marginBottom: 20 }}>
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>HD, Full HD, 4K (2160p) Video Qualities are available only when content is supported in their respective resolutions</Text>
-                </View>
-
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    {selectedpricecurrency ?
-                        <View>
-                            <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 20, }}>{selectedname}</Text>
-                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25 }}>{selectedpricecurrency} {selectedpriceforpayment} <Text style={{ fontSize: 15 }}>/ {selectedpriceforduration}</Text></Text>
+                                                {/* {currentplan == resp.id ?
+                                                <Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, position: 'absolute', right: 15, top: 5 }}>Active</Text>
+                                                :
+                                                ""} */}
+                                            </TouchableOpacity>
+                                        </>
+                                    )
+                                })
+                            }
                         </View>
-                        :
-                        <View></View>
-                    }
-                    <View>
                         <View style={{ justifyContent: 'center', alignItems: 'center', }}>
-                            <TouchableOpacity onPress={proceedtopay} style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 18, borderRadius: 10, marginRight: 20 }}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Pay</Text></TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
+                            <View style={{
+                                borderWidth: 1, borderColor: DETAILS_TEXT_COLOR, width: '90%'
+                                , padding: 7, borderTopRightRadius: 10, borderTopLeftRadius: 10, backgroundColor: NORMAL_TEXT_COLOR
+                            }}>
+                                <Text style={{ color: BACKGROUND_COLOR, fontSize: 13, fontWeight: '500' }}>Avalibale Features</Text>
+                            </View>
+                            <View style={{
+                                borderWidth: 1, borderColor: DETAILS_TEXT_COLOR
+                                , padding: 7, width: "90%",
+                                backgroundColor: NORMAL_TEXT_COLOR,
+                                borderBottomLeftRadius: 10,
+                                borderBottomRightRadius: 10
+                            }}>
 
+                                {
+                                    packdetails.map((resp) => {
+                                        return (
+                                            <View style={{ alignItems: 'center', flexDirection: 'row' }}>
+                                                <View style={{ justifyContent: 'flex-start', width: '60%' }}>
+                                                    <Text style={{ color: BACKGROUND_COLOR, fontSize: 11, }}>{resp.info}</Text>
+                                                </View>
+                                                <Text style={{ color: BACKGROUND_COLOR, fontSize: 11 }}>{resp.value}</Text>
+                                            </View>
+                                        )
+                                    })
+                                }
+
+
+                            </View>
+
+                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10, marginBottom: 10, width: "90%" }}>
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }}>HD, Full HD, 4K (2160p) Video Qualities are available only when content is supported in their respective resolutions</Text>
+                            </View>
+
+
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: "90%", marginBottom: 15 }}>
+                                <View style={{ width: "100%" }}>
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', width: "100%" }}>
+
+                                        <TouchableOpacity onPress={proceedtopay} style={{ width: "100%" }}>
+
+
+                                            <LinearGradient
+                                                useAngle={true}
+                                                angle={125}
+                                                angleCenter={{ x: 0.5, y: 0.5 }}
+                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                                                style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: "100%", padding: 12, borderRadius: 10, marginRight: 20, borderColor: TAB_COLOR, borderWidth: 0.5 }}
+                                            >
+                                                <View
+                                                    style={{ flexDirection: "row", alignItems: "center" }}
+                                                >
+                                                    <Text
+                                                        style={{
+                                                            color: NORMAL_TEXT_COLOR,
+                                                            fontSize: 13,
+                                                            fontWeight: "bold",
+                                                        }}
+                                                    >
+                                                        Subscribe
+                                                    </Text>
+                                                </View>
+                                            </LinearGradient>
+
+
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </View>
+                        </View>
+
+
+                    </>
+                    : ""}
 
             </View>
+            <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
         </ScrollView>
     )
 }

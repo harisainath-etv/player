@@ -247,9 +247,9 @@ export default function Header(props) {
                         </TouchableOpacity>
                         :
                         ""}
-                    <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Search', {}))} style={{ marginRight: 10, marginLeft: 7 }}>
+                    {/* <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Search', {}))} style={{ marginRight: 10, marginLeft: 7 }}>
                         <FontAwesome5 name="search" size={20} color="white" />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View>
             </View>
         </View>
