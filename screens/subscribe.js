@@ -1,23 +1,18 @@
 import {
   View,
   Text,
-  Image,
   FlatList,
   Pressable,
   ScrollView,
   TouchableOpacity,
-  Dimensions,
+  StyleSheet,
+  Image,
 } from "react-native";
 import React, { useEffect, useState, useRef } from "react";
 import NormalHeader from "./normalHeader";
 import {
   ACCESS_TOKEN,
   BACKGROUND_COLOR,
-  BACKGROUND_DARK_COLOR,
-  BACKGROUND_TRANSPARENT_COLOR,
-  BACKGROUND_TRANSPARENT_COLOR_MENU,
-  BUTTON_COLOR,
-  DARKED_BORDER_COLOR,
   DETAILS_TEXT_COLOR,
   FIRETV_BASE_URL_STAGING,
   NORMAL_TEXT_COLOR,
@@ -25,18 +20,19 @@ import {
   SLIDER_PAGINATION_UNSELECTED_COLOR,
   TAB_COLOR,
   VIDEO_AUTH_TOKEN,
+  BUTTON_COLOR,
 } from "../constants";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { StatusBar } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
-import { Icon } from "react-native-elements";
-import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
 
 export default function Subscribe({ navigation }) {
   const [subscribeplans, setsubscribeplans] = useState([]);
   const dataFetchedRef = useRef(false);
-  const [selectedplan, setSelectedPlan] = useState("premium_plan");
+  const [selectedplan, setSelectedPlan] = useState("");
   const [selectedplandetails, setselectedplandetails] = useState([]);
   const [selectedprice, setselectedprice] = useState();
   const [packdetails, setpackdetails] = useState([]);
@@ -83,7 +79,6 @@ export default function Subscribe({ navigation }) {
       })
       .catch((error) => {});
   };
-
   async function loadpackdetails() {
     var plans = [];
     const region = await AsyncStorage.getItem("country_code");
@@ -141,53 +136,92 @@ export default function Subscribe({ navigation }) {
       })
       .catch((error) => {});
   }
-
   const rendersubscriptionplans = (item, index) => {
+    const styles = StyleSheet.create({
+      container: {
+        width: "90%",
+        backgroundColor: "white",
+        alignSelf: "center",
+        marginTop: 20,
+        marginBottom: 20,
+        borderColor: TAB_COLOR,
+        borderWidth: 0.5,
+        elevation: 15,
+        borderTopLeftRadius: 12,
+        borderTopRightRadius: 12,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
+      },
+      image: {
+        width: "100%",
+        height: 170,
+        borderTopLeftRadius: 11,
+        borderTopRightRadius: 11,
+      },
+      content: {
+        marginTop: 16,
+        marginLeft: 20,
+      },
+      pressable: {
+        width: "100%",
+        display: "flex",
+        alignSelf: "flex-end",
+        alignItems: "center",
+        justifyContent: "center",
+      },
+      gradirentButton: {
+        width: "100%",
+        display: "flex",
+        alignSelf: "flex-end",
+        alignItems: "center",
+        justifyContent: "center",
+        height: 30,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
+      },
+    });
     return (
-      <View key={index} style={{ width: "50%", height: "100%" }}>
-        <ScrollView>
-          <View
-            style={{
-              padding: 20,
-              justifyContent: "center",
-              alignItems: "center",
-              width: "100%",
-              height: 100,
-              flexDirection: "row",
+      <View>
+        <View style={styles.container} key={index}>
+          <Pressable
+            style={styles.pressable}
+            onPress={() => {
+              setSelectedPlan(item.item.plan_id);
+              setselectedprice("");
+              AsyncStorage.setItem("selectedplan", item.item.plan_id);
+              loadpackdetails();
+              setselectedname(item.item.display_title);
+              setselectedcategoryid(item.item.category_id);
+              setcategory(item.item.category);
+              setcatalogid(item.item.catalog_id);
             }}
           >
-            {selectedplan == item.item.plan_id &&
-            item.item.status == "published" ? (
-              <MaterialCommunityIcons
-                name="radiobox-marked"
-                color={NORMAL_TEXT_COLOR}
-                size={30}
-              />
-            ) : (
-              <Pressable
-                onPress={() => {
-                  setSelectedPlan(item.item.plan_id);
-                  setselectedprice("");
-                  AsyncStorage.setItem("selectedplan", item.item.plan_id);
-                  loadpackdetails();
-                  setselectedname(item.item.display_title);
-                  setselectedcategoryid(item.item.category_id);
-                  setcategory(item.item.category);
-                  setcatalogid(item.item.catalog_id);
-                }}
-              >
-                <MaterialCommunityIcons
-                  name="radiobox-blank"
-                  color={NORMAL_TEXT_COLOR}
-                  size={30}
-                />
-              </Pressable>
-            )}
-            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25 }}>
-              {item.item.display_title}
-            </Text>
-          </View>
-        </ScrollView>
+            <Image
+              style={styles.image}
+              source={require("../assets/images/subscription_bg.jpg")}
+            />
+
+            <LinearGradient
+              useAngle={true}
+              angle={125}
+              angleCenter={{ x: 0.5, y: 0.5 }}
+              colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+              style={styles.gradirentButton}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text
+                  style={{
+                    color: NORMAL_TEXT_COLOR,
+                    fontSize: 15,
+                    fontWeight: "bold",
+                  }}
+                >
+                  {item.item.display_title.toUpperCase()}
+                </Text>
+              </View>
+            </LinearGradient>
+          </Pressable>
+        </View>
       </View>
     );
   };
@@ -274,565 +308,497 @@ export default function Subscribe({ navigation }) {
     loadData();
     loadpackdetails();
   });
-
-  return (
-    <ScrollView style={{ flex: 1, backgroundColor: NORMAL_TEXT_COLOR }}>
-      {/* <NormalHeader>Logo</NormalHeader> */}
+  function renderProcessSection(val) {
+    const styles = StyleSheet.create({
+      container: {
+        justifyContent: "center",
+        alignItems: "center",
+        display: "flex",
+      },
+      number: {
+        color: "white",
+        fontSize: 14,
+      },
+      horizontalLine: {
+        width: 35,
+        height: 1,
+        backgroundColor: NORMAL_TEXT_COLOR,
+        marginTop: -10,
+        alignItems: "center",
+        justifyContent: "center",
+      },
+    });
+    return (
       <View
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "space-evenly",
           flexDirection: "row",
-          padding: 30,
-          flex: 1,
+          padding: 10,
         }}
       >
         <View
           style={{
-            display: "flex",
             alignItems: "center",
           }}
         >
-          <Text
-            style={{
-              // color: NORMAL_TEXT_COLOR,
-              fontSize: 14,
-              // borderColor: NORMAL_TEXT_COLOR,
-            }}
-          >
-            1
-          </Text>
-          <Text style={{ fontSize: 12 }}>Package Section</Text>
-        </View>
-        <View
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <Text
-            style={{
-              // color: NORMAL_TEXT_COLOR,
-              fontSize: 14,
-              // borderColor: NORMAL_TEXT_COLOR,
-            }}
-          >
-            2
-          </Text>
-          <Text style={{ fontSize: 12 }}>Plan Section</Text>
-        </View>
-        <View
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <Text
-            style={{
-              // color: NORMAL_TEXT_COLOR,
-              fontSize: 14,
-              // borderColor: NORMAL_TEXT_COLOR,
-            }}
-          >
-            3
-          </Text>
-          <Text style={{ fontSize: 12 }}>Payment</Text>
-        </View>
-      </View>
-      <View style={{ display: "flex", alignItems: "center" }}>
-        <Text style={{ color: BACKGROUND_DARK_COLOR, fontSize: 20 }}>
-          Choose your Package
-        </Text>
-        <Text
-          style={{ color: BACKGROUND_DARK_COLOR, fontSize: 16, marginTop: 5 }}
-        >
-          No commitment, cancel anytime
-        </Text>
-      </View>
-      <View style={{ display: "flex", alignItems: "center", marginTop: 20 }}>
-        <View
-          style={{
-            width: "85%",
-            height: 350,
-            backgroundColor: "white",
-            borderRadius: 20,
-            display: "flex",
-          }}
-        >
-          <Image
-            style={{
-              width: "100%",
-              height: "40%",
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-            }}
-            source={{
-              uri: "https://cdn.mos.cms.futurecdn.net/ZHVbdKkdyKGMY6ooJpiUAb.jpg",
-            }}
-          />
-          <View>
-            <View
-              style={{ display: "flex", alignItems: "center", marginLeft: 20 }}
-            >
-              <View
-                style={{
-                  width: "100%",
-                  height: 1.5,
-                  backgroundColor: NORMAL_TEXT_COLOR,
-                  marginRight: 20,
-                }}
+          {val == 1 ? (
+            <>
+              <MaterialCommunityIcons
+                name="check-circle"
+                size={20}
+                color={TAB_COLOR}
               />
+              <Text
+                style={{
+                  fontSize: 12,
+                  paddingTop: 6,
+                  color: TAB_COLOR,
+                  fontWeight: "500",
+                }}
+              >
+                Package
+              </Text>
+            </>
+          ) : (
+            <>
+              <MaterialCommunityIcons
+                name="check-circle"
+                size={20}
+                color={NORMAL_TEXT_COLOR}
+              />
+              <Text
+                style={{
+                  fontSize: 12,
+                  paddingTop: 6,
+                  color: NORMAL_TEXT_COLOR,
+                  fontWeight: "500",
+                }}
+              >
+                Package
+              </Text>
+            </>
+          )}
+        </View>
+        <View style={styles.container}>
+          <View style={styles.horizontalLine} />
+        </View>
+        <View
+          style={{
+            alignItems: "center",
+          }}
+        >
+          {val == 2 ? (
+            <>
+              <MaterialCommunityIcons
+                name="check-circle"
+                size={20}
+                color={TAB_COLOR}
+              />
+              <Text
+                style={{
+                  fontSize: 12,
+                  paddingTop: 6,
+                  color: TAB_COLOR,
+                  fontWeight: "500",
+                }}
+              >
+                Plan
+              </Text>
+            </>
+          ) : (
+            <>
+              <MaterialCommunityIcons
+                name="check-circle"
+                size={20}
+                color={NORMAL_TEXT_COLOR}
+              />
+              <Text
+                style={{
+                  fontSize: 12,
+                  paddingTop: 6,
+                  color: NORMAL_TEXT_COLOR,
+                  fontWeight: "500",
+                }}
+              >
+                Plan
+              </Text>
+            </>
+          )}
+        </View>
+        <View style={styles.container}>
+          <View style={styles.horizontalLine} />
+        </View>
+        <View
+          style={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          {val == 3 ? (
+            <>
+              <MaterialCommunityIcons
+                name="check-circle"
+                size={20}
+                color={TAB_COLOR}
+              />
+              <Text
+                style={{
+                  fontSize: 12,
+                  paddingTop: 6,
+                  color: TAB_COLOR,
+                  fontWeight: "500",
+                }}
+              >
+                Payment
+              </Text>
+            </>
+          ) : (
+            <>
+              <MaterialCommunityIcons
+                name="check-circle"
+                size={20}
+                color={NORMAL_TEXT_COLOR}
+              />
+              <Text
+                style={{
+                  fontSize: 12,
+                  paddingTop: 6,
+                  color: NORMAL_TEXT_COLOR,
+                  fontWeight: "500",
+                }}
+              >
+                Payment
+              </Text>
+            </>
+          )}
+        </View>
+      </View>
+    );
+  }
+  return (
+    <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
+      <TouchableOpacity
+        onPress={() => {
+          if (selectedplan != "") setSelectedPlan("");
+          else if (navigation.canGoBack()) navigation.goBack();
+          else
+            navigation.dispatch(
+              StackActions.replace("Home", { pageFriendlyId: "featured-1" })
+            );
+        }}
+      >
+        <Ionicons
+          name="arrow-back"
+          size={30}
+          color={NORMAL_TEXT_COLOR}
+          style={{ marginTop: 60, marginLeft: 10 }}
+        />
+      </TouchableOpacity>
+
+      <View style={{ padding: 2 }}>
+        {/* <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>Subscription</Text> */}
+
+        {subscribeplans && selectedplan == "" ? (
+          <>
+            {renderProcessSection(1)}
+            <FlatList
+              data={subscribeplans}
+              keyExtractor={(x, i) => i.toString()}
+              renderItem={rendersubscriptionplans}
+            />
+          </>
+        ) : (
+          ""
+        )}
+
+        {selectedplan != "" ? (
+          <>
+            {renderProcessSection(2)}
+            <View style={{ justifyContent: "space-evenly" }}>
+              {/* <Text style={{ fontSize: 22, fontWeight: "bold", margin: 10 }}>
+                                Choose Your Plan
+                            </Text> */}
+              {selectedplandetails.map((resp, index) => {
+                const styles = StyleSheet.create({
+                  container: {
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  },
+                  box: {
+                    borderRadius: 30,
+                    width: "70%",
+                    borderWidth: 2,
+                    alignItems: "center",
+                    borderColor:
+                      selectedprice == resp.id && currentplan != resp.id
+                        ? TAB_COLOR
+                        : DETAILS_TEXT_COLOR,
+                    backgroundColor: "white",
+                  },
+                  horizontalLine: {
+                    marginTop: 5,
+                    width: 70,
+                    height: 1.5,
+                    backgroundColor: DETAILS_TEXT_COLOR,
+                  },
+                  price: {
+                    fontWeight: "bold",
+                    fontSize: 22,
+                  },
+                  flexBox: {
+                    marginTop: 10,
+                    width: "100%",
+                    justifyContent: "space-between",
+                    padding: 5,
+                    alignItems: "center",
+                  },
+                  button: {
+                    paddingHorizontal: 22,
+                    paddingVertical: 2,
+                    borderRadius: 10,
+                    // borderWidth: 1,
+                    // borderColor: "green",
+                  },
+                  savingText: {
+                    borderColor: "red",
+                    color: "red",
+                    padding: 2,
+                    fontWeight: "bold",
+                    fontSize: 16,
+                    borderWidth: 1.5,
+                    paddingHorizontal: 10,
+                    borderRadius: 8,
+                    marginTop: 10,
+                  },
+                });
+
+                return (
+                  <>
+                    <TouchableOpacity
+                      key={resp.id}
+                      style={{}}
+                      onPress={() => {
+                        setselectedprice(resp.id);
+                        setselectedpriceforpayment(resp.price);
+                        setselectedpriceforduration(resp.display_period);
+                        setselectedpricecurrency(resp.currency_symbol);
+                        setcurrency(resp.currency);
+                        setplanid(resp.id);
+                        setdescription(resp.description);
+                      }}
+                    >
+                      <View style={styles.container}>
+                        <View
+                          style={{ ...styles.box, marginBottom: 20 }}
+                          key={index}
+                        >
+                          {currentplan == resp.id ? (
+                            <Text
+                              style={{
+                                color: TAB_COLOR,
+                                position: "absolute",
+                                right: 15,
+                                top: 5,
+                                fontWeight: "700",
+                                fontSize: 13,
+                              }}
+                            >
+                              Active
+                            </Text>
+                          ) : (
+                            ""
+                          )}
+                          <Text style={{ marginTop: 14, fontWeight: "bold" }}>
+                            {resp.title} Plan
+                          </Text>
+                          <View style={styles.horizontalLine} />
+                          {resp.striked_price && (
+                            <Text style={styles.savingText}>
+                              Save{" "}
+                              {Math.round(
+                                ((resp.striked_price - resp.price) /
+                                  resp.striked_price) *
+                                  100
+                              )}
+                              %
+                            </Text>
+                          )}
+
+                          <View
+                            style={{ marginTop: resp.striked_price ? 10 : 20 }}
+                          >
+                            <Text style={styles.price}>
+                              {resp.currency_symbol} {resp.price}/{resp.period}
+                            </Text>
+                          </View>
+                          <Text style={{ color: "gray", marginTop: 10 }}>
+                            billed every {resp.period}
+                          </Text>
+                          <View style={styles.flexBox}>
+                            <View
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                justifyContent: "flex-start",
+                                alignItems: "center",
+                              }}
+                            ></View>
+                          </View>
+                        </View>
+                      </View>
+
+                      {/* {currentplan == resp.id ?
+                                                <Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, position: 'absolute', right: 15, top: 5 }}>Active</Text>
+                                                :
+                                                ""} */}
+                    </TouchableOpacity>
+                  </>
+                );
+              })}
+            </View>
+            <View style={{ justifyContent: "center", alignItems: "center" }}>
               <View
                 style={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  flexDirection: "row",
+                  borderWidth: 1,
+                  borderColor: DETAILS_TEXT_COLOR,
+                  width: "90%",
+                  padding: 7,
+                  borderTopRightRadius: 10,
+                  borderTopLeftRadius: 10,
+                  backgroundColor: NORMAL_TEXT_COLOR,
                 }}
               >
                 <Text
-                  style={{ fontWeight: "600", color: "#89D8D3", fontSize: 16 }}
+                  style={{
+                    color: BACKGROUND_COLOR,
+                    fontSize: 13,
+                    fontWeight: "500",
+                  }}
                 >
-                  VIP
+                  Avalibale Features
                 </Text>
-                <Pressable>
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      // padding: 2,
-                      color: NORMAL_TEXT_COLOR,
-                      backgroundColor: "#AA336A",
-                      borderTopLeftRadius: 6,
-                      borderBottomLeftRadius: 6,
-                      paddingHorizontal: 10,
-                    }}
-                  >
-                    most popular
-                  </Text>
-                </Pressable>
-              </View>
-              <View style={{ width: "100%", marginTop: 8 }}>
-                <Text>
-                  Enjoy ETV, Bal Bharat, Originals, exclusive series, movies,
-                  premieres Live TV and more
-                </Text>
-                {/** TODO  replace with icon */}
-                <Text style={{ marginTop: 4 }}>Discover features {">"}</Text>
               </View>
               <View
                 style={{
-                  display: "flex",
-                  width: "100%",
-                  flexDirection: "row",
-                  marginTop: 4,
-                  //   alignItems: "flex-start",
-                  //   justifyContent: "flex-start",
+                  borderWidth: 1,
+                  borderColor: DETAILS_TEXT_COLOR,
+                  padding: 7,
+                  width: "90%",
+                  backgroundColor: NORMAL_TEXT_COLOR,
+                  borderBottomLeftRadius: 10,
+                  borderBottomRightRadius: 10,
                 }}
               >
-                <View
-                  style={{ width: 2, height: 36, backgroundColor: "green" }}
-                />
-                <View style={{ marginLeft: 10 }}>
-                  <Text>Starting from</Text>
-                  <Text style={{ fontWeight: "700" }}>Rs.499 Per Year </Text>
-                </View>
+                {packdetails.map((resp) => {
+                  return (
+                    <View
+                      style={{ alignItems: "center", flexDirection: "row" }}
+                    >
+                      <View
+                        style={{ justifyContent: "flex-start", width: "60%" }}
+                      >
+                        <Text style={{ color: BACKGROUND_COLOR, fontSize: 11 }}>
+                          {resp.info}
+                        </Text>
+                      </View>
+                      <Text style={{ color: BACKGROUND_COLOR, fontSize: 11 }}>
+                        {resp.value}
+                      </Text>
+                    </View>
+                  );
+                })}
               </View>
-            </View>
-          </View>
-          <TouchableOpacity
-            style={{
-              width: "100%",
-              display: "flex",
-              // backgroundColor: "#40e0d0",
-              alignSelf: "flex-end",
-              alignItems: "center",
-              height: 22,
-              borderBottomStartRadius: 10,
-              borderBottomEndRadius: 10,
-              marginTop: 15,
-            }}
-          >
-            <LinearGradient
-              useAngle={true}
-              angle={125}
-              angleCenter={{ x: 0.5, y: 0.5 }}
-              colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
-              style={[{ borderRadius: 40 }]}
-            >
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                {/* <FontAwesome5Icon
-                  name="Subscribe"
-                  size={13}
-                  color={NORMAL_TEXT_COLOR}
-                  style={{ marginRight: 10 }}
-                /> */}
+
+              <View
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: 10,
+                  marginBottom: 10,
+                  width: "90%",
+                }}
+              >
                 <Text
                   style={{
                     color: NORMAL_TEXT_COLOR,
-                    fontSize: 13,
-                    fontWeight: "bold",
+                    fontSize: 11,
+                    fontWeight: "500",
                   }}
                 >
-                  Subscribe
-                </Text>
-              </View>
-            </LinearGradient>
-            {/* <Text
-              style={{ color: NORMAL_TEXT_COLOR, textTransform: "capitalize" }}
-            >
-              subscribe
-            </Text> */}
-          </TouchableOpacity>
-        </View>
-      </View>
-      <View style={{ display: "flex", alignItems: "center", marginTop: 20 }}>
-        <View
-          style={{
-            width: "85%",
-            height: 350,
-            backgroundColor: NORMAL_TEXT_COLOR,
-            borderRadius: 20,
-            display: "flex",
-          }}
-        >
-          <Image
-            style={{
-              width: "100%",
-              height: "40%",
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-            }}
-            source={{
-              uri: "https://cdn.mos.cms.futurecdn.net/ZHVbdKkdyKGMY6ooJpiUAb.jpg",
-            }}
-          />
-          <View style={{ marginTop: 14 }}>
-            <View
-              style={{ display: "flex", alignItems: "center", marginLeft: 20 }}
-            >
-              <View
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "row",
-                }}
-              >
-                <Text
-                  style={{ fontWeight: "600", color: "#89D8D3", fontSize: 16 }}
-                >
-                  Premium
-                </Text>
-                <View
-                  style={{
-                    width: 2,
-                    height: 20,
-                    backgroundColor: "blue",
-                    marginLeft: 6,
-                    marginRight: 6,
-                  }}
-                />
-                <Text
-                  style={{ fontWeight: "600", color: "#89D8D3", fontSize: 16 }}
-                >
-                  Imagine{" "}
+                  HD, Full HD, 4K (2160p) Video Qualities are available only
+                  when content is supported in their respective resolutions
                 </Text>
               </View>
 
-              <View style={{ width: "100%", marginTop: 8 }}>
-                <Text>
-                  Enjoy ETV, Bal Bharat, Originals, exclusive series, movies,
-                  premieres Live TV and more
-                </Text>
-                {/** TODO  replace with icon */}
-                <Text style={{ marginTop: 4 }}>Discover features {">"}</Text>
-              </View>
               <View
                 style={{
-                  display: "flex",
-                  width: "100%",
                   flexDirection: "row",
-                  marginTop: 8,
-                  marginBottom: 2,
+                  justifyContent: "space-between",
+                  width: "90%",
+                  marginBottom: 15,
                 }}
               >
-                <View
-                  style={{ width: 2, height: 36, backgroundColor: "green" }}
-                />
-                <View style={{ marginLeft: 10 }}>
-                  <Text>Starting from</Text>
-                  <Text
-                    style={{ fontWeight: "700", textTransform: "capitalize" }}
+                <View style={{ width: "100%" }}>
+                  <View
+                    style={{
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "100%",
+                    }}
                   >
-                    Rs. 499 Per Year
-                  </Text>
+                    <TouchableOpacity
+                      onPress={proceedtopay}
+                      style={{ width: "100%" }}
+                    >
+                      <LinearGradient
+                        useAngle={true}
+                        angle={125}
+                        angleCenter={{ x: 0.5, y: 0.5 }}
+                        colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                        style={{
+                          justifyContent: "center",
+                          alignItems: "center",
+                          backgroundColor: TAB_COLOR,
+                          color: NORMAL_TEXT_COLOR,
+                          width: "100%",
+                          padding: 12,
+                          borderRadius: 10,
+                          marginRight: 20,
+                          borderColor: TAB_COLOR,
+                          borderWidth: 0.5,
+                        }}
+                      >
+                        <View
+                          style={{ flexDirection: "row", alignItems: "center" }}
+                        >
+                          <Text
+                            style={{
+                              color: NORMAL_TEXT_COLOR,
+                              fontSize: 13,
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Subscribe
+                          </Text>
+                        </View>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
-          <TouchableOpacity
-            style={{
-              marginTop: 10,
-              width: "100%",
-              display: "flex",
-              backgroundColor: "#40e0d0",
-              alignSelf: "flex-end",
-              alignItems: "center",
-              height: 22,
-              borderBottomStartRadius: 10,
-              borderBottomEndRadius: 10,
-            }}
-          >
-            <Text
-              style={{
-                color: NORMAL_TEXT_COLOR,
-                fontSize: 16,
-                textTransform: "capitalize",
-              }}
-            >
-              Subscribe
-            </Text>
-          </TouchableOpacity>
-        </View>
+          </>
+        ) : (
+          ""
+        )}
       </View>
+      <StatusBar
+        animated
+        backgroundColor="transparent"
+        barStyle="dark-content"
+        translucent={true}
+      />
     </ScrollView>
   );
-
-  //   return (
-  //     <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
-  //       <NormalHeader></NormalHeader>
-  //       <View style={{ padding: 20 }}>
-  //         <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>
-  //           Subscription
-  //         </Text>
-  //         <View
-  //           style={{
-  //             backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR,
-  //             height: 100,
-  //             borderRadius: 10,
-  //             marginTop: 10,
-  //             width: "100%",
-  //           }}
-  //         >
-  //           {subscribeplans ? (
-  //             <FlatList
-  //               data={subscribeplans}
-  //               keyExtractor={(x, i) => i.toString()}
-  //               renderItem={rendersubscriptionplans}
-  //               numColumns={2}
-  //             />
-  //           ) : (
-  //             ""
-  //           )}
-  //         </View>
-
-  //         <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
-  //           {selectedplandetails.map((resp) => {
-  //             return (
-  //               <View
-  //                 key={resp.id}
-  //                 style={{
-  //                   paddingTop: 20,
-  //                   paddingBottom: 20,
-  //                   backgroundColor: TAB_COLOR,
-  //                   borderWidth: 1,
-  //                   borderStyle: "dashed",
-  //                   borderColor: DETAILS_TEXT_COLOR,
-  //                   marginTop: 20,
-  //                   borderRadius: 10,
-  //                   justifyContent: "center",
-  //                   alignItems: "center",
-  //                   width: 100 / resp.planlength - 5 + "%",
-  //                 }}
-  //               >
-  //                 {selectedprice == resp.id ? (
-  //                   currentplan == resp.id ? (
-  //                     ""
-  //                   ) : (
-  //                     <MaterialCommunityIcons
-  //                       name="radiobox-marked"
-  //                       size={30}
-  //                       color={NORMAL_TEXT_COLOR}
-  //                       style={{ position: "absolute", left: 0, top: 0 }}
-  //                     />
-  //                   )
-  //                 ) : currentplan == resp.id ? (
-  //                   ""
-  //                 ) : (
-  //                   <Pressable
-  //                     style={{ position: "absolute", left: 0, top: 0 }}
-  //                     onPress={() => {
-  //                       setselectedprice(resp.id);
-  //                       setselectedpriceforpayment(resp.price);
-  //                       setselectedpriceforduration(resp.display_period);
-  //                       setselectedpricecurrency(resp.currency_symbol);
-  //                       setcurrency(resp.currency);
-  //                       setplanid(resp.id);
-  //                       setdescription(resp.description);
-  //                     }}
-  //                   >
-  //                     <MaterialCommunityIcons
-  //                       name="radiobox-blank"
-  //                       size={30}
-  //                       color={NORMAL_TEXT_COLOR}
-  //                     />
-  //                   </Pressable>
-  //                 )}
-  //                 {currentplan == resp.id ? (
-  //                   <Text
-  //                     style={{
-  //                       color: SLIDER_PAGINATION_SELECTED_COLOR,
-  //                       position: "absolute",
-  //                       right: 15,
-  //                       top: 5,
-  //                     }}
-  //                   >
-  //                     Active
-  //                   </Text>
-  //                 ) : (
-  //                   ""
-  //                 )}
-  //                 <View
-  //                   style={{ justifyContent: "center", alignItems: "center" }}
-  //                 >
-  //                   <Text
-  //                     style={{
-  //                       color: NORMAL_TEXT_COLOR,
-  //                       fontSize: 25,
-  //                       marginRight: 10,
-  //                       marginTop: 10,
-  //                     }}
-  //                   >
-  //                     {resp.currency_symbol} {resp.price}
-  //                   </Text>
-  //                   {resp.striked_price ? (
-  //                     <Text
-  //                       style={{
-  //                         color: NORMAL_TEXT_COLOR,
-  //                         fontSize: 16,
-  //                         textDecorationLine: "line-through",
-  //                         textDecorationStyle: "solid",
-  //                       }}
-  //                     >
-  //                       {resp.striked_price}
-  //                     </Text>
-  //                   ) : (
-  //                     ""
-  //                   )}
-  //                 </View>
-  //                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>
-  //                   Per {resp.display_period}
-  //                 </Text>
-  //                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>
-  //                   {resp.offer_description}
-  //                 </Text>
-  //               </View>
-  //             );
-  //           })}
-  //         </View>
-  //         <View
-  //           style={{
-  //             justifyContent: "center",
-  //             alignItems: "center",
-  //             marginTop: 20,
-  //           }}
-  //         >
-  //           <View
-  //             style={{
-  //               borderWidth: 1,
-  //               borderColor: DETAILS_TEXT_COLOR,
-  //               width: "100%",
-  //               padding: 15,
-  //               borderTopRightRadius: 10,
-  //               borderTopLeftRadius: 10,
-  //               flexDirection: "row",
-  //               justifyContent: "flex-start",
-  //             }}
-  //           >
-  //             <Text style={{ color: NORMAL_TEXT_COLOR }}>Discover Feautures</Text>
-  //             <MaterialCommunityIcons
-  //               name="zodiac-pisces"
-  //               size={20}
-  //               color={NORMAL_TEXT_COLOR}
-  //             />
-  //           </View>
-  //           <View
-  //             style={{
-  //               borderWidth: 1,
-  //               borderColor: DETAILS_TEXT_COLOR,
-  //               width: "100%",
-  //               padding: 15,
-  //             }}
-  //           >
-  //             {packdetails.map((resp) => {
-  //               return (
-  //                 <View style={{ alignItems: "center", flexDirection: "row" }}>
-  //                   <View style={{ justifyContent: "flex-start", width: "60%" }}>
-  //                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>
-  //                       {/* {resp.info} */}
-  //                     </Text>
-  //                   </View>
-  //                   <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>
-  //                     {/* {resp.value} */}
-  //                   </Text>
-  //                 </View>
-  //               );
-  //             })}
-  //           </View>
-  //         </View>
-
-  //         <View
-  //           style={{
-  //             justifyContent: "center",
-  //             alignItems: "center",
-  //             marginTop: 20,
-  //             marginBottom: 20,
-  //           }}
-  //         >
-  //           <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>
-  //             Enjoy Etv Bal Bharat,Originals,exclusive series,movie premiers,Live
-  //             Tv and More
-  //           </Text>
-  //         </View>
-
-  //         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-  //           {selectedpricecurrency ? (
-  //             <View>
-  //               <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 20 }}>
-  //                 {selectedname}
-  //               </Text>
-  //               <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25 }}>
-  //                 {selectedpricecurrency} {selectedpriceforpayment}{" "}
-  //                 <Text style={{ fontSize: 15 }}>
-  //                   / {selectedpriceforduration}
-  //                 </Text>
-  //               </Text>
-  //             </View>
-  //           ) : (
-  //             <View></View>
-  //           )}
-  //           <View>
-  //             <View style={{ justifyContent: "center", alignItems: "center" }}>
-  //               <TouchableOpacity
-  //                 onPress={proceedtopay}
-  //                 style={{
-  //                   justifyContent: "center",
-  //                   alignItems: "center",
-  //                   backgroundColor: TAB_COLOR,
-  //                   color: NORMAL_TEXT_COLOR,
-  //                   width: 150,
-  //                   padding: 18,
-  //                   borderRadius: 10,
-  //                   marginRight: 20,
-  //                 }}
-  //               >
-  //                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>
-  //                   Pay
-  //                 </Text>
-  //               </TouchableOpacity>
-  //             </View>
-  //           </View>
-  //         </View>
-  //       </View>
-  //     </ScrollView>
-  //   );
 }
