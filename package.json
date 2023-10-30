@@ -22,7 +22,7 @@
     "@react-navigation/bottom-tabs": "^6.5.3",
     "@react-navigation/drawer": "^6.5.7",
     "@react-navigation/material-top-tabs": "^6.5.2",
-    "@react-navigation/native": "^6.1.2",
+    "@react-navigation/native": "^6.1.9",
     "@react-navigation/stack": "^6.3.11",
     "axios": "^1.2.6",
     "deprecated-react-native-prop-types": "^4.0.0",

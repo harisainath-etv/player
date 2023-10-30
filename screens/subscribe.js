@@ -28,6 +28,7 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { StatusBar } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
+import { StackActions } from "@react-navigation/native";
 
 export default function Subscribe({ navigation }) {
   const [subscribeplans, setsubscribeplans] = useState([]);
