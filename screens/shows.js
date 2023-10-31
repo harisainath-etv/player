@@ -401,7 +401,7 @@ export default function Shows({ navigation, route }) {
                                         useAngle={true}
                                         angle={125}
                                         angleCenter={{ x: 0.5, y: 0.5 }}
-                                        colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
+                                        colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
                                         style={[styles.button]} >
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <FontAwesome5 name='play' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
@@ -410,30 +410,27 @@ export default function Shows({ navigation, route }) {
                                     </LinearGradient>
 
                                 </Pressable>
-                                {seasons.length > 1 ? <View style={{ position: 'absolute', backgroundColor: 'rgba(0, 0, 0, 0.7)', height: 50, width: '100%', bottom: 0, justifyContent: 'center', padding: 5 }}>
-                                    <Pressable onPress={() => setModalVisible(true)}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>{selectTitle ? selectTitle : "Select Season"} <MaterialCommunityIcons name="chevron-double-down" size={20} color={NORMAL_TEXT_COLOR} /></Text></Pressable>
-                                </View> : ""}
 
                             </View>
 
                             <View style={styles.bodyContent}>
                                 <View style={styles.marginContainer}>
                                     <Text style={styles.headingLabel}>
-                                        <Text style={[{ color: TAB_COLOR, fontWeight: 'bold',}]}>| </Text>
+                                        <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', }]}>| </Text>
                                         {title}</Text>
-                                    <View style={{ flexDirection: 'row',marginTop:5 }}>
+                                    <View style={{ flexDirection: 'row', marginTop: 5 }}>
                                         <Text style={styles.detailsText}>{channel}</Text>
-                                        
+
                                         {/* <Text style={styles.detailsText}>{contentRating}</Text>
                                         <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', borderRightColor: TAB_COLOR, borderWidth: 2 }]}></Text> */}
 
                                         {displayGenres.map((resp, index) => {
 
                                             return (
-                                            <View key={index} style={{flexDirection:'row',justifyContent:'center',alignItems:'center',marginLeft:5}}>
-                                            <FontAwesome5 name='dot-circle' size={10} color={TAB_COLOR}/>
-                                            <Text key={index} style={[styles.detailsText, { color:TAB_COLOR,fontWeight:'bold', }]}>{resp}</Text>
-                                            </View>
+                                                <View key={index} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginLeft: 5 }}>
+                                                    <FontAwesome5 name='dot-circle' size={10} color={TAB_COLOR} />
+                                                    <Text key={index} style={[styles.detailsText, { color: TAB_COLOR, fontWeight: 'bold', }]}>{resp}</Text>
+                                                </View>
                                             )
 
                                         })}
@@ -480,6 +477,41 @@ export default function Shows({ navigation, route }) {
 
                             </View>
 
+                            <View style={{ width: "100%" }}>
+                                {seasons.length > 1 ?
+                                    <>
+                                    <View style={{justifyContent:'center',alignItems:'center',marginTop:10}}>
+                                            <Text style={{fontSize:18,fontWeight:'500',color:NORMAL_TEXT_COLOR}}>SELECT SEASON</Text>
+                                    </View>
+                                    <FlatList
+                                        data={seasons}
+                                        horizontal={true}
+                                        renderItem={(item, index) => {
+
+                                            return (
+                                                <>
+                                                    {selectTitle != item.item.title ?
+                                                        <Pressable key={'seasons' + index} onPress={() => movetoscreen(item.item.seo_url, index, item.item.title)}>
+                                                            <View style={{ borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, padding: 15 }}>
+                                                                <Text style={{ color: NORMAL_TEXT_COLOR,fontWeight:'500' }}>{item.item.title}</Text>
+                                                            </View>
+                                                        </Pressable>
+                                                        :
+                                                        <Pressable key={'seasons' + index} onPress={() => movetoscreen(item.item.seo_url, index, item.item.title)}>
+                                                            <View style={{ borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, padding: 15 }}>
+                                                                <Text style={{ color: TAB_COLOR,fontWeight:'500'  }}>{item.item.title}</Text>
+                                                            </View>
+                                                        </Pressable>
+                                                    }
+                                                </>
+                                            )
+
+                                        }}
+                                    />
+                                    </>
+                                    : ""}
+                            </View>
+
                             <TouchableOpacity onPress={() => navigation.navigate('Calendarscreen', { episodeUrl: episodeUrl })} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', padding: 20 }}>
                                 <MaterialCommunityIcons name="calendar-month" size={20} color={NORMAL_TEXT_COLOR} />
                                 <Text style={{ fontSize: 13, color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}> FILTER BY DATE</Text>
@@ -496,33 +528,12 @@ export default function Shows({ navigation, route }) {
                             </View>
                         </View>
                     </ScrollView>
-                    <Modal
-                        isVisible={isModalVisible}
-                        testID={'modal'}
-                        animationIn="slideInDown"
-                        animationOut="slideOutDown"
-                        onBackdropPress={toggleModal}
-                        backdropColor={"black"}
-                        backdropOpacity={0.40}
-                    >
-                        <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR }}>
-                            {seasons.map((season, ind) => {
-                                return (
-                                    <Pressable key={'seasons' + ind} onPress={() => movetoscreen(season.seo_url, ind, season.title)}>
-                                        <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5 }}>
-                                            <Text style={{ color: NORMAL_TEXT_COLOR }}>{season.title}</Text>
-                                        </View>
-                                    </Pressable>
-                                )
-                            })}
-                        </View>
-                    </Modal>
                     <StatusBar
-                animated
-                backgroundColor="transparent"
-                barStyle="dark-content"
-                translucent={true}
-            />
+                        animated
+                        backgroundColor="transparent"
+                        barStyle="dark-content"
+                        translucent={true}
+                    />
                 </View>
             }
         </View>
@@ -530,7 +541,7 @@ export default function Shows({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-    button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, width: "95%", position: 'absolute', bottom: 10, justifyContent: 'center', alignItems: 'center',borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5 },
+    button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, width: "95%", position: 'absolute', bottom: 10, justifyContent: 'center', alignItems: 'center', borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
     playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
     crownIcon: { position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
     container: {
@@ -542,7 +553,7 @@ const styles = StyleSheet.create({
     bodyContent: { backgroundColor: BACKGROUND_COLOR },
     headingLabel: { fontSize: 20, color: NORMAL_TEXT_COLOR, padding: 4, justifyContent: 'center', alignItems: 'center', width: "100%", borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, },
     detailsText: { fontSize: 11, marginBottom: 5, color: DETAILS_TEXT_COLOR, padding: 4 },
-    options: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row',padding:4 },
+    options: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row', padding: 4 },
     singleoption: { width: "33.33%", alignItems: 'center', justifyContent: 'center', borderColor: DARKED_BORDER_COLOR, borderWidth: 1, height: 45 },
     marginContainer: { marginLeft: 5, marginRight: 5 },
     imageSectionHorizontal: {

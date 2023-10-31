@@ -202,9 +202,9 @@ function MoreList({ navigation, route }) {
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} ></ActivityIndicator> : ""}
             </View>
-            <Footer
+            {/* <Footer
                 pageName={page}
-            ></Footer>
+            ></Footer> */}
             <StatusBar
                 animated
                 backgroundColor="transparent"
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center',
-        marginTop:80
+        marginTop:100 
     },
     sectionHeader: {
         color: HEADING_TEXT_COLOR,
