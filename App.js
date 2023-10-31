@@ -35,6 +35,7 @@ import Confirmation from './screens/confirmation';
 import Shorts from './screens/ShortVideos';
 import TransparentHeader from './screens/transparentHeader';
 import HtmlWebview from './screens/HtmlWebview';
+import HTMLRender from './screens/HTMLRender';
 import Menu from './screens/Menu';
 import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN } from './constants';
 import { View, Dimensions, Platform, Linking, Alert, Text, Image, StyleSheet } from 'react-native';
@@ -473,6 +474,7 @@ export default function App() {
           <Stack.Screen name="TransparentHeader" component={TransparentHeader} options={{ header: () => null, }} />
           <Stack.Screen name="HtmlWebview" component={HtmlWebview} options={{ header: () => null, }} />
           <Stack.Screen name="Menu" component={Menu} options={{ header: () => null, }} />
+          <Stack.Screen name="HTMLRender" component={HTMLRender} options={{ header: () => null, }} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>

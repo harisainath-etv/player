@@ -84,7 +84,7 @@ export default function Feedback({ navigation }) {
     <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
       <NormalHeader></NormalHeader>
       {submitted ?
-        <View style={{ justifyContent: 'center', alignItems: 'center',marginTop:60 }}>
+        <View style={{ justifyContent: 'center', alignItems: 'center',marginTop:100 }}>
           <Image source={require("../assets/images/icn_successfull.png")} style={{ width: '100%' }} resizeMode='contain' />
           <Text style={{ color: NORMAL_TEXT_COLOR, marginTop: 20, fontSize: 20, marginBottom: 20 }}>Successfully Submitted.</Text>
           <Text style={{ color: NORMAL_TEXT_COLOR, marginTop: 20, fontSize: 16, marginBottom: 20 }}>We appreciate for your valuable time.</Text>
@@ -95,7 +95,7 @@ export default function Feedback({ navigation }) {
         </View>
         :
         <View>
-          <View style={{ justifyContent: 'center', alignItems: 'center', padding: 15,marginTop:60 }}>
+          <View style={{ justifyContent: 'center', alignItems: 'center', padding: 15,marginTop:100 }}>
             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 14, }}>Your opinions, your feedback, your suggestions, let them flow. This is your space. It will help us in improving the app.</Text>
           </View>
           

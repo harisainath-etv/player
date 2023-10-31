@@ -301,7 +301,7 @@ export default function Menu() {
               <View style={{ marginTop: 15 }}>
                 <Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold', marginBottom: 10 }}>EXTRAS</Text>
 
-                <TouchableOpacity style={{marginBottom:7}} onPress={() => loadView('about')}>
+                <TouchableOpacity style={{marginBottom:7}} onPress={() => navigation.navigate('HTMLRender',{pagename:'about_us'})}>
                   <Text style={styles.listitemsText}>About Us</Text>
                 </TouchableOpacity>
 
@@ -313,7 +313,7 @@ export default function Menu() {
                   <Text style={styles.listitemsText}>Privacy Policy</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{marginBottom:7}} onPress={()=>loadView('termsCondition')}>
+                <TouchableOpacity style={{marginBottom:7}} onPress={()=>navigation.navigate('HTMLRender',{pagename:'terms_conditions'})}>
                   <Text style={styles.listitemsText}>Terms of Service</Text>
                 </TouchableOpacity>
 
