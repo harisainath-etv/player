@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, Image, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform, FlatList } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform, FlatList } from 'react-native';
 import React, { useEffect, useState, createRef, useRef } from 'react';
 import * as NavigationBar from "expo-navigation-bar";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -7,7 +7,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, } from '../constants';
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, BACKGROUND_TRANSPARENT_COLOR_MENU, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, DEVELOPMENT_MODE, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, } from '../constants';
 import axios from 'axios';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
@@ -24,7 +24,9 @@ import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, } from 're
 // import VideoViewIos from '../components/VideoViewIos';
 import DeviceInfo from 'react-native-device-info';
 import analytics from '@react-native-firebase/analytics';
+import FastImage from 'react-native-fast-image';
 var isTablet = DeviceInfo.isTablet();
+var relatedShows = [];
 export default function Episode({ navigation, route }) {
   const { seoUrl, theme, showname, showcontentId, goto } = route.params;
   const [seourl, setSeourl] = useState(seoUrl);
@@ -89,6 +91,7 @@ export default function Episode({ navigation, route }) {
   const [streemexceedlimitmessage, setstreemexceedlimitmessage] = useState("Screen Limit Exceeded");
   const [loginrequired, setloginrequired] = useState(false);
   const [isfree, setisfree] = useState(false);
+  const [relatedshows, setRelatedShows] = useState([]);
   var multiTapCount = 10;
   var multiTapDelay = 300;
   var client = useRemoteMediaClient();
@@ -277,6 +280,21 @@ export default function Episode({ navigation, route }) {
         }).catch(err => {
 
         })
+
+        if (passedtheme == 'live' || passedtheme == 'livetv') {
+          axios.post(FIRETV_BASE_URL + "/get_all_shows?auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN, {
+            friendly_id: DEVELOPMENT_MODE == 'staging' ? "etv-telugu" : response.data.data.friendly_id
+          }).then(livetvshows => {
+            for (var r = 0; r < livetvshows.data.resp.length; r++) {
+              relatedShows.push({ "catalog_id": livetvshows.data.resp[r].catalog_id, "content_id": livetvshows.data.resp[r].content_id, "title": livetvshows.data.resp[r].title, "image": livetvshows.data.resp[r].medium_4_3.url });
+            }
+            setRelatedShows(relatedShows);
+          }).catch(livetvshowserror => {
+            console.log(livetvshowserror);
+          })
+        }
+
+
         setLoading(false);
       }).catch(error => {
         setLoading(false);
@@ -773,13 +791,36 @@ export default function Episode({ navigation, route }) {
       navigation.replace('Episode', { seoUrl: response.data.data.seo_url, theme: 'episode' });
     }).catch(error => { })
   }
+  const gotoPage = async (full_catalog_id, full_content_id) => {
+    const region = await AsyncStorage.getItem('country_code');
+    var urlPath = FIRETV_BASE_URL + "catalogs/" + full_catalog_id + "/items/" + full_content_id + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
+    console.log(urlPath);
+    axios.get(urlPath).then(response => {
+      navigation.dispatch(StackActions.replace('Shows', { seoUrl: response.data.data.seo_url, theme: response.data.data.theme }))
+    }).catch(error => {
+      console.log(error);
+    })
+  }
+  const renderShows = (item, index) => {
+    return (
+      <TouchableOpacity onPress={() => gotoPage(item.item.catalog_id, item.item.content_id)} key={"RealtedShows" + index} style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
+        <FastImage source={{ uri: item.item.image, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={isTablet ? styles.imageSectionVerticalTab : styles.imageSectionHorizontal} resizeMode={FastImage.resizeMode.stretch} />
+        {!isTablet ?
+          <View style={{ width: "97%", backgroundColor: BACKGROUND_TRANSPARENT_COLOR_MENU, position: 'absolute', bottom: 8.5, height: 40, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: '500' }}>{item.item.title}</Text>
+          </View>
+          :
+          ""}
+      </TouchableOpacity>
+    )
+  }
   return (
     <View style={styles.mainContainer}>
-      <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
+      <ScrollView style={{ flex: 1, flexGrow: 1 }} nestedScrollEnabled={true} horizontal={false}>
         <View style={styles.container}>
           {playUrl != "" && playUrl != null && streemexceedlimit == false && !showupgrade ?
 
-            <Pressable onPress={showControls}>
+            <Pressable onPress={showControls} >
               <Video
                 ref={videoRef}
                 source={{ uri: playUrl }}
@@ -985,82 +1026,106 @@ export default function Episode({ navigation, route }) {
 
           }
 
-          {!fullscreen ? <View style={styles.bodyContent}>
-            <View style={styles.marginContainer}>
-              <Text style={styles.headingLabel}>
-                <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', }]}>| </Text>
-                {title}</Text>
-              <View style={{ flexDirection: 'row' }}>
-                {channel ? <Text style={styles.detailsText}>{channel} - {contentRating} </Text> : ""}
-                {displayGenres.map((resp, index) => {
+          {!fullscreen ?
+            <View style={styles.bodyContent}>
+              <View style={styles.marginContainer}>
+                <Text style={styles.headingLabel}>
+                  <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', }]}>| </Text>
+                  {title}</Text>
+                <View style={{ flexDirection: 'row' }}>
+                  {channel ? <Text style={styles.detailsText}>{channel} - {contentRating} </Text> : ""}
+                  {displayGenres.map((resp, index) => {
 
-                  return (
-                    <View key={index} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginLeft: 5 }}>
-                      <FontAwesome5 name='dot-circle' size={10} color={TAB_COLOR} />
-                      <Text key={index} style={[styles.detailsText, { color: TAB_COLOR, fontWeight: 'bold', }]}>{resp}</Text>
+                    return (
+                      <View key={index} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginLeft: 5 }}>
+                        <FontAwesome5 name='dot-circle' size={10} color={TAB_COLOR} />
+                        <Text key={index} style={[styles.detailsText, { color: TAB_COLOR, fontWeight: 'bold', }]}>{resp}</Text>
+                      </View>
+                    )
+
+                  })}
+                </View>
+                <ReadMore numberOfLines={25} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
+                  <Text style={styles.detailsText}>{description}</Text>
+                </ReadMore>
+              </View>
+
+              {!loading ?
+                <View style={styles.options}>
+                  <View style={styles.singleoption}>
+                    {!likecontent ?
+                      <Pressable onPress={likeContent}><MaterialIcons name="thumb-up-off-alt" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                      :
+                      <Pressable onPress={() => deleteLike(catalogId, contentId)}><MaterialIcons name="thumb-up" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                    }
+                  </View>
+
+                  <View style={styles.singleoption}>
+                    <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                  </View>
+                  {passedtheme != 'live' && passedtheme != 'livetv' && !preview ?
+                    <View style={styles.singleoption}>
+                      {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={22} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                      {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={22} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                      {downloadedStatus == 2 ?
+
+                        pauseDownload ?
+                          isresumeDownloading ?
+                            <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                            :
+                            <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                          :
+                          isresumeDownloading ?
+                            <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                            :
+                            <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+
+                        : ""}
+
                     </View>
-                  )
-
-                })}
-              </View>
-              <ReadMore numberOfLines={25} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
-                <Text style={styles.detailsText}>{description}</Text>
-              </ReadMore>
-            </View>
-
-            {!loading ?
-              <View style={styles.options}>
-                <View style={styles.singleoption}>
-                  {!likecontent ?
-                    <Pressable onPress={likeContent}><MaterialIcons name="thumb-up-off-alt" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                     :
-                    <Pressable onPress={() => deleteLike(catalogId, contentId)}><MaterialIcons name="thumb-up" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                    <View style={styles.singleoption}>
+                      <MaterialCommunityIcons name="download" size={22} color={DARKED_BORDER_COLOR} />
+                    </View>
                   }
-                </View>
 
-                <View style={styles.singleoption}>
-                  <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
-                </View>
-
-                {passedtheme != 'live' && passedtheme != 'livetv' && !preview ?
                   <View style={styles.singleoption}>
-                    {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={22} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
-                    {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={22} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
-                    {downloadedStatus == 2 ?
 
-                      pauseDownload ?
-                        isresumeDownloading ?
-                          <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
-                          :
-                          <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
-                        :
-                        isresumeDownloading ?
-                          <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
-                          :
-                          <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
-
-                      : ""}
+                    {!watchlatercontent ?
+                      <Pressable onPress={watchLater}><MaterialIcons name="watch-later" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                      :
+                      <Pressable onPress={() => { navigation.dispatch(StackActions.replace('WatchLater')) }}><MaterialIcons name="watch-later" size={22} color={DARKED_BORDER_COLOR} /></Pressable>
+                    }
 
                   </View>
+                </View>
+                : ""}
+            </View> : ""}
+
+          {(passedtheme == 'live' || passedtheme == 'livetv') && relatedshows.length > 0 && !fullscreen ?
+
+            <>
+              <View style={{ marginTop: 20, padding: 6, flex: 1, width: "100%" }}>
+                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: '500', marginBottom: 20, justifyContent: 'flex-start', alignItems: 'flex-start' }}>Related Shows</Text>
+                {isTablet ?
+                  <FlatList
+                    data={relatedshows}
+                    renderItem={renderShows}
+                    horizontal={true}
+                    nestedScrollEnabled
+                  />
                   :
-                  <View style={styles.singleoption}>
-                    <MaterialCommunityIcons name="download" size={22} color={DARKED_BORDER_COLOR} />
-                  </View>
+                  <FlatList
+                    data={relatedshows}
+                    renderItem={renderShows}
+                    horizontal={false}
+                    nestedScrollEnabled
+                  />
                 }
-
-                <View style={styles.singleoption}>
-
-                  {!watchlatercontent ?
-                    <Pressable onPress={watchLater}><MaterialIcons name="watch-later" size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
-                    :
-                    <Pressable onPress={() => { navigation.dispatch(StackActions.replace('WatchLater')) }}><MaterialIcons name="watch-later" size={22} color={DARKED_BORDER_COLOR} /></Pressable>
-                  }
-
-                </View>
               </View>
-              : ""}
-          </View> : ""}
-
+            </>
+            :
+            ""}
           {/* {subcategoryImages && !fullscreen ?
             <FlatList
               data={subcategoryImages}
@@ -1145,6 +1210,7 @@ const styles = StyleSheet.create({
     backgroundColor: BACKGROUND_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
+    flex: 1
   },
   video: {
     height: 270,
@@ -1188,12 +1254,12 @@ const styles = StyleSheet.create({
   marginContainer: { marginLeft: 5, marginRight: 5 },
   button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 10, borderRadius: 20, marginRight: 10 },
   imageSectionHorizontal: {
-    width: PAGE_WIDTH / 2.06,
-    height: 117,
-    marginHorizontal: 3,
-    borderRadius: 10,
-    marginBottom: 10,
-    borderWidth: 1
+    width: "98%",
+    height: 230,
+    borderRadius: 8,
+    marginBottom: 8,
+    borderColor: FOOTER_DEFAULT_TEXT_COLOR,
+    borderWidth: 0.5
   },
   sectionHeaderMore: {
     color: MORE_LINK_COLOR,
@@ -1201,13 +1267,20 @@ const styles = StyleSheet.create({
     textAlign: 'right'
   },
   imageSectionVertical: {
-    width: PAGE_WIDTH / 3.15,
-    height: 170,
-    marginHorizontal: 3,
+    width: PAGE_WIDTH / 3.25,
+    height: 150,
+    marginHorizontal: 4,
     borderRadius: 10,
     marginBottom: 10,
 
   },
-  playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
-  crownIcon: { position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
+  imageSectionVerticalTab: {
+    width: 135,
+    height: 150,
+    marginHorizontal: 4,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  playIcon: { position: 'absolute', width: 25, height: 25, right: 6, bottom: 12 },
+  crownIcon: { position: 'absolute', width: 25, height: 25, left: 8, top: 5 },
 });

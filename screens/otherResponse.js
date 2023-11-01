@@ -195,7 +195,7 @@ function OtherResponse({ navigation, route }) {
                                         navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                         :
                                         VIDEO_TYPES.includes(item.theme) ?
-                                            navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                 }
                             }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
@@ -257,7 +257,7 @@ function OtherResponse({ navigation, route }) {
                                         navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                         :
                                         VIDEO_TYPES.includes(item.theme) ?
-                                            navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                            navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                 }
                             }}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
@@ -294,7 +294,7 @@ function OtherResponse({ navigation, route }) {
                                             navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -325,7 +325,7 @@ function OtherResponse({ navigation, route }) {
                                                         navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                            navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                                 }
                                             }}>
                                                 <FastImage
@@ -363,13 +363,13 @@ function OtherResponse({ navigation, route }) {
                                                     navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage
                                                 style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 25, height: 25, right: 6, bottom: 12 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </Pressable>
                                     </View>
@@ -397,14 +397,14 @@ function OtherResponse({ navigation, route }) {
                                                     navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage
                                                 style={[styles.imageSectionVertical,]}
                                                 resizeMode={FastImage.resizeMode.stretch}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 25, height: 25, right: 6, bottom: 12 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </Pressable>
                                     </View>
@@ -439,7 +439,7 @@ function OtherResponse({ navigation, route }) {
                                             navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -492,7 +492,7 @@ function OtherResponse({ navigation, route }) {
                                                     navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage
@@ -652,7 +652,7 @@ const PaginationItem = (props) => {
 
 const styles = StyleSheet.create({
     playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
-    crownIcon: { position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
+    crownIcon: { position: 'absolute', width: 25, height: 25, left: 8, top: 5 },
     Container: {
         backgroundColor: BACKGROUND_COLOR,
         textAlign: "center",
@@ -723,9 +723,9 @@ const styles = StyleSheet.create({
         resizeMode: 'stretch'
     },
     imageSectionVertical: {
-        width: PAGE_WIDTH / 3.15,
-        height: 170,
-        marginHorizontal: 3,
+        width: PAGE_WIDTH / 3.25,
+        height: 150,
+        marginHorizontal: 4,
         borderRadius: 10,
         marginBottom: 10,
 

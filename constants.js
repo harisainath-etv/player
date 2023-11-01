@@ -2,6 +2,7 @@ import { Dimensions,Platform } from 'react-native';
 
 export var APP_VERSION="";
 export var AUTH_TOKEN="";
+export const DEVELOPMENT_MODE="staging"; //production
 {Platform.OS=="android" ? APP_VERSION = "2.0.1" : ""}
 {Platform.OS=="android" ? AUTH_TOKEN = "xttqeMn2dYtthp8aaUr2" : ""}
 {Platform.OS=="ios" ? APP_VERSION = "1.0.3" : ""}
@@ -11,9 +12,8 @@ export const SECRET_KEY = "2fd66b173c16e012e90e";
 export const BASE_URL="https://prod.api.etvwin.com";
 export const ACCESS_TOKEN= "Ay6KCkajdBzztJ4bptpW";
 export const WEB_CLIENT_ID = "416227379708-naqjmgpfidspo7nqb77de795sqjcovg4.apps.googleusercontent.com";
-export const FIRETV_BASE_URL_STAGING ="https://stagingott.etvwin.com/"; //staging
-export const FIRETV_BASE_URL ="https://stagingott.etvwin.com/"; //preprod
-//export const FIRETV_BASE_URL ="https://firetvapi.etvwin.com/"; //prod
+export const FIRETV_BASE_URL_STAGING = DEVELOPMENT_MODE=="staging" ? "https://stagingott.etvwin.com/" : "https://firetvapi.etvwin.com/";
+export const FIRETV_BASE_URL = DEVELOPMENT_MODE=="staging" ? "https://stagingott.etvwin.com/" : "https://firetvapi.etvwin.com/";
 export const BACKGROUND_COLOR ="#292828";
 export const BACKGROUND_TRANSPARENT_COLOR ="rgba(41, 40, 40, 0.4)";
 export const BACKGROUND_TRANSPARENT_GRADIENT_MENU ="rgba(0, 0, 0, 0.8)";

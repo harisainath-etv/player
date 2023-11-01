@@ -1015,7 +1015,7 @@ function Home({ navigation, route }) {
                                                     style={[styles.imageSectionVertical,]}
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 25, height: 25, right: 6, bottom: 12 }}></Image> : ""}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                         </View>
@@ -1536,7 +1536,7 @@ const styles = StyleSheet.create({
     menulogo: { height: 35, justifyContent: 'center', alignItems: 'center', },
     menuitem: { height: 35, justifyContent: 'center', alignItems: 'center', padding: 8, borderRadius: 15 },
     playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
-    crownIcon: { position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
+    crownIcon: { position: 'absolute', width: 25, height: 25, left: 8, top: 5 },
     Container: {
         backgroundColor: BACKGROUND_COLOR,
         textAlign: "center",
@@ -1622,9 +1622,9 @@ const styles = StyleSheet.create({
         resizeMode: 'contain'
     },
     imageSectionVertical: {
-        width: PAGE_WIDTH / 3.15,
-        height: 170,
-        marginHorizontal: 3,
+        width: PAGE_WIDTH / 3.25,
+        height: 150,
+        marginHorizontal: 4,
         borderRadius: 10,
         marginBottom: 10,
 
@@ -1644,8 +1644,8 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     imageSectionVerticalTab: {
-        width: 150,
-        height: 170,
+        width: 135,
+        height: 150,
         marginHorizontal: 3,
         borderRadius: 10,
         marginBottom: 10,
