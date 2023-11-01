@@ -23,7 +23,7 @@ export default function Profile({ navigation }) {
     const [address, setaddress] = useState("");
     const [subscription_title, setsubscription_title] = useState("");
     const [expireson, setexpireson] = useState("");
-
+    var gateways = [];
     const loadData = async () => {
         const firstname = await AsyncStorage.getItem('firstname');
         const email = await AsyncStorage.getItem('email_id');
@@ -138,64 +138,72 @@ export default function Profile({ navigation }) {
         await AsyncStorage.setItem('max_digits', JSON.stringify(ipData.region.max_digits))
 
 
-        if (getCurrentVersion != APP_VERSION) {
-            //fetching app config data
-            const appConfig = FIRETV_BASE_URL + "/catalogs/message/items/app-config-params.gzip?region=" + ipData.region.country_code2 + "&auth_token=" + AUTH_TOKEN + "&current_version=" + APP_VERSION;
-            const appConfigResp = await fetch(appConfig);
-            const appConfigData = await appConfigResp.json();
-            await AsyncStorage.setItem('configTitle', appConfigData.data.title);
-            if (Platform.OS == "android") {
-                await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.android_version.current_version);
-                await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.android_version.min_version);
-                await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.android_version.force_upgrade);
-                await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.android_version.message);
-                if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.android_version.force_upgrade == true) {
-                    alert(appConfigData.data.params_hash2.config_params.android_version.message);
+        //if (getCurrentVersion != APP_VERSION) {
+        //fetching app config data
+        const appConfig = FIRETV_BASE_URL + "/catalogs/message/items/app-config-params.gzip?region=" + ipData.region.country_code2 + "&auth_token=" + AUTH_TOKEN + "&current_version=" + APP_VERSION;
+        const appConfigResp = await fetch(appConfig);
+        const appConfigData = await appConfigResp.json();
+        await AsyncStorage.setItem('configTitle', appConfigData.data.title);
+        if (Platform.OS == "android") {
+            await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.android_version.current_version);
+            await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.android_version.min_version);
+            await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.android_version.force_upgrade);
+            await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.android_version.message);
+            if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.android_version.force_upgrade == true) {
+                alert(appConfigData.data.params_hash2.config_params.android_version.message);
+                return true;
+            }
+        }
+        else
+            if (Platform.OS == "ios") {
+                await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.ios_version.current_version);
+                await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.ios_version.min_version);
+                await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.ios_version.force_upgrade);
+                await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.ios_version.message);
+                if (APP_VERSION < appConfigData.data.params_hash2.config_params.ios_version.min_version || appConfigData.data.params_hash2.config_params.ios_version.force_upgrade == true) {
+                    alert(appConfigData.data.params_hash2.config_params.ios_version.message);
                     return true;
                 }
             }
-            else
-                if (Platform.OS == "ios") {
-                    await AsyncStorage.setItem('currentVersion', appConfigData.data.params_hash2.config_params.ios_version.current_version);
-                    await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.ios_version.min_version);
-                    await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.ios_version.force_upgrade);
-                    await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.ios_version.message);
-                    if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.ios_version.force_upgrade == true) {
-                        alert(appConfigData.data.params_hash2.config_params.android_version.message);
-                        return true;
-                    }
-                }
-            if (appConfigData.data.params_hash2.config_params.popup_details.show_popup) {
-                await AsyncStorage.setItem('show_popup', 'yes');
-                if (ipData.region.country_code2 == 'IN') {
-                    await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.images.high_3_4);
-                }
-                else {
-                    await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.other_region_images.high_3_4);
-                }
-                await AsyncStorage.setItem('redirect_type', appConfigData.data.params_hash2.config_params.popup_details.redirect_type);
+        if (appConfigData.data.params_hash2.config_params.popup_details.show_popup) {
+            await AsyncStorage.setItem('show_popup', 'yes');
+            if (ipData.region.country_code2 == 'IN') {
+                await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.images.high_3_4);
             }
-            else
-                await AsyncStorage.setItem('show_popup', 'no');
-            await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
-            await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);
-            await AsyncStorage.setItem('faq', appConfigData.data.params_hash2.config_params.faq);
-            await AsyncStorage.setItem('contactUs', appConfigData.data.params_hash2.config_params.contact_us);
-            const jsonData = ((appConfigData.data.params_hash2.config_params))
-            for (var t in jsonData) {
-                if (t == 't&c') {
-                    await AsyncStorage.setItem('termsCondition', jsonData[t]);
-                }
+            else {
+                await AsyncStorage.setItem('popupimage', appConfigData.data.params_hash2.config_params.popup_details.other_region_images.high_3_4);
             }
-            await AsyncStorage.setItem('privacy', appConfigData.data.params_hash2.config_params.privacy_policy);
-            await AsyncStorage.setItem('about', appConfigData.data.params_hash2.config_params.about_us);
-            await AsyncStorage.setItem('webPortalUrl', appConfigData.data.params_hash2.config_params.web_portal_url);
-            await AsyncStorage.setItem('offlineDeleteDays', appConfigData.data.params_hash2.config_params.offline_deletion_days);
-            await AsyncStorage.setItem('globalViewCount', JSON.stringify(appConfigData.data.params_hash2.config_params.global_view_count));
-            await AsyncStorage.setItem('commentable', JSON.stringify(appConfigData.data.params_hash2.config_params.commentable));
-            await AsyncStorage.setItem('subscriptionUrl', appConfigData.data.params_hash2.config_params.subscription_url);
-            await AsyncStorage.setItem('tvLoginUrl', appConfigData.data.params_hash2.config_params.tv_login_url);
+            await AsyncStorage.setItem('redirect_type', appConfigData.data.params_hash2.config_params.popup_details.redirect_type);
         }
+        else
+            await AsyncStorage.setItem('show_popup', 'no');
+        for (var i = 0; i < appConfigData.data.params_hash2.config_params.payment_gateway.length; i++) {
+            if (appConfigData.data.params_hash2.config_params.payment_gateway[i].default == true) {
+                await AsyncStorage.setItem('payment_gateway', appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase())
+            }
+            gateways.push({"name":appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase()})
+        }
+        await AsyncStorage.setItem('availableGateways',JSON.stringify(gateways))
+        await AsyncStorage.setItem('watchhistory_api', appConfigData.data.params_hash2.config_params.watchhistory_api);
+        await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
+        await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);
+        await AsyncStorage.setItem('faq', appConfigData.data.params_hash2.config_params.faq);
+        await AsyncStorage.setItem('contactUs', appConfigData.data.params_hash2.config_params.contact_us);
+        const jsonData = ((appConfigData.data.params_hash2.config_params))
+        for (var t in jsonData) {
+            if (t == 't&c') {
+                await AsyncStorage.setItem('termsCondition', jsonData[t]);
+            }
+        }
+        await AsyncStorage.setItem('privacy', appConfigData.data.params_hash2.config_params.privacy_policy);
+        await AsyncStorage.setItem('about', appConfigData.data.params_hash2.config_params.about_us);
+        await AsyncStorage.setItem('webPortalUrl', appConfigData.data.params_hash2.config_params.web_portal_url);
+        await AsyncStorage.setItem('offlineDeleteDays', appConfigData.data.params_hash2.config_params.offline_deletion_days);
+        await AsyncStorage.setItem('globalViewCount', JSON.stringify(appConfigData.data.params_hash2.config_params.global_view_count));
+        await AsyncStorage.setItem('commentable', JSON.stringify(appConfigData.data.params_hash2.config_params.commentable));
+        await AsyncStorage.setItem('subscriptionUrl', appConfigData.data.params_hash2.config_params.subscription_url);
+        await AsyncStorage.setItem('tvLoginUrl', appConfigData.data.params_hash2.config_params.tv_login_url);
+        //}
     }
     const deleteMyAccount = async () => {
         const sessionId = await AsyncStorage.getItem('session');
@@ -290,7 +298,7 @@ export default function Profile({ navigation }) {
                         useAngle={true}
                         angle={125}
                         angleCenter={{ x: 0.5, y: 0.5 }}
-                        colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
+                        colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
                         style={{ paddingTop: 7, paddingBottom: 7, paddingLeft: 22, paddingRight: 22, borderRadius: 20, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Edit Profile</Text>
@@ -342,7 +350,7 @@ export default function Profile({ navigation }) {
                         :
                         <Pressable onPress={() => navigation.navigate('Subscribe')}><Text style={styles.detailsvalue}>{subscription_title}</Text></Pressable>
                     }
-                    {expireson != "" && expireson != null && expireson!='1-0-1970' ?
+                    {expireson != "" && expireson != null && expireson != '1-0-1970' ?
                         <Text style={styles.detailsheader}>Expires on {expireson}</Text>
                         : ""}
                 </View>
@@ -363,9 +371,9 @@ export default function Profile({ navigation }) {
     )
 }
 const styles = StyleSheet.create({
-    drawerHeaderText: { color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold',marginBottom:5 },
+    drawerHeaderText: { color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold', marginBottom: 5 },
     drawerHeaderImage: { width: "100%", height: 120 },
-    inneroption: { borderTopColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5, paddingLeft: 10,paddingRight:10,paddingTop:5,paddingBottom:5 },
+    inneroption: { borderTopColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5, paddingLeft: 10, paddingRight: 10, paddingTop: 5, paddingBottom: 5 },
     detailsheader: { color: DETAILS_TEXT_COLOR, fontSize: 11 },
     detailsvalue: { color: NORMAL_TEXT_COLOR, fontSize: 14 }
 });

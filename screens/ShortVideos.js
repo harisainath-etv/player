@@ -1,6 +1,6 @@
-import { View, ActivityIndicator, FlatList, Pressable, StyleSheet, Text, StatusBar, TouchableOpacity } from 'react-native'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, SHORTS_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
+import { View, FlatList, Pressable, StyleSheet, StatusBar, TouchableOpacity } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, VIDEO_AUTH_TOKEN } from '../constants'
 import TransparentHeader from './transparentHeader';
 import Video from 'react-native-video';
 import axios from 'axios';
@@ -14,73 +14,37 @@ import { StackActions } from '@react-navigation/native';
 export default function Shorts({ navigation }) {
     const [startindex, setstartindex] = useState(0);
     var limit = 3;
-    const dataFetch = useRef(null);
     const [Videos, setVideos] = useState([]);
-    const [loginid, setloginid] = useState();
     const flatListRef = useRef();
     const videoRef = useRef();
     const [currentIndexValue, setcurrentIndexValue] = useState(0);
-    const [showcontrols, setshowcontrols] = useState(true);
-    const [state, setState] = useState({ opacity: 0 });
     const [stoploading, setstoploading] = useState(false);
     const [likecontent, setlikecontent] = useState(false);
     const [loggedin, setloggedin] = useState(false);
     const [scrollvideoid, setscrollvideoid] = useState();
 
-
-    const loadcontrols = async (index) => {
-        //setshowcontrols(!showcontrols)
-        if (currentIndexValue == 0) {
-            setcurrentIndexValue(index)
-        }
-        else {
-            setcurrentIndexValue(0);
-        }
-    }
-    useEffect(() => {
-        // if (showcontrols) {
-        //     setTimeout(function () { setshowcontrols(!showcontrols) }, 5000);
-        // }
-    })
-    const onLoadStart = () => {
-        setState({ opacity: 1 });
-    }
-    const onLoad = (val) => {
-        setState({ opacity: 0 });
-    }
-    const onBuffer = ({ isBuffering }) => {
-        setState({ opacity: isBuffering ? 1 : 0 });
-    }
-
     const filterItems = (stringNeeded, arrayvalues) => {
         let query = stringNeeded.toLowerCase();
         return arrayvalues.filter(item => item.toLowerCase().indexOf(query) >= 0);
     }
-
-    const getData = async () => {
-        const email = await AsyncStorage.getItem('email_id');
-        const mobile_number = await AsyncStorage.getItem('mobile_number');
+    const loginValidation = async () => {
         const session = await AsyncStorage.getItem('session');
-        const region = await AsyncStorage.getItem('country_code');
-        var sessionId = await AsyncStorage.getItem('session');
         if (session != "" && session != null) {
 
             await axios.get(FIRETV_BASE_URL_STAGING + "user/session/" + session + "?auth_token=" + AUTH_TOKEN).then(resp => {
                 if (resp.data.message == 'Valid session id.') {
                     setloggedin(true)
-                    if (mobile_number != "" && mobile_number != null) {
-                        setloginid(mobile_number);
-                    }
-                    else
-                        if (email != "" && email != null) {
-                            setloginid(email);
-                        }
                 }
             }).catch(err => {
                 console.log(err);
                 setloggedin(false)
             })
         }
+    }
+    const getData = async () => {
+        const region = await AsyncStorage.getItem('country_code');
+        var sessionId = await AsyncStorage.getItem('session');
+
         axios.get(FIRETV_BASE_URL_STAGING + "catalog_lists/shorts-data?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&page=" + startindex + "&page_size=" + limit).then(resp => {
             for (var s = 0; s < resp.data.data.catalog_list_items.length; s++) {
                 var removequeryStrings = resp.data.data.catalog_list_items[s].seo_url.split("?");
@@ -151,22 +115,17 @@ export default function Shorts({ navigation }) {
                     'Content-Type': 'application/json',
                 }
             }).then(res => {
-                setVideos((Videos) => [...Videos, ...[{ "video": res.data.data.stream_info.adaptive_url, "catalog_id": catalog_id, "content_id": content_id, "shareUrl": shareUrl, "title": title, "likecontent": likecontent, "full_catalog_id":full_catalog_id, "full_content_id":full_content_id }]]);
+                setVideos((Videos) => [...Videos, ...[{ "video": res.data.data.stream_info.adaptive_url, "catalog_id": catalog_id, "content_id": content_id, "shareUrl": shareUrl, "title": title, "likecontent": likecontent, "full_catalog_id": full_catalog_id, "full_content_id": full_content_id }]]);
             }).catch(er => {
                 console.log("getall" + er);
             })
         }
     }
     useEffect(() => {
-        // if (dataFetch.current) {
-        //     return
-        // }else{
-        //     getlikes(0);
-        // }
-        // dataFetch.current = true;
+        loginValidation()
         getData()
 
-    }, [])
+    }, [currentIndexValue])
 
     const likevideo = async (catalogId, contentId) => {
         if (!loggedin) {
@@ -245,91 +204,75 @@ export default function Shorts({ navigation }) {
 
         setscrollvideoid(val);
     }
-    const fullEpisode = async(full_catalog_id,full_content_id) =>{
+    const fullEpisode = async (full_catalog_id, full_content_id) => {
         const region = await AsyncStorage.getItem('country_code');
-        var urlPath = FIRETV_BASE_URL + "catalogs/" + full_catalog_id + "/items/" + full_content_id+ ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;;
-        axios.get(urlPath).then(response=>{
-            navigation.dispatch(StackActions.replace('Episode', { seoUrl: response.data.data.seo_url, theme: response.data.data.theme,goto:'Shorts' }))
-        }).catch(error=>{
+        var urlPath = FIRETV_BASE_URL + "catalogs/" + full_catalog_id + "/items/" + full_content_id + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;;
+        axios.get(urlPath).then(response => {
+            navigation.dispatch(StackActions.replace('Episode', { seoUrl: response.data.data.seo_url, theme: response.data.data.theme, goto: 'Shorts' }))
+        }).catch(error => {
             console.log(error);
         })
     }
-    const renderItem = ({ item, index }) =>{
-        
-                return (
+    const renderItem = ({ item, index }) => {
 
-                    <View style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flex: 1, flexGrow: 1 }}>
+        return (
 
-                        <Pressable onPress={() => {{}}} style={{ flex: 1, flexGrow: 1, justifyContent: 'center', alignContent: 'center' }}>
-                            <Video
-                                ref={videoRef}
-                                onBuffer={onBuffer}
-                                source={{ uri: item.video }}
-                                controls={false}
-                                onLoadStart={onLoadStart}
-                                onLoad={() => onLoad(currentIndexValue)}
-                                paused={currentIndexValue === index ? false : true}
-                                playInBackground={false}
-                                repeat={true}
-                                volume={1}
-                                rate={1.0}
-                                useTextureView={false}
-                                resizeMode={'cover'}
-                                style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flexGrow: 1, flex: 1 }}
-                                playWhenInactive={false}
-                            />
-                            {/* {state.opacity === 1 ?
-                                <ActivityIndicator
-                                    animating
-                                    size="large"
-                                    color={SLIDER_PAGINATION_SELECTED_COLOR}
-                                    style={[styles.activityIndicator, { opacity: state.opacity }]}
-                                />
-                                :
-                                ""} */}
-                        </Pressable>
-                        <View style={{ position: 'absolute', right: 15, top: '50%', }}>
-                            {
-                                item.likecontent ?
+            <View style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flex: 1, flexGrow: 1 }}>
 
-                                    <TouchableOpacity onPress={() => deleteLike(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like1" size={28} color={NORMAL_TEXT_COLOR} style={{}} /></TouchableOpacity>
+                <Pressable onPress={() => { { } }} style={{ flex: 1, flexGrow: 1, justifyContent: 'center', alignContent: 'center' }}>
+                    <Video
+                        ref={videoRef}
+                        source={{ uri: item.video }}
+                        controls={false}
+                        paused={currentIndexValue === index ? false : true}
+                        playInBackground={false}
+                        repeat={true}
+                        volume={1}
+                        rate={1.0}
+                        useTextureView={false}
+                        resizeMode={'cover'}
+                        style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flexGrow: 1, flex: 1 }}
+                        playWhenInactive={false}
+                    />
+                </Pressable>
+                <View style={{ position: 'absolute', right: 15, top: '50%', }}>
+                    {
+                        item.likecontent ?
 
-                                    :
-                                    likecontent ?
-                                        <TouchableOpacity onPress={() => deleteLike(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like1" size={28} color={NORMAL_TEXT_COLOR} style={{}} /></TouchableOpacity>
-                                        :
+                            <TouchableOpacity onPress={() => deleteLike(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like1" size={28} color={NORMAL_TEXT_COLOR} style={{}} /></TouchableOpacity>
 
-                                        <TouchableOpacity onPress={() => likevideo(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like2" size={28} color={NORMAL_TEXT_COLOR} style={{}} />
-                                        </TouchableOpacity>
-
-                            }
-
-
-                            <TouchableOpacity onPress={() => shareOptions(item.shareUrl, item.title)}><AntDesign name="sharealt" size={28} color={NORMAL_TEXT_COLOR} style={{ marginTop: 50 }} /></TouchableOpacity>
-
-                            {item.full_catalog_id && item.full_content_id ?
-                            <TouchableOpacity onPress={() => fullEpisode(item.full_catalog_id, item.full_content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <Ionicons name="navigate-circle" size={34} color={NORMAL_TEXT_COLOR} style={{ marginTop: 50 }} />
-                            </TouchableOpacity>
                             :
+                            likecontent ?
+                                <TouchableOpacity onPress={() => deleteLike(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like1" size={28} color={NORMAL_TEXT_COLOR} style={{}} /></TouchableOpacity>
+                                :
 
-                            ""}
+                                <TouchableOpacity onPress={() => likevideo(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like2" size={28} color={NORMAL_TEXT_COLOR} style={{}} />
+                                </TouchableOpacity>
+
+                    }
 
 
-                        </View>
-                        {/* :
+                    <TouchableOpacity onPress={() => shareOptions(item.shareUrl, item.title)}><AntDesign name="sharealt" size={28} color={NORMAL_TEXT_COLOR} style={{ marginTop: 50 }} /></TouchableOpacity>
+
+                    {item.full_catalog_id && item.full_content_id ?
+                        <TouchableOpacity onPress={() => fullEpisode(item.full_catalog_id, item.full_content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <Ionicons name="navigate-circle" size={34} color={NORMAL_TEXT_COLOR} style={{ marginTop: 50 }} />
+                        </TouchableOpacity>
+                        :
+
+                        ""}
+
+
+                </View>
+                {/* :
                                     ""} */}
-                    </View>
+            </View>
 
-                );
+        );
     }
-    const memoizedValue = useMemo(() => renderItem, [Videos]);
     return (
         <View style={{ height: PAGE_HEIGHT, width: PAGE_WIDTH, backgroundColor: BACKGROUND_COLOR }}>
-            {showcontrols ?
-                <TransparentHeader></TransparentHeader>
-                :
-                ""}
+            <TransparentHeader></TransparentHeader>
             <FlatList
                 ref={flatListRef}
                 data={Videos}
@@ -339,16 +282,17 @@ export default function Shorts({ navigation }) {
                 onScroll={e => {
                     var val = Math.round(e.nativeEvent.contentOffset.y.toFixed(0) / PAGE_HEIGHT);
                     setcurrentIndexValue(Math.round(e.nativeEvent.contentOffset.y.toFixed(0) / PAGE_HEIGHT));
-                    if (currentIndexValue != (Math.round(e.nativeEvent.contentOffset.y.toFixed(0) / PAGE_HEIGHT)) && stoploading == false) {
-                        //if(currentIndexValue%2==0 && currentIndexValue!=0 && currentIndexValue!=1)
-                        getData()
+                    if (Math.round(e.nativeEvent.contentOffset.y.toFixed(0) / PAGE_HEIGHT) != (Math.round(e.nativeEvent.contentOffset.y.toFixed(0) / PAGE_HEIGHT)) && stoploading == false) {
+                        if (Math.round(e.nativeEvent.contentOffset.y.toFixed(0) / PAGE_HEIGHT) % 2 == 0) {
+                            getData();
+                        }
                     }
                     if (val != scrollvideoid) {
                         getlikes(val);
                     }
                 }}
                 contentContainerStyle={{ minHeight: '100%', }}
-                renderItem={memoizedValue}
+                renderItem={renderItem}
                 pagingEnabled
             />
             <Footer pageName="SHORTS" />

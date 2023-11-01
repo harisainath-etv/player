@@ -1,14 +1,11 @@
 import { registerRootComponent } from 'expo';
 
 import App from './App';
-import PushNotification from "react-native-push-notification";
-import { Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
-import { useEffect } from 'react';
 
 messaging().setBackgroundMessageHandler(async remoteMessage => {
     console.log('Message handled in the background!', remoteMessage);
+    console.log(JSON.stringify(remoteMessage));
 });
 
 messaging()

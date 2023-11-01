@@ -1,12 +1,15 @@
-import { View, Text, TouchableOpacity, Platform, TextInput, Image, Pressable } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { ACCESS_TOKEN, BACKGROUND_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, SECRET_KEY, SLIDER_PAGINATION_SELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
+import { View, Text, TouchableOpacity, Platform, TextInput, Image, Pressable,StyleSheet,StatusBar } from 'react-native'
+import React, { useEffect, useState, useRef } from 'react'
+import { ACCESS_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, BUTTON_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, NORMAL_TEXT_COLOR, SECRET_KEY, SLIDER_PAGINATION_SELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
 import NormalHeader from './normalHeader'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { stringMd5 } from 'react-native-quick-md5';
 import { StackActions } from '@react-navigation/native';
 import DeviceInfo from 'react-native-device-info';
+import LinearGradient from 'react-native-linear-gradient';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function Confirmation({ navigation }) {
     const [amount, setAmount] = useState();
@@ -19,6 +22,7 @@ export default function Confirmation({ navigation }) {
     const [usersubscribed, setusersubscribed] = useState();
     const [paymentgateway, setpaymentgateway] = useState('billdesk');
     const [region, setregion] = useState('IN');
+    const dataFetchedRef = useRef(null);
     const loadData = async () => {
         setAmount(await AsyncStorage.getItem('payable_amount'));
         setcurrency(await AsyncStorage.getItem('payable_currency_symbol'));
@@ -26,8 +30,14 @@ export default function Confirmation({ navigation }) {
         setplanduration(await AsyncStorage.getItem('payable_selected_duration'));
         setusersubscribed(await AsyncStorage.getItem('payable_coupon_display'));
         setregion(await AsyncStorage.getItem('country_code'));
+        const payment_gateway = await AsyncStorage.getItem('payment_gateway');
+        if (payment_gateway) {
+            setpaymentgateway(payment_gateway);
+        }
     }
     useEffect(() => {
+        if (dataFetchedRef.current) return;
+        dataFetchedRef.current = true;
         loadData()
     })
     const makepayment = async () => {
@@ -119,7 +129,7 @@ export default function Confirmation({ navigation }) {
                         'Content-Type': 'application/json',
                     }
                 }).then(resp => {
-                    if (resp.data.data.code != "1070") { 
+                    if (resp.data.data.code != "1070") {
                         navigation.navigate('Webview', { uri: resp.data.data.payment_url + "&encRequest=" + resp.data.data.msg + "&access_code=" + resp.data.data.access_code })
                     }
                     else {
@@ -195,29 +205,188 @@ export default function Confirmation({ navigation }) {
         }).catch(error => {
             setdiscountmessage(error.response.data.mesaage)
         })
+    } 
+
+    function renderProcessSection(val) {
+        const styles = StyleSheet.create({
+            container: {
+                justifyContent: "center",
+                alignItems: "center",
+                display: "flex",
+            },
+            number: {
+                color: "white",
+                fontSize: 14,
+            },
+            horizontalLine: {
+                width: 35,
+                height: 1,
+                backgroundColor: NORMAL_TEXT_COLOR,
+                marginTop: -10,
+                alignItems: "center",
+                justifyContent: "center",
+            },
+        });
+        return (
+            <View
+                style={{
+                    display: "flex",
+                    justifyContent: "space-evenly",
+                    flexDirection: "row",
+                    padding: 10,
+                }}
+            >
+                <View
+                    style={{
+                        alignItems: "center",
+                    }}
+                >
+                    {val == 1 ?
+                        <>
+                            <MaterialCommunityIcons
+                                name="check-circle"
+                                size={20}
+                                color={TAB_COLOR}
+                            />
+                            <Text style={{ fontSize: 12, paddingTop: 6, color: TAB_COLOR, fontWeight: '500' }}>Package</Text>
+                        </>
+                        :
+                        <>
+                            <MaterialCommunityIcons
+                                name="check-circle"
+                                size={20}
+                                color={NORMAL_TEXT_COLOR}
+                            />
+                            <Text style={{ fontSize: 12, paddingTop: 6, color: NORMAL_TEXT_COLOR, fontWeight: '500' }}>Package</Text>
+                        </>
+                    }
+
+                </View>
+                <View style={styles.container}>
+                    <View style={styles.horizontalLine} />
+                </View>
+                <View
+                    style={{
+                        alignItems: "center",
+                    }}
+                >
+
+                    {val == 2 ?
+                        <>
+                            <MaterialCommunityIcons
+                                name="check-circle"
+                                size={20}
+                                color={TAB_COLOR}
+                            />
+                            <Text style={{ fontSize: 12, paddingTop: 6, color: TAB_COLOR, fontWeight: '500' }}>Plan</Text>
+                        </>
+                        :
+                        <>
+                            <MaterialCommunityIcons
+                                name="check-circle"
+                                size={20}
+                                color={NORMAL_TEXT_COLOR}
+                            />
+                            <Text style={{ fontSize: 12, paddingTop: 6, color: NORMAL_TEXT_COLOR, fontWeight: '500' }}>Plan</Text>
+                        </>
+                    }
+
+
+                </View>
+                <View style={styles.container}>
+                    <View style={styles.horizontalLine} />
+                </View>
+                <View
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                    }}
+                >
+
+
+                    {val == 3 ?
+                        <>
+                            <MaterialCommunityIcons
+                                name="check-circle"
+                                size={20}
+                                color={TAB_COLOR}
+                            />
+                            <Text style={{ fontSize: 12, paddingTop: 6, color: TAB_COLOR, fontWeight: '500' }}>Payment</Text>
+                        </>
+                        :
+                        <>
+                            <MaterialCommunityIcons
+                                name="check-circle"
+                                size={20}
+                                color={NORMAL_TEXT_COLOR}
+                            />
+                            <Text style={{ fontSize: 12, paddingTop: 6, color: NORMAL_TEXT_COLOR, fontWeight: '500' }}>Payment</Text>
+                        </>
+                    }
+
+
+                </View>
+            </View>
+        );
     }
+
+    async function paymentGatewayAvailable(name) {
+        const arr = await AsyncStorage.getItem('availableGateways');
+        
+        const data = JSON.parse(arr);
+        const { length } = data;
+        const id = length + 1;
+        const found = data.some(el => el.name === name);
+        if (found) 
+        return true
+        else
+        return false;
+      }
+
     return (
         <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
-            <NormalHeader></NormalHeader>
-            <View style={{ padding: 20 }}>
-                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 30, marginBottom: 30 }}>Confirm</Text>
+
+            <TouchableOpacity onPress={() => {
+                    if (navigation.canGoBack())
+                        navigation.goBack()
+                    else
+                        navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+            }}>
+                <Ionicons name="arrow-back" size={30} color={NORMAL_TEXT_COLOR} style={{ marginTop: 60,marginLeft:10 }} />
+            </TouchableOpacity>
+            {renderProcessSection(3)}
+            <View style={{ paddingLeft: 35,paddingRight:35, marginTop: 20 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 20 }}>{planname}  / <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>{planduration}</Text></Text>
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25 }}>{currency} {amount}</Text>
+                    <Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 15 }}>{planname}  / <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 14 }}>{planduration}</Text></Text>
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>{currency} {amount}</Text>
                 </View>
                 {usersubscribed == 'yes' ?
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 70 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 40, }}>
+                        <View style={{marginRight:15,width:"75%"}}>
                         <TextInput
                             placeholder='Enter Coupon Code'
                             placeholderTextColor={DETAILS_TEXT_COLOR}
-                            style={{ borderBottomColor: SLIDER_PAGINATION_SELECTED_COLOR, borderWidth: 0.5, width: '70%', padding: 2, color: NORMAL_TEXT_COLOR }}
+                            style={{ width: '100%',color: NORMAL_TEXT_COLOR,backgroundColor:DARKED_BORDER_COLOR,borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5,padding:8,borderRadius:8 }}
                             onChangeText={setcoupon}
                             value={coupon}
                         />
-                        <View style={{ width: '5%', }}></View>
+                        </View>
 
-                        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
-                            <TouchableOpacity onPress={() => applycoupon()} style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 10, borderRadius: 10, marginRight: 20 }}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Apply</Text></TouchableOpacity>
+                        <View style={{ justifyContent: 'center', alignItems: 'flex-end', width:"25%", }}>
+                            <TouchableOpacity onPress={() => applycoupon()}>
+
+                                <LinearGradient
+                                    useAngle={true}
+                                    angle={125}
+                                    angleCenter={{ x: 0.5, y: 0.5 }}
+                                    colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                                    style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR,  paddingLeft: 20,paddingRight: 20,paddingTop:10,paddingBottom:10,width:"100%", borderRadius: 10, }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Apply</Text>
+                                    </View>
+                                </LinearGradient>
+
+                            </TouchableOpacity>
                         </View>
 
                     </View>
@@ -227,42 +396,54 @@ export default function Confirmation({ navigation }) {
                     <Text style={{ color: '#00FF00' }}>{discountmessage}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Total Amount Payable</Text>
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15,fontWeight:'600' }}>Total Amount Payable</Text>
                     {(chargedamount != "" && chargedamount != null) || (chargedamount == "0") ?
-                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25 }}>{currency} {chargedamount}</Text>
+                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>{currency} {chargedamount}</Text>
                         :
-                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25 }}>{currency} {amount}</Text>
+                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>{currency} {amount}</Text>
                     }
                 </View>
 
                 {region == 'IN' ?
                     paymentgateway == 'billdesk' ?
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
+                            {paymentGatewayAvailable('billdesk') ?
                             <Pressable onPress={() => setpaymentgateway('billdesk')} style={{ width: "45%" }}>
                                 <Image source={require('../assets/billdesk-tick.png')} style={{ width: '100%', height: 50 }} />
                             </Pressable>
+                            :""}
+                            {paymentGatewayAvailable('ccavenue') ?
                             <Pressable onPress={() => setpaymentgateway('ccavenue')} style={{ width: "45%" }}>
                                 <Image source={require('../assets/ccavenue-untick.png')} style={{ width: '100%', height: 50 }} />
                             </Pressable>
+                            :""}
                         </View>
                         :
                         paymentgateway == 'ccavenue' ?
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
+                                {paymentGatewayAvailable('billdesk') ?
                                 <Pressable onPress={() => setpaymentgateway('billdesk')} style={{ width: "45%" }}>
                                     <Image source={require('../assets/billdesk-untick.png')} style={{ width: '100%', height: 50 }} />
                                 </Pressable>
+                                 :""}
+                                 {paymentGatewayAvailable('ccavenue') ?
                                 <Pressable onPress={() => setpaymentgateway('ccavenue')} style={{ width: "45%" }}>
                                     <Image source={require('../assets/ccavenue-tick.png')} style={{ width: '100%', height: 50 }} />
                                 </Pressable>
+                                :""}
                             </View>
                             :
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
+                                {paymentGatewayAvailable('billdesk') ?
                                 <Pressable onPress={() => setpaymentgateway('billdesk')} style={{ width: "45%" }}>
                                     <Image source={require('../assets/billdesk-tick.png')} style={{ width: '100%', height: 50 }} />
                                 </Pressable>
+                                :""}
+                                {paymentGatewayAvailable('ccavenue') ?
                                 <Pressable onPress={() => setpaymentgateway('ccavenue')} style={{ width: "45%" }}>
                                     <Image source={require('../assets/ccavenue-untick.png')} style={{ width: '100%', height: 50 }} />
                                 </Pressable>
+                                :""}
                             </View>
                     :
                     ""
@@ -271,9 +452,27 @@ export default function Confirmation({ navigation }) {
             </View>
 
             <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
-                <TouchableOpacity onPress={makepayment} style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 18, borderRadius: 10, marginRight: 20 }}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Make Payment</Text></TouchableOpacity>
-            </View>
+                <TouchableOpacity onPress={makepayment} >
 
+                    <LinearGradient
+                        useAngle={true}
+                        angle={125}
+                        angleCenter={{ x: 0.5, y: 0.5 }}
+                        colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                        style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 10, borderRadius: 20, marginRight: 20 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Make Payment</Text>
+                        </View>
+                    </LinearGradient>
+
+                </TouchableOpacity>
+            </View>
+            <StatusBar
+                animated
+                backgroundColor="transparent"
+                barStyle="dark-content"
+                translucent={true}
+            />
         </View>
     )
 }
