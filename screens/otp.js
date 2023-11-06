@@ -10,7 +10,7 @@ import analytics from '@react-native-firebase/analytics';
 import DeviceInfo from 'react-native-device-info';
 import LinearGradient from 'react-native-linear-gradient';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-
+import messaging from '@react-native-firebase/messaging';
 
 export default function Otp({ navigation, route }) {
     const { otpkey } = route.params;
@@ -69,8 +69,9 @@ export default function Otp({ navigation, route }) {
         var frontpagedob = await AsyncStorage.getItem('frontpagedob');
         var frontpagegender = await AsyncStorage.getItem('frontpagegender');
         var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
-        const device_token = await AsyncStorage.getItem('fcm_token');
+        const device_token = await messaging().getToken();
         if (otpkey == "loginMobile") {
+            console.log(JSON.stringify({ action: "signin", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: loginMobile, mobile_number: loginMobile, device_token: device_token }));
             axios.post(FIRETV_BASE_URL_STAGING + "users/verify_otp", {
                 auth_token: AUTH_TOKEN,
                 user: { action: "signin", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: loginMobile, mobile_number: loginMobile, device_token: device_token }

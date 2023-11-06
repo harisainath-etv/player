@@ -27,8 +27,11 @@ export default function Subscribe({ navigation }) {
     const [planid, setplanid] = useState("");
     const [description, setdescription] = useState("");
     const [currentplan, setcurrentplan] = useState("");
+    const [usersubscribed, setusersubscribed] = useState();
+    const [userRenewUpgrade, setuserRenewUpgrade] = useState("");
     const loadData = async () => {
         var currentplan = await AsyncStorage.getItem('plan_id');
+        setusersubscribed(await AsyncStorage.getItem('payable_coupon_display'));
         setcurrentplan(currentplan);
         var items = [];
         AsyncStorage.setItem('selectedplan', selectedplan)
@@ -314,6 +317,12 @@ export default function Subscribe({ navigation }) {
             </View>
         );
     }
+    const setAsyncData = async (val) => {
+        if (val == 1)
+            await AsyncStorage.setItem('renew', 'true');
+        else
+            await AsyncStorage.setItem('renew', 'false');
+    }
     return (
         <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
             <TouchableOpacity onPress={() => {
@@ -403,12 +412,17 @@ export default function Subscribe({ navigation }) {
 
                                     return (
                                         <>
-                                            <TouchableOpacity key={resp.id} style={{}} onPress={() => { setselectedprice(resp.id); setselectedpriceforpayment(resp.price); setselectedpriceforduration(resp.display_period); setselectedpricecurrency(resp.currency_symbol); setcurrency(resp.currency); setplanid(resp.id); setdescription(resp.description); }}>
+                                            <TouchableOpacity key={resp.id} style={{}} onPress={() => {
+                                                setselectedprice(resp.id); setselectedpriceforpayment(resp.price); setselectedpriceforduration(resp.display_period); setselectedpricecurrency(resp.currency_symbol); setcurrency(resp.currency); setplanid(resp.id); setdescription(resp.description);
+                                                currentplan == resp.id ?
+                                                    setAsyncData(1)
+                                                    : setAsyncData(2);
+                                            }}>
 
                                                 <View style={styles.container}>
                                                     <View style={{ ...styles.box, marginBottom: 20 }} key={index}>
                                                         {currentplan == resp.id ?
-                                                            <Text style={{ color: TAB_COLOR, position: 'absolute', right: 15, top: 5,fontWeight:'700',fontSize:13 }}>Active</Text>
+                                                            <Text style={{ color: TAB_COLOR, position: 'absolute', right: 15, top: 5, fontWeight: '700', fontSize: 13 }}>Active</Text>
                                                             :
                                                             ""}
                                                         <Text style={{ marginTop: 14, fontWeight: "bold" }}>
@@ -516,6 +530,7 @@ export default function Subscribe({ navigation }) {
                                                 <View
                                                     style={{ flexDirection: "row", alignItems: "center" }}
                                                 >
+
                                                     <Text
                                                         style={{
                                                             color: NORMAL_TEXT_COLOR,
@@ -525,6 +540,7 @@ export default function Subscribe({ navigation }) {
                                                     >
                                                         Subscribe
                                                     </Text>
+
                                                 </View>
                                             </LinearGradient>
 

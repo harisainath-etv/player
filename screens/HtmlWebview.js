@@ -1,4 +1,4 @@
-import { StyleSheet, StatusBar, View, Text, Dimensions } from 'react-native'
+import { StyleSheet, StatusBar, View, Text, Dimensions, DevSettings } from 'react-native'
 import React, { useRef, useState } from 'react'
 import { BACKGROUND_COLOR, DARKED_BORDER_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, } from '../constants'
 import NormalHeader from './normalHeader';
@@ -25,8 +25,9 @@ export default function HtmlWebview({ navigation, route }) {
                                 alert("Transaction Successfull.")
                             }
                             else {
-                                alert(splitted[24])
+                                alert("Something went wrong. Please try again later.")
                             }
+                            //DevSettings.reload();
                             navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
                         }
 

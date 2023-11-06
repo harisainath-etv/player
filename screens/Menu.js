@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState, useEffect, useRef } from 'react';
 import { StackActions } from '@react-navigation/native';
-import { NORMAL_TEXT_COLOR, BACKGROUND_COLOR, TAB_COLOR, BUTTON_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, SIDEBAR_BACKGROUND_COLOR, PAGE_HEIGHT, PAGE_WIDTH, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, DARKED_BORDER_COLOR, FOOTER_DEFAULT_TEXT_COLOR, ANDROID_PACKAGE_NAME, ANDROID_SHARE_MESSAGE, ANDROID_SHARE_URL } from '../constants';
+import { NORMAL_TEXT_COLOR, BACKGROUND_COLOR, TAB_COLOR, BUTTON_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, SIDEBAR_BACKGROUND_COLOR, PAGE_HEIGHT, PAGE_WIDTH, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, DARKED_BORDER_COLOR, FOOTER_DEFAULT_TEXT_COLOR, ANDROID_PACKAGE_NAME, ANDROID_SHARE_MESSAGE, ANDROID_SHARE_URL, IOS_PACKAGE_NAME } from '../constants';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, TouchableOpacity, ImageBackground, Text, Pressable, StyleSheet, ScrollView, TextInput, StatusBar, ActivityIndicator } from 'react-native';
@@ -122,7 +122,7 @@ export default function Menu() {
     const ShareResponse = await Share.open(shareOptions);
   }
   const options = {
-    AppleAppID: "",
+    AppleAppID: IOS_PACKAGE_NAME,
     GooglePackageName: ANDROID_PACKAGE_NAME,
     preferredAndroidMarket: AndroidMarket.Google,
     preferInApp: false,

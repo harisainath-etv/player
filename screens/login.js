@@ -12,6 +12,7 @@ import analytics from '@react-native-firebase/analytics';
 import DeviceInfo from 'react-native-device-info';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
+import messaging from '@react-native-firebase/messaging';
 
 export default function Login({ navigation }) {
     const [email, setEmail] = useState('');
@@ -80,7 +81,7 @@ export default function Login({ navigation }) {
             var frontpagegender = await AsyncStorage.getItem('frontpagegender');
             var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
             const user_id = await AsyncStorage.getItem('user_id');
-            const device_token = await AsyncStorage.getItem('fcm_token');
+            const device_token = await messaging().getToken();
             const uniqueid = await DeviceInfo.getUniqueId();
             setuser(userinfo)
             axios.post(FIRETV_BASE_URL_STAGING + '/users/external_auth/sign_in',
@@ -208,7 +209,7 @@ export default function Login({ navigation }) {
             var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
             const user_id = await AsyncStorage.getItem('user_id');
             const uniqueid = await DeviceInfo.getUniqueId();
-            const device_token = await AsyncStorage.getItem('fcm_token');
+            const device_token = await messaging().getToken();
             setuser(userinfo)
             axios.post(FIRETV_BASE_URL_STAGING + '/users/external_auth/sign_in',
                 {
@@ -430,7 +431,7 @@ export default function Login({ navigation }) {
             var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
             const user_id = await AsyncStorage.getItem('user_id');
             const uniqueid = await DeviceInfo.getUniqueId();
-            const device_token = await AsyncStorage.getItem('fcm_token');
+            const device_token = await messaging().getToken();
             //if (CheckPassword(newpassword)) {
             const region = await AsyncStorage.getItem('country_code');
             axios.post(FIRETV_BASE_URL_STAGING + "users/sign_in", {
@@ -609,7 +610,7 @@ export default function Login({ navigation }) {
             var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
             const user_id = await AsyncStorage.getItem('user_id');
             const uniqueid = await DeviceInfo.getUniqueId();
-            const device_token = await AsyncStorage.getItem('fcm_token');
+            const device_token = await messaging().getToken();
             //if (CheckPassword(newpassword)) {
             const region = await AsyncStorage.getItem('country_code');
             axios.post(FIRETV_BASE_URL_STAGING + "users/sign_in", {

@@ -42,6 +42,6 @@ export const IOS_SHARE_MESSAGE = "Hi, \r\n\r\n I am using the ETV Win App. Check
 export const ANDROID_SHARE_URL = "https://play.google.com/store/apps/details?id=com.etvwin.mobile";
 export const IOS_SHARE_URL = "https://play.google.com/store/apps/details?id=com.etvwin.mobile";
 export const ANDROID_PACKAGE_NAME = "com.etvwin.mobile";
-export const IOS_PACKAGE_NAME = "com.etvwin.mobile";
+export const IOS_PACKAGE_NAME = "com.etvott.dev";
 export const MPGS_PAYMENT_BASE_URL = "https://hdfcbank.gateway.mastercard.com/checkout/api/retrieveWsapiVersion/";
 export const SHORTS_BASE_URL = "http://65.2.184.87/files/index.php/";
