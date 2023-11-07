@@ -2,10 +2,18 @@ import { registerRootComponent } from 'expo';
 
 import App from './App';
 import messaging from '@react-native-firebase/messaging';
+import { VIDEO_TYPES } from './constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const setAsynData = async(page,seourl,theme) =>{
+await AsyncStorage.setItem('notificationPage',page);
+await AsyncStorage.setItem('notificationSeourl',seourl);
+await AsyncStorage.setItem('notificationTheme',theme);
+}
 messaging().setBackgroundMessageHandler(async remoteMessage => {
     console.log('Message handled in the background!', remoteMessage);
     console.log(JSON.stringify(remoteMessage));
+    VIDEO_TYPES.includes(remoteMessage.data.catalog_layout_type) ? setAsynData('Episode', remoteMessage.data.seo_url, remoteMessage.data.catalog_layout_type) : setAsynData('Shows', remoteMessage.data.seo_url, remoteMessage.data.catalog_layout_type)
 });
 
 messaging()
@@ -16,6 +24,7 @@ messaging()
               'Notification caused app to open from quit state:',
               remoteMessage,
             );
+            VIDEO_TYPES.includes(remoteMessage.data.catalog_layout_type) ? setAsynData('Episode', remoteMessage.data.seo_url, remoteMessage.data.catalog_layout_type) : setAsynData('Shows', remoteMessage.data.seo_url, remoteMessage.data.catalog_layout_type)
           }
         });
 // const loadPrefData = async () => {

@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform, FlatList } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform, FlatList, Image } from 'react-native';
 import React, { useEffect, useState, createRef, useRef } from 'react';
 import * as NavigationBar from "expo-navigation-bar";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -92,6 +92,12 @@ export default function Episode({ navigation, route }) {
   const [loginrequired, setloginrequired] = useState(false);
   const [isfree, setisfree] = useState(false);
   const [relatedshows, setRelatedShows] = useState([]);
+  const [totalImages, setTotalImages] = useState([]);
+  const [thumbnailimageTop, setthumbnailimageTop] = useState(0);
+  const [thumbnailimageLeft, setthumbnailimageLeft] = useState(0);
+  const [thumbnailimageWidth, setthumbnailimageWidth] = useState(0);
+  const [thumbnailimageHeight, setthumbnailimageHeight] = useState(0);
+  const [thumbImage, setThumbImage] = useState("");
   var multiTapCount = 10;
   var multiTapDelay = 300;
   var client = useRemoteMediaClient();
@@ -301,10 +307,101 @@ export default function Episode({ navigation, route }) {
       })
     }
 
+    //thumbnail images
+    // await axios.get("https://prod.suv.etvwin.com/v2/smart_urls/6529227a49882c24b7c3d509?service_id=6&play_url=yes&protocol=hls&us=745d7e9f1e37ca27fdffbebfe8a99877").
+    //   then(tresp => {
+    //     axios.get(tresp.data.seekbar_thumbnail_url).then(vresp => {
+    //       const jsonContent = webvttToJson(vresp.data);
+    //       generateTimeIntervalsWithImageChanges(jsonContent);
+    //       //console.log(finalData);
+    //     }).catch(verr => {
+    //       console.log(verr);
+    //     })
+    //   }).catch(terr => {
+    //     console.log(terr);
+    //   })
     //ofline downloads
     let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
     if (lostTasks.length > 0)
       setIsresumeDownloading(true);
+  }
+
+
+  function webvttToJson(webvttContent) {
+    const lines = webvttContent.trim().split(/\r?\n/);
+    const cues = [];
+    let currentCue = null;
+
+    for (const line of lines) {
+      if (line.includes("-->")) {
+        const [startTime, endTime] = line.split(" --> ");
+        var a = startTime.split(':');
+        var b = endTime.split(':');
+        var startseconds = (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2]);
+        var endseconds = (+b[0]) * 60 * 60 + (+b[1]) * 60 + (+b[2]);
+        currentCue = {
+          start: startseconds,
+          end: endseconds,
+          filename: null,
+          coordinates: null
+        };
+        if (currentCue && currentCue.start && currentCue.end) {
+          cues.push(currentCue);
+        }
+      } else if (currentCue) {
+        if (line.includes("#xywh=")) {
+          const [filename, coordinates] = line.split("#xywh=");
+          currentCue.filename = filename.trim();
+          currentCue.coordinates = coordinates.trim();
+        }
+      }
+    }
+
+    if (currentCue && currentCue.start && currentCue.end) {
+      cues.push(currentCue);
+    }
+
+    return { cues };
+  }
+  function generateTimeIntervalsWithImageChanges(jsonContent) {
+    const intervals = [];
+    jsonContent.cues.forEach((cue, index) => {
+      const filename = cue.filename;
+      const startTime = cue.start;
+      const endTime = cue.end;
+      const coordinates = cue.coordinates;
+      intervals.push({
+        time: cue.start,
+        filename,
+        coordinates
+      });
+      for (let time = startTime; time <= endTime; time += 1) {
+        intervals.push({
+          time: time,
+          filename,
+          coordinates
+        });
+      }
+    });
+    setTotalImages(intervals);
+  }
+
+  function getThumbnailImage(time) {
+    var results = [];
+    console.log(time);
+    for (var i = 0; i < totalImages.length; i++) {
+      if (totalImages[i].time == time) {
+        results.push(totalImages[i]);
+        setThumbImage("https://etvwin-s3.akamaized.net/6529227449882c24b7c3d508/myvideofile/" + totalImages[i].filename)
+        var coordinateDetails = totalImages[i].coordinates.split(",");
+        setthumbnailimageLeft(coordinateDetails[0]);
+        setthumbnailimageTop(coordinateDetails[1]);
+        setthumbnailimageWidth(coordinateDetails[2]);
+        setthumbnailimageHeight(coordinateDetails[3]);
+      }
+    }
+
+    console.log(results);
   }
 
   const triggeranalytics = async (name, sec) => {
@@ -971,29 +1068,50 @@ export default function Episode({ navigation, route }) {
                   </TouchableOpacity>
                 </View>
               )}
+              {/* {thumbImage ? */}
+              {/* <View style={{ width: 64, height: 64, overflow: 'hidden' }}>
+                <Image
+                  // source={{uri:thumbImage}}
+                  source={{ uri: "https://etvwin-s3.akamaized.net/6529227449882c24b7c3d508/myvideofile/myvideofile_sprite.png" }}
+                  style={{
+                    width: "100%",
+                    height:50
+                        }}
+                  resizeMode='contain'
+                />
+              </View> */}
 
+              {/* :
+                    ""} */}
               {state.showControls && (
-                <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 60, bottom: 0, flexDirection: 'row' }}>
-                  <View style={{ width: "85%", top: 20 }}>
-                    <Slider
-                      style={{ width: "100%", height: 40 }}
-                      minimumValue={0}
-                      maximumValue={Math.floor(duration)}
-                      minimumTrackTintColor="#FF0000 "
-                      maximumTrackTintColor="#343A82"
-                      tapToSeek={true}
-                      value={currentloadingtime}
-                      onSlidingComplete={val => {
-                        videoRef.current.seek(Math.floor(val))
-                      }}
-                    />
+                <>
+
+                  <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 60, bottom: 0, flexDirection: 'row' }}>
+                    <View style={{ width: "85%", top: 20 }}>
+                      <Slider
+                        style={{ width: "100%", height: 40 }}
+                        minimumValue={0}
+                        maximumValue={Math.floor(duration)}
+                        minimumTrackTintColor={TAB_COLOR}
+                        maximumTrackTintColor={NORMAL_TEXT_COLOR}
+                        tapToSeek={true}
+                        value={currentloadingtime}
+                        onSlidingComplete={val => {
+                          videoRef.current.seek(Math.floor(val))
+                        }}
+                        onValueChange={val => {
+                          //getThumbnailImage(Math.round(val));
+                        }}
+                        animateTransitions={true}
+                      />
+                    </View>
+                    <View style={{ top: 30, width: "15%", right: 5 }}>
+                      <Text style={{ color: "#ffffff", fontSize: 11 }}>
+                        {currenttimestamp}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={{ top: 30, width: "15%", right: 5 }}>
-                    <Text style={{ color: "#ffffff", fontSize: 11 }}>
-                      {currenttimestamp}
-                    </Text>
-                  </View>
-                </View>
+                </>
               )}
             </Pressable>
 

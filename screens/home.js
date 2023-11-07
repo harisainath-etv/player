@@ -126,6 +126,15 @@ function Home({ navigation, route }) {
     };
 
     async function loadData(p) {
+        const notificationPage = await AsyncStorage.getItem('notificationPage');
+        const notificationSeourl = await AsyncStorage.getItem('notificationSeourl');
+        const notificationTheme = await AsyncStorage.getItem('notificationTheme');
+        if(notificationPage!="" && notificationPage!=null  && notificationSeourl!=null  && notificationSeourl!=null  && notificationTheme!=null  && notificationTheme!=null ){
+            await AsyncStorage.removeItem('notificationPage');
+            await AsyncStorage.removeItem('notificationSeourl');
+            await AsyncStorage.removeItem('notificationTheme');
+            naviagtetopage(notificationPage,notificationSeourl,notificationTheme)
+        }
         const mobile = await AsyncStorage.getItem('mobile_number');
         const session = await AsyncStorage.getItem('session');
         var region = await AsyncStorage.getItem('country_code');
@@ -443,9 +452,9 @@ function Home({ navigation, route }) {
                 console.log(appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase());
                 await AsyncStorage.setItem('payment_gateway', appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase())
             }
-            gateways.push({"name":appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase()})
+            gateways.push({ "name": appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase() })
         }
-        await AsyncStorage.setItem('availableGateways',JSON.stringify(gateways))
+        await AsyncStorage.setItem('availableGateways', JSON.stringify(gateways))
         await AsyncStorage.setItem('watchhistory_api', appConfigData.data.params_hash2.config_params.watchhistory_api);
         await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
         await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);
