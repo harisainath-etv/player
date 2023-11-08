@@ -1,4 +1,4 @@
-import { Dimensions,Platform } from 'react-native';
+import { Dimensions,Platform,PixelRatio } from 'react-native';
 
 export var APP_VERSION="";
 export var AUTH_TOKEN="";
@@ -45,3 +45,24 @@ export const ANDROID_PACKAGE_NAME = "com.etvwin.mobile";
 export const IOS_PACKAGE_NAME = "com.etvott.dev";
 export const MPGS_PAYMENT_BASE_URL = "https://hdfcbank.gateway.mastercard.com/checkout/api/retrieveWsapiVersion/";
 export const SHORTS_BASE_URL = "http://65.2.184.87/files/index.php/";
+export const scale = PAGE_WIDTH /375;
+export const scaleVertical = PAGE_HEIGHT/812;
+export function actuatedNormalize(size){
+    const newSize = size*scale
+    if(Platform.OS ==="ios" ){
+        return Math.round(PixelRatio.roundToNearestPixel(newSize))
+    }else{
+        return Math.round(PixelRatio.roundToNearestPixel(newSize))
+    }
+}
+
+export function actuatedNormalizeVertical(size){
+    const newSize = size*scaleVertical
+    if(Platform.OS === "ios"){
+        return Math.round(PixelRatio.roundToNearestPixel(newSize))
+
+    }else{
+        return Math.round(PixelRatio.roundToNearestPixel(newSize))
+
+    }
+}

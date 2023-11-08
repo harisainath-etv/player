@@ -9,7 +9,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, DARKED_BORDER_COLOR, BACKGROUND_TRANSPARENT_COLOR, BACKGROUND_TRANSPARENT_GRADIENT_MENU } from '../constants';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, DARKED_BORDER_COLOR, BACKGROUND_TRANSPARENT_COLOR, BACKGROUND_TRANSPARENT_GRADIENT_MENU, actuatedNormalize, actuatedNormalizeVertical } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -96,30 +96,30 @@ function Home({ navigation, route }) {
 
     const baseOptions = isTablet ? ({
         vertical: false,
-        width: PAGE_WIDTH,
-        height: 500,
+        width: actuatedNormalize(PAGE_WIDTH),
+        height: actuatedNormalizeVertical(500),
     }) : ({
         vertical: false,
-        width: PAGE_WIDTH,
-        height: 540,
+        width: actuatedNormalize(PAGE_WIDTH),
+        height: actuatedNormalizeVertical(540),
     });
     const baseOptionsOther = isTablet ? ({
         vertical: false,
-        width: PAGE_WIDTH,
-        height: 260,
+        width: actuatedNormalize(PAGE_WIDTH),
+        height: actuatedNormalizeVertical(260),
     }) : ({
         vertical: false,
-        width: PAGE_WIDTH,
-        height: 300,
+        width: actuatedNormalize(PAGE_WIDTH),
+        height: actuatedNormalizeVertical(300),
     });
     const baseOptionsOtherSingle = isTablet ? ({
         vertical: false,
-        width: PAGE_WIDTH,
-        height: 355,
+        width: actuatedNormalize(PAGE_WIDTH),
+        height: actuatedNormalizeVertical(355),
     }) : ({
         vertical: false,
-        width: PAGE_WIDTH,
-        height: 268,
+        width: actuatedNormalize(PAGE_WIDTH),
+        height: actuatedNormalize(268),
     });
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
@@ -604,7 +604,7 @@ function Home({ navigation, route }) {
                                         style={{width:"100%",height:90,zIndex:1000000,position:'absolute'}}>
                                     </LinearGradient> */}
 
-                                    <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.cover} key={index} style={[styles.image, { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                    <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.contain} key={index} style={[styles.image, { borderBottomLeftRadius: 0, borderBottomRightRadius: 0,width:"100%",height:"100%" }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
 
                                     <View style={styles.buttonsContainer}>
                                         <Text style={{ color: NORMAL_TEXT_COLOR, bottom: 65, position: 'absolute', fontSize: 11, fontWeight: '500' }}>{JSON.stringify(item.genres).toUpperCase().split('["').join(".").split('"]').join("").split('","').join("  .").split("_").join(" ")}</Text>
@@ -649,7 +649,7 @@ function Home({ navigation, route }) {
 
                                     <LinearGradient
                                         colors={[BACKGROUND_TRANSPARENT_GRADIENT_MENU, BACKGROUND_COLOR]}
-                                        style={{ width: "100%", height: 80, position: 'absolute', bottom: 0 }}>
+                                        style={{ width: "100%", height: actuatedNormalize(80), position: 'absolute', bottom: 0 }}>
                                     </LinearGradient>
 
                                     {/* <Animated.View
@@ -760,7 +760,7 @@ function Home({ navigation, route }) {
                                             VIDEO_TYPES.includes(item.theme) ?
                                                 naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                     }
-                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
+                                }}><FastImage resizeMode={FastImage.resizeMode.contain} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
                         </View>
                     </View>
@@ -793,7 +793,7 @@ function Home({ navigation, route }) {
                                             VIDEO_TYPES.includes(item.theme) ?
                                                 naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                     }
-                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
+                                }}><FastImage resizeMode={FastImage.resizeMode.contain} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
                         </View>
                         {!!progressValue3 ?
@@ -882,7 +882,7 @@ function Home({ navigation, route }) {
                                             }}>
                                                 <FastImage
                                                     style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
-                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    resizeMode={FastImage.resizeMode.contain}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             </Pressable>
                                             {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
@@ -994,7 +994,7 @@ function Home({ navigation, route }) {
                                                     style={[styles.imageSectionVerticalTab,]}
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: actuatedNormalize(30), height: actuatedNormalizeVertical(30), right: 10, bottom: 15 }}></Image> : ""}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                         </View>
@@ -1022,9 +1022,9 @@ function Home({ navigation, route }) {
                                             }}>
                                                 <FastImage
                                                     style={[styles.imageSectionVertical,]}
-                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    resizeMode={FastImage.resizeMode.contain}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 25, height: 25, right: 6, bottom: 12 }}></Image> : ""}
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: actuatedNormalize(25), height: actuatedNormalizeVertical(25), right: 6, bottom: 12 }}></Image> : ""}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                         </View>
@@ -1066,7 +1066,7 @@ function Home({ navigation, route }) {
                                                     style={[styles.imageSectionVerticalMoviePoster,]}
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: actuatedNormalize(30), height: actuatedNormalizeVertical(30), right: 10, bottom: 15 }}></Image> : ""}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                         </View>
@@ -1093,9 +1093,9 @@ function Home({ navigation, route }) {
                                             }}>
                                                 <FastImage
                                                     style={[styles.imageSectionVerticalMoviePoster,]}
-                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    resizeMode={FastImage.resizeMode.contain}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: actuatedNormalize(30), height: actuatedNormalizeVertical(30), right: 10, bottom: 15 }}></Image> : ""}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                         </View>
@@ -1138,7 +1138,7 @@ function Home({ navigation, route }) {
                                                     style={[styles.imageSectionMiniMoviePoster,]}
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: actuatedNormalize(30), height: actuatedNormalizeVertical(30), right: 10, bottom: 15 }}></Image> : ""}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                         </View>
@@ -1167,7 +1167,7 @@ function Home({ navigation, route }) {
                                                     style={[styles.imageSectionMiniMoviePoster,]}
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: actuatedNormalize(30), height: actuatedNormalizeVertical(30), right: 10, bottom: 15 }}></Image> : ""}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                         </View>
@@ -1210,7 +1210,7 @@ function Home({ navigation, route }) {
                                             VIDEO_TYPES.includes(item.theme) ?
                                                 naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
                                     }
-                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                }}><FastImage resizeMode={FastImage.resizeMode.contain} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
 
                                     <LinearGradient
                                         useAngle={true}
@@ -1406,7 +1406,7 @@ function Home({ navigation, route }) {
                 <View style={{ marginTop: 30, justifyContent: 'center', alignContent: 'center', alignItems: 'center', flexDirection: 'row', width: "100%" }}>
 
                     <View style={[styles.menulogo, { width: "20%" }]}>
-                        <Image source={require('../assets/images/winlogo.png')} style={{ width: 70, height: 40 }}></Image>
+                        <Image source={require('../assets/images/winlogo.png')} style={{ width: actuatedNormalize(70), height: actuatedNormalizeVertical(40) }}></Image>
                     </View>
                     <View style={{ width: "80%" }}>
 
@@ -1461,7 +1461,7 @@ function Home({ navigation, route }) {
                 <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR, justifyContent: 'center', alignItems: 'center' }}>
                     <Pressable onPress={toggleModal} style={{ position: 'absolute', right: 0, zIndex: 1000, top: 0 }}><MaterialCommunityIcons name='close-circle' color={NORMAL_TEXT_COLOR} size={30} /></Pressable>
                     {imagepopup ?
-                        <Pressable onPress={() => { navigation.dispatch(StackActions.replace(redirectionpage)) }}><Image source={{ uri: imagepopup }} style={{ width: PAGE_WIDTH - 50, height: PAGE_HEIGHT - 50 }} resizeMode='contain'></Image></Pressable>
+                        <Pressable onPress={() => { navigation.dispatch(StackActions.replace(redirectionpage)) }}><Image source={{ uri: imagepopup }} style={{ width: actuatedNormalize(PAGE_WIDTH - 50), height: actuatedNormalize(PAGE_HEIGHT - 50) }} resizeMode='contain'></Image></Pressable>
                         :
                         ""
                     }
@@ -1541,30 +1541,30 @@ const styles = StyleSheet.create({
     buttonsPosition: { position: 'absolute', bottom: 0, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-evenly' },
     button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, marginRight: 5, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
     wishlistbutton: { borderRadius: 40, borderWidth: 1.5, borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7 },
-    subscribeImage: { width: 160, height: 85, resizeMode: 'contain', justifyContent: 'center', alignItems: 'center', },
-    menulogo: { height: 35, justifyContent: 'center', alignItems: 'center', },
-    menuitem: { height: 35, justifyContent: 'center', alignItems: 'center', padding: 8, borderRadius: 15 },
-    playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
-    crownIcon: { position: 'absolute', width: 25, height: 25, left: 8, top: 5 },
+    subscribeImage: { width: actuatedNormalize(160), height: actuatedNormalizeVertical(85), resizeMode: 'contain', justifyContent: 'center', alignItems: 'center', },
+    menulogo: { height: actuatedNormalizeVertical(35), justifyContent: 'center', alignItems: 'center', },
+    menuitem: { height: actuatedNormalizeVertical(35), justifyContent: 'center', alignItems: 'center', padding: 8, borderRadius: 15 },
+    playIcon: { position: 'absolute', width: actuatedNormalize(30), height: actuatedNormalizeVertical(30), right: 10, bottom: 15 },
+    crownIcon: { position: 'absolute', width: actuatedNormalize(25), height: actuatedNormalizeVertical(25), left: 8, top: 5 },
     Container: {
         backgroundColor: BACKGROUND_COLOR,
         textAlign: "center",
         justifyContent: "center",
-        height: 60,
+        height: actuatedNormalizeVertical(60),
         width: "100%",
     },
     textTabActive: {
         textAlign: "center",
         justifyContent: "center",
         backgroundColor: TAB_COLOR,
-        height: 43,
+        height: actuatedNormalizeVertical(43),
         borderRadius: 25,
         width: '100%'
     },
     textTab: {
         textAlign: "center",
         justifyContent: "center",
-        height: 43,
+        height: actuatedNormalizeVertical(43),
         borderRadius: 25,
         width: '100%'
     },
@@ -1572,7 +1572,6 @@ const styles = StyleSheet.create({
         color: NORMAL_TEXT_COLOR,
         textAlign: "center",
         justifyContent: "center",
-
         fontWeight: '600'
     },
     sectionHeaderView: {
@@ -1598,63 +1597,59 @@ const styles = StyleSheet.create({
         textAlign: 'right'
     },
     imageSectionHorizontalTab: {
-        width: 190,
-        height: 117,
+        width: actuatedNormalize(190),
+        height: actuatedNormalize(117),
         marginHorizontal: 3,
         borderRadius: 10,
         marginBottom: 10,
         borderWidth: 1
     },
     imageSectionHorizontal: {
-        width: PAGE_WIDTH / 2.06,
-        height: 117,
-        marginHorizontal: 3,
+        width: PAGE_WIDTH / 2.12,
+        height: actuatedNormalize(125),
+        marginRight: 5,
         borderRadius: 10,
+        marginHorizontal:10,
         marginBottom: 10,
         borderWidth: 1
     },
     imageSectionHorizontalSingle: {
-        width: PAGE_WIDTH - 5,
-        height: 265,
-        marginHorizontal: 3,
+        width: "100%",
+        height: "100%",
         marginBottom: 10,
-        borderWidth: 1,
-        resizeMode: 'stretch'
     },
     imageSectionHorizontalSingleTab: {
-        width: PAGE_WIDTH - 20,
-        height: 340,
-        marginHorizontal: 3,
+        width: actuatedNormalize(PAGE_WIDTH - 20),
+        height: actuatedNormalizeVertical(340),
         borderRadius: 10,
         marginBottom: 10,
         borderWidth: 1,
         resizeMode: 'contain'
     },
     imageSectionVertical: {
-        width: PAGE_WIDTH / 3.25,
-        height: 150,
-        marginHorizontal: 4,
+        width: PAGE_WIDTH / 3,
+        height: actuatedNormalizeVertical(170),
         borderRadius: 10,
         marginBottom: 10,
 
     },
     imageSectionVerticalMoviePoster: {
-        width: PAGE_WIDTH / 1.35,
-        height: 370,
+        width: actuatedNormalize(PAGE_WIDTH / 1.75),
+        height: actuatedNormalizeVertical(370),
         marginHorizontal: 3,
-        borderRadius: 10,
+        borderRadius: 20,
         marginBottom: 10,
     },
     imageSectionMiniMoviePoster: {
-        width: PAGE_WIDTH / 4,
-        height: 70,
+        width: actuatedNormalize(PAGE_WIDTH / 4),
+        height: actuatedNormalizeVertical(70),
         marginHorizontal: 3,
         borderRadius: 10,
         marginBottom: 10,
     },
     imageSectionVerticalTab: {
-        width: 135,
-        height: 150,
+        width: actuatedNormalize(135),
+        height: actuatedNormalizeVertical(150),
         marginHorizontal: 3,
         borderRadius: 10,
         marginBottom: 10,
@@ -1662,20 +1657,20 @@ const styles = StyleSheet.create({
     imageSectionCircle: {
         marginHorizontal: 0,
         marginBottom: 10,
-        width: (PAGE_WIDTH / 3) - 10,
+        width: actuatedNormalize((PAGE_WIDTH / 3) - 10),
         height: (PAGE_WIDTH / 3) - 10,
         borderRadius: ((PAGE_WIDTH / 3) - 10) / 2,
     },
     imageSectionCircleTab: {
         marginHorizontal: 0,
         marginBottom: 10,
-        width: 200,
+        width: actuatedNormalize(200),
         height: 200,
         borderRadius: 100,
     },
     imageSectionBig: {
-        width: PAGE_WIDTH / 1.1,
-        height: 230,
+        width: actuatedNormalize(PAGE_WIDTH / 1.1),
+        height: actuatedNormalizeVertical(230),
         marginHorizontal: 8,
         borderRadius: 1,
         padding: 20,
@@ -1683,16 +1678,16 @@ const styles = StyleSheet.create({
         borderWidth: 1
     },
     imageSectionBigSingle: {
-        width: PAGE_WIDTH / 1.04,
-        height: 230,
+        width: actuatedNormalize(PAGE_WIDTH / 1.04),
+        height: actuatedNormalizeVertical(230),
         marginHorizontal: 8,
         borderRadius: 7,
         padding: 20,
 
     },
     imageSectionBigWithBorder: {
-        width: PAGE_WIDTH / 1.1,
-        height: 230,
+        width: actuatedNormalize(PAGE_WIDTH / 1.1),
+        height: actuatedNormalizeVertical(230),
         marginHorizontal: 8,
         borderRadius: 1,
         padding: 20,
@@ -1707,7 +1702,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         right: 0,
         borderRadius: 10,
-        height: 460
+        height: actuatedNormalizeVertical(460)
     },
     showsbannerimage: {
         top: 0,
@@ -1716,7 +1711,7 @@ const styles = StyleSheet.create({
         right: 0,
         resizeMode: 'cover',
         borderRadius: 10,
-        height: 300
+        height: actuatedNormalizeVertical(300)
     },
 });
 

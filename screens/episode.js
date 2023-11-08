@@ -7,7 +7,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, BACKGROUND_TRANSPARENT_COLOR_MENU, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, DEVELOPMENT_MODE, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, } from '../constants';
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, BACKGROUND_TRANSPARENT_COLOR_MENU, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, DEVELOPMENT_MODE, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, actuatedNormalize, } from '../constants';
 import axios from 'axios';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
@@ -292,7 +292,7 @@ export default function Episode({ navigation, route }) {
             friendly_id: DEVELOPMENT_MODE == 'staging' ? "etv-telugu" : response.data.data.friendly_id
           }).then(livetvshows => {
             for (var r = 0; r < livetvshows.data.resp.length; r++) {
-              relatedShows.push({ "catalog_id": livetvshows.data.resp[r].catalog_id, "content_id": livetvshows.data.resp[r].content_id, "title": livetvshows.data.resp[r].title, "image": livetvshows.data.resp[r].medium_4_3.url });
+              relatedShows.push({ "catalog_id": livetvshows.data.resp[r].catalog_id, "content_id": livetvshows.data.resp[r].content_id, "title": livetvshows.data.resp[r].title, "image": livetvshows.data.resp[r].high_4_3.url });
             }
             setRelatedShows(relatedShows);
           }).catch(livetvshowserror => {
@@ -900,10 +900,10 @@ export default function Episode({ navigation, route }) {
   }
   const renderShows = (item, index) => {
     return (
-      <TouchableOpacity onPress={() => gotoPage(item.item.catalog_id, item.item.content_id)} key={"RealtedShows" + index} style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
-        <FastImage source={{ uri: item.item.image, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={isTablet ? styles.imageSectionVerticalTab : styles.imageSectionHorizontal} resizeMode={FastImage.resizeMode.stretch} />
+      <TouchableOpacity onPress={() => gotoPage(item.item.catalog_id, item.item.content_id)} key={"RealtedShows" + index} style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 10,width:"100%" }}>
+        <FastImage source={{ uri: item.item.image, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={isTablet ? styles.imageSectionVerticalTab : styles.imageSectionHorizontal} resizeMode={FastImage.resizeMode.contain} />
         {!isTablet ?
-          <View style={{ width: "97%", backgroundColor: BACKGROUND_TRANSPARENT_COLOR_MENU, position: 'absolute', bottom: 8.5, height: 40, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ width: "100%", backgroundColor: BACKGROUND_TRANSPARENT_COLOR_MENU, position: 'absolute', bottom: 8.5, height: 40, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: '500' }}>{item.item.title}</Text>
           </View>
           :
@@ -935,7 +935,7 @@ export default function Episode({ navigation, route }) {
                   bufferForPlaybackMs: 7000
                 }}
                 rate={1.0}
-                resizeMode={fullscreen ? 'cover' : 'none'}
+                resizeMode={fullscreen ? 'contain' : 'none'}
                 style={fullscreen ? styles.fullscreenVideo :
                   isTablet ?
                     styles.videoTab
@@ -1372,12 +1372,10 @@ const styles = StyleSheet.create({
   marginContainer: { marginLeft: 5, marginRight: 5 },
   button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 10, borderRadius: 20, marginRight: 10 },
   imageSectionHorizontal: {
-    width: "98%",
-    height: 230,
+    width: "100%",
+    height: actuatedNormalize(270),
     borderRadius: 8,
     marginBottom: 8,
-    borderColor: FOOTER_DEFAULT_TEXT_COLOR,
-    borderWidth: 0.5
   },
   sectionHeaderMore: {
     color: MORE_LINK_COLOR,
