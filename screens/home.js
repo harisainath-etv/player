@@ -82,6 +82,7 @@ function Home({ navigation, route }) {
     const [isModalVisible, setModalVisible] = useState(false);
     const [loggedin, setloggedin] = useState(false);
     const [menubgcolor, setmenubgColor] = useState(BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU);
+    const [sliderKey,setSliderKey] = useState(0);
     var menuref = useRef();
     const progressValue = useSharedValue(0);
     const progressValue1 = useSharedValue(0);
@@ -100,8 +101,8 @@ function Home({ navigation, route }) {
         height: actuatedNormalizeVertical(500),
     }) : ({
         vertical: false,
-        width: actuatedNormalize(PAGE_WIDTH),
-        height: actuatedNormalizeVertical(540),
+        width: PAGE_WIDTH,
+        height: actuatedNormalize(540),
     });
     const baseOptionsOther = isTablet ? ({
         vertical: false,
@@ -129,11 +130,11 @@ function Home({ navigation, route }) {
         const notificationPage = await AsyncStorage.getItem('notificationPage');
         const notificationSeourl = await AsyncStorage.getItem('notificationSeourl');
         const notificationTheme = await AsyncStorage.getItem('notificationTheme');
-        if(notificationPage!="" && notificationPage!=null  && notificationSeourl!=null  && notificationSeourl!=null  && notificationTheme!=null  && notificationTheme!=null ){
+        if (notificationPage != "" && notificationPage != null && notificationSeourl != null && notificationSeourl != null && notificationTheme != null && notificationTheme != null) {
             await AsyncStorage.removeItem('notificationPage');
             await AsyncStorage.removeItem('notificationSeourl');
             await AsyncStorage.removeItem('notificationTheme');
-            naviagtetopage(notificationPage,notificationSeourl,notificationTheme)
+            naviagtetopage(notificationPage, notificationSeourl, notificationTheme)
         }
         const mobile = await AsyncStorage.getItem('mobile_number');
         const session = await AsyncStorage.getItem('session');
@@ -575,114 +576,82 @@ function Home({ navigation, route }) {
 
 
                     {item.layoutType == 'top_banner' ?
-                        <Carousel
-                            {...baseOptions}
-                            loop
-                            pagingEnabled={pagingEnabled}
-                            snapEnabled={snapEnabled}
-                            autoPlay={autoPlay}
-                            autoPlayInterval={5000}
-                            onProgressChange={(_, absoluteProgress) =>
-                                (progressValue.value = absoluteProgress)
-                            }
-                            withAnimation={{
-                                type: "spring",
-                                config: {
-                                    damping: 13,
-                                },
-                            }}
-                            windowSize={3}
-                            panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
-                            data={item.data}
-                            style={{ top: -15, }}
-                            renderItem={({ item, index, animationValue }) =>
+                        <>
+                            <Carousel
+                                {...baseOptions}
+                                loop
+                                pagingEnabled={pagingEnabled}
+                                snapEnabled={snapEnabled}
+                                autoPlay={autoPlay}
+                                autoPlayInterval={5000}
+                                onProgressChange={(_, absoluteProgress) =>
+                                   { (progressValue.value = absoluteProgress)
+                                    setSliderKey(Math.trunc(absoluteProgress)); 
+                                }
+                                }
+                                withAnimation={{
+                                    type: "timing",
+                                    config: {
+                                        damping: 13,
+                                    },
+                                }}
+                                windowSize={3}
+                                panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
+                                data={item.data}
+                                style={{ top: -15, width: "100%" }}
+                                renderItem={({ item, index, animationValue }) =>
 
 
-                                <View style={{ height: '100%', }}>
-                                    {/* <LinearGradient
-                                        colors={[BACKGROUND_TRANSPARENT_COLOR,BACKGROUND_TRANSPARENT_COLOR]}
-                                        style={{width:"100%",height:90,zIndex:1000000,position:'absolute'}}>
-                                    </LinearGradient> */}
-
-                                    <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.contain} key={index} style={[styles.image, { borderBottomLeftRadius: 0, borderBottomRightRadius: 0,width:"100%",height:"100%" }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-
-                                    <View style={styles.buttonsContainer}>
-                                        <Text style={{ color: NORMAL_TEXT_COLOR, bottom: 65, position: 'absolute', fontSize: 11, fontWeight: '500' }}>{JSON.stringify(item.genres).toUpperCase().split('["').join(".").split('"]').join("").split('","').join("  .").split("_").join(" ")}</Text>
-                                        <Text style={{ color: NORMAL_TEXT_COLOR, bottom: 40, position: 'absolute', fontSize: 15, fontWeight: 'bold' }}>
-                                            <FontAwesome5 size={11} color={TAB_COLOR} name="grip-lines-vertical" /> {item.displayTitle}
-                                        </Text>
-                                        <View style={styles.buttonsPosition}>
-
-                                            <Pressable onPress={() => {
-                                                {
-                                                    item.medialistinlist ?
-                                                        navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
-                                                        :
-                                                        VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
-                                                }
-
-                                            }}>
-                                                <LinearGradient
-                                                    useAngle={true}
-                                                    angle={125}
-                                                    angleCenter={{ x: 0.5, y: 0.5 }}
-                                                    colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
-                                                    style={[styles.button, { borderRadius: 40 }]}>
-                                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                        <FontAwesome5 name='play' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
-                                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Watch Now</Text>
-                                                    </View>
-                                                </LinearGradient>
-                                            </Pressable>
-
-
-                                            {VIDEO_TYPES.includes(item.theme) ?
-                                                <Pressable onPress={() => { watchLater(item.catalog_id, item.content_id) }} style={styles.wishlistbutton}>
-                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}> + Watch Later</Text>
-                                                </Pressable>
-                                                :
-                                                ""}
-
-                                        </View>
+                                    <View style={{ height: actuatedNormalize(540), width: "100%" }}>
+                                        <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.contain} key={index} style={[{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, width: "100%", height: actuatedNormalize(540) }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                     </View>
 
-                                    <LinearGradient
-                                        colors={[BACKGROUND_TRANSPARENT_GRADIENT_MENU, BACKGROUND_COLOR]}
-                                        style={{ width: "100%", height: actuatedNormalize(80), position: 'absolute', bottom: 0 }}>
-                                    </LinearGradient>
 
-                                    {/* <Animated.View
-                                        style={{
-                                            flex: 1,
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                        }}
-                                    >
+                                }
+                            />
 
-                                        <Animated.Image
-                                            source={{ uri: 'https://raw.githubusercontent.com/dohooo/react-native-reanimated-carousel/main/example/app/assets/fruit-0.png' }}
-                                            style={[
-                                                {
-                                                    width: 200,
-                                                    justifyContent: "center",
-                                                    height:300,
-                                                    alignItems: "center",
-                                                    position: "absolute",
-                                                    zIndex: 999,
-                                                    bottom:0,
-                                                    transform:[{translateX}]
-                                                },
-                                            ]}
-                                            resizeMode={"contain"}
-                                        />
+                           
+                            <View style={styles.buttonsContainer}>
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500', position: 'absolute', bottom: 95, }}>{JSON.stringify(item.data[sliderKey].genres).toUpperCase().split('["').join(".").split('"]').join("").split('","').join("  .").split("_").join(" ")}</Text>
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold', position: 'absolute', bottom: 75, }}>
+                                    <FontAwesome5 size={11} color={TAB_COLOR} name="grip-lines-vertical" /> {item.data[sliderKey].displayTitle}
+                                </Text>
+                                <View style={styles.buttonsPosition}>
 
-                                    </Animated.View> */}
+                                    <Pressable onPress={() => {
+                                        {
+                                            item.data[sliderKey].medialistinlist ?
+                                                navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                :
+                                                VIDEO_TYPES.includes(item.data[sliderKey].theme) ?
+                                                    naviagtetopage('Episode', item.data[sliderKey].seoUrl, item.data[sliderKey].theme) : naviagtetopage('Shows', item.data[sliderKey].seoUrl, item.data[sliderKey].theme)
+                                        }
+
+                                    }}>
+                                        <LinearGradient
+                                            useAngle={true}
+                                            angle={125}
+                                            angleCenter={{ x: 0.5, y: 0.5 }}
+                                            colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                                            style={[styles.button, { borderRadius: 40 }]}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                <FontAwesome5 name='play' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
+                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Watch Now</Text>
+                                            </View>
+                                        </LinearGradient>
+                                    </Pressable>
+
+
+                                    {VIDEO_TYPES.includes(item.data[sliderKey].theme) ?
+                                        <Pressable onPress={() => { watchLater(item.data[sliderKey].catalog_id, item.data[sliderKey].content_id) }} style={styles.wishlistbutton}>
+                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}> + Watch Later</Text>
+                                        </Pressable>
+                                        :
+                                        ""}
+
                                 </View>
-
-
-                            }
-                        />
+                            </View>
+                        </>
                         : ""}
                 </View>
 
@@ -1396,7 +1365,7 @@ function Home({ navigation, route }) {
                 contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap' }}
                 style={{ height: PAGE_HEIGHT }}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-                renderItem={memoizedValue}
+                renderItem={renderItem}
             /> : ""}
             {/* header menu */}
             <View style={{ left: "50%", position: 'absolute', zIndex: 10000, top: '50%' }}>
@@ -1537,8 +1506,8 @@ const PaginationItem = (props) => {
 
 
 const styles = StyleSheet.create({
-    buttonsContainer: { width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', zIndex: 1000, },
-    buttonsPosition: { position: 'absolute', bottom: 0, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-evenly' },
+    buttonsContainer: { width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', zIndex: 1000, position: 'absolute' },
+    buttonsPosition: { position: 'absolute', bottom: 35, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-evenly' },
     button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, marginRight: 5, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
     wishlistbutton: { borderRadius: 40, borderWidth: 1.5, borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7 },
     subscribeImage: { width: actuatedNormalize(160), height: actuatedNormalizeVertical(85), resizeMode: 'contain', justifyContent: 'center', alignItems: 'center', },
@@ -1609,7 +1578,7 @@ const styles = StyleSheet.create({
         height: actuatedNormalize(125),
         marginRight: 5,
         borderRadius: 10,
-        marginHorizontal:10,
+        marginHorizontal: 10,
         marginBottom: 10,
         borderWidth: 1
     },
