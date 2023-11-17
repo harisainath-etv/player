@@ -13,9 +13,9 @@ import LinearGradient from 'react-native-linear-gradient';
 
 
 
-export default function EditProfile({ navigation }) {
+export default function EditProfile({ navigation, route }) {
     const [login, setLogin] = useState(false);
-    const [name, setName] = useState();
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [mobile, setMobile] = useState("");
     const [profilePic, setProfilePic] = useState("");
@@ -26,6 +26,7 @@ export default function EditProfile({ navigation }) {
     const [expireson, setexpireson] = useState("");
     const [open, setOpen] = useState(false)
     const [datofBirth, setdateofbirth] = useState(new Date())
+    const {letter} = route.params;
 
     const ref = useRef(null);
 
@@ -134,7 +135,7 @@ export default function EditProfile({ navigation }) {
                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                     <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 60, height: 60, borderRadius: 30 }}>
                         {name != "" && name != null ?
-                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>{letter}</Text>
                             :
                             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>-</Text>
                         }
@@ -147,11 +148,11 @@ export default function EditProfile({ navigation }) {
 
                 <View style={styles.inneroption}>
                     <Text style={styles.detailsheader}>Name *</Text>
-                    <TextInput value={name} onChange={setName} style={styles.textinput} placeholder='Name' placeholderTextColor={NORMAL_TEXT_COLOR} ></TextInput>
+                    <TextInput value={name} onChangeText={setName} style={styles.textinput} placeholder='Name' placeholderTextColor={NORMAL_TEXT_COLOR} ></TextInput>
                 </View>
                 <View style={styles.inneroption}>
                     <Text style={styles.detailsheader}>Location / Pincode</Text>
-                    <TextInput value={address} onChangeText={setaddress} style={styles.textinput} placeholder='Location / Pincode' placeholderTextColor={NORMAL_TEXT_COLOR}></TextInput>
+                    <TextInput maxLength={6} value={address} onChangeText={setaddress} style={styles.textinput} placeholder='Location / Pincode' placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='numeric'></TextInput>
                 </View>
 
                 <View style={styles.inneroption}>
@@ -223,6 +224,7 @@ export default function EditProfile({ navigation }) {
                     setOpen(false)
                 }}
                 mode='date'
+                maximumDate={new Date()}
             />
         </View>
     )

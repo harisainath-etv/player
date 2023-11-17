@@ -197,7 +197,7 @@ function OtherResponse({ navigation, route }) {
                                         VIDEO_TYPES.includes(item.theme) ?
                                             navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                 }
-                            }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.image} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
+                            }}><FastImage resizeMode={FastImage.resizeMode.contain} key={index} style={styles.image} source={{ uri: item, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
                         : ""}
 
@@ -296,7 +296,7 @@ function OtherResponse({ navigation, route }) {
                                             VIDEO_TYPES.includes(item.theme) ?
                                                 navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                     }
-                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
+                                }}><FastImage resizeMode={FastImage.resizeMode.contain} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
                         </View>
                     </View>
@@ -330,7 +330,7 @@ function OtherResponse({ navigation, route }) {
                                             }}>
                                                 <FastImage
                                                     style={[styles.imageSectionCircle,]}
-                                                    resizeMode={FastImage.resizeMode.stretch}
+                                                    resizeMode={FastImage.resizeMode.contain}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                                 {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
@@ -367,7 +367,7 @@ function OtherResponse({ navigation, route }) {
                                             }
                                         }}>
                                             <FastImage
-                                                style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
+                                                style={[styles.imageSectionVertical]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 25, height: 25, right: 6, bottom: 12 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
@@ -402,9 +402,9 @@ function OtherResponse({ navigation, route }) {
                                         }}>
                                             <FastImage
                                                 style={[styles.imageSectionVertical,]}
-                                                resizeMode={FastImage.resizeMode.stretch}
+                                                resizeMode={FastImage.resizeMode.contain}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 25, height: 25, right: 6, bottom: 12 }}></Image> : ""}
+                                            {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 25, height: 25, right: 15, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </Pressable>
                                     </View>
@@ -441,7 +441,7 @@ function OtherResponse({ navigation, route }) {
                                             VIDEO_TYPES.includes(item.theme) ?
                                                 navigation.navigate('Episode', { seoUrl: item.seoUrl,theme:item.theme }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                     }
-                                }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
+                                }}><FastImage resizeMode={FastImage.resizeMode.contain} key={index} style={styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
                         </View>
                         {!!progressValue ?
@@ -496,7 +496,7 @@ function OtherResponse({ navigation, route }) {
                                             }
                                         }}>
                                             <FastImage
-                                                style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
+                                                style={[styles.imageSectionHorizontal]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
@@ -652,7 +652,7 @@ const PaginationItem = (props) => {
 
 const styles = StyleSheet.create({
     playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
-    crownIcon: { position: 'absolute', width: 25, height: 25, left: 8, top: 5 },
+    crownIcon: { position: 'absolute', width: 25, height: 25, left: 15, top: 5 },
     Container: {
         backgroundColor: BACKGROUND_COLOR,
         textAlign: "center",
@@ -720,12 +720,12 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 10,
         borderWidth: 1,
-        resizeMode: 'stretch'
+        resizeMode: 'contain'
     },
     imageSectionVertical: {
-        width: PAGE_WIDTH / 3.25,
+        width: PAGE_WIDTH / 3.1,
         height: 150,
-        marginHorizontal: 4,
+        marginHorizontal: 1,
         borderRadius: 10,
         marginBottom: 10,
 
@@ -770,7 +770,7 @@ const styles = StyleSheet.create({
         left: 0,
         bottom: 0,
         right: 0,
-        resizeMode: 'stretch',
+        resizeMode: 'contain',
         borderRadius: 10,
         height: 470
     },
@@ -779,7 +779,7 @@ const styles = StyleSheet.create({
         left: 0,
         bottom: 0,
         right: 0,
-        resizeMode: 'cover',
+        resizeMode: 'contain',
         borderRadius: 10,
         height: 250
     },

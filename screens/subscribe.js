@@ -1,7 +1,7 @@
 import { View, Text, FlatList, Pressable, ScrollView, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import NormalHeader from './normalHeader';
-import { ACCESS_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, BUTTON_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, BUTTON_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -153,9 +153,19 @@ export default function Subscribe({ navigation }) {
         var session = await AsyncStorage.getItem('session');
         var region = await AsyncStorage.getItem('country_code');
         if (session == '' || session == null) {
-            navigation.navigate('Login');
+            navigation.dispatch(StackActions.replace('Login'));
         }
         else {
+
+            await axios.get(FIRETV_BASE_URL_STAGING + "user/session/" + session + "?auth_token=" + AUTH_TOKEN).then(resp => {
+                if (resp.data.message != 'Valid session id.') {
+                    navigation.dispatch(StackActions.replace('Login'));
+                }
+            }).catch(err => {
+                console.log(err);
+                navigation.dispatch(StackActions.replace('Login'));
+            })
+
             if (selectedprice != "" && selectedprice != null) {
                 axios.get(FIRETV_BASE_URL_STAGING + "users/" + session + "/user_plans/upgrade_plan?region=" + region + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&sub_theme_id=" + selectedcategoryid + "&to_plan=" + selectedprice).then(resp => {
                     AsyncStorage.setItem('actual_price', resp.data.data.payable.actual_price);

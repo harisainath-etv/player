@@ -257,10 +257,10 @@ export default function Shows({ navigation, route }) {
                                                 <View>
                                                     {VIDEO_TYPES.includes(items.item.theme) ?
                                                         <Pressable onPress={() => navigation.navigate({ name: 'Episode', params: { seoUrl: items.item.seo_url }, key: { index } })}>
-                                                            <FastImage resizeMode={FastImage.resizeMode.stretch} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                                            <FastImage resizeMode={FastImage.resizeMode.cover} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                                         </Pressable>
                                                         :
-                                                        <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.stretch} key={'image' + index} style={styles.imageSectionVertical} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>
+                                                        <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.cover} key={'image' + index} style={styles.imageSectionVertical} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>
                                                     }
 
                                                     {VIDEO_TYPES.includes(items.item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
@@ -389,8 +389,8 @@ export default function Shows({ navigation, route }) {
                                         { height: 420, width: PAGE_WIDTH, }
                                 }
                             >
-                                <Pressable style={{ justifyContent: 'center', alignItems: 'center' }} onPress={() => navigation.navigate('Episode', { seoUrl: episodeSeoUrl, theme: 'video', showname: title, showcontentId: contentId })}>
-                                    <FastImage resizeMode={FastImage.resizeMode.cover} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={
+                                <Pressable style={{ justifyContent: 'center', alignItems: 'center',width:"100%" }} onPress={() => navigation.navigate('Episode', { seoUrl: episodeSeoUrl, theme: 'video', showname: title, showcontentId: contentId })}>
+                                    <FastImage resizeMode={FastImage.resizeMode.contain} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={
                                         isTablet ?
                                             { width: '100%', height: 600 }
                                             :

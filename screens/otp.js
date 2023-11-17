@@ -23,6 +23,7 @@ export default function Otp({ navigation, route }) {
     const [otp6, setotp6] = useState();
     const [seconds, setSeconds] = useState(60);
     const [otpError, setOtpError] = useState('');
+    var otp1ref = useRef(null);
     var otp2ref = useRef(null);
     var otp3ref = useRef(null);
     var otp4ref = useRef(null);
@@ -412,15 +413,15 @@ export default function Otp({ navigation, route }) {
     }
     const gobacknavigation = (key) => {
         if (key == "loginMobile") {
-            navigation.navigate('Login');
+            navigation.dispatch(StackActions.replace('Login'));
         }
         else
             if (key == "updateMobile") {
-                navigation.navigate('MobileUpdate');
+                navigation.dispatch(StackActions.replace('MobileUpdate'));
             }
             else
                 if (key == "signupMobile") {
-                    navigation.navigate('Signup');
+                    navigation.dispatch(StackActions.replace('Signup'));
                 }
     }
     return (
@@ -440,26 +441,44 @@ export default function Otp({ navigation, route }) {
                 <View style={{ marginTop: 50 }}>
                     <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12 }}>Enter 6 digit code</Text>
                     <View style={{ flexDirection: 'row', marginTop: 10 }}>
-                        <TextInput secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp1} value={otp1} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={() => {
+                        <TextInput ref={otp1ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp1} value={otp1} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={({ nativeEvent }) => {
+                            if (nativeEvent.key === 'Backspace') {
+                            }
+                            else
                             otp2ref.current.focus()
                         }}></TextInput>
-                        <TextInput ref={otp2ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp2} value={otp2} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={() => {
+                        <TextInput ref={otp2ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp2} value={otp2} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={({ nativeEvent }) => {
+                            if (nativeEvent.key === 'Backspace')
+                            otp1ref.current.focus()
+                            else
                             otp3ref.current.focus()
                         }}></TextInput>
-                        <TextInput ref={otp3ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp3} value={otp3} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={() => {
+                        <TextInput ref={otp3ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp3} value={otp3} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={({ nativeEvent }) => {
+                            if (nativeEvent.key === 'Backspace')
+                            otp2ref.current.focus()
+                            else
                             otp4ref.current.focus()
                         }}></TextInput>
-                        <TextInput ref={otp4ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp4} value={otp4} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={() => {
+                        <TextInput ref={otp4ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp4} value={otp4} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={({ nativeEvent }) => {
+                            if (nativeEvent.key === 'Backspace')
+                            otp3ref.current.focus()
+                            else
                             otp5ref.current.focus()
                         }}></TextInput>
-                        <TextInput ref={otp5ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp5} value={otp5} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={() => {
+                        <TextInput ref={otp5ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp5} value={otp5} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={({ nativeEvent }) => {
+                            if (nativeEvent.key === 'Backspace')
+                            otp4ref.current.focus()
+                            else
                             otp6ref.current.focus()
                         }}></TextInput>
-                        <TextInput ref={otp6ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp6} value={otp6} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad'></TextInput>
+                        <TextInput ref={otp6ref} secureTextEntry={true} maxLength={1} textAlign='center' style={styles.otp} onChangeText={setotp6} value={otp6} placeholder='0' placeholderTextColor={DETAILS_TEXT_COLOR} keyboardType='number-pad' onKeyPress={({ nativeEvent }) => {
+                            if (nativeEvent.key === 'Backspace')
+                            otp5ref.current.focus()
+                        }}></TextInput>
                     </View>
 
                     <View style={styles.timer}>
-                        <Text style={{color:NORMAL_TEXT_COLOR}}>{seconds} Sec</Text>
+                        <Text style={{ color: NORMAL_TEXT_COLOR }}>{seconds} Sec</Text>
                     </View>
 
                     {seconds == 0 ?
@@ -514,7 +533,7 @@ const styles = StyleSheet.create({
     body: { backgroundColor: BACKGROUND_COLOR, height: "100%", padding: 20, },
     textinput: { borderBottomColor: SLIDER_PAGINATION_UNSELECTED_COLOR, borderBottomWidth: 1, marginTop: 40, fontSize: 18, color: NORMAL_TEXT_COLOR, padding: 5 },
     button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 12, borderRadius: 10, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
-    otp: { width: '15%', justifyContent: 'center', alignItems: 'center', padding: 15, backgroundColor: DARKED_BORDER_COLOR, borderRadius: 10, borderColor: DETAILS_TEXT_COLOR, borderWidth: 1, marginRight: 6, color: NORMAL_TEXT_COLOR,height:50 },
+    otp: { width: '15%', justifyContent: 'center', alignItems: 'center', padding: 15, backgroundColor: DARKED_BORDER_COLOR, borderRadius: 10, borderColor: DETAILS_TEXT_COLOR, borderWidth: 1, marginRight: 6, color: NORMAL_TEXT_COLOR, height: 50 },
     timer: { width: '100%', justifyContent: 'center', alignItems: 'center', padding: 15, },
     errormessage: { color: 'red', fontSize: 15 },
 });

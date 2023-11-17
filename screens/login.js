@@ -868,8 +868,13 @@ export default function Login({ navigation }) {
 
         }
     }
+
+    const loadView = async (key) => {
+        var url = await AsyncStorage.getItem(key);
+        navigation.navigate('Webview', { uri: url })
+    }
     return (
-        <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
+        <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
             <View style={{ flex: 1, }}>
 
                 <View style={styles.header}>
@@ -903,11 +908,11 @@ export default function Login({ navigation }) {
                                     </View>
                                 </View>
                                 <View style={{ flexDirection: 'row' }}>
-                                    <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', width: '50%', marginTop: 15 }}>
-                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Signup'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 15 }}>Not a Member? <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Sign Up</Text></Text>
+                                    <View style={{ justifyContent: 'center', alignItems: 'flex-start', width: '70%', marginTop: 15 }}>
+                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Signup'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 13 }}>Not a Member? <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Sign Up</Text></Text>
                                         </TouchableOpacity>
                                     </View>
-                                    <View style={{ justifyContent: 'center', alignItems: 'flex-end', width: '50%', marginTop: 15 }}>
+                                    <View style={{ justifyContent: 'center', alignItems: 'flex-end', width: '30%', marginTop: 15 }}>
                                         <TouchableOpacity onPress={signinMobileUser}>
                                             <LinearGradient
                                                 useAngle={true}
@@ -924,14 +929,14 @@ export default function Login({ navigation }) {
 
 
 
-                                <View style={{ justifyContent: 'center', alignItems: 'center', }}>
+                                {/* <View style={{ justifyContent: 'center', alignItems: 'center', }}>
                                     <Text style={{ color: DETAILS_TEXT_COLOR }}>----- OR -----</Text>
-                                </View>
+                                </View> */}
 
-                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                                {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}> */}
 
 
-                                    <Pressable
+                                {/* <Pressable
                                         onPress={() => onFacebookButtonPress().then((resp) => {
                                             console.log(resp);
                                             socialsignin(resp)
@@ -939,20 +944,20 @@ export default function Login({ navigation }) {
                                         style={{ width: 195, height: 50, backgroundColor: '#395694', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginBottom: 20 }}
                                     >
                                         <Text style={{ color: NORMAL_TEXT_COLOR }}>Signin with Facebook</Text>
-                                    </Pressable>
+                                    </Pressable> */}
 
-                                    {/* {!user.idToken ? */}
-                                    <GoogleSigninButton
+                                {/* {!user.idToken ? */}
+                                {/* <GoogleSigninButton
                                         style={{ width: 200, height: 50 }}
                                         size={GoogleSigninButton.Size.Wide}
                                         color={GoogleSigninButton.Color.Dark}
                                         onPress={signin}
-                                    ></GoogleSigninButton>
-                                    {/* :
+                                    ></GoogleSigninButton> */}
+                                {/* :
                                 ""
                             } */}
 
-                                </View>
+                                {/* </View> */}
 
                             </View>
                             :
@@ -976,12 +981,12 @@ export default function Login({ navigation }) {
                                 <TextInput secureTextEntry={true} onChangeText={setnewpassword} value={newpassword} style={styles.textinput} placeholder="Password*" placeholderTextColor={NORMAL_TEXT_COLOR} />
                                 <Text style={styles.errormessage}>{newpasswordError}</Text>
                                 <View style={{ flexDirection: 'row' }}>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Signup'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 15 }}>Not a Member? <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Sign Up</Text></Text>
+                                    <View style={{ justifyContent: 'center', alignItems: 'flex-start', width: '50%' }}>
+                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Signup'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 13 }}>Not a Member? <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Sign Up</Text></Text>
                                         </TouchableOpacity>
                                     </View>
-                                    <TouchableOpacity style={{ position: 'absolute', right: 20 }} onPress={() => navigation.dispatch(StackActions.replace('ForgotPassword'))}>
-                                        <Text style={{ color: NORMAL_TEXT_COLOR }}>Forgot Password?</Text>
+                                    <TouchableOpacity style={{ position: 'absolute', right: 0 }} onPress={() => navigation.dispatch(StackActions.replace('ForgotPassword'))}>
+                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Forgot Password?</Text>
                                     </TouchableOpacity>
                                 </View>
 
@@ -1003,14 +1008,14 @@ export default function Login({ navigation }) {
                                     </View>
                                 </View>
 
-                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                                {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
                                     <Text style={{ color: DETAILS_TEXT_COLOR }}>----- OR -----</Text>
-                                </View>
+                                </View> */}
 
-                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                                {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}> */}
 
 
-                                    <Pressable
+                                {/* <Pressable
                                         onPress={() => onFacebookButtonPress().then((resp) => {
                                             console.log(resp);
                                             socialsignin(resp)
@@ -1018,20 +1023,20 @@ export default function Login({ navigation }) {
                                         style={{ width: 195, height: 50, backgroundColor: '#395694', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginBottom: 20 }}
                                     >
                                         <Text style={{ color: NORMAL_TEXT_COLOR }}>Signin with Facebook</Text>
-                                    </Pressable>
+                                    </Pressable> */}
 
-                                    {/* {!user.idToken ? */}
-                                    <GoogleSigninButton
+                                {/* {!user.idToken ? */}
+                                {/* <GoogleSigninButton
                                         style={{ width: 200, height: 50 }}
                                         size={GoogleSigninButton.Size.Wide}
                                         color={GoogleSigninButton.Color.Dark}
                                         onPress={signin}
-                                    ></GoogleSigninButton>
-                                    {/* :
+                                    ></GoogleSigninButton> */}
+                                {/* :
                                 ""
                             } */}
 
-                                </View>
+                                {/* </View> */}
 
                             </View>
                         }
@@ -1086,14 +1091,14 @@ export default function Login({ navigation }) {
                                 </View>
                             </View>
 
-                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                            {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
                                 <Text style={{ color: DETAILS_TEXT_COLOR }}>----- OR -----</Text>
-                            </View>
+                            </View> */}
 
-                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                            {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}> */}
 
 
-                                <Pressable
+                            {/* <Pressable
                                     onPress={() => onFacebookButtonPress().then((resp) => {
                                         console.log(resp);
                                         socialsignin(resp)
@@ -1101,24 +1106,30 @@ export default function Login({ navigation }) {
                                     style={{ width: 195, height: 50, backgroundColor: '#395694', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginBottom: 20 }}
                                 >
                                     <Text style={{ color: NORMAL_TEXT_COLOR }}>Signin with Facebook</Text>
-                                </Pressable>
+                                </Pressable> */}
 
-                                {/* {!user.idToken ? */}
-                                <GoogleSigninButton
+                            {/* {!user.idToken ? */}
+                            {/* <GoogleSigninButton
                                     style={{ width: 200, height: 50 }}
                                     size={GoogleSigninButton.Size.Wide}
                                     color={GoogleSigninButton.Color.Dark}
                                     onPress={signin}
-                                ></GoogleSigninButton>
-                                {/* :
+                                ></GoogleSigninButton> */}
+                            {/* :
                                 ""
                             } */}
 
-                            </View>
+                            {/* </View> */}
 
                         </View>
                     </View>
                 }
+            </View>
+            <View style={{ width: "100%", position: 'absolute', bottom: 30, flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center' }}>
+                <Pressable onPress={() => loadView('privacy')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Privacy Policy</Text></Pressable>
+                <Pressable onPress={() => navigation.navigate('HTMLRender', { pagename: 'terms_conditions' })}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Terms of Use</Text></Pressable>
+                <Pressable onPress={() => loadView('faq')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>FAQ</Text></Pressable>
+                <Pressable onPress={() => loadView('contactUs')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Contact Us</Text></Pressable>
             </View>
             <StatusBar
                 animated
@@ -1126,7 +1137,7 @@ export default function Login({ navigation }) {
                 barStyle="dark-content"
                 translucent={true}
             />
-        </ScrollView>
+        </View>
     )
 }
 

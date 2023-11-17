@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
 import { View, FlatList, StyleSheet, Text, Pressable, ActivityIndicator, RefreshControl, TouchableOpacity, Image, LogBox, StatusBar } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
@@ -102,7 +102,7 @@ function Home({ navigation, route }) {
     }) : ({
         vertical: false,
         width: PAGE_WIDTH,
-        height: actuatedNormalize(540),
+        height: actuatedNormalize(520),
     });
     const baseOptionsOther = isTablet ? ({
         vertical: false,
@@ -572,7 +572,7 @@ function Home({ navigation, route }) {
         });
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
-                <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center',marginBottom:0 }}>
 
 
                     {item.layoutType == 'top_banner' ?
@@ -602,8 +602,8 @@ function Home({ navigation, route }) {
                                 renderItem={({ item, index, animationValue }) =>
 
 
-                                    <View style={{ height: actuatedNormalize(540), width: "100%" }}>
-                                        <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.contain} key={index} style={[{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, width: "100%", height: actuatedNormalize(540) }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                    <View style={{ height: actuatedNormalize(570), width: "100%" }}>
+                                        <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.contain} key={index} style={[{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, width: "100%", height: actuatedNormalize(570) }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                     </View>
 
 
@@ -612,8 +612,8 @@ function Home({ navigation, route }) {
 
                            
                             <View style={styles.buttonsContainer}>
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500', position: 'absolute', bottom: 95, }}>{JSON.stringify(item.data[sliderKey].genres).toUpperCase().split('["').join(".").split('"]').join("").split('","').join("  .").split("_").join(" ")}</Text>
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold', position: 'absolute', bottom: 75, }}>
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500', position: 'absolute', bottom: 115, }}>{JSON.stringify(item.data[sliderKey].genres).toUpperCase().split('["').join(".").split('"]').join("").split('","').join("  .").split("_").join(" ")}</Text>
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold', position: 'absolute', bottom: 95, }}>
                                     <FontAwesome5 size={11} color={TAB_COLOR} name="grip-lines-vertical" /> {item.data[sliderKey].displayTitle}
                                 </Text>
                                 <View style={styles.buttonsPosition}>
@@ -632,7 +632,7 @@ function Home({ navigation, route }) {
                                             useAngle={true}
                                             angle={125}
                                             angleCenter={{ x: 0.5, y: 0.5 }}
-                                            colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                                            colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
                                             style={[styles.button, { borderRadius: 40 }]}>
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <FontAwesome5 name='play' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
@@ -1107,7 +1107,7 @@ function Home({ navigation, route }) {
                                                     style={[styles.imageSectionMiniMoviePoster,]}
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: actuatedNormalize(30), height: actuatedNormalizeVertical(30), right: 10, bottom: 15 }}></Image> : ""}
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: actuatedNormalize(15), height: actuatedNormalizeVertical(15), right: 10, bottom: 15 }}></Image> : ""}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                         </View>
@@ -1136,7 +1136,7 @@ function Home({ navigation, route }) {
                                                     style={[styles.imageSectionMiniMoviePoster,]}
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: actuatedNormalize(30), height: actuatedNormalizeVertical(30), right: 10, bottom: 15 }}></Image> : ""}
+                                                {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: actuatedNormalize(15), height: actuatedNormalizeVertical(15), right: 10, bottom: 15 }}></Image> : ""}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                         </View>
@@ -1202,7 +1202,7 @@ function Home({ navigation, route }) {
 
 
                 {item.layoutType != 'tv_shows' && item.layoutType != 'show' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'banner' && item.layoutType != 'channels' && item.layoutType != 'live' && item.layoutType != 'movie_poster' && item.layoutType != 'mini_movie_poster' && item.layoutType != 'news_slider' && item.data.length != 0 ?
-                    <View style={index == 0 ? { marginTop: 60 } : {}}>
+                    <View style={index == 0 ? {} : {}}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
                             {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => {
@@ -1289,7 +1289,7 @@ function Home({ navigation, route }) {
                 {item.friendlyId == pageName ?
 
                     <View style={styles.menuitem}>
-                        <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold', fontSize: 13 }}>{item.displayName}</Text>
+                        <Text style={{ color: TAB_COLOR, fontWeight: 'bold', fontSize: 13 }}>{item.displayName}</Text>
                     </View>
                     :
                     <Pressable onPress={() => changeTabData(item.friendlyId)}>
@@ -1350,7 +1350,9 @@ function Home({ navigation, route }) {
                 ""}
 
             {/* body content */}
-            {totalHomeData ? <Animated.FlatList
+            {totalHomeData ? 
+            <Suspense fallback={() => <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} style={{}}></ActivityIndicator>}>
+            <Animated.FlatList
                 data={totalHomeData}
                 keyExtractor={(x, i) => i.toString()}
                 horizontal={false}
@@ -1366,7 +1368,8 @@ function Home({ navigation, route }) {
                 style={{ height: PAGE_HEIGHT }}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 renderItem={renderItem}
-            /> : ""}
+            />
+            </Suspense> : ""}
             {/* header menu */}
             <View style={{ left: "50%", position: 'absolute', zIndex: 10000, top: '50%' }}>
                 {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} style={{}}></ActivityIndicator> : ""}
@@ -1507,14 +1510,14 @@ const PaginationItem = (props) => {
 
 const styles = StyleSheet.create({
     buttonsContainer: { width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', zIndex: 1000, position: 'absolute' },
-    buttonsPosition: { position: 'absolute', bottom: 35, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-evenly' },
+    buttonsPosition: { position: 'absolute', bottom: 55, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-evenly' },
     button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, marginRight: 5, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
     wishlistbutton: { borderRadius: 40, borderWidth: 1.5, borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7 },
     subscribeImage: { width: actuatedNormalize(160), height: actuatedNormalizeVertical(85), resizeMode: 'contain', justifyContent: 'center', alignItems: 'center', },
     menulogo: { height: actuatedNormalizeVertical(35), justifyContent: 'center', alignItems: 'center', },
     menuitem: { height: actuatedNormalizeVertical(35), justifyContent: 'center', alignItems: 'center', padding: 8, borderRadius: 15 },
     playIcon: { position: 'absolute', width: actuatedNormalize(30), height: actuatedNormalizeVertical(30), right: 10, bottom: 15 },
-    crownIcon: { position: 'absolute', width: actuatedNormalize(25), height: actuatedNormalizeVertical(25), left: 8, top: 5 },
+    crownIcon: { position: 'absolute', width: actuatedNormalize(25), height: actuatedNormalizeVertical(25), left: 15, top: 5 },
     Container: {
         backgroundColor: BACKGROUND_COLOR,
         textAlign: "center",
@@ -1596,11 +1599,11 @@ const styles = StyleSheet.create({
         resizeMode: 'contain'
     },
     imageSectionVertical: {
-        width: PAGE_WIDTH / 3,
+        width: PAGE_WIDTH / 3.1,
         height: actuatedNormalizeVertical(170),
         borderRadius: 10,
         marginBottom: 10,
-
+        marginHorizontal:1
     },
     imageSectionVerticalMoviePoster: {
         width: actuatedNormalize(PAGE_WIDTH / 1.75),

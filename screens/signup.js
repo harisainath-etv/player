@@ -276,10 +276,14 @@ export default function Signup({ navigation }) {
         }
 
     }
+    const loadView = async (key) => {
+        var url = await AsyncStorage.getItem(key);
+        navigation.navigate('Webview', { uri: url })
+    }
     return (
-        <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
+        <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
             {region == 'IN' ?
-                <View style={{ flex: 1, }}>
+                <ScrollView style={{ flex: 1, }}>
                     <View style={styles.header}>
                         <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 17, fontWeight: '500' }}>Sign Up</Text>
                         <TouchableOpacity style={{ position: 'absolute', right: 20, }} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: '500' }}>SKIP</Text></TouchableOpacity>
@@ -299,21 +303,22 @@ export default function Signup({ navigation }) {
 
                             <TextInput maxLength={10} onChangeText={setMobile} value={Mobile} style={styles.textinput} placeholder="Mobile Number*" placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='phone-pad' />
                             <Text style={styles.errormessage}>{MobileError}</Text>
-                            <View style={{ marginBottom: 10, marginTop: 10, flexDirection: 'row', width: '100%', }}>
+                            <View style={{ marginBottom: 20, marginTop: 10, flexDirection: 'row', width: '100%', justifyContent: 'flex-start', alignItems: 'center' }}>
                                 {termscheck ?
                                     <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                                     :
                                     <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                                 }
-                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 14, marginLeft: 10, flex: 1, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>I agree to the
 
-                                    <Pressable onPress={() => navigatetopage('termsCondition')}>
-                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }}> TERMS OF USE </Text>
-                                    </Pressable> and
+                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12, justifyContent: 'center', alignItems: 'center', }}> I agree to the </Text>
 
-                                    <Pressable onPress={() => navigatetopage('privacy')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }} > PRIVACY POLICY </Text></Pressable>
+                                <Pressable onPress={() => navigatetopage('termsCondition')}>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }}> TERMS OF USE </Text>
+                                </Pressable>
 
-                                </Text>
+                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12, justifyContent: 'center', alignItems: 'center', }}>and</Text>
+
+                                <Pressable onPress={() => navigatetopage('privacy')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }} > PRIVACY POLICY </Text></Pressable>
 
 
                             </View>
@@ -362,21 +367,21 @@ export default function Signup({ navigation }) {
                             <TextInput onChangeText={setconfirmpassword} secureTextEntry={true} value={confirmpassword} style={styles.textinput} placeholder="Confirm Password *" placeholderTextColor={NORMAL_TEXT_COLOR} />
                             <Text style={styles.errormessage}>{confirmpasswordError}</Text>
 
-                            <View style={{ marginBottom: 10, marginTop: 10, flexDirection: 'row', width: '100%', }}>
+                            <View style={{ marginBottom: 20, marginTop: 10, flexDirection: 'row', width: '100%', justifyContent: 'flex-start', alignItems: 'center' }}>
                                 {termscheck ?
                                     <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                                     :
                                     <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
                                 }
-                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 14, marginLeft: 10, flex: 1, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>I agree to the
+                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12, justifyContent: 'center', alignItems: 'center', }}> I agree to the </Text>
 
-                                    <Pressable onPress={() => navigatetopage('termsCondition')}>
-                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }}> TERMS OF USE </Text>
-                                    </Pressable> and
+                                <Pressable onPress={() => navigatetopage('termsCondition')}>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }}> TERMS OF USE </Text>
+                                </Pressable>
 
-                                    <Pressable onPress={() => navigatetopage('privacy')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }} > PRIVACY POLICY </Text></Pressable>
+                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12, justifyContent: 'center', alignItems: 'center', }}>and</Text>
 
-                                </Text>
+                                <Pressable onPress={() => navigatetopage('privacy')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }} > PRIVACY POLICY </Text></Pressable>
                             </View>
 
                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -405,9 +410,9 @@ export default function Signup({ navigation }) {
                             </View>
                         </View>
                     }
-                </View>
+                </ScrollView>
                 :
-                <View style={{ flex: 1, }}>
+                <ScrollView style={{ flex: 1, }}>
                     <View style={styles.body}>
                         <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
                             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 17, fontWeight: '500' }}>Sign Up</Text>
@@ -475,15 +480,22 @@ export default function Signup({ navigation }) {
                             </TouchableOpacity>
                         </View>
                     </View>
-                </View>
+                </ScrollView>
             }
+
+            <View style={{ width: "100%", position: 'absolute', bottom: 30, flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center' }}>
+                <Pressable onPress={() => loadView('privacy')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Privacy Policy</Text></Pressable>
+                <Pressable onPress={() => navigation.navigate('HTMLRender', { pagename: 'terms_conditions' })}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Terms of Use</Text></Pressable>
+                <Pressable onPress={() => loadView('faq')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>FAQ</Text></Pressable>
+                <Pressable onPress={() => loadView('contactUs')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Contact Us</Text></Pressable>
+            </View>
             <StatusBar
                 animated
                 backgroundColor="transparent"
                 barStyle="dark-content"
                 translucent={true}
             />
-        </ScrollView>
+        </View>
     )
 }
 

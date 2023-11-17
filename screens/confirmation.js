@@ -206,7 +206,7 @@ export default function Confirmation({ navigation }) {
             setchargedamount(response.data.data.payment.net_amount);
             setdiscountmessage("Promo Code Applied. You will get " + currency + " " + (amount - response.data.data.payment.net_amount) + " discount");
         }).catch(error => {
-            setdiscountmessage(error.response.data.mesaage)
+            setdiscountmessage(error.response.data.error.message)
         })
     } 
 

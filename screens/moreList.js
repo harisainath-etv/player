@@ -115,8 +115,8 @@ function MoreList({ navigation, route }) {
                                             }
                                         }}>
                                             <FastImage
-                                                resizeMode={FastImage.resizeMode.stretch}
-                                                style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
+                                                resizeMode={FastImage.resizeMode.contain}
+                                                style={[styles.imageSectionVertical]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
@@ -151,8 +151,8 @@ function MoreList({ navigation, route }) {
                                             }
                                         }}>
                                             <FastImage
-                                                resizeMode={FastImage.resizeMode.stretch}
-                                                style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
+                                                resizeMode={FastImage.resizeMode.contain}
+                                                style={[styles.imageSectionHorizontal]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}

@@ -200,7 +200,7 @@ export default function Menu() {
                   style={[styles.button, { width: "95%" }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <FontAwesome5 name='lock' size={16} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Upgrade</Text>
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Upgrade / Renew</Text>
                   </View>
                 </LinearGradient>
 
@@ -254,6 +254,7 @@ export default function Menu() {
               <View style={{ alignItems: 'center', marginBottom: 20, }}>
                 <Text style={{ fontWeight: 'bold', color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Activate ETV WIN on your TV</Text>
                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>Enter the Activation code displayed on your TV screen</Text>
+                <Text style={{marginTop:5,color:TAB_COLOR}}>{otpactivatteError}</Text>
                 <View style={{ flexDirection: 'row', marginTop: 20 }}>
                   <TextInput
                     textAlign='center'

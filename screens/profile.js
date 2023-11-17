@@ -56,57 +56,82 @@ export default function Profile({ navigation }) {
         loadData();
     })
     const signout = async () => {
-        var session = await AsyncStorage.getItem('session');
-        var userobj = await AsyncStorage.getItem('userobj');
-        axios.post(FIRETV_BASE_URL_STAGING + "users/" + session + "/sign_out", {
-            auth_token: VIDEO_AUTH_TOKEN,
-            access_token: ACCESS_TOKEN,
-            user: userobj
-        }, {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
+        Alert.alert('Sign Out', 'Please confirm to sign out from this device.', [
+            {
+                text: 'Confirm',
+                onPress: async () => {
+
+                    var session = await AsyncStorage.getItem('session');
+                    var userobj = await AsyncStorage.getItem('userobj');
+                    axios.post(FIRETV_BASE_URL_STAGING + "users/" + session + "/sign_out", {
+                        auth_token: VIDEO_AUTH_TOKEN,
+                        access_token: ACCESS_TOKEN,
+                        user: userobj
+                    }, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        }
+                    }).then(response => {
+                        console.log(JSON.stringify(response.data));
+                    }).catch(error => {
+                        console.log(JSON.stringify(error.response.data));
+                    })
+                    await AsyncStorage.clear();
+                    await loadasyncdata();
+                    var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/'
+                    if (await RNFS.exists(downloaddirectory)) {
+                        await RNFS.unlink(downloaddirectory)
+                    }
+                    navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+                },
+            },
+            {
+                text: 'Cancel',
+                onPress: () => console.log('Cancel Pressed'),
+                style: 'cancel',
             }
-        }).then(response => {
-            console.log(JSON.stringify(response.data));
-        }).catch(error => {
-            console.log(JSON.stringify(error.response.data));
-        })
-        await AsyncStorage.clear();
-        await loadasyncdata();
-        var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/'
-        if (await RNFS.exists(downloaddirectory)) {
-            await RNFS.unlink(downloaddirectory)
-        }
-        navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+        ])
     }
 
     const signoutall = async () => {
-        var session = await AsyncStorage.getItem('session');
-        var userobj = await AsyncStorage.getItem('userobj');
-        axios.post(FIRETV_BASE_URL_STAGING + "users/" + session + "/sign_out_all", {
-            auth_token: VIDEO_AUTH_TOKEN,
-            access_token: ACCESS_TOKEN,
-            type: 'session',
-            id: session,
-            user: userobj
-        }, {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
+        Alert.alert('Sign Out', 'Please confirm to sign out from all the devices.', [
+            {
+                text: 'Confirm',
+                onPress: async () => {
+                    var session = await AsyncStorage.getItem('session');
+                    var userobj = await AsyncStorage.getItem('userobj');
+                    axios.post(FIRETV_BASE_URL_STAGING + "users/" + session + "/sign_out_all", {
+                        auth_token: VIDEO_AUTH_TOKEN,
+                        access_token: ACCESS_TOKEN,
+                        type: 'session',
+                        id: session,
+                        user: userobj
+                    }, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        }
+                    }).then(response => {
+                        console.log(JSON.stringify(response.data));
+                    }).catch(error => {
+                        console.log(JSON.stringify(error.response.data));
+                    })
+                    await AsyncStorage.clear();
+                    await loadasyncdata()
+                    var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/'
+                    if (await RNFS.exists(downloaddirectory)) {
+                        await RNFS.unlink(downloaddirectory)
+                    }
+                    navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+                },
+            },
+            {
+                text: 'Cancel',
+                onPress: () => console.log('Cancel Pressed'),
+                style: 'cancel',
             }
-        }).then(response => {
-            console.log(JSON.stringify(response.data));
-        }).catch(error => {
-            console.log(JSON.stringify(error.response.data));
-        })
-        await AsyncStorage.clear();
-        await loadasyncdata()
-        var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/'
-        if (await RNFS.exists(downloaddirectory)) {
-            await RNFS.unlink(downloaddirectory)
-        }
-        navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+        ]);
     }
     function validURL(str) {
         var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
@@ -181,9 +206,9 @@ export default function Profile({ navigation }) {
             if (appConfigData.data.params_hash2.config_params.payment_gateway[i].default == true) {
                 await AsyncStorage.setItem('payment_gateway', appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase())
             }
-            gateways.push({"name":appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase()})
+            gateways.push({ "name": appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase() })
         }
-        await AsyncStorage.setItem('availableGateways',JSON.stringify(gateways))
+        await AsyncStorage.setItem('availableGateways', JSON.stringify(gateways))
         await AsyncStorage.setItem('watchhistory_api', appConfigData.data.params_hash2.config_params.watchhistory_api);
         await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
         await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);
@@ -292,7 +317,7 @@ export default function Profile({ navigation }) {
 
             }
             <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
-                <TouchableOpacity onPress={() => { navigation.navigate('EditProfile') }} style={{}}>
+                <TouchableOpacity onPress={() => { navigation.navigate('EditProfile',{letter:name.charAt(0)}) }} style={{}}>
 
                     <LinearGradient
                         useAngle={true}
