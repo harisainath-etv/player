@@ -274,24 +274,24 @@ export default function Episode({ navigation, route }) {
           }
           )
 
-        axios.get(FIRETV_BASE_URL_STAGING + "catalog_lists/movie-videolists?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&item_language=eng&region=" + region + "&parent_id=" + response.data.data.content_id).then(resp => {
-          for (var o = 0; o < resp.data.data.catalog_list_items.length; o++) {
-            var subcategorydata = [];
-            for (var s = 0; s < resp.data.data.catalog_list_items[o].catalog_list_items.length; s++) {
-              subcategorydata.push({ 'thumbnail': resp.data.data.catalog_list_items[o].catalog_list_items[s].thumbnails.high_4_3.url, 'title': resp.data.data.catalog_list_items[o].catalog_list_items[s].title, 'premium': resp.data.data.catalog_list_items[o].catalog_list_items[s].access_control.is_free, 'theme': resp.data.data.catalog_list_items[o].catalog_list_items[s].theme, 'seo_url': resp.data.data.catalog_list_items[o].catalog_list_items[s].seo_url })
-            }
-            totalData.push({ 'display_title': resp.data.data.catalog_list_items[o].display_title, 'item_type': resp.data.data.catalog_list_items[o].theme, 'thumbnails': subcategorydata, 'friendlyId': resp.data.data.catalog_list_items[o].friendly_id })
-            setsubcategoryImages([...subcategoryImages, totalData])
-          }
-        }).catch(err => {
+        // axios.get(FIRETV_BASE_URL_STAGING + "catalog_lists/movie-videolists?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&item_language=eng&region=" + region + "&parent_id=" + response.data.data.content_id).then(resp => {
+        //   for (var o = 0; o < resp.data.data.catalog_list_items.length; o++) {
+        //     var subcategorydata = [];
+        //     for (var s = 0; s < resp.data.data.catalog_list_items[o].catalog_list_items.length; s++) {
+        //       subcategorydata.push({ 'thumbnail': resp.data.data.catalog_list_items[o].catalog_list_items[s].thumbnails.high_4_3.url, 'title': resp.data.data.catalog_list_items[o].catalog_list_items[s].title, 'premium': resp.data.data.catalog_list_items[o].catalog_list_items[s].access_control.is_free, 'theme': resp.data.data.catalog_list_items[o].catalog_list_items[s].theme, 'seo_url': resp.data.data.catalog_list_items[o].catalog_list_items[s].seo_url })
+        //     }
+        //     totalData.push({ 'display_title': resp.data.data.catalog_list_items[o].display_title, 'item_type': resp.data.data.catalog_list_items[o].theme, 'thumbnails': subcategorydata, 'friendlyId': resp.data.data.catalog_list_items[o].friendly_id })
+        //     setsubcategoryImages([...subcategoryImages, totalData])
+        //   }
+        // }).catch(err => {
 
-        })
+        // })
 
         if (passedtheme == 'live' || passedtheme == 'livetv') {
           axios.post(FIRETV_BASE_URL + "/get_all_shows?auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN, {
             friendly_id: DEVELOPMENT_MODE == 'staging' ? "etv-telugu" : response.data.data.friendly_id
           }).then(livetvshows => {
-            for (var r = 0; r < livetvshows.data.resp.length; r++) {
+            for (var r = 0; r < 15; r++) {
               relatedShows.push({ "catalog_id": livetvshows.data.resp[r].catalog_id, "content_id": livetvshows.data.resp[r].content_id, "title": livetvshows.data.resp[r].title, "image": livetvshows.data.resp[r].high_4_3.url });
             }
             setRelatedShows(relatedShows);
@@ -900,7 +900,7 @@ export default function Episode({ navigation, route }) {
   }
   const renderShows = (item, index) => {
     return (
-      <TouchableOpacity onPress={() => gotoPage(item.item.catalog_id, item.item.content_id)} key={"RealtedShows" + index} style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 10,width:"100%" }}>
+      <TouchableOpacity onPress={() => gotoPage(item.item.catalog_id, item.item.content_id)} key={"RealtedShows" + index} style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 10, width: "100%" }}>
         <FastImage source={{ uri: item.item.image, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={isTablet ? styles.imageSectionVerticalTab : styles.imageSectionHorizontal} resizeMode={FastImage.resizeMode.contain} />
         {!isTablet ?
           <View style={{ width: "100%", backgroundColor: BACKGROUND_TRANSPARENT_COLOR_MENU, position: 'absolute', bottom: 8.5, height: 40, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
@@ -1037,35 +1037,40 @@ export default function Episode({ navigation, route }) {
 
               {state.showControls && (
                 <View style={{ width: "100%", position: 'absolute', top: "40%", flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      videoRef.current.seek(currentloadingtime - 10)
-                      setState({ ...state, showControls: true });
-                    }}
-                    style={{ marginRight: 50 }}>
-                    <Ionicons name="md-caret-back-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
-                  </TouchableOpacity>
+                  {passedtheme != 'live' && passedtheme != 'livetv' ?
+                    <>
+                      <TouchableOpacity
+                        onPress={() => {
+                          videoRef.current.seek(currentloadingtime - 10)
+                          setState({ ...state, showControls: true });
+                        }}
+                        style={{ marginRight: 50 }}>
+                        <Ionicons name="md-caret-back-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
+                      </TouchableOpacity>
 
-                  <TouchableOpacity
-                    onPress={() => { setPlay(!play); setState({ ...state, showControls: true }); }}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    style={{ right: 10, left: 10, width: "10%" }}>
-                    {play ?
-                      <MaterialCommunityIcons name="pause-circle" size={35} color={NORMAL_TEXT_COLOR} />
-                      :
-                      <MaterialCommunityIcons name="play-circle" size={35} color={NORMAL_TEXT_COLOR} />
-                    }
-                  </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => { setPlay(!play); setState({ ...state, showControls: true }); }}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        style={{ right: 10, left: 10, width: "10%" }}>
+                        {play ?
+                          <MaterialCommunityIcons name="pause-circle" size={35} color={NORMAL_TEXT_COLOR} />
+                          :
+                          <MaterialCommunityIcons name="play-circle" size={35} color={NORMAL_TEXT_COLOR} />
+                        }
+                      </TouchableOpacity>
 
-                  <TouchableOpacity
-                    onPress={() => {
-                      console.log(currentloadingtime);
-                      videoRef.current.seek(currentloadingtime + 10)
-                      setState({ ...state, showControls: true });
-                    }}
-                    style={{ marginLeft: 50 }}>
-                    <Ionicons name="md-caret-forward-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
-                  </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => {
+                          console.log(currentloadingtime);
+                          videoRef.current.seek(currentloadingtime + 10)
+                          setState({ ...state, showControls: true });
+                        }}
+                        style={{ marginLeft: 50 }}>
+                        <Ionicons name="md-caret-forward-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
+                      </TouchableOpacity>
+                    </>
+                    :
+                    ""}
                 </View>
               )}
               {/* {thumbImage ? */}
@@ -1087,7 +1092,7 @@ export default function Episode({ navigation, route }) {
                 <>
 
                   <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 60, bottom: 0, flexDirection: 'row' }}>
-                    <View style={{ width: "85%", top: 20 }}>
+                    <View style={passedtheme != 'live' && passedtheme != 'livetv' ? { width: "85%", top: 20 } : { width: "100%", top: 20 }}>
                       <Slider
                         style={{ width: "100%", height: 40 }}
                         minimumValue={0}
@@ -1103,13 +1108,16 @@ export default function Episode({ navigation, route }) {
                           //getThumbnailImage(Math.round(val));
                         }}
                         animateTransitions={true}
+                        disabled={passedtheme != 'live' && passedtheme != 'livetv' ? false : true}
                       />
                     </View>
+                    {passedtheme != 'live' && passedtheme != 'livetv' ?
                     <View style={{ top: 30, width: "15%", right: 5 }}>
                       <Text style={{ color: "#ffffff", fontSize: 11 }}>
                         {currenttimestamp}
                       </Text>
                     </View>
+                    :""}
                   </View>
                 </>
               )}
