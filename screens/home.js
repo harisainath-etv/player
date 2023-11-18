@@ -766,7 +766,7 @@ function Home({ navigation, route }) {
                                 }}><FastImage resizeMode={FastImage.resizeMode.contain} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
                         </View>
-                        {!!progressValue3 ?
+                        {/* {!!progressValue3 ?
                             <View
                                 style={{
                                     flexDirection: 'row',
@@ -789,7 +789,7 @@ function Home({ navigation, route }) {
                                     );
                                 })}
                             </View>
-                            : ""}
+                            : ""} */}
                     </View>
                     : ""}
                 {(item.layoutType == 'tv_shows' || item.layoutType == "show") && item.data.length != 0 ?
