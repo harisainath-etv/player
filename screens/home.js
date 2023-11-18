@@ -1185,7 +1185,7 @@ function Home({ navigation, route }) {
                                         useAngle={true}
                                         angle={125}
                                         angleCenter={{ x: 0.5, y: 0.5 }}
-                                        colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
                                         style={[styles.button, { position: 'absolute', bottom: 10, width: "100%" }]}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                                             <FontAwesome5 name='play' size={16} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
@@ -1405,7 +1405,7 @@ function Home({ navigation, route }) {
                         useAngle={true}
                         angle={125}
                         angleCenter={{ x: 0.5, y: 0.5 }}
-                        colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
                         style={styles.button}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <FontAwesome5 name='lock' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />

@@ -382,7 +382,7 @@ export default function Confirmation({ navigation }) {
                                     useAngle={true}
                                     angle={125}
                                     angleCenter={{ x: 0.5, y: 0.5 }}
-                                    colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                                    colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
                                     style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR,  paddingLeft: 15,paddingRight: 15,paddingTop:10,paddingBottom:10,width:"100%", borderRadius: 10, }}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Apply</Text>
@@ -461,7 +461,7 @@ export default function Confirmation({ navigation }) {
                         useAngle={true}
                         angle={125}
                         angleCenter={{ x: 0.5, y: 0.5 }}
-                        colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
                         style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 10, borderRadius: 20, marginRight: 20 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Make Payment</Text>

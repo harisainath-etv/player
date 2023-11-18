@@ -330,7 +330,7 @@ export default function Signup({ navigation }) {
                                                 useAngle={true}
                                                 angle={125}
                                                 angleCenter={{ x: 0.5, y: 0.5 }}
-                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
+                                                colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text>
                                             </LinearGradient>
                                         </TouchableOpacity>
@@ -395,7 +395,7 @@ export default function Signup({ navigation }) {
                                                 useAngle={true}
                                                 angle={125}
                                                 angleCenter={{ x: 0.5, y: 0.5 }}
-                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
+                                                colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text>
                                             </LinearGradient>
 
@@ -465,7 +465,7 @@ export default function Signup({ navigation }) {
                                             useAngle={true}
                                             angle={125}
                                             angleCenter={{ x: 0.5, y: 0.5 }}
-                                            colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
+                                            colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign Up</Text>
                                         </LinearGradient>
 

@@ -127,7 +127,7 @@ export default function Subscribe({ navigation }) {
                             useAngle={true}
                             angle={125}
                             angleCenter={{ x: 0.5, y: 0.5 }}
-                            colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                            colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
                             style={styles.gradirentButton}
                         >
                             <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -534,7 +534,7 @@ export default function Subscribe({ navigation }) {
                                                 useAngle={true}
                                                 angle={125}
                                                 angleCenter={{ x: 0.5, y: 0.5 }}
-                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                                                colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
                                                 style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: "100%", padding: 12, borderRadius: 10, marginRight: 20, borderColor: TAB_COLOR, borderWidth: 0.5 }}
                                             >
                                                 <View

@@ -939,7 +939,7 @@ export default function Login({ navigation }) {
                                                 useAngle={true}
                                                 angle={125}
                                                 angleCenter={{ x: 0.5, y: 0.5 }}
-                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
+                                                colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                                 <Ionicons name='arrow-forward' size={20} color={NORMAL_TEXT_COLOR} />
                                             </LinearGradient>
                                         </TouchableOpacity>
@@ -1021,7 +1021,7 @@ export default function Login({ navigation }) {
                                                 useAngle={true}
                                                 angle={125}
                                                 angleCenter={{ x: 0.5, y: 0.5 }}
-                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
+                                                colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                                 <Ionicons name='arrow-forward' size={20} color={NORMAL_TEXT_COLOR} />
                                             </LinearGradient>
                                         </TouchableOpacity>
@@ -1103,7 +1103,7 @@ export default function Login({ navigation }) {
                                                 useAngle={true}
                                                 angle={125}
                                                 angleCenter={{ x: 0.5, y: 0.5 }}
-                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
+                                                colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                                 <Ionicons name='arrow-forward' size={20} color={NORMAL_TEXT_COLOR} />
                                             </LinearGradient>
 

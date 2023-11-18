@@ -323,7 +323,7 @@ export default function Profile({ navigation }) {
                         useAngle={true}
                         angle={125}
                         angleCenter={{ x: 0.5, y: 0.5 }}
-                        colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
                         style={{ paddingTop: 7, paddingBottom: 7, paddingLeft: 22, paddingRight: 22, borderRadius: 20, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Edit Profile</Text>
