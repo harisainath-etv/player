@@ -87,16 +87,17 @@ export default function EditProfile({ navigation, route }) {
                 address: address
             }
         }).then(resp => {
-            AsyncStorage.setItem('firstname', name);
-            AsyncStorage.setItem('birthdate', dateofbirth);
-            AsyncStorage.setItem('gender', gender);
-            AsyncStorage.removeItem('address').then(respo => {
-                AsyncStorage.setItem('address', address);
-            }).catch(err => { })
+            setAsyncData('firstname', name);
+            setAsyncData('birthdate', dateofbirth);
+            setAsyncData('gender', gender);
+            setAsyncData('address', address);
             alert('Updated');
             navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
         }).catch(error => { console.log(error.response.data); })
 
+    }
+    const setAsyncData = async(key,value) =>{
+        await AsyncStorage.setItem(key, value);
     }
     return (
         <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>

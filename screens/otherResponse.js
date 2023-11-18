@@ -9,7 +9,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES,actuatedNormalizeVertical,actuatedNormalize } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from './footer';
@@ -706,10 +706,11 @@ const styles = StyleSheet.create({
         textAlign: 'right'
     },
     imageSectionHorizontal: {
-        width: PAGE_WIDTH / 2.06,
-        height: 117,
-        marginHorizontal: 3,
-        borderRadius: 10,
+        width: PAGE_WIDTH / 2.12,
+        height: actuatedNormalize(125),
+        marginRight: 5,
+        borderRadius: 15,
+        marginHorizontal: 10,
         marginBottom: 10,
         borderWidth: 1
     },
@@ -724,11 +725,10 @@ const styles = StyleSheet.create({
     },
     imageSectionVertical: {
         width: PAGE_WIDTH / 3.1,
-        height: 150,
-        marginHorizontal: 1,
-        borderRadius: 10,
+        height: actuatedNormalizeVertical(155),
+        borderRadius: 18,
         marginBottom: 10,
-
+        marginHorizontal:1
     },
     imageSectionCircle: {
         marginHorizontal: 0,

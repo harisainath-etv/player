@@ -390,7 +390,7 @@ export default function Shows({ navigation, route }) {
                                 }
                             >
                                 <Pressable style={{ justifyContent: 'center', alignItems: 'center',width:"100%" }} onPress={() => navigation.navigate('Episode', { seoUrl: episodeSeoUrl, theme: 'video', showname: title, showcontentId: contentId })}>
-                                    <FastImage resizeMode={FastImage.resizeMode.contain} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={
+                                    <FastImage resizeMode={FastImage.resizeMode.cover} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={
                                         isTablet ?
                                             { width: '100%', height: 600 }
                                             :
