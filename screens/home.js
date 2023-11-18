@@ -1323,8 +1323,8 @@ function Home({ navigation, route }) {
         useCallback(() => {
 
 
-            if (dataFetchedRef.current) return;
-            dataFetchedRef.current = true;
+            // if (dataFetchedRef.current) return;
+            // dataFetchedRef.current = true;
             getTopMenu();
             loadData(0);
             if (selectedItem == "") {
@@ -1600,7 +1600,7 @@ const styles = StyleSheet.create({
     },
     imageSectionVertical: {
         width: PAGE_WIDTH / 3.1,
-        height: actuatedNormalizeVertical(155),
+        height: actuatedNormalize(155),
         borderRadius: 18,
         marginBottom: 10,
         marginHorizontal:1
@@ -1683,7 +1683,7 @@ const styles = StyleSheet.create({
         right: 0,
         resizeMode: 'contain',
         borderRadius: 10,
-        height: actuatedNormalizeVertical(270)
+        height: actuatedNormalize(270)
     },
 });
 
