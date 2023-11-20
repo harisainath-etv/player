@@ -82,7 +82,7 @@ function Home({ navigation, route }) {
     const [isModalVisible, setModalVisible] = useState(false);
     const [loggedin, setloggedin] = useState(false);
     const [menubgcolor, setmenubgColor] = useState(BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU);
-    const [sliderKey,setSliderKey] = useState(0);
+    const [sliderKey, setSliderKey] = useState(0);
     var menuref = useRef();
     const progressValue = useSharedValue(0);
     const progressValue1 = useSharedValue(0);
@@ -102,7 +102,7 @@ function Home({ navigation, route }) {
     }) : ({
         vertical: false,
         width: PAGE_WIDTH,
-        height: (PAGE_HEIGHT/100)*76,
+        height: (PAGE_HEIGHT / 100) * 76,
     });
     const baseOptionsOther = isTablet ? ({
         vertical: false,
@@ -110,8 +110,8 @@ function Home({ navigation, route }) {
         height: actuatedNormalizeVertical(260),
     }) : ({
         vertical: false,
-        width: actuatedNormalize(PAGE_WIDTH),
-        height: actuatedNormalizeVertical(270),
+        width: PAGE_WIDTH - 50,
+        height: 270,
     });
     const baseOptionsOtherSingle = isTablet ? ({
         vertical: false,
@@ -221,7 +221,7 @@ function Home({ navigation, route }) {
                                         }
                                         else
                                             if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show" || data.data.catalog_list_items[i].layout_type == "movie_poster") {
-                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.medium_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
                                             }
                                             else
                                                 if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner") {
@@ -573,7 +573,7 @@ function Home({ navigation, route }) {
         var mainIndex = index;
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
-                <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center',marginBottom:0 }}>
+                <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center', marginBottom: 0 }}>
 
 
                     {item.layoutType == 'top_banner' ?
@@ -585,9 +585,9 @@ function Home({ navigation, route }) {
                                 snapEnabled={snapEnabled}
                                 autoPlay={autoPlay}
                                 autoPlayInterval={5000}
-                                onProgressChange={(_, absoluteProgress) =>
-                                   { (progressValue.value = absoluteProgress)
-                                    setSliderKey(Math.trunc(absoluteProgress)); 
+                                onProgressChange={(_, absoluteProgress) => {
+                                    (progressValue.value = absoluteProgress)
+                                    setSliderKey(Math.trunc(absoluteProgress));
                                 }
                                 }
                                 withAnimation={{
@@ -603,15 +603,15 @@ function Home({ navigation, route }) {
                                 renderItem={({ item, index, animationValue }) =>
 
 
-                                    <View style={{ height: (PAGE_HEIGHT/100)*76, width: "100%" }}>
-                                        <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.cover} key={index} style={[{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, width: "100%", height: (PAGE_HEIGHT/100)*76 }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                    <View style={{ height: (PAGE_HEIGHT / 100) * 76, width: "100%" }}>
+                                        <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.cover} key={index} style={[{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, width: "100%", height: (PAGE_HEIGHT / 100) * 76 }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                     </View>
 
 
                                 }
                             />
 
-                           
+
                             <View style={styles.buttonsContainer}>
                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500', position: 'absolute', bottom: 85, }}>{JSON.stringify(item.data[sliderKey].genres).toUpperCase().split('["').join(".").split('"]').join("").split('","').join("  .").split("_").join(" ")}</Text>
                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold', position: 'absolute', bottom: 60, }}>
@@ -633,7 +633,7 @@ function Home({ navigation, route }) {
                                             useAngle={true}
                                             angle={125}
                                             angleCenter={{ x: 0.5, y: 0.5 }}
-                                            colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
+                                            colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR, BUTTON_COLOR]}
                                             style={[styles.button, { borderRadius: 40 }]}>
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <FontAwesome5 name='play' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
@@ -826,7 +826,7 @@ function Home({ navigation, route }) {
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             </Pressable>
                                             {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
-                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={[styles.crownIcon,{left: 10, top: 5}]}></Image> : ""}
+                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={[styles.crownIcon, { left: 10, top: 5 }]}></Image> : ""}
                                         </View>
                                 }
                             />
@@ -850,12 +850,12 @@ function Home({ navigation, route }) {
                                                 }
                                             }}>
                                                 <FastImage
-                                                    style={[styles.imageSectionVertical,totalHomeData.length==(mainIndex+1)?{marginBottom:100}:{}]}
+                                                    style={[styles.imageSectionVertical, totalHomeData.length == (mainIndex + 1) ? { marginBottom: 100 } : {}]}
                                                     resizeMode={FastImage.resizeMode.contain}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             </Pressable>
                                             {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
-                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={[styles.crownIcon,{left: 5, top: 10}]}></Image> : ""}
+                                            {item.premium ? <Image source={require('../assets/images/crown.png')} style={[styles.crownIcon, { left: 5, top: 10 }]}></Image> : ""}
                                         </View>
                                 }
                             />
@@ -990,7 +990,7 @@ function Home({ navigation, route }) {
                                                 }
                                             }}>
                                                 <FastImage
-                                                    style={[styles.imageSectionVertical,totalHomeData.length==index && ({marginBottom: 200,})]}
+                                                    style={[styles.imageSectionVertical, totalHomeData.length == index && ({ marginBottom: 200, })]}
                                                     resizeMode={FastImage.resizeMode.contain}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                                 {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: actuatedNormalize(25), height: actuatedNormalizeVertical(25), right: 6, bottom: 12 }}></Image> : ""}
@@ -1185,7 +1185,7 @@ function Home({ navigation, route }) {
                                         useAngle={true}
                                         angle={125}
                                         angleCenter={{ x: 0.5, y: 0.5 }}
-                                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
+                                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR, BUTTON_COLOR]}
                                         style={[styles.button, { position: 'absolute', bottom: 10, width: "100%" }]}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                                             <FontAwesome5 name='play' size={16} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
@@ -1288,9 +1288,11 @@ function Home({ navigation, route }) {
 
                 {item.friendlyId == pageName ?
 
-                    <View style={styles.menuitem}>
-                        <Text style={{ color: TAB_COLOR, fontWeight: 'bold', fontSize: 13 }}>{item.displayName}</Text>
-                    </View>
+                    <Pressable onPress={() => changeTabData(item.friendlyId)}>
+                        <View style={styles.menuitem}>
+                            <Text style={{ color: TAB_COLOR, fontWeight: 'bold', fontSize: 13 }}>{item.displayName}</Text>
+                        </View>
+                    </Pressable>
                     :
                     <Pressable onPress={() => changeTabData(item.friendlyId)}>
                         <View style={styles.menuitem}>
@@ -1350,26 +1352,26 @@ function Home({ navigation, route }) {
                 ""}
 
             {/* body content */}
-            {totalHomeData ? 
-            <Suspense fallback={() => <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} style={{}}></ActivityIndicator>}>
-            <Animated.FlatList
-                data={totalHomeData}
-                keyExtractor={(x, i) => i.toString()}
-                horizontal={false}
-                onEndReached={loadNextData}
-                onScroll={(resp) => {
-                    if (resp.nativeEvent.contentOffset.y != 0)
-                        setmenubgColor(BACKGROUND_TRANSPARENT_COLOR_MENU)
-                    else {
-                        setmenubgColor(BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU);
-                    }
-                }}
-                contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap',}}
-                style={{ height: PAGE_HEIGHT }}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-                renderItem={renderItem}
-            />
-            </Suspense> : ""}
+            {totalHomeData ?
+                <Suspense fallback={() => <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} style={{}}></ActivityIndicator>}>
+                    <Animated.FlatList
+                        data={totalHomeData}
+                        keyExtractor={(x, i) => i.toString()}
+                        horizontal={false}
+                        onEndReached={loadNextData}
+                        onScroll={(resp) => {
+                            if (resp.nativeEvent.contentOffset.y != 0)
+                                setmenubgColor(BACKGROUND_TRANSPARENT_COLOR_MENU)
+                            else {
+                                setmenubgColor(BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU);
+                            }
+                        }}
+                        contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap', }}
+                        style={{ height: PAGE_HEIGHT }}
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                        renderItem={renderItem}
+                    />
+                </Suspense> : ""}
             {/* header menu */}
             <View style={{ left: "50%", position: 'absolute', zIndex: 10000, top: '50%' }}>
                 {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} style={{}}></ActivityIndicator> : ""}
@@ -1405,7 +1407,7 @@ function Home({ navigation, route }) {
                         useAngle={true}
                         angle={125}
                         angleCenter={{ x: 0.5, y: 0.5 }}
-                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
+                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR, BUTTON_COLOR]}
                         style={styles.button}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <FontAwesome5 name='lock' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
@@ -1603,7 +1605,7 @@ const styles = StyleSheet.create({
         height: actuatedNormalize(155),
         borderRadius: 18,
         marginBottom: 10,
-        marginHorizontal:1
+        marginHorizontal: 1
     },
     imageSectionVerticalMoviePoster: {
         width: actuatedNormalize(PAGE_WIDTH / 1.75),
@@ -1683,7 +1685,8 @@ const styles = StyleSheet.create({
         right: 0,
         resizeMode: 'contain',
         borderRadius: 10,
-        height: actuatedNormalize(270)
+        height: 270,
+        width: PAGE_WIDTH - 50
     },
 });
 
