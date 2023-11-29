@@ -6,7 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Modal from "react-native-modal";
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation, StackActions } from '@react-navigation/native';
-import { PAGE_WIDTH, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, NO_CAST_DEVICES, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR,FIRETV_BASE_URL_STAGING,AUTH_TOKEN, FOOTER_DEFAULT_TEXT_COLOR } from '../constants'
+import { PAGE_WIDTH, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, NO_CAST_DEVICES, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, FIRETV_BASE_URL_STAGING, AUTH_TOKEN, FOOTER_DEFAULT_TEXT_COLOR } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
@@ -23,7 +23,7 @@ export default function Footer(props) {
     const [mobile, setMobile] = useState("");
     const [profilePic, setProfilePic] = useState();
     const [subscription_title, setsubscription_title] = useState("");
-    const [castDisplay,setCastDisplay] = useState('basic_plan');
+    const [castDisplay, setCastDisplay] = useState('basic_plan');
 
 
     const toggleModal = () => {
@@ -42,18 +42,18 @@ export default function Footer(props) {
         const plandetail = await AsyncStorage.getItem('plan_id');
         setCastDisplay(plandetail);
         if (session != "" && session != null) {
-            await axios.get(FIRETV_BASE_URL_STAGING + "user/session/"+session+"?auth_token="+AUTH_TOKEN).then(resp=>{
-                if(resp.data.message=='Valid session id.'){
+            await axios.get(FIRETV_BASE_URL_STAGING + "user/session/" + session + "?auth_token=" + AUTH_TOKEN).then(resp => {
+                if (resp.data.message == 'Valid session id.') {
                     setLogin(true)
                     setName(firstname);
                     setEmail(email);
                     setMobile(mobile_number);
                     setsubscription_title(subscriptiontitle)
                 }
-              }).catch(err=>{
+            }).catch(err => {
                 console.log(err);
                 setLogin(false)
-              })
+            })
         }
         if (profile_pic != "" && profile_pic != null)
             setProfilePic(profile_pic)
@@ -97,7 +97,7 @@ export default function Footer(props) {
         })
     })
     return (
-        <View style={{ backgroundColor: BACKGROUND_COLOR,position:'absolute',bottom:0 }}>
+        <View style={{ backgroundColor: BACKGROUND_COLOR, position: 'absolute', bottom: 0 }}>
             <View style={styles.footerContainer}>
                 {pageName == 'Home' ?
 
@@ -149,7 +149,7 @@ export default function Footer(props) {
                         <Text style={[styles.footerText, { color: NORMAL_TEXT_COLOR }]}>Search</Text>
                     </View>
                     :
-                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Search', { }))}>
+                    <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.dispatch(StackActions.replace('Search', {}))}>
                         <MaterialIcons name="search" size={20} color={FOOTER_DEFAULT_TEXT_COLOR} />
                         <Text style={styles.footerText}>Search</Text>
                     </TouchableOpacity>
@@ -173,7 +173,7 @@ export default function Footer(props) {
                 }
             </View>
 
-            {castState != NO_CAST_DEVICES && castDisplay!='basic_plan' && castDisplay!='' && pageName != 'SHORTS'?
+            {castState != NO_CAST_DEVICES && castDisplay != 'basic_plan' && castDisplay != '' && pageName != 'SHORTS' ?
                 castSet ?
                     <TouchableOpacity onPress={CastSession}><View style={styles.chromeCast}><MaterialCommunityIcons name="cast-connected" size={20} color="white" /></View></TouchableOpacity>
                     :
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignSelf: 'flex-end'
     },
-    footerText: { color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 9,marginTop:2 },
+    footerText: { color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 9, marginTop: 2 },
     footerContainer: { width: PAGE_WIDTH, flexDirection: 'row', justifyContent: 'space-around', alignItems: "center", paddingLeft: 10, paddingRight: 10, marginBottom: 6, marginTop: 6 },
     iconContainer: { justifyContent: 'center', alignItems: 'center' },
 })

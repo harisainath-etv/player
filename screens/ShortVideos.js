@@ -219,7 +219,7 @@ export default function Shorts({ navigation }) {
 
             <View style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flex: 1, flexGrow: 1 }}>
 
-                <Pressable onPress={() => { { } }} style={{ flex: 1, flexGrow: 1, justifyContent: 'center', alignContent: 'center' }}>
+                
                     <Video
                         ref={videoRef}
                         source={{ uri: item.video }}
@@ -230,11 +230,11 @@ export default function Shorts({ navigation }) {
                         volume={1}
                         rate={1.0}
                         useTextureView={false}
-                        resizeMode={'cover'}
+                        resizeMode={'contain'}
                         style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flexGrow: 1, flex: 1 }}
                         playWhenInactive={false}
                     />
-                </Pressable>
+                
                 <View style={{ position: 'absolute', right: 15, top: '50%', }}>
                     {
                         item.likecontent ?
@@ -271,7 +271,7 @@ export default function Shorts({ navigation }) {
         );
     }
     return (
-        <View style={{ height: PAGE_HEIGHT, width: PAGE_WIDTH, backgroundColor: BACKGROUND_COLOR }}>
+        <View style={{ height: PAGE_HEIGHT, width: PAGE_WIDTH,backgroundColor: BACKGROUND_COLOR }}>
             <TransparentHeader></TransparentHeader>
             <FlatList
                 ref={flatListRef}
@@ -291,7 +291,7 @@ export default function Shorts({ navigation }) {
                         getlikes(val);
                     }
                 }}
-                contentContainerStyle={{ minHeight: '100%', }}
+                contentContainerStyle={{ minHeight: '100%',}}
                 renderItem={renderItem}
                 pagingEnabled
             />

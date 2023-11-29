@@ -54,26 +54,26 @@ export default function Feedback({ navigation }) {
        setloading(false);
       }
       else {
-        // axios.post(FIRETV_BASE_URL_STAGING + "users/feedback", {
-        //   access_token: ACCESS_TOKEN,
-        //   auth_token: VIDEO_AUTH_TOKEN,
-        //   channel_name: selectedchannelname,
-        //   comments: comments,
-        //   email_id: email,
-        //   region: region,
-        //   show_name: showname
-        // }, {
-        //   headers: {
-        //     'Accept': 'application/json',
-        //     'Content-Type': 'application/json',
-        //   }
-        // }).then(response => {
-        //   setloading(false);
-        //   setSubmitted(true)
+        axios.post(FIRETV_BASE_URL_STAGING + "users/feedback", {
+          access_token: ACCESS_TOKEN,
+          auth_token: VIDEO_AUTH_TOKEN,
+          channel_name: selectedchannelname,
+          comments: comments,
+          email_id: email,
+          region: region,
+          show_name: showname
+        }, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }
+        }).then(response => {
+          setloading(false);
+          setSubmitted(true)
 
-        // }).catch(error => {
-        //   alert("Something went wrong. Please try again later.")
-        // })
+        }).catch(error => {
+          alert("Something went wrong. Please try again later.")
+        })
       }
 
   }

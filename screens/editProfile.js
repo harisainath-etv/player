@@ -13,9 +13,9 @@ import LinearGradient from 'react-native-linear-gradient';
 
 
 
-export default function EditProfile({ navigation }) {
+export default function EditProfile({ navigation, route }) {
     const [login, setLogin] = useState(false);
-    const [name, setName] = useState();
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [mobile, setMobile] = useState("");
     const [profilePic, setProfilePic] = useState("");
@@ -26,6 +26,7 @@ export default function EditProfile({ navigation }) {
     const [expireson, setexpireson] = useState("");
     const [open, setOpen] = useState(false)
     const [datofBirth, setdateofbirth] = useState(new Date())
+    const {letter} = route.params;
 
     const ref = useRef(null);
 
@@ -86,16 +87,17 @@ export default function EditProfile({ navigation }) {
                 address: address
             }
         }).then(resp => {
-            AsyncStorage.setItem('firstname', name);
-            AsyncStorage.setItem('birthdate', dateofbirth);
-            AsyncStorage.setItem('gender', gender);
-            AsyncStorage.removeItem('address').then(respo => {
-                AsyncStorage.setItem('address', address);
-            }).catch(err => { })
+            setAsyncData('firstname', name);
+            setAsyncData('birthdate', dateofbirth);
+            setAsyncData('gender', gender);
+            setAsyncData('address', address);
             alert('Updated');
             navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
         }).catch(error => { console.log(error.response.data); })
 
+    }
+    const setAsyncData = async(key,value) =>{
+        await AsyncStorage.setItem(key, value);
     }
     return (
         <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
@@ -134,7 +136,7 @@ export default function EditProfile({ navigation }) {
                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                     <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 60, height: 60, borderRadius: 30 }}>
                         {name != "" && name != null ?
-                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>{name.charAt(0)}</Text>
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>{letter}</Text>
                             :
                             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 25, fontWeight: 'bold' }}>-</Text>
                         }
@@ -147,11 +149,11 @@ export default function EditProfile({ navigation }) {
 
                 <View style={styles.inneroption}>
                     <Text style={styles.detailsheader}>Name *</Text>
-                    <TextInput value={name} onChange={setName} style={styles.textinput} placeholder='Name' placeholderTextColor={NORMAL_TEXT_COLOR} ></TextInput>
+                    <TextInput value={name} onChangeText={setName} style={styles.textinput} placeholder='Name' placeholderTextColor={NORMAL_TEXT_COLOR} ></TextInput>
                 </View>
                 <View style={styles.inneroption}>
                     <Text style={styles.detailsheader}>Location / Pincode</Text>
-                    <TextInput value={address} onChangeText={setaddress} style={styles.textinput} placeholder='Location / Pincode' placeholderTextColor={NORMAL_TEXT_COLOR}></TextInput>
+                    <TextInput maxLength={6} value={address} onChangeText={setaddress} style={styles.textinput} placeholder='Location / Pincode' placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='numeric'></TextInput>
                 </View>
 
                 <View style={styles.inneroption}>
@@ -199,7 +201,7 @@ export default function EditProfile({ navigation }) {
                             useAngle={true}
                             angle={125}
                             angleCenter={{ x: 0.5, y: 0.5 }}
-                            colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                            colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
                             style={{ backgroundColor: TAB_COLOR, paddingTop: 7, paddingBottom: 7, paddingLeft: 22, paddingRight: 22, borderRadius: 20, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Update</Text>
@@ -223,6 +225,7 @@ export default function EditProfile({ navigation }) {
                     setOpen(false)
                 }}
                 mode='date'
+                maximumDate={new Date()}
             />
         </View>
     )

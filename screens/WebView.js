@@ -1,4 +1,4 @@
-import { StyleSheet, StatusBar, View, } from 'react-native'
+import { StyleSheet, StatusBar, View, Linking, } from 'react-native'
 import React, { useRef, useState } from 'react'
 import { BACKGROUND_COLOR, DARKED_BORDER_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, } from '../constants'
 import NormalHeader from './normalHeader';
@@ -14,18 +14,30 @@ export default function Webview({ navigation, route }) {
             <NormalHeader></NormalHeader>
             {uri != "" ?
                 <WebView ref={ref} source={{ uri: uri }} scalesPageToFit
-                originWhitelist={["*"]}  style={{ flex: 1,width:PAGE_WIDTH, height: PAGE_HEIGHT+50,backgroundColor:BACKGROUND_COLOR,marginTop:70 }} onNavigationStateChange={(resp)=>{
+                originWhitelist={["*"]}  style={{ flex: 1,width:PAGE_WIDTH, height: PAGE_HEIGHT+50,backgroundColor:BACKGROUND_COLOR,marginTop:90 }} onNavigationStateChange={(resp)=>{
+                    console.log(resp.url);
+                    if (resp.url.startsWith('tel:')) {
+                      const phoneNumber = resp.url.substring(4);
+                      Linking.openURL(`tel:${phoneNumber}`);
+                      navigation.goBack();
+                    }
+                    if (resp.url.startsWith('mailto:')) {
+                        const email = resp.url.substring(7);
+                        Linking.openURL(`mailto:${email}`);
+                        navigation.goBack();
+                      }
                     if(resp.url.includes("/paymentstatus"))
                     {
-                        var splitted=resp.url.split("|");
-                        if(splitted[14]=='0300')
+                        var splitted=resp.url.split("payment_status=success");
+                        if(splitted.length==2)
                         {
                             alert("Transaction Successfull.")
                         }
                         else
                         {
-                            alert(splitted[24])
+                            alert("Something went wrong. Please try again later.")
                         }
+                        //DevSettings.reload()
                         navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
                     }
                 

@@ -76,7 +76,7 @@ export default function Confirmation({ navigation }) {
             var paymentinfoobj = { coupon_code: coupon, net_amount: amount, price_charged: chargedamount.toString(), currency: payable_currency, packs: [{ plan_type: "", category: payable_category, subscription_catalog_id: payable_catalog_id, category_pack_id: payable_category_id, plan_id: payable_plan_id }] };
         else
             var paymentinfoobj = { net_amount: amount, price_charged: amount, currency: payable_currency, packs: [{ plan_type: "", category: payable_category, subscription_catalog_id: payable_catalog_id, category_pack_id: payable_category_id, plan_id: payable_plan_id }] };
-
+        const renew = await AsyncStorage.getItem('renew');
         if (region == 'IN') {
             if (paymentgateway == 'billdesk') {
                 axios.post(FIRETV_BASE_URL_STAGING + 'users/' + session + '/transactions', {
@@ -91,7 +91,8 @@ export default function Confirmation({ navigation }) {
                     transaction_info: { app_txn_id: 1, txn_message: payable_description, txn_status: 'init', order_id: "", pg_transaction_id: "" },
                     upgrade_plan: palnupgrade,
                     user_info: { email: email, mobile_number: mobile_number },
-                    miscellaneous: { browser: "chrome", device_brand: brand, device_IMEI: "NA", device_model: model, device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: network }
+                    miscellaneous: { browser: "chrome", device_brand: brand, device_IMEI: "NA", device_model: model, device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: network },
+                    renew_plan:renew
                 }, {
                     headers: {
                         'Accept': 'application/json',
@@ -122,7 +123,8 @@ export default function Confirmation({ navigation }) {
                     transaction_info: { app_txn_id: 1, txn_message: payable_description, txn_status: 'init', order_id: "", pg_transaction_id: "" },
                     upgrade_plan: palnupgrade,
                     user_info: { email: email, mobile_number: mobile_number },
-                    miscellaneous: { browser: "chrome", device_brand: brand, device_IMEI: "NA", device_model: model, device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: network }
+                    miscellaneous: { browser: "chrome", device_brand: brand, device_IMEI: "NA", device_model: model, device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: network },
+                    renew_plan:renew
                 }, {
                     headers: {
                         'Accept': 'application/json',
@@ -138,7 +140,7 @@ export default function Confirmation({ navigation }) {
                     }
 
                 }).catch(error => {
-                    console.log(error);
+                    console.log(error.response.data);
                 })
             }
         }
@@ -155,7 +157,8 @@ export default function Confirmation({ navigation }) {
                 transaction_info: { app_txn_id: 1, txn_message: payable_description, txn_status: 'init', order_id: "", pg_transaction_id: "" },
                 upgrade_plan: palnupgrade,
                 user_info: { email: email, mobile_number: mobile_number },
-                miscellaneous: { browser: "chrome", device_brand: brand, device_IMEI: "NA", device_model: model, device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: network }
+                miscellaneous: { browser: "chrome", device_brand: brand, device_IMEI: "NA", device_model: model, device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: network },
+                renew_plan:renew
             }, {
                 headers: {
                     'Accept': 'application/json',
@@ -203,7 +206,7 @@ export default function Confirmation({ navigation }) {
             setchargedamount(response.data.data.payment.net_amount);
             setdiscountmessage("Promo Code Applied. You will get " + currency + " " + (amount - response.data.data.payment.net_amount) + " discount");
         }).catch(error => {
-            setdiscountmessage(error.response.data.mesaage)
+            setdiscountmessage(error.response.data.error.message)
         })
     } 
 
@@ -379,8 +382,8 @@ export default function Confirmation({ navigation }) {
                                     useAngle={true}
                                     angle={125}
                                     angleCenter={{ x: 0.5, y: 0.5 }}
-                                    colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
-                                    style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR,  paddingLeft: 20,paddingRight: 20,paddingTop:10,paddingBottom:10,width:"100%", borderRadius: 10, }}>
+                                    colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
+                                    style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR,  paddingLeft: 15,paddingRight: 15,paddingTop:10,paddingBottom:10,width:"100%", borderRadius: 10, }}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Apply</Text>
                                     </View>
@@ -458,7 +461,7 @@ export default function Confirmation({ navigation }) {
                         useAngle={true}
                         angle={125}
                         angleCenter={{ x: 0.5, y: 0.5 }}
-                        colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
                         style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 10, borderRadius: 20, marginRight: 20 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Make Payment</Text>

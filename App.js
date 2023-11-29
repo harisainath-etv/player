@@ -37,7 +37,7 @@ import TransparentHeader from './screens/transparentHeader';
 import HtmlWebview from './screens/HtmlWebview';
 import HTMLRender from './screens/HTMLRender';
 import Menu from './screens/Menu';
-import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN } from './constants';
+import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, ANDROID_PACKAGE_NAME, IOS_PACKAGE_NAME } from './constants';
 import { View, Dimensions, Platform, Linking, Alert, Text, Image, StyleSheet } from 'react-native';
 import SplashScreen from 'react-native-splash-screen'
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -46,6 +46,7 @@ import axios from 'axios';
 import messaging from '@react-native-firebase/messaging';
 import queryString from 'query-string';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import Rate, { AndroidMarket } from 'react-native-rate';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -184,9 +185,9 @@ export default function App() {
       if (appConfigData.data.params_hash2.config_params.payment_gateway[i].default == true) {
         await AsyncStorage.setItem('payment_gateway', appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase())
       }
-      gateways.push({"name":appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase()})
+      gateways.push({ "name": appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase() })
     }
-    await AsyncStorage.setItem('availableGateways',JSON.stringify(gateways))
+    await AsyncStorage.setItem('availableGateways', JSON.stringify(gateways))
     await AsyncStorage.setItem('watchhistory_api', appConfigData.data.params_hash2.config_params.watchhistory_api);
     await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
     await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);
@@ -280,6 +281,13 @@ export default function App() {
     }
     SplashScreen.hide();
   }
+  const options = {
+    AppleAppID: IOS_PACKAGE_NAME,
+    GooglePackageName: ANDROID_PACKAGE_NAME,
+    preferredAndroidMarket: AndroidMarket.Google,
+    preferInApp: false,
+    openAppStoreIfInAppFails: true,
+  }
   const loadasyncdata = async () => {
     await AsyncStorage.setItem('firstload', 'no');
     const getCurrentVersion = await AsyncStorage.getItem('currentVersion');
@@ -312,9 +320,20 @@ export default function App() {
       await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.android_version.min_version);
       await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.android_version.force_upgrade);
       await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.android_version.message);
-      if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.android_version.force_upgrade == true) {
-        alert(appConfigData.data.params_hash2.config_params.android_version.message);
-        return true;
+      console.log(APP_VERSION);
+      console.log(appConfigData.data.params_hash2.config_params.android_version.min_version);
+      console.log(appConfigData.data.params_hash2.config_params.android_version.force_upgrade);
+      console.log(appConfigData.data.params_hash2.config_params.android_version.message);
+      if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version && appConfigData.data.params_hash2.config_params.android_version.force_upgrade == true) {
+        Alert.alert("Upgrade", appConfigData.data.params_hash2.config_params.android_version.message);
+        Rate.rate(options, (success, errorMessage) => {
+          if (success) {
+          }
+          if (errorMessage) {
+            // errorMessage comes from the native code. Useful for debugging, but probably not for users to view
+            console.error(`Example page Rate.rate() error: ${errorMessage}`)
+          }
+        })
       }
     }
     else
@@ -323,9 +342,16 @@ export default function App() {
         await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.ios_version.min_version);
         await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.ios_version.force_upgrade);
         await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.ios_version.message);
-        if (APP_VERSION < appConfigData.data.params_hash2.config_params.ios_version.min_version || appConfigData.data.params_hash2.config_params.ios_version.force_upgrade == true) {
-          alert(appConfigData.data.params_hash2.config_params.ios_version.message);
-          return true;
+        if (APP_VERSION < appConfigData.data.params_hash2.config_params.ios_version.min_version && appConfigData.data.params_hash2.config_params.ios_version.force_upgrade == true) {
+          Alert.alert("Upgrade", appConfigData.data.params_hash2.config_params.ios_version.message);
+          Rate.rate(options, (success, errorMessage) => {
+            if (success) {
+            }
+            if (errorMessage) {
+              // errorMessage comes from the native code. Useful for debugging, but probably not for users to view
+              console.error(`Example page Rate.rate() error: ${errorMessage}`)
+            }
+          })
         }
       }
     if (appConfigData.data.params_hash2.config_params.popup_details.show_popup) {
@@ -344,9 +370,9 @@ export default function App() {
       if (appConfigData.data.params_hash2.config_params.payment_gateway[i].default == true) {
         await AsyncStorage.setItem('payment_gateway', appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase())
       }
-      gateways.push({"name":appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase()})
+      gateways.push({ "name": appConfigData.data.params_hash2.config_params.payment_gateway[i].gateway.toLowerCase() })
     }
-    await AsyncStorage.setItem('availableGateways',JSON.stringify(gateways))
+    await AsyncStorage.setItem('availableGateways', JSON.stringify(gateways))
     await AsyncStorage.setItem('watchhistory_api', appConfigData.data.params_hash2.config_params.watchhistory_api);
     await AsyncStorage.setItem('dndStartTime', appConfigData.data.params_hash2.config_params.dnd[0].start_time);
     await AsyncStorage.setItem('dndEndTime', appConfigData.data.params_hash2.config_params.dnd[0].end_time);

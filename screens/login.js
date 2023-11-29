@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressa
 import React, { useState, useEffect } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
-import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR, FIRETV_BASE_URL_STAGING, WEB_CLIENT_ID, ACCESS_TOKEN, VIDEO_AUTH_TOKEN, SLIDER_PAGINATION_SELECTED_COLOR, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR } from '../constants'
+import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR, FIRETV_BASE_URL_STAGING, WEB_CLIENT_ID, ACCESS_TOKEN, VIDEO_AUTH_TOKEN, SLIDER_PAGINATION_SELECTED_COLOR, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, FIRETV_BASE_URL } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
@@ -12,6 +12,7 @@ import analytics from '@react-native-firebase/analytics';
 import DeviceInfo from 'react-native-device-info';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
+import messaging from '@react-native-firebase/messaging';
 
 export default function Login({ navigation }) {
     const [email, setEmail] = useState('');
@@ -31,15 +32,15 @@ export default function Login({ navigation }) {
     const [popup, setpopup] = useState(false);
     const [user, setuser] = useState({});
     const [showresend, setshowresend] = useState(false);
-    const [region, setregion] = useState();
+    const [region, setregion] = useState("IN");
     const [pass, setpass] = useState();
 
     useEffect(() => {
-        GoogleSignin.configure({
-            webClientId: WEB_CLIENT_ID,
-            offlineAccess: true,
-            forceCodeForRefreshToken: true,
-        });
+        // GoogleSignin.configure({
+        //     webClientId: WEB_CLIENT_ID,
+        //     offlineAccess: true,
+        //     forceCodeForRefreshToken: true,
+        // });
         isSignedIn()
     }, [])
     async function onFacebookButtonPress() {
@@ -70,301 +71,318 @@ export default function Login({ navigation }) {
             device_id: device_id
         }).then(resp => { console.log(resp); }).catch(err => { console.log(err); })
     }
-    const signin = async () => {
-        try {
-            await signOut();
-            await GoogleSignin.hasPlayServices();
-            const region = await AsyncStorage.getItem('country_code');
-            const userinfo = await GoogleSignin.signIn();
-            var frontpagedob = await AsyncStorage.getItem('frontpagedob');
-            var frontpagegender = await AsyncStorage.getItem('frontpagegender');
-            var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
-            const user_id = await AsyncStorage.getItem('user_id');
-            const device_token = await AsyncStorage.getItem('fcm_token');
-            const uniqueid = await DeviceInfo.getUniqueId();
-            setuser(userinfo)
-            axios.post(FIRETV_BASE_URL_STAGING + '/users/external_auth/sign_in',
-                {
-                    access_token: ACCESS_TOKEN,
-                    auth_token: VIDEO_AUTH_TOKEN,
-                    user: {
-                        ext_account_email_id: userinfo.user.email,
-                        firstname: userinfo.user.givenName,
-                        provider: "google",
-                        region: region,
-                        uid: userinfo.user.id,
-                        device_token: device_token
-                    }
-                },
-                {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    }
-                }).then(response => {
-                    triggersuccessanalytics('login_success', 'social', user_id, uniqueid)
-                    AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
-                    AsyncStorage.setItem('ext_account_email_id', response.data.data.ext_account_email_id)
-                    AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
-                    AsyncStorage.setItem('ext_user_id', response.data.data.ext_user_id)
-                    AsyncStorage.setItem('firstname', response.data.data.firstname)
-                    AsyncStorage.setItem('login_type', response.data.data.login_type)
-                    AsyncStorage.setItem('profile_pic', userinfo.user.photo)
-                    AsyncStorage.setItem('session', response.data.data.session)
-                    AsyncStorage.setItem('user_id', response.data.data.user_id)
-                    AsyncStorage.setItem('email_id', userinfo.user.email)
-                    AsyncStorage.setItem('mobile_number', response.data.data.mobile_number)
-                    if ((frontpagedob != "" && frontpagedob != null) || (frontpagegender != "" && frontpagegender != null) || (frontpagepincode != "" && frontpagepincode != null)) {
+    // const signin = async () => {
+    //     try {
+    //         await signOut();
+    //         await GoogleSignin.hasPlayServices();
+    //         const region = await AsyncStorage.getItem('country_code');
+    //         const userinfo = await GoogleSignin.signIn();
+    //         var frontpagedob = await AsyncStorage.getItem('frontpagedob');
+    //         var frontpagegender = await AsyncStorage.getItem('frontpagegender');
+    //         var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
+    //         const user_id = await AsyncStorage.getItem('user_id');
+    //         const device_token = await messaging().getToken();
+    //         const uniqueid = await DeviceInfo.getUniqueId();
+    //         setuser(userinfo)
+    //         axios.post(FIRETV_BASE_URL_STAGING + '/users/external_auth/sign_in',
+    //             {
+    //                 access_token: ACCESS_TOKEN,
+    //                 auth_token: VIDEO_AUTH_TOKEN,
+    //                 user: {
+    //                     ext_account_email_id: userinfo.user.email,
+    //                     firstname: userinfo.user.givenName,
+    //                     provider: "google",
+    //                     region: region,
+    //                     uid: userinfo.user.id,
+    //                     device_token: device_token
+    //                 }
+    //             },
+    //             {
+    //                 headers: {
+    //                     'Accept': 'application/json',
+    //                     'Content-Type': 'application/json',
+    //                 }
+    //             }).then(response => {
+    //                 triggersuccessanalytics('login_success', 'social', user_id, uniqueid)
+    //                 AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
+    //                 AsyncStorage.setItem('ext_account_email_id', response.data.data.ext_account_email_id)
+    //                 AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
+    //                 AsyncStorage.setItem('ext_user_id', response.data.data.ext_user_id)
+    //                 AsyncStorage.setItem('firstname', response.data.data.firstname)
+    //                 AsyncStorage.setItem('login_type', response.data.data.login_type)
+    //                 AsyncStorage.setItem('profile_pic', userinfo.user.photo)
+    //                 AsyncStorage.setItem('session', response.data.data.session)
+    //                 AsyncStorage.setItem('user_id', response.data.data.user_id)
+    //                 AsyncStorage.setItem('email_id', userinfo.user.email)
+    //                 AsyncStorage.setItem('mobile_number', response.data.data.mobile_number)
+    //                 if ((frontpagedob != "" && frontpagedob != null) || (frontpagegender != "" && frontpagegender != null) || (frontpagepincode != "" && frontpagepincode != null)) {
 
-                        axios.put(FIRETV_BASE_URL_STAGING + 'users/' + response.data.data.session + '/account', {
-                            access_token: ACCESS_TOKEN,
-                            auth_token: VIDEO_AUTH_TOKEN,
-                            user: {
-                                birthdate: frontpagedob,
-                                gender: frontpagegender,
-                                address: frontpagepincode
-                            }
-                        }).then(resp => {
-                            AsyncStorage.removeItem('frontpagedob');
-                            AsyncStorage.removeItem('frontpagegender');
-                            AsyncStorage.removeItem('frontpagepincode');
-                        }).catch(error => { console.log(error.response.data); })
-                    }
+    //                     axios.put(FIRETV_BASE_URL_STAGING + 'users/' + response.data.data.session + '/account', {
+    //                         access_token: ACCESS_TOKEN,
+    //                         auth_token: VIDEO_AUTH_TOKEN,
+    //                         user: {
+    //                             birthdate: frontpagedob,
+    //                             gender: frontpagegender,
+    //                             address: frontpagepincode
+    //                         }
+    //                     }).then(resp => {
+    //                         AsyncStorage.removeItem('frontpagedob');
+    //                         AsyncStorage.removeItem('frontpagegender');
+    //                         AsyncStorage.removeItem('frontpagepincode');
+    //                     }).catch(error => { console.log(error.response.data); })
+    //                 }
 
-                    axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
-                        AsyncStorage.setItem('address', resp.data.data.address)
-                        AsyncStorage.setItem('age', resp.data.data.age)
-                        AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
-                        AsyncStorage.setItem('email_id', resp.data.data.email_id)
-                        AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
-                        AsyncStorage.setItem('firstname', resp.data.data.firstname)
-                        AsyncStorage.setItem('gender', resp.data.data.gender)
-                        AsyncStorage.setItem('lastname', JSON.stringify(resp.data.data.lastname))
-                        AsyncStorage.setItem('login_type', resp.data.data.login_type)
-                        AsyncStorage.setItem('mobile_number', resp.data.data.mobile_number)
-                        AsyncStorage.setItem('profile_pic', resp.data.data.profile_pic)
-                        AsyncStorage.setItem('user_id', resp.data.data.user_id)
-                    }).catch(err => {
-                        alert("Error in fetching account details. Please try again later.")
-                    })
+    //                 axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
+    //                     AsyncStorage.setItem('address', resp.data.data.address)
+    //                     AsyncStorage.setItem('age', resp.data.data.age)
+    //                     AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
+    //                     AsyncStorage.setItem('email_id', resp.data.data.email_id)
+    //                     AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
+    //                     AsyncStorage.setItem('firstname', resp.data.data.firstname)
+    //                     AsyncStorage.setItem('gender', resp.data.data.gender)
+    //                     AsyncStorage.setItem('lastname', JSON.stringify(resp.data.data.lastname))
+    //                     AsyncStorage.setItem('login_type', resp.data.data.login_type)
+    //                     AsyncStorage.setItem('mobile_number', resp.data.data.mobile_number)
+    //                     AsyncStorage.setItem('profile_pic', resp.data.data.profile_pic)
+    //                     AsyncStorage.setItem('user_id', resp.data.data.user_id)
+    //                 }).catch(err => {
+    //                     alert("Error in fetching account details. Please try again later.")
+    //                 })
 
-                    axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
-                        if (planresponse.data.data.length > 0) {
-                            AsyncStorage.setItem('subscription', 'done');
-                            AsyncStorage.setItem('user_id', planresponse.data.data[0].user_id);
-                            AsyncStorage.setItem('subscription_id', planresponse.data.data[0].subscription_id);
-                            AsyncStorage.setItem('plan_id', planresponse.data.data[0].plan_id);
-                            AsyncStorage.setItem('category', planresponse.data.data[0].category);
-                            AsyncStorage.setItem('valid_till', planresponse.data.data[0].valid_till);
-                            AsyncStorage.setItem('start_date', planresponse.data.data[0].start_date);
-                            AsyncStorage.setItem('transaction_id', planresponse.data.data[0].transaction_id);
-                            AsyncStorage.setItem('created_at', planresponse.data.data[0].created_at);
-                            AsyncStorage.setItem('updated_at', planresponse.data.data[0].updated_at);
-                            AsyncStorage.setItem('plan_status', planresponse.data.data[0].plan_status);
-                            AsyncStorage.setItem('invoice_inc_id', JSON.stringify(planresponse.data.data[0].invoice_inc_id));
-                            AsyncStorage.setItem('price_charged', JSON.stringify(planresponse.data.data[0].price_charged));
-                            AsyncStorage.setItem('email_id', JSON.stringify(planresponse.data.data[0].email_id));
-                            AsyncStorage.setItem('plan_title', JSON.stringify(planresponse.data.data[0].plan_title));
-                            AsyncStorage.setItem('subscription_title', JSON.stringify(planresponse.data.data[0].subscription_title));
-                            AsyncStorage.setItem('invoice_id', JSON.stringify(planresponse.data.data[0].invoice_id));
-                            AsyncStorage.setItem('currency', JSON.stringify(planresponse.data.data[0].currency));
-                            AsyncStorage.setItem('currency_symbol', JSON.stringify(planresponse.data.data[0].currency_symbol));
-                            AsyncStorage.setItem('status', JSON.stringify(planresponse.data.data[0].status));
-                        }
-                    }).catch(planerror => {
-                        console.log(planerror.response.data);
-                    })
-                    console.log(JSON.stringify(response.data.data));
+    //                 axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
+    //                     if (planresponse.data.data.length > 0) {
+    //                         AsyncStorage.setItem('subscription', 'done');
+    //                         AsyncStorage.setItem('user_id', planresponse.data.data[0].user_id);
+    //                         AsyncStorage.setItem('subscription_id', planresponse.data.data[0].subscription_id);
+    //                         AsyncStorage.setItem('plan_id', planresponse.data.data[0].plan_id);
+    //                         AsyncStorage.setItem('category', planresponse.data.data[0].category);
+    //                         AsyncStorage.setItem('valid_till', planresponse.data.data[0].valid_till);
+    //                         AsyncStorage.setItem('start_date', planresponse.data.data[0].start_date);
+    //                         AsyncStorage.setItem('transaction_id', planresponse.data.data[0].transaction_id);
+    //                         AsyncStorage.setItem('created_at', planresponse.data.data[0].created_at);
+    //                         AsyncStorage.setItem('updated_at', planresponse.data.data[0].updated_at);
+    //                         AsyncStorage.setItem('plan_status', planresponse.data.data[0].plan_status);
+    //                         AsyncStorage.setItem('invoice_inc_id', JSON.stringify(planresponse.data.data[0].invoice_inc_id));
+    //                         AsyncStorage.setItem('price_charged', JSON.stringify(planresponse.data.data[0].price_charged));
+    //                         AsyncStorage.setItem('email_id', JSON.stringify(planresponse.data.data[0].email_id));
+    //                         AsyncStorage.setItem('plan_title', JSON.stringify(planresponse.data.data[0].plan_title));
+    //                         AsyncStorage.setItem('subscription_title', JSON.stringify(planresponse.data.data[0].subscription_title));
+    //                         AsyncStorage.setItem('invoice_id', JSON.stringify(planresponse.data.data[0].invoice_id));
+    //                         AsyncStorage.setItem('currency', JSON.stringify(planresponse.data.data[0].currency));
+    //                         AsyncStorage.setItem('currency_symbol', JSON.stringify(planresponse.data.data[0].currency_symbol));
+    //                         AsyncStorage.setItem('status', JSON.stringify(planresponse.data.data[0].status));
+    //                     }
+    //                 }).catch(planerror => {
+    //                     console.log(planerror.response.data);
+    //                 })
+    //                 console.log(JSON.stringify(response.data.data));
 
-                    navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: false }))
+    //                 navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: false }))
 
-                }).catch(err => {
-                    console.log(JSON.stringify(err));
-                    //alert(err.response.data.message)
-                })
-        }
-        catch (error) {
-            console.log(error.message);
-            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-                console.log("sign in cancelled");
-            }
-            else if (error.code === statusCodes.IN_PROGRESS) {
-                console.log("signing in");
-            }
-            else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-                console.log("not available");
-            }
-            else {
-                console.log("some error");
-            }
-        }
+    //             }).catch(err => {
+    //                 console.log(JSON.stringify(err));
+    //                 //alert(err.response.data.message)
+    //             })
+    //     }
+    //     catch (error) {
+    //         console.log(error.message);
+    //         if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+    //             console.log("sign in cancelled");
+    //         }
+    //         else if (error.code === statusCodes.IN_PROGRESS) {
+    //             console.log("signing in");
+    //         }
+    //         else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+    //             console.log("not available");
+    //         }
+    //         else {
+    //             console.log("some error");
+    //         }
+    //     }
+    // }
+
+    // const socialsignin = async (userinfo) => {
+    //     try {
+    //         const region = await AsyncStorage.getItem('country_code');
+    //         var frontpagedob = await AsyncStorage.getItem('frontpagedob');
+    //         var frontpagegender = await AsyncStorage.getItem('frontpagegender');
+    //         var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
+    //         const user_id = await AsyncStorage.getItem('user_id');
+    //         const uniqueid = await DeviceInfo.getUniqueId();
+    //         const device_token = await messaging().getToken();
+    //         setuser(userinfo)
+    //         axios.post(FIRETV_BASE_URL_STAGING + '/users/external_auth/sign_in',
+    //             {
+    //                 access_token: ACCESS_TOKEN,
+    //                 auth_token: VIDEO_AUTH_TOKEN,
+    //                 user: {
+    //                     ext_account_email_id: userinfo.user.email,
+    //                     firstname: userinfo.user.displayName,
+    //                     provider: "google",
+    //                     region: region,
+    //                     uid: userinfo.user.uid,
+    //                     device_token: device_token
+    //                 }
+    //             },
+    //             {
+    //                 headers: {
+    //                     'Accept': 'application/json',
+    //                     'Content-Type': 'application/json',
+    //                 }
+    //             }).then(response => {
+    //                 triggersuccessanalytics('login_success', 'social', user_id, uniqueid)
+    //                 AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
+    //                 AsyncStorage.setItem('ext_account_email_id', response.data.data.ext_account_email_id)
+    //                 AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
+    //                 AsyncStorage.setItem('ext_user_id', response.data.data.ext_user_id)
+    //                 AsyncStorage.setItem('firstname', response.data.data.firstname)
+    //                 AsyncStorage.setItem('login_type', response.data.data.login_type)
+    //                 AsyncStorage.setItem('profile_pic', userinfo.user.photoURL)
+    //                 AsyncStorage.setItem('session', response.data.data.session)
+    //                 AsyncStorage.setItem('user_id', response.data.data.user_id)
+    //                 AsyncStorage.setItem('email_id', userinfo.user.email)
+    //                 AsyncStorage.setItem('mobile_number', response.data.data.mobile_number)
+    //                 if ((frontpagedob != "" && frontpagedob != null) || (frontpagegender != "" && frontpagegender != null) || (frontpagepincode != "" && frontpagepincode != null)) {
+
+    //                     axios.put(FIRETV_BASE_URL_STAGING + 'users/' + response.data.data.session + '/account', {
+    //                         access_token: ACCESS_TOKEN,
+    //                         auth_token: VIDEO_AUTH_TOKEN,
+    //                         user: {
+    //                             birthdate: frontpagedob,
+    //                             gender: frontpagegender,
+    //                             address: frontpagepincode
+    //                         }
+    //                     }).then(resp => {
+    //                         AsyncStorage.removeItem('frontpagedob');
+    //                         AsyncStorage.removeItem('frontpagegender');
+    //                         AsyncStorage.removeItem('frontpagepincode');
+    //                     }).catch(error => { console.log(error.response.data); })
+    //                 }
+
+    //                 axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
+    //                     AsyncStorage.setItem('address', resp.data.data.address)
+    //                     AsyncStorage.setItem('age', resp.data.data.age)
+    //                     AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
+    //                     AsyncStorage.setItem('email_id', resp.data.data.email_id)
+    //                     AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
+    //                     AsyncStorage.setItem('firstname', resp.data.data.firstname)
+    //                     AsyncStorage.setItem('gender', resp.data.data.gender)
+    //                     AsyncStorage.setItem('lastname', JSON.stringify(resp.data.data.lastname))
+    //                     AsyncStorage.setItem('login_type', resp.data.data.login_type)
+    //                     AsyncStorage.setItem('mobile_number', resp.data.data.mobile_number)
+    //                     AsyncStorage.setItem('profile_pic', resp.data.data.profile_pic)
+    //                     AsyncStorage.setItem('user_id', resp.data.data.user_id)
+    //                 }).catch(err => {
+    //                     alert("Error in fetching account details. Please try again later.")
+    //                 })
+
+    //                 axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
+    //                     if (planresponse.data.data.length > 0) {
+    //                         AsyncStorage.setItem('subscription', 'done');
+    //                         AsyncStorage.setItem('user_id', planresponse.data.data[0].user_id);
+    //                         AsyncStorage.setItem('subscription_id', planresponse.data.data[0].subscription_id);
+    //                         AsyncStorage.setItem('plan_id', planresponse.data.data[0].plan_id);
+    //                         AsyncStorage.setItem('category', planresponse.data.data[0].category);
+    //                         AsyncStorage.setItem('valid_till', planresponse.data.data[0].valid_till);
+    //                         AsyncStorage.setItem('start_date', planresponse.data.data[0].start_date);
+    //                         AsyncStorage.setItem('transaction_id', planresponse.data.data[0].transaction_id);
+    //                         AsyncStorage.setItem('created_at', planresponse.data.data[0].created_at);
+    //                         AsyncStorage.setItem('updated_at', planresponse.data.data[0].updated_at);
+    //                         AsyncStorage.setItem('plan_status', planresponse.data.data[0].plan_status);
+    //                         AsyncStorage.setItem('invoice_inc_id', JSON.stringify(planresponse.data.data[0].invoice_inc_id));
+    //                         AsyncStorage.setItem('price_charged', JSON.stringify(planresponse.data.data[0].price_charged));
+    //                         AsyncStorage.setItem('email_id', JSON.stringify(planresponse.data.data[0].email_id));
+    //                         AsyncStorage.setItem('plan_title', JSON.stringify(planresponse.data.data[0].plan_title));
+    //                         AsyncStorage.setItem('subscription_title', JSON.stringify(planresponse.data.data[0].subscription_title));
+    //                         AsyncStorage.setItem('invoice_id', JSON.stringify(planresponse.data.data[0].invoice_id));
+    //                         AsyncStorage.setItem('currency', JSON.stringify(planresponse.data.data[0].currency));
+    //                         AsyncStorage.setItem('currency_symbol', JSON.stringify(planresponse.data.data[0].currency_symbol));
+    //                         AsyncStorage.setItem('status', JSON.stringify(planresponse.data.data[0].status));
+    //                     }
+    //                 }).catch(planerror => {
+    //                     console.log(planerror.response.data);
+    //                 })
+    //                 console.log(JSON.stringify(response.data.data));
+
+    //                 navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: false }))
+
+    //             }).catch(err => {
+    //                 console.log(JSON.stringify(err));
+    //                 //alert(err.response.data.message)
+    //             })
+    //     }
+    //     catch (error) {
+    //         console.log(error.message);
+    //         if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+    //             console.log("sign in cancelled");
+    //         }
+    //         else if (error.code === statusCodes.IN_PROGRESS) {
+    //             console.log("signing in");
+    //         }
+    //         else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+    //             console.log("not available");
+    //         }
+    //         else {
+    //             console.log("some error");
+    //         }
+    //     }
+    // }
+
+    const getIpDetails = async () => {
+        const ipdetails = FIRETV_BASE_URL + "/regions/autodetect/ip.gzip?auth_token=" + AUTH_TOKEN;
+        const ipResp = await fetch(ipdetails);
+        const ipData = await ipResp.json();
+        await AsyncStorage.setItem('requestIp', ipData.region.request)
+        await AsyncStorage.setItem('ip', ipData.region.ip)
+        await AsyncStorage.setItem('country_code', ipData.region.country_code2)
+        await AsyncStorage.setItem('country_name', ipData.region.country_name)
+        await AsyncStorage.setItem('continent_code', ipData.region.continent_code)
+        await AsyncStorage.setItem('latitude', JSON.stringify(ipData.region.latitude))
+        await AsyncStorage.setItem('longitude', JSON.stringify(ipData.region.longitude))
+        await AsyncStorage.setItem('timezone', ipData.region.timezone)
+        await AsyncStorage.setItem('calling_code', ipData.region.calling_code)
+        await AsyncStorage.setItem('min_digits', JSON.stringify(ipData.region.min_digits))
+        await AsyncStorage.setItem('max_digits', JSON.stringify(ipData.region.max_digits))
+        setregion(ipData.region.country_code2);
     }
-
-    const socialsignin = async (userinfo) => {
-        try {
-            const region = await AsyncStorage.getItem('country_code');
-            var frontpagedob = await AsyncStorage.getItem('frontpagedob');
-            var frontpagegender = await AsyncStorage.getItem('frontpagegender');
-            var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
-            const user_id = await AsyncStorage.getItem('user_id');
-            const uniqueid = await DeviceInfo.getUniqueId();
-            const device_token = await AsyncStorage.getItem('fcm_token');
-            setuser(userinfo)
-            axios.post(FIRETV_BASE_URL_STAGING + '/users/external_auth/sign_in',
-                {
-                    access_token: ACCESS_TOKEN,
-                    auth_token: VIDEO_AUTH_TOKEN,
-                    user: {
-                        ext_account_email_id: userinfo.user.email,
-                        firstname: userinfo.user.displayName,
-                        provider: "google",
-                        region: region,
-                        uid: userinfo.user.uid,
-                        device_token: device_token
-                    }
-                },
-                {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    }
-                }).then(response => {
-                    triggersuccessanalytics('login_success', 'social', user_id, uniqueid)
-                    AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
-                    AsyncStorage.setItem('ext_account_email_id', response.data.data.ext_account_email_id)
-                    AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
-                    AsyncStorage.setItem('ext_user_id', response.data.data.ext_user_id)
-                    AsyncStorage.setItem('firstname', response.data.data.firstname)
-                    AsyncStorage.setItem('login_type', response.data.data.login_type)
-                    AsyncStorage.setItem('profile_pic', userinfo.user.photoURL)
-                    AsyncStorage.setItem('session', response.data.data.session)
-                    AsyncStorage.setItem('user_id', response.data.data.user_id)
-                    AsyncStorage.setItem('email_id', userinfo.user.email)
-                    AsyncStorage.setItem('mobile_number', response.data.data.mobile_number)
-                    if ((frontpagedob != "" && frontpagedob != null) || (frontpagegender != "" && frontpagegender != null) || (frontpagepincode != "" && frontpagepincode != null)) {
-
-                        axios.put(FIRETV_BASE_URL_STAGING + 'users/' + response.data.data.session + '/account', {
-                            access_token: ACCESS_TOKEN,
-                            auth_token: VIDEO_AUTH_TOKEN,
-                            user: {
-                                birthdate: frontpagedob,
-                                gender: frontpagegender,
-                                address: frontpagepincode
-                            }
-                        }).then(resp => {
-                            AsyncStorage.removeItem('frontpagedob');
-                            AsyncStorage.removeItem('frontpagegender');
-                            AsyncStorage.removeItem('frontpagepincode');
-                        }).catch(error => { console.log(error.response.data); })
-                    }
-
-                    axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/account.gzip?auth_token=" + AUTH_TOKEN).then(resp => {
-                        AsyncStorage.setItem('address', resp.data.data.address)
-                        AsyncStorage.setItem('age', resp.data.data.age)
-                        AsyncStorage.setItem('birthdate', resp.data.data.birthdate)
-                        AsyncStorage.setItem('email_id', resp.data.data.email_id)
-                        AsyncStorage.setItem('ext_account_email_id', resp.data.data.ext_account_email_id)
-                        AsyncStorage.setItem('firstname', resp.data.data.firstname)
-                        AsyncStorage.setItem('gender', resp.data.data.gender)
-                        AsyncStorage.setItem('lastname', JSON.stringify(resp.data.data.lastname))
-                        AsyncStorage.setItem('login_type', resp.data.data.login_type)
-                        AsyncStorage.setItem('mobile_number', resp.data.data.mobile_number)
-                        AsyncStorage.setItem('profile_pic', resp.data.data.profile_pic)
-                        AsyncStorage.setItem('user_id', resp.data.data.user_id)
-                    }).catch(err => {
-                        alert("Error in fetching account details. Please try again later.")
-                    })
-
-                    axios.get(FIRETV_BASE_URL_STAGING + "users/" + response.data.data.session + "/user_plans.gzip?auth_token=" + AUTH_TOKEN + "&tran_history=true&region=" + region).then(planresponse => {
-                        if (planresponse.data.data.length > 0) {
-                            AsyncStorage.setItem('subscription', 'done');
-                            AsyncStorage.setItem('user_id', planresponse.data.data[0].user_id);
-                            AsyncStorage.setItem('subscription_id', planresponse.data.data[0].subscription_id);
-                            AsyncStorage.setItem('plan_id', planresponse.data.data[0].plan_id);
-                            AsyncStorage.setItem('category', planresponse.data.data[0].category);
-                            AsyncStorage.setItem('valid_till', planresponse.data.data[0].valid_till);
-                            AsyncStorage.setItem('start_date', planresponse.data.data[0].start_date);
-                            AsyncStorage.setItem('transaction_id', planresponse.data.data[0].transaction_id);
-                            AsyncStorage.setItem('created_at', planresponse.data.data[0].created_at);
-                            AsyncStorage.setItem('updated_at', planresponse.data.data[0].updated_at);
-                            AsyncStorage.setItem('plan_status', planresponse.data.data[0].plan_status);
-                            AsyncStorage.setItem('invoice_inc_id', JSON.stringify(planresponse.data.data[0].invoice_inc_id));
-                            AsyncStorage.setItem('price_charged', JSON.stringify(planresponse.data.data[0].price_charged));
-                            AsyncStorage.setItem('email_id', JSON.stringify(planresponse.data.data[0].email_id));
-                            AsyncStorage.setItem('plan_title', JSON.stringify(planresponse.data.data[0].plan_title));
-                            AsyncStorage.setItem('subscription_title', JSON.stringify(planresponse.data.data[0].subscription_title));
-                            AsyncStorage.setItem('invoice_id', JSON.stringify(planresponse.data.data[0].invoice_id));
-                            AsyncStorage.setItem('currency', JSON.stringify(planresponse.data.data[0].currency));
-                            AsyncStorage.setItem('currency_symbol', JSON.stringify(planresponse.data.data[0].currency_symbol));
-                            AsyncStorage.setItem('status', JSON.stringify(planresponse.data.data[0].status));
-                        }
-                    }).catch(planerror => {
-                        console.log(planerror.response.data);
-                    })
-                    console.log(JSON.stringify(response.data.data));
-
-                    navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1', popup: false }))
-
-                }).catch(err => {
-                    console.log(JSON.stringify(err));
-                    //alert(err.response.data.message)
-                })
-        }
-        catch (error) {
-            console.log(error.message);
-            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-                console.log("sign in cancelled");
-            }
-            else if (error.code === statusCodes.IN_PROGRESS) {
-                console.log("signing in");
-            }
-            else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-                console.log("not available");
-            }
-            else {
-                console.log("some error");
-            }
-        }
-    }
-
-
     const isSignedIn = async () => {
-        const region = await AsyncStorage.getItem('country_code');
-        setregion(region);
-        const issignedin = await GoogleSignin.isSignedIn();
-        if (!!issignedin) {
-            getCurrentUserInfo();
-        }
-        else {
-            console.log("please login");
-        }
-    }
-    const getCurrentUserInfo = async () => {
-        try {
-            const userinfo = await GoogleSignin.signInSilently();
-            console.log("silent" + userinfo);
-            setuser(userinfo)
-        }
-        catch (error) {
-            if (error.code = statusCodes.SIGN_IN_REQUIRED) {
-                console.log("login required");
-            }
-            else {
-                console.log("something wrong");
-            }
+        getIpDetails();
+        // const region = await AsyncStorage.getItem('country_code');
 
-        }
+        // const issignedin = await GoogleSignin.isSignedIn();
+        // if (!!issignedin) {
+        //     getCurrentUserInfo();
+        // }
+        // else {
+        //     console.log("please login");
+        // }
     }
-    const signOut = async () => {
-        try {
-            await GoogleSignin.revokeAccess();
-            await GoogleSignin.signOut();
-            setuser({});
-        }
-        catch (error) {
-            console.log(error);
-        }
-    }
+    // const getCurrentUserInfo = async () => {
+    //     try {
+    //         const userinfo = await GoogleSignin.signInSilently();
+    //         console.log("silent" + userinfo);
+    //         setuser(userinfo)
+    //     }
+    //     catch (error) {
+    //         if (error.code = statusCodes.SIGN_IN_REQUIRED) {
+    //             console.log("login required");
+    //         }
+    //         else {
+    //             console.log("something wrong");
+    //         }
+
+    //     }
+    // }
+    // const signOut = async () => {
+    //     try {
+    //         await GoogleSignin.revokeAccess();
+    //         await GoogleSignin.signOut();
+    //         setuser({});
+    //     }
+    //     catch (error) {
+    //         console.log(error);
+    //     }
+    // }
 
     function ValidateEmail(input) {
         var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
@@ -414,11 +432,15 @@ export default function Login({ navigation }) {
                             'Content-Type': 'application/json',
                         }
                     }).then(sentotp => {
+                        setAsyncData("signupMobile",calling_code + Mobile)
                         navigation.dispatch(StackActions.replace('Otp', { 'otpkey': 'signupMobile' }));
                     }).catch(errorotp => { setOtpError(errorotp.response.data.error.message) })
                 }
             }
             );
+    }
+    const setAsyncData = async(key,value) =>{
+        await AsyncStorage.setItem(key, value);
     }
     const signinEmailUser = async () => {
         if (email.trim() == "") { setEmailError("Please enter your email id."); return true; } else setEmailError("");
@@ -430,7 +452,7 @@ export default function Login({ navigation }) {
             var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
             const user_id = await AsyncStorage.getItem('user_id');
             const uniqueid = await DeviceInfo.getUniqueId();
-            const device_token = await AsyncStorage.getItem('fcm_token');
+            const device_token = await messaging().getToken();
             //if (CheckPassword(newpassword)) {
             const region = await AsyncStorage.getItem('country_code');
             axios.post(FIRETV_BASE_URL_STAGING + "users/sign_in", {
@@ -609,7 +631,7 @@ export default function Login({ navigation }) {
             var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
             const user_id = await AsyncStorage.getItem('user_id');
             const uniqueid = await DeviceInfo.getUniqueId();
-            const device_token = await AsyncStorage.getItem('fcm_token');
+            const device_token = await messaging().getToken();
             //if (CheckPassword(newpassword)) {
             const region = await AsyncStorage.getItem('country_code');
             axios.post(FIRETV_BASE_URL_STAGING + "users/sign_in", {
@@ -867,8 +889,13 @@ export default function Login({ navigation }) {
 
         }
     }
+
+    const loadView = async (key) => {
+        var url = await AsyncStorage.getItem(key);
+        navigation.navigate('Webview', { uri: url })
+    }
     return (
-        <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
+        <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
             <View style={{ flex: 1, }}>
 
                 <View style={styles.header}>
@@ -902,17 +929,17 @@ export default function Login({ navigation }) {
                                     </View>
                                 </View>
                                 <View style={{ flexDirection: 'row' }}>
-                                    <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', width: '50%', marginTop: 15 }}>
-                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Signup'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 15 }}>Not a Member? <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Sign Up</Text></Text>
+                                    <View style={{ justifyContent: 'center', alignItems: 'flex-start', width: '70%', marginTop: 15 }}>
+                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Signup'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 13 }}>Not a Member? <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Sign Up</Text></Text>
                                         </TouchableOpacity>
                                     </View>
-                                    <View style={{ justifyContent: 'center', alignItems: 'flex-end', width: '50%', marginTop: 15 }}>
+                                    <View style={{ justifyContent: 'center', alignItems: 'flex-end', width: '30%', marginTop: 15 }}>
                                         <TouchableOpacity onPress={signinMobileUser}>
                                             <LinearGradient
                                                 useAngle={true}
                                                 angle={125}
                                                 angleCenter={{ x: 0.5, y: 0.5 }}
-                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
+                                                colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                                 <Ionicons name='arrow-forward' size={20} color={NORMAL_TEXT_COLOR} />
                                             </LinearGradient>
                                         </TouchableOpacity>
@@ -923,14 +950,14 @@ export default function Login({ navigation }) {
 
 
 
-                                <View style={{ justifyContent: 'center', alignItems: 'center', }}>
+                                {/* <View style={{ justifyContent: 'center', alignItems: 'center', }}>
                                     <Text style={{ color: DETAILS_TEXT_COLOR }}>----- OR -----</Text>
-                                </View>
+                                </View> */}
 
-                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                                {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}> */}
 
 
-                                    <Pressable
+                                {/* <Pressable
                                         onPress={() => onFacebookButtonPress().then((resp) => {
                                             console.log(resp);
                                             socialsignin(resp)
@@ -938,20 +965,20 @@ export default function Login({ navigation }) {
                                         style={{ width: 195, height: 50, backgroundColor: '#395694', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginBottom: 20 }}
                                     >
                                         <Text style={{ color: NORMAL_TEXT_COLOR }}>Signin with Facebook</Text>
-                                    </Pressable>
+                                    </Pressable> */}
 
-                                    {/* {!user.idToken ? */}
-                                    <GoogleSigninButton
+                                {/* {!user.idToken ? */}
+                                {/* <GoogleSigninButton
                                         style={{ width: 200, height: 50 }}
                                         size={GoogleSigninButton.Size.Wide}
                                         color={GoogleSigninButton.Color.Dark}
                                         onPress={signin}
-                                    ></GoogleSigninButton>
-                                    {/* :
+                                    ></GoogleSigninButton> */}
+                                {/* :
                                 ""
                             } */}
 
-                                </View>
+                                {/* </View> */}
 
                             </View>
                             :
@@ -975,12 +1002,12 @@ export default function Login({ navigation }) {
                                 <TextInput secureTextEntry={true} onChangeText={setnewpassword} value={newpassword} style={styles.textinput} placeholder="Password*" placeholderTextColor={NORMAL_TEXT_COLOR} />
                                 <Text style={styles.errormessage}>{newpasswordError}</Text>
                                 <View style={{ flexDirection: 'row' }}>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Signup'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 15 }}>Not a Member? <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Sign Up</Text></Text>
+                                    <View style={{ justifyContent: 'center', alignItems: 'flex-start', width: '50%' }}>
+                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Signup'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 13 }}>Not a Member? <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Sign Up</Text></Text>
                                         </TouchableOpacity>
                                     </View>
-                                    <TouchableOpacity style={{ position: 'absolute', right: 20 }} onPress={() => navigation.dispatch(StackActions.replace('ForgotPassword'))}>
-                                        <Text style={{ color: NORMAL_TEXT_COLOR }}>Forgot Password?</Text>
+                                    <TouchableOpacity style={{ position: 'absolute', right: 0 }} onPress={() => navigation.dispatch(StackActions.replace('ForgotPassword'))}>
+                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Forgot Password?</Text>
                                     </TouchableOpacity>
                                 </View>
 
@@ -994,7 +1021,7 @@ export default function Login({ navigation }) {
                                                 useAngle={true}
                                                 angle={125}
                                                 angleCenter={{ x: 0.5, y: 0.5 }}
-                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
+                                                colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                                 <Ionicons name='arrow-forward' size={20} color={NORMAL_TEXT_COLOR} />
                                             </LinearGradient>
                                         </TouchableOpacity>
@@ -1002,14 +1029,14 @@ export default function Login({ navigation }) {
                                     </View>
                                 </View>
 
-                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                                {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
                                     <Text style={{ color: DETAILS_TEXT_COLOR }}>----- OR -----</Text>
-                                </View>
+                                </View> */}
 
-                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                                {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}> */}
 
 
-                                    <Pressable
+                                {/* <Pressable
                                         onPress={() => onFacebookButtonPress().then((resp) => {
                                             console.log(resp);
                                             socialsignin(resp)
@@ -1017,20 +1044,20 @@ export default function Login({ navigation }) {
                                         style={{ width: 195, height: 50, backgroundColor: '#395694', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginBottom: 20 }}
                                     >
                                         <Text style={{ color: NORMAL_TEXT_COLOR }}>Signin with Facebook</Text>
-                                    </Pressable>
+                                    </Pressable> */}
 
-                                    {/* {!user.idToken ? */}
-                                    <GoogleSigninButton
+                                {/* {!user.idToken ? */}
+                                {/* <GoogleSigninButton
                                         style={{ width: 200, height: 50 }}
                                         size={GoogleSigninButton.Size.Wide}
                                         color={GoogleSigninButton.Color.Dark}
                                         onPress={signin}
-                                    ></GoogleSigninButton>
-                                    {/* :
+                                    ></GoogleSigninButton> */}
+                                {/* :
                                 ""
                             } */}
 
-                                </View>
+                                {/* </View> */}
 
                             </View>
                         }
@@ -1076,7 +1103,7 @@ export default function Login({ navigation }) {
                                                 useAngle={true}
                                                 angle={125}
                                                 angleCenter={{ x: 0.5, y: 0.5 }}
-                                                colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
+                                                colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
                                                 <Ionicons name='arrow-forward' size={20} color={NORMAL_TEXT_COLOR} />
                                             </LinearGradient>
 
@@ -1085,14 +1112,14 @@ export default function Login({ navigation }) {
                                 </View>
                             </View>
 
-                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                            {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
                                 <Text style={{ color: DETAILS_TEXT_COLOR }}>----- OR -----</Text>
-                            </View>
+                            </View> */}
 
-                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                            {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}> */}
 
 
-                                <Pressable
+                            {/* <Pressable
                                     onPress={() => onFacebookButtonPress().then((resp) => {
                                         console.log(resp);
                                         socialsignin(resp)
@@ -1100,24 +1127,30 @@ export default function Login({ navigation }) {
                                     style={{ width: 195, height: 50, backgroundColor: '#395694', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginBottom: 20 }}
                                 >
                                     <Text style={{ color: NORMAL_TEXT_COLOR }}>Signin with Facebook</Text>
-                                </Pressable>
+                                </Pressable> */}
 
-                                {/* {!user.idToken ? */}
-                                <GoogleSigninButton
+                            {/* {!user.idToken ? */}
+                            {/* <GoogleSigninButton
                                     style={{ width: 200, height: 50 }}
                                     size={GoogleSigninButton.Size.Wide}
                                     color={GoogleSigninButton.Color.Dark}
                                     onPress={signin}
-                                ></GoogleSigninButton>
-                                {/* :
+                                ></GoogleSigninButton> */}
+                            {/* :
                                 ""
                             } */}
 
-                            </View>
+                            {/* </View> */}
 
                         </View>
                     </View>
                 }
+            </View>
+            <View style={{ width: "100%", position: 'absolute', bottom: 30, flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center' }}>
+                <Pressable onPress={() => loadView('privacy')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Privacy Policy</Text></Pressable>
+                <Pressable onPress={() => navigation.navigate('HTMLRender', { pagename: 'terms_conditions' })}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Terms of Use</Text></Pressable>
+                <Pressable onPress={() => loadView('faq')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>FAQ</Text></Pressable>
+                <Pressable onPress={() => loadView('contactUs')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Contact Us</Text></Pressable>
             </View>
             <StatusBar
                 animated
@@ -1125,7 +1158,7 @@ export default function Login({ navigation }) {
                 barStyle="dark-content"
                 translucent={true}
             />
-        </ScrollView>
+        </View>
     )
 }
 

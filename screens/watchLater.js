@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, StatusBar, Pressable, ScrollView,Alert } from 'react-native'
+import { View, Text, StyleSheet, StatusBar, Pressable, ScrollView, Alert } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ACCESS_TOKEN, BACKGROUND_COLOR, DARKED_BORDER_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, PAGE_HEIGHT, VIDEO_AUTH_TOKEN } from '../constants';
@@ -10,7 +10,7 @@ import Header from './header';
 import axios from 'axios';
 var watchlaterTasks = [];
 export default function WatchLater({ navigation }) {
-    const [watchlistVideo, setWatchlistVideo] = useState();
+    const [watchlistVideo, setWatchlistVideo] = useState([]);
     const dataFetchedRef = useRef(false);
 
     const loadData = async () => {
@@ -20,7 +20,7 @@ export default function WatchLater({ navigation }) {
         axios.get(FIRETV_BASE_URL_STAGING + "/users/" + sessionId + "/playlists/watchlater/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(response => {
             console.log(JSON.stringify(response.data.data.items.length));
             for (var i = 0; i < response.data.data.items.length; i++) {
-                watchlaterTasks.push({ 'title': response.data.data.items[i].title, 'thumbnail': response.data.data.items[i].thumbnails.high_4_3.url, 'seo_url': response.data.data.items[i].seo_url, 'theme': response.data.data.items[i].theme,'listitem_id': response.data.data.items[i].listitem_id,'contentId':response.data.data.items[i].content_id})
+                watchlaterTasks.push({ 'title': response.data.data.items[i].title, 'thumbnail': response.data.data.items[i].thumbnails.high_4_3.url, 'seo_url': response.data.data.items[i].seo_url, 'theme': response.data.data.items[i].theme, 'listitem_id': response.data.data.items[i].listitem_id, 'contentId': response.data.data.items[i].content_id })
             }
             setWatchlistVideo(watchlaterTasks)
             watchlaterTasks = [];
@@ -28,26 +28,26 @@ export default function WatchLater({ navigation }) {
             //console.log(JSON.stringify(error.response.data));
         })
     }
-    const deleteWatchLater = async (listitem_id,contentId) => {
+    const deleteWatchLater = async (listitem_id, contentId) => {
         var sessionId = await AsyncStorage.getItem('session');
         var region = await AsyncStorage.getItem('country_code');
         Alert.alert('Delete File', 'Please confirm to delete the file from wishlist.', [
-          {
-            text: 'Cancel',
-            onPress: () => { },
-            style: 'cancel',
-          },
-          {
-            text: 'OK', onPress: async () => {
-              console.log('OK Pressed')
-              await axios.delete(FIRETV_BASE_URL_STAGING+"/users/"+sessionId+"/playlists/watchlater/listitems/"+listitem_id+"?auth_token="+VIDEO_AUTH_TOKEN+"&access_token="+ACCESS_TOKEN+"&region="+region).then(resp=>{
-                AsyncStorage.removeItem('watchLater_'+contentId)
-                loadData()
-              }).catch(err=>{})
-            }
-          },
+            {
+                text: 'Cancel',
+                onPress: () => { },
+                style: 'cancel',
+            },
+            {
+                text: 'OK', onPress: async () => {
+                    console.log('OK Pressed')
+                    await axios.delete(FIRETV_BASE_URL_STAGING + "/users/" + sessionId + "/playlists/watchlater/listitems/" + listitem_id + "?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(resp => {
+                        AsyncStorage.removeItem('watchLater_' + contentId)
+                        loadData()
+                    }).catch(err => { })
+                }
+            },
         ]);
-      }
+    }
 
     useEffect(() => {
         if (dataFetchedRef.current) return;
@@ -58,9 +58,9 @@ export default function WatchLater({ navigation }) {
         <View style={styles.mainContainer}>
             <Header pageName="WATCH-LATER"></Header>
             <ScrollView style={{ padding: 10 }}>
-                <Text style={{ color: NORMAL_TEXT_COLOR,fontSize:13,fontWeight:'500' }}>Watchlist</Text>
-                <View style={{marginTop:15}}>
-                    {watchlistVideo ?
+                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: '500' }}>Watchlist</Text>
+                <View style={{ marginTop: 15 }}>
+                    {watchlistVideo.length>0 ?
                         // <Text style={{color:'white'}}>{JSON.stringify(watchlistVideo[0].title)}</Text>
                         watchlistVideo.map((singleVideo, index) => {
                             return (
@@ -80,7 +80,7 @@ export default function WatchLater({ navigation }) {
                                                     <Text style={{ color: NORMAL_TEXT_COLOR }}>{singleVideo.title}</Text>
                                                 </View>
                                                 <View style={{ alignSelf: 'center', width: "10%" }}>
-                                                    <Pressable onPress={() => deleteWatchLater(singleVideo.listitem_id,singleVideo.contentId)}><MaterialCommunityIcons name="delete-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                                    <Pressable onPress={() => deleteWatchLater(singleVideo.listitem_id, singleVideo.contentId)}><MaterialCommunityIcons name="delete-circle" size={30} color={NORMAL_TEXT_COLOR} /></Pressable>
                                                 </View>
 
                                             </Pressable>
@@ -92,7 +92,9 @@ export default function WatchLater({ navigation }) {
                             )
                         })
                         :
-                        ""
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={{ color: NORMAL_TEXT_COLOR }}>No Watchlist</Text>
+                        </View>
                     }
                 </View>
             </ScrollView>

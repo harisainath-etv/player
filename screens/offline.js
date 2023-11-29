@@ -160,7 +160,7 @@ export default function Offline({ navigation }) {
     <View style={styles.mainContainer}>
       <Header pageName="OFFLINE"></Header>
       <View style={{ padding: 10 }}>
-        <Text style={{ color: NORMAL_TEXT_COLOR,fontSize:13,fontWeight:'500' }}>Offline Downloads</Text>
+        <Text style={{ color: NORMAL_TEXT_COLOR,fontSize:15,fontWeight:'500' }}>Offline Downloads</Text>
         <View style={{ justifyContent: 'center', alignItems: 'center',marginTop:15 }}>
           {offlineVideo ?
             <FlatList
@@ -169,7 +169,9 @@ export default function Offline({ navigation }) {
               renderItem={videosRender}
             />
             :
-            ""
+            <View style={{justifyContent:'center',alignItems:'center'}}>
+              <Text style={{color:NORMAL_TEXT_COLOR}}>No Offline Downloads</Text>
+            </View>
           }
         </View>
       </View>

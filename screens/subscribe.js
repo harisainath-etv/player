@@ -13,6 +13,7 @@ import React, { useEffect, useState, useRef } from "react";
 import NormalHeader from "./normalHeader";
 import {
   ACCESS_TOKEN,
+  AUTH_TOKEN,
   BACKGROUND_COLOR,
   BACKGROUND_TRANSPARENT_COLOR,
   BUTTON_COLOR,
@@ -50,8 +51,11 @@ export default function Subscribe({ navigation }) {
   const [planid, setplanid] = useState("");
   const [description, setdescription] = useState("");
   const [currentplan, setcurrentplan] = useState("");
+  const [usersubscribed, setusersubscribed] = useState();
+  const [userRenewUpgrade, setuserRenewUpgrade] = useState("");
   const loadData = async () => {
     var currentplan = await AsyncStorage.getItem("plan_id");
+    setusersubscribed(await AsyncStorage.getItem("payable_coupon_display"));
     setcurrentplan(currentplan);
     var items = [];
     AsyncStorage.setItem("selectedplan", selectedplan);
@@ -208,7 +212,13 @@ export default function Subscribe({ navigation }) {
               useAngle={true}
               angle={125}
               angleCenter={{ x: 0.5, y: 0.5 }}
-              colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+              colors={[
+                BUTTON_COLOR,
+                TAB_COLOR,
+                TAB_COLOR,
+                TAB_COLOR,
+                BUTTON_COLOR,
+              ]}
               style={styles.gradirentButton}
             >
               <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -232,8 +242,26 @@ export default function Subscribe({ navigation }) {
     var session = await AsyncStorage.getItem("session");
     var region = await AsyncStorage.getItem("country_code");
     if (session == "" || session == null) {
-      navigation.navigate("Login");
+      navigation.dispatch(StackActions.replace("Login"));
     } else {
+      await axios
+        .get(
+          FIRETV_BASE_URL_STAGING +
+            "user/session/" +
+            session +
+            "?auth_token=" +
+            AUTH_TOKEN
+        )
+        .then((resp) => {
+          if (resp.data.message != "Valid session id.") {
+            navigation.dispatch(StackActions.replace("Login"));
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          navigation.dispatch(StackActions.replace("Login"));
+        });
+
       if (selectedprice != "" && selectedprice != null) {
         axios
           .get(
@@ -479,6 +507,10 @@ export default function Subscribe({ navigation }) {
       </View>
     );
   }
+  const setAsyncData = async (val) => {
+    if (val == 1) await AsyncStorage.setItem("renew", "true");
+    else await AsyncStorage.setItem("renew", "false");
+  };
   return (
     <ScrollView style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
       <TouchableOpacity
@@ -589,6 +621,9 @@ export default function Subscribe({ navigation }) {
                         setcurrency(resp.currency);
                         setplanid(resp.id);
                         setdescription(resp.description);
+                        currentplan == resp.id
+                          ? setAsyncData(1)
+                          : setAsyncData(2);
                       }}
                     >
                       <View style={styles.container}>
@@ -758,7 +793,13 @@ export default function Subscribe({ navigation }) {
                         useAngle={true}
                         angle={125}
                         angleCenter={{ x: 0.5, y: 0.5 }}
-                        colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                        colors={[
+                          BUTTON_COLOR,
+                          TAB_COLOR,
+                          TAB_COLOR,
+                          TAB_COLOR,
+                          BUTTON_COLOR,
+                        ]}
                         style={{
                           justifyContent: "center",
                           alignItems: "center",

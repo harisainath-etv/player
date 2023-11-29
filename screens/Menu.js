@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState, useEffect, useRef } from 'react';
 import { StackActions } from '@react-navigation/native';
-import { NORMAL_TEXT_COLOR, BACKGROUND_COLOR, TAB_COLOR, BUTTON_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, SIDEBAR_BACKGROUND_COLOR, PAGE_HEIGHT, PAGE_WIDTH, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, DARKED_BORDER_COLOR, FOOTER_DEFAULT_TEXT_COLOR, ANDROID_PACKAGE_NAME, ANDROID_SHARE_MESSAGE, ANDROID_SHARE_URL } from '../constants';
+import { NORMAL_TEXT_COLOR, BACKGROUND_COLOR, TAB_COLOR, BUTTON_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, SIDEBAR_BACKGROUND_COLOR, PAGE_HEIGHT, PAGE_WIDTH, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, DARKED_BORDER_COLOR, FOOTER_DEFAULT_TEXT_COLOR, ANDROID_PACKAGE_NAME, ANDROID_SHARE_MESSAGE, ANDROID_SHARE_URL, IOS_PACKAGE_NAME } from '../constants';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, TouchableOpacity, ImageBackground, Text, Pressable, StyleSheet, ScrollView, TextInput, StatusBar, ActivityIndicator } from 'react-native';
@@ -122,7 +122,7 @@ export default function Menu() {
     const ShareResponse = await Share.open(shareOptions);
   }
   const options = {
-    AppleAppID: "",
+    AppleAppID: IOS_PACKAGE_NAME,
     GooglePackageName: ANDROID_PACKAGE_NAME,
     preferredAndroidMarket: AndroidMarket.Google,
     preferInApp: false,
@@ -200,7 +200,7 @@ export default function Menu() {
                   style={[styles.button, { width: "95%" }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <FontAwesome5 name='lock' size={16} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Upgrade</Text>
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Upgrade / Renew</Text>
                   </View>
                 </LinearGradient>
 
@@ -254,6 +254,7 @@ export default function Menu() {
               <View style={{ alignItems: 'center', marginBottom: 20, }}>
                 <Text style={{ fontWeight: 'bold', color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Activate ETV WIN on your TV</Text>
                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>Enter the Activation code displayed on your TV screen</Text>
+                <Text style={{marginTop:5,color:TAB_COLOR}}>{otpactivatteError}</Text>
                 <View style={{ flexDirection: 'row', marginTop: 20 }}>
                   <TextInput
                     textAlign='center'
