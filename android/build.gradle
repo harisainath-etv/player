@@ -6,8 +6,8 @@ buildscript {
         firebaseMessagingVersion = "21.1.0" 
         buildToolsVersion = findProperty('android.buildToolsVersion') ?: '32.0.0'
         minSdkVersion = Integer.parseInt(findProperty('android.minSdkVersion') ?: '21')
-        compileSdkVersion = Integer.parseInt(findProperty('android.compileSdkVersion') ?: '32')
-        targetSdkVersion = Integer.parseInt(findProperty('android.targetSdkVersion') ?: '32')
+        compileSdkVersion = Integer.parseInt(findProperty('android.compileSdkVersion') ?: '34')
+        targetSdkVersion = Integer.parseInt(findProperty('android.targetSdkVersion') ?: '34')
         if (findProperty('android.kotlinVersion')) {
             kotlinVersion = findProperty('android.kotlinVersion')
         }
@@ -43,6 +43,7 @@ allprojects {
     configurations.all {
         resolutionStrategy {
             force "com.facebook.react:react-native:" + REACT_NATIVE_VERSION
+            exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-ktx'
         }
     }
 
