@@ -51,18 +51,18 @@ export default function Signup({ navigation }) {
             return false;
     }
     const triggersuccessanalytics = async (name, method, u_id, device_id) => {
-        await analytics().logEvent(name, {
+        sdk.trackEvent(name, {
             method: method,
             u_id: u_id,
             device_id: device_id
-        }).then(resp => { console.log(resp); }).catch(err => { console.log(err); })
+        });
     }
     const triggerfailureanalytics = async (name, error_type, method, device_id) => {
-        await analytics().logEvent(name, {
+        sdk.trackEvent(name, {
             error_type: error_type,
             method: method,
             device_id: device_id
-        }).then(resp => { console.log(resp); }).catch(err => { console.log(err); })
+        });
     }
     async function postData(type) {
         const region = await AsyncStorage.getItem('country_code');

@@ -65,11 +65,11 @@ export default function Login({ navigation }) {
         return auth().signInWithCredential(facebookCredential);
     }
     const triggersuccessanalytics = async (name, method, u_id, device_id) => {
-        await analytics().logEvent(name, {
+        sdk.trackEvent(name, {
             method: method,
             u_id: u_id,
             device_id: device_id
-        }).then(resp => { console.log(resp); }).catch(err => { console.log(err); })
+        });
     }
     // const signin = async () => {
     //     try {
