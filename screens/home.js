@@ -21,8 +21,8 @@ import {
   LogBox,
   StatusBar,
 } from "react-native";
-import Carousel from "react-native-reanimated-carousel";
-// import Carousel from "react-native-snap-carousel";
+// import Carousel from "react-native-reanimated-carousel";
+import Carousel from "react-native-snap-carousel";
 import Animated, {
   Extrapolate,
   interpolate,
