@@ -21,8 +21,8 @@ import {
   LogBox,
   StatusBar,
 } from "react-native";
-// import Carousel from "react-native-reanimated-carousel";
-import Carousel from "react-native-snap-carousel";
+import Carousel from "react-native-reanimated-carousel";
+// import Carousel from "react-native-snap-carousel";
 import Animated, {
   Extrapolate,
   interpolate,
@@ -1210,6 +1210,8 @@ function Home({ navigation, route }) {
             <>
               <Carousel
                 {...baseOptions}
+                sliderWidth={500}
+                itemWidth={400}
                 loop
                 pagingEnabled={pagingEnabled}
                 snapEnabled={snapEnabled}
@@ -1266,140 +1268,92 @@ function Home({ navigation, route }) {
                 )}
               />
 
-              <View style={styles.buttonsContainer}>
-                <Text
-                  style={{
-                    color: NORMAL_TEXT_COLOR,
-                    fontSize: 11,
-                    fontWeight: "500",
-                    position: "absolute",
-                    bottom: 80,
-                  }}
-                >
-                  {JSON.stringify(item.data[sliderKey].genres)
-                    .toUpperCase()
-                    .split('["')
-                    .join(".")
-                    .split('"]')
-                    .join("")
-                    .split('","')
-                    .join("  .")
-                    .split("_")
-                    .join(" ")}
-                </Text>
-                <Text
-                  style={{
-                    color: NORMAL_TEXT_COLOR,
-                    fontSize: 15,
-                    fontWeight: "bold",
-                    position: "absolute",
-                    bottom: 60,
-                  }}
-                >
-                  {item.data[sliderKey].title_image_display == true ||
-                  item.data[sliderKey].title_image_display == "true" ||
-                  item.data[sliderKey].title_image_display == 1 ? (
-                    <FastImage
-                      resizeMode={
-                        isTablet
-                          ? FastImage.resizeMode.contain
-                          : FastImage.resizeMode.contain
-                      }
-                      key={index}
-                      style={[
-                        {
-                          borderBottomLeftRadius: 0,
-                          borderBottomRightRadius: 0,
-                          width: PAGE_WIDTH - 150,
-                          height: 150,
-                        },
-                      ]}
-                      source={{
-                        uri: item.data[sliderKey].title_image,
-                        priority: FastImage.priority.high,
-                        cache: FastImage.cacheControl.immutable,
-                      }}
-                    />
-                  ) : (
-                    ""
-                  )}
-                  {/* <FontAwesome5
-                    size={11}
-                    color={TAB_COLOR}
-                    names="grip-lines-vertical"
-                  />{" "}
-                  {item.data[sliderKey].displayTitle} */}
-                </Text>
-                <View style={styles.buttonsPosition}>
-                  <Pressable
-                    onPress={() => {
+              {/* <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500', position: 'absolute', bottom: 80, }}>{JSON.stringify(item.data[sliderKey].genres).toUpperCase().split('["').join(".").split('"]').join("").split('","').join("  .").split("_").join(" ")}</Text> */}
+              <Text
+                style={{
+                  color: NORMAL_TEXT_COLOR,
+                  fontSize: 15,
+                  fontWeight: "bold",
+                  position: "absolute",
+                  bottom: 60,
+                }}
+              >
+                {item.data[sliderKey].title_image_display == true ||
+                item.data[sliderKey].title_image_display == "true" ||
+                item.data[sliderKey].title_image_display == 1 ? (
+                  <FastImage
+                    resizeMode={
+                      isTablet
+                        ? FastImage.resizeMode.contain
+                        : FastImage.resizeMode.contain
+                    }
+                    key={index}
+                    style={[
                       {
-                        item.data[sliderKey].medialistinlist
-                          ? navigation.dispatch(
-                              StackActions.replace("MoreList", {
-                                firendlyId: item.friendlyId,
-                                layoutType: LAYOUT_TYPES[2],
-                              })
-                            )
-                          : VIDEO_TYPES.includes(item.data[sliderKey].theme)
-                          ? naviagtetopage(
-                              "Episode",
-                              item.data[sliderKey].seoUrl,
-                              item.data[sliderKey].theme
-                            )
-                          : naviagtetopage(
-                              "Shows",
-                              item.data[sliderKey].seoUrl,
-                              item.data[sliderKey].theme
-                            );
-                      }
+                        borderBottomLeftRadius: 0,
+                        borderBottomRightRadius: 0,
+                        width: PAGE_WIDTH - 150,
+                        height: 150,
+                      },
+                    ]}
+                    source={{
+                      uri: item.data[sliderKey].title_image,
+                      priority: FastImage.priority.high,
+                      cache: FastImage.cacheControl.immutable,
                     }}
+                  />
+                ) : (
+                  ""
+                )}
+                {/* <FontAwesome5 size={11} color={TAB_COLOR} names="grip-lines-vertical" /> {item.data[sliderKey].displayTitle} */}
+              </Text>
+              <View style={styles.buttonsPosition}>
+                <Pressable
+                  onPress={() => {
+                    {
+                      item.data[sliderKey].medialistinlist
+                        ? navigation.dispatch(
+                            StackActions.replace("MoreList", {
+                              firendlyId: item.friendlyId,
+                              layoutType: LAYOUT_TYPES[1],
+                            })
+                          )
+                        : VIDEO_TYPES.includes(item.data[sliderKey].theme)
+                        ? naviagtetopage(
+                            "Episode",
+                            item.data[sliderKey].seoUrl,
+                            item.data[sliderKey].theme
+                          )
+                        : naviagtetopage(
+                            "Shows",
+                            item.data[sliderKey].seoUrl,
+                            item.data[sliderKey].theme
+                          );
+                    }
+                  }}
+                >
+                  <LinearGradient
+                    useAngle={true}
+                    angle={125}
+                    angleCenter={{ x: 0.5, y: 0.5 }}
+                    colors={[
+                      BUTTON_COLOR,
+                      TAB_COLOR,
+                      TAB_COLOR,
+                      TAB_COLOR,
+                      BUTTON_COLOR,
+                    ]}
+                    style={[styles.button, { borderRadius: 40 }]}
                   >
-                    <LinearGradient
-                      useAngle={true}
-                      angle={125}
-                      angleCenter={{ x: 0.5, y: 0.5 }}
-                      colors={[
-                        BUTTON_COLOR,
-                        TAB_COLOR,
-                        TAB_COLOR,
-                        TAB_COLOR,
-                        BUTTON_COLOR,
-                      ]}
-                      style={[styles.button, { borderRadius: 40 }]}
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}
                     >
-                      <View
-                        style={{ flexDirection: "row", alignItems: "center" }}
-                      >
-                        <FontAwesome5
-                          name="play"
-                          size={13}
-                          color={NORMAL_TEXT_COLOR}
-                          style={{ marginRight: 10 }}
-                        />
-                        <Text
-                          style={{
-                            color: NORMAL_TEXT_COLOR,
-                            fontSize: 13,
-                            fontWeight: "bold",
-                          }}
-                        >
-                          Watch Now
-                        </Text>
-                      </View>
-                    </LinearGradient>
-                  </Pressable>
-
-                  {VIDEO_TYPES.includes(item.data[sliderKey].theme) ? (
-                    <Pressable
-                      onPress={() => {
-                        watchLater(
-                          item.data[sliderKey].catalog_id,
-                          item.data[sliderKey].content_id
-                        );
-                      }}
-                      style={styles.wishlistbutton}
-                    >
+                      <FontAwesome5
+                        name="play"
+                        size={13}
+                        color={NORMAL_TEXT_COLOR}
+                        style={{ marginRight: 10 }}
+                      />
                       <Text
                         style={{
                           color: NORMAL_TEXT_COLOR,
@@ -1407,14 +1361,36 @@ function Home({ navigation, route }) {
                           fontWeight: "bold",
                         }}
                       >
-                        {" "}
-                        + Watch Later
+                        Watch Now
                       </Text>
-                    </Pressable>
-                  ) : (
-                    ""
-                  )}
-                </View>
+                    </View>
+                  </LinearGradient>
+                </Pressable>
+
+                {VIDEO_TYPES.includes(item.data[sliderKey].theme) ? (
+                  <Pressable
+                    onPress={() => {
+                      watchLater(
+                        item.data[sliderKey].catalog_id,
+                        item.data[sliderKey].content_id
+                      );
+                    }}
+                    style={styles.wishlistbutton}
+                  >
+                    <Text
+                      style={{
+                        color: NORMAL_TEXT_COLOR,
+                        fontSize: 13,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {" "}
+                      + Watch Later
+                    </Text>
+                  </Pressable>
+                ) : (
+                  ""
+                )}
               </View>
             </>
           ) : (
@@ -1458,6 +1434,8 @@ function Home({ navigation, route }) {
             </View>
             <Carousel
               {...baseOptionsOther}
+              // sliderWidth={500}
+              // itemWidth={400}
               loop
               pagingEnabled={pagingEnabled}
               snapEnabled={snapEnabled}
@@ -2703,7 +2681,6 @@ function Home({ navigation, route }) {
       </View>
     );
   };
-
   function changeTabData(pageFriendlyId) {
     if (pageFriendlyId != "live")
       navigation.dispatch(
