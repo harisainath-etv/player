@@ -1,5 +1,5 @@
 import { StatusBar, } from 'expo-status-bar';
-import { StyleSheet, View, Text, Pressable, ScrollView, FlatList, Image, LogBox, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, Pressable, ScrollView, FlatList, Image, LogBox, Alert, ActivityIndicator, PermissionsAndroid } from 'react-native';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -12,12 +12,16 @@ import { StackActions, useFocusEffect } from '@react-navigation/native';
 import Modal from "react-native-modal";
 import Share from 'react-native-share';
 import NormalHeader from './normalHeader';
-import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR, DETAILS_TEXT_COLOR, DARKED_BORDER_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR } from '../constants';
+import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR, DETAILS_TEXT_COLOR, DARKED_BORDER_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, actuatedNormalize, PAGE_HEIGHT, FIRETV_BASE_URL_STAGING } from '../constants';
 import DeviceInfo from 'react-native-device-info';
 import LinearGradient from 'react-native-linear-gradient';
 import { TouchableOpacity } from 'react-native';
+import { OptimizedFlatList } from 'react-native-optimized-flatlist'
+import RNBackgroundDownloader from 'react-native-background-downloader';
+import RNFS from 'react-native-fs';
 var indexValue = 0;
 var isTablet = DeviceInfo.isTablet();
+var internaltabs = [];
 export default function Shows({ navigation, route }) {
     var { seoUrl, selectTitle, ind } = route.params;
     const [toggle, setToggle] = useState(false);
@@ -30,7 +34,6 @@ export default function Shows({ navigation, route }) {
     const [description, setDescription] = useState();
     { ind ? indexValue = ind : indexValue = 0 };
     const [subcategorySeoUrl, setSubcategorySeoUrl] = useState(indexValue);
-    const [episodeTypeTags, setEpisodeTypeTags] = useState();
     const [relatedUrl, setRelatedUrl] = useState();
     const [subcategoryList, setSubcategoryList] = useState([])
     const [subcategoryImages, setsubcategoryImages] = useState([])
@@ -43,6 +46,24 @@ export default function Shows({ navigation, route }) {
     const [ratingdone, setratingdone] = useState(false);
     const [loading, setLoading] = useState(true);
     const [episodeUrl, setEpisodeUrl] = useState("");
+    const [currentTab, setCurrentTab] = useState("");
+    const [itemType, setItemType] = useState("");
+    const [subcategoryDefaultName, setSubcategoryDefaultName] = useState("");
+    const [subcategoryDefaultTitle, setSubcategoryDefaultTitle] = useState("");
+    const [subcategoryDefaultItemType, setSubcategoryDefaultItemType] = useState("");
+    const [subcategoryDefaultUrl, setSubcategoryDefaultUrl] = useState("");
+    const [subcatLoading, setSubcatLoading] = useState(false);
+    const [subCategoryMediaList, setSubCategoryMediaList] = useState();
+    const [internalTabs, setInternalTabs] = useState([]);
+    const [defaultTabDisplayTitle, setDefaultTabDisplayTitle] = useState("");
+    const [defaultTabSeoUrl, setDefaultTabSeoUrl] = useState("");
+    const [defaultTabLayoutType, setDefaultTabLayoutType] = useState("");
+    const [subTabImages, setsubTabImages] = useState([]);
+    const [selectedTab, setSelectedTab] = useState("");
+    const [prefrence, setPreference] = useState([]);
+    const [downloadedStatus, setDownloadedStatus] = useState(0)
+    const [taskdownloading, settaskdownloading] = useState();
+    const [tabDataLoading, setTabDataLoading] = useState(false);
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -52,9 +73,19 @@ export default function Shows({ navigation, route }) {
         let query = stringNeeded.toLowerCase();
         return arrayvalues.filter(item => item.toLowerCase().indexOf(query) >= 0);
     }
-
+    const setAsyncData = async (key, value, seo_url) => {
+        const loaded = await AsyncStorage.getItem("loaded");
+        if (loaded != 1) {
+            await AsyncStorage.setItem(key, value);
+            movetoscreen(seo_url, 0, "")
+        }
+    }
     const loadData = async () => {
         setLoading(true);
+        setSubcategoryList([]);
+        setInternalTabs([]);
+        setsubTabImages([]);
+        setsubcategoryImages([]);
         const baseUrl = FIRETV_BASE_URL;
         var splittedData = seourl.split("/");
         splittedData = splittedData.filter(function (e) { return e });
@@ -101,7 +132,6 @@ export default function Shows({ navigation, route }) {
             setContentRating(response.data.data.cbfc_rating);
             setDisplayGenres(response.data.data.display_genres);
             setDescription(response.data.data.description);
-            setEpisodeTypeTags(response.data.data.subcategories[subcategorySeoUrl].episodetype_tags);
             setRelatedUrl(relatedurlPath);
             setSeasons(response.data.data.subcategories);
             setContentId(response.data.data.content_id);
@@ -109,7 +139,6 @@ export default function Shows({ navigation, route }) {
             setShareUrl(response.data.data.dynamic_url);
 
             if (sessionId != "" && sessionId != null) {
-                //console.log(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite/listitems.gzip?catalog_id=" + response.data.data.content_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region);
                 axios.get(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite/listitems.gzip?catalog_id=" + response.data.data.catalog_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region).then(followresp => {
                     setToggle(true)
                 }).catch(followerror => {
@@ -124,19 +153,58 @@ export default function Shows({ navigation, route }) {
             }
 
             var mainArr = [];
-            for (var e = 0; e < response.data.data.subcategories[subcategorySeoUrl].episodetype_tags.length; e++) {
-                var subcategorySplit = "";
-                var subcategoryurlPath = "";
-                var subcategoryurl = "";
-                subcategorySplit = response.data.data.subcategories[subcategorySeoUrl].seo_url.split("/");
-                subcategorySplit = subcategorySplit.filter(function (e) { return e });
+            var episodesAvailable = 0;
+            console.log(selectTitle);
+            if (selectTitle == "" || selectTitle == null) {
+                for (var e = 0; e < response.data.data.subcategories[subcategorySeoUrl].episodetype_tags.length; e++) {
+                    var subcategorySplit = "";
+                    var subcategoryurlPath = "";
+                    var subcategoryurl = "";
+                    subcategorySplit = response.data.data.subcategories[subcategorySeoUrl].seo_url.split("/");
+                    subcategorySplit = subcategorySplit.filter(function (e) { return e });
 
-                subcategoryurlPath = baseUrl + "catalogs/" + subcategorySplit[0] + "/items/" + subcategorySplit[1] + "/subcategories/" + subcategorySplit[3] + "/episodes";
-                subcategoryurl = subcategoryurlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region + "&episode_type=" + response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name;
-                if (response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name == 'episode') {
-                    setEpisodeUrl(baseUrl + "catalogs/" + subcategorySplit[0] + "/items/" + subcategorySplit[1] + "/episodes.gzip");
+                    subcategoryurlPath = baseUrl + "catalogs/" + subcategorySplit[0] + "/items/" + subcategorySplit[1] + "/subcategories/" + subcategorySplit[3] + "/episodes";
+                    subcategoryurl = subcategoryurlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region + "&episode_type=" + response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name + "&page_size=10";
+                    if (response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name == 'episode') {
+                        setEpisodeUrl(baseUrl + "catalogs/" + subcategorySplit[0] + "/items/" + subcategorySplit[1] + "/episodes.gzip");
+                    }
+                    if (episodesAvailable == 0) {
+                        setSubcategoryDefaultName(response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name);
+                        setSubcategoryDefaultTitle(response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].display_title);
+                        setSubcategoryDefaultItemType(response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].item_type);
+                        setSubcategoryDefaultUrl(subcategoryurl);
+                        setSubCategoryMediaList(response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].media_list)
+                    }
+                    mainArr.push({ 'name': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name, 'display_title': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].display_title, 'item_type': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].item_type, 'subcategoryurl': subcategoryurl, "media_list": response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].media_list })
+                    episodesAvailable++;
                 }
-                mainArr.push({ 'name': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].name, 'display_title': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].display_title, 'item_type': response.data.data.subcategories[subcategorySeoUrl].episodetype_tags[e].item_type, 'subcategoryurl': subcategoryurl })
+            }
+            else {
+
+                for (var e = 0; e < response.data.data.episodetype_tags.length; e++) {
+                    var subcategorySplit = "";
+                    var subcategoryurlPath = "";
+                    var subcategoryurl = "";
+                    subcategorySplit = response.data.data.seo_url.split("/");
+                    subcategorySplit = subcategorySplit.filter(function (e) { return e });
+
+                    subcategoryurlPath = baseUrl + "catalogs/" + subcategorySplit[0] + "/items/" + subcategorySplit[1] + "/subcategories/" + subcategorySplit[3] + "/episodes";
+                    subcategoryurl = subcategoryurlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region + "&episode_type=" + response.data.data.episodetype_tags[e].name + "&page_size=10";
+                    if (response.data.data.episodetype_tags[e].name == 'episode') {
+                        setEpisodeUrl(baseUrl + "catalogs/" + subcategorySplit[0] + "/items/" + subcategorySplit[1] + "/episodes.gzip");
+                    }
+                    if (episodesAvailable == 0) {
+                        setSubcategoryDefaultName(response.data.data.episodetype_tags[e].name);
+                        setSubcategoryDefaultTitle(response.data.data.episodetype_tags[e].display_title);
+                        setSubcategoryDefaultItemType(response.data.data.episodetype_tags[e].item_type);
+                        setSubcategoryDefaultUrl(subcategoryurl);
+                        setSubCategoryMediaList(response.data.data.episodetype_tags[e].media_list)
+                    }
+                    mainArr.push({ 'name': response.data.data.episodetype_tags[e].name, 'display_title': response.data.data.episodetype_tags[e].display_title, 'item_type': response.data.data.episodetype_tags[e].item_type, 'subcategoryurl': subcategoryurl, "media_list": response.data.data.episodetype_tags[e].media_list })
+                    episodesAvailable++;
+                }
+
+
             }
             mainArr.push({ 'name': 'related', 'display_title': 'Related Shows', 'item_type': 'show', 'subcategoryurl': relatedurlPath })
             setSubcategoryList(mainArr);
@@ -152,133 +220,175 @@ export default function Shows({ navigation, route }) {
     );
 
     useEffect(() => {
-        getThumbnailImages()
+        if (subcategoryDefaultName != "" && subcategoryDefaultTitle != "" && subcategoryDefaultItemType != "" && subcategoryDefaultUrl != "") {
+            getThumbnailImages(subcategoryDefaultUrl, subcategoryDefaultItemType, subcategoryDefaultName, subcategoryDefaultTitle, subCategoryMediaList, 0)
+        }
         LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
         LogBox.ignoreLogs(['Encountered two children with the same key']);
-    }, [subcategoryImages])
+    }, [subcategoryDefaultUrl, subcategoryDefaultItemType, subcategoryDefaultName, subcategoryDefaultTitle, subCategoryMediaList, defaultTabDisplayTitle, defaultTabSeoUrl, defaultTabLayoutType])
 
 
-    const getThumbnailImages = async () => {
-
-        if (subcategoryImages.length == 0) {
-            {
-                subcategoryList.map(async (resp) => {
-                    var subcategorydata = [];
-                    const thumnailData = await fetch(resp.subcategoryurl);
-                    const subcatDataDetails = await thumnailData.json();
-                    for (var s = 0; s < subcatDataDetails.data.items.length; s++) {
-                        {
-                            VIDEO_TYPES.includes(resp.item_type) ?
-                                subcategorydata.push({ 'thumbnail': subcatDataDetails.data.items[s].thumbnails.high_4_3.url, 'title': subcatDataDetails.data.items[s].title, 'date': subcatDataDetails.data.items[s].release_date_uts, 'premium': subcatDataDetails.data.items[s].access_control.is_free, 'theme': subcatDataDetails.data.items[s].theme, 'seo_url': subcatDataDetails.data.items[s].seo_url })
-                                :
-                                subcategorydata.push({ 'thumbnail': subcatDataDetails.data.items[s].thumbnails.high_3_4.url, 'title': subcatDataDetails.data.items[s].title, 'date': subcatDataDetails.data.items[s].release_date_uts, 'premium': subcatDataDetails.data.items[s].access_control.is_free, 'theme': subcatDataDetails.data.items[s].theme, 'seo_url': subcatDataDetails.data.items[s].seo_url })
-                        }
+    const getThumbnailImages = async (subcategoryurl, item_type, name, display_title, media_list, empty_data) => {
+        setSubcatLoading(true)
+        setCurrentTab(name);
+        setItemType(item_type);
+        if (empty_data == 1) {
+            setInternalTabs([]);
+            setsubTabImages([])
+        }
+        var subcategorydata = [];
+        if (item_type != 'list-2d') {
+            const thumnailData = await fetch(subcategoryurl);
+            const subcatDataDetails = await thumnailData.json();
+            for (var s = 0; s < subcatDataDetails.data.items.length; s++) {
+                {
+                    VIDEO_TYPES.includes(item_type) ?
+                        subcategorydata.push({ 'thumbnail': subcatDataDetails.data.items[s].thumbnails.high_4_3.url, 'title': subcatDataDetails.data.items[s].title, 'date': subcatDataDetails.data.items[s].release_date_uts, 'premium': subcatDataDetails.data.items[s].access_control.is_free, 'theme': subcatDataDetails.data.items[s].theme, 'seo_url': subcatDataDetails.data.items[s].seo_url, 'short_description': subcatDataDetails.data.items[s].short_description, 'item_type': item_type })
+                        :
+                        subcategorydata.push({ 'thumbnail': subcatDataDetails.data.items[s].thumbnails.medium_3_4.url, 'title': subcatDataDetails.data.items[s].title, 'date': subcatDataDetails.data.items[s].release_date_uts, 'premium': subcatDataDetails.data.items[s].access_control.is_free, 'theme': subcatDataDetails.data.items[s].theme, 'seo_url': subcatDataDetails.data.items[s].seo_url, 'short_description': subcatDataDetails.data.items[s].short_description, 'item_type': item_type })
+                }
+            }
+            totalData.push({ 'name': name, 'display_title': display_title, 'item_type': item_type, 'thumbnails': subcategorydata, 'friendlyId': subcategoryurl })
+            setsubcategoryImages([totalData])
+            setSubcatLoading(false)
+        }
+        else {
+            const region = await AsyncStorage.getItem('country_code');
+            let url1 = FIRETV_BASE_URL_STAGING + "catalog_lists/" + media_list + ".gzip?item_language=eng&region=" + region + "&nested_list_items=false&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN;
+            await axios.get(url1).then(resp => {
+                for (var t = 0; t < resp.data.data.catalog_list_items.length; t++) {
+                    internaltabs.push({ "display_title": resp.data.data.catalog_list_items[t].display_title, "seo_url": resp.data.data.catalog_list_items[t].seo_url, "layout_type": resp.data.data.catalog_list_items[t].layout_type })
+                    if (t == 0) {
+                        setDefaultTabDisplayTitle(resp.data.data.catalog_list_items[t].display_title)
+                        setDefaultTabSeoUrl(resp.data.data.catalog_list_items[t].seo_url)
+                        setDefaultTabLayoutType(resp.data.data.catalog_list_items[t].layout_type)
+                        setInternalTabs([]);
+                        getTabData(resp.data.data.catalog_list_items[t].display_title, resp.data.data.catalog_list_items[t].seo_url, resp.data.data.catalog_list_items[t].layout_type)
                     }
-                    totalData.push({ 'name': resp.name, 'display_title': resp.display_title, 'item_type': resp.item_type, 'thumbnails': subcategorydata, 'friendlyId': resp.subcategoryurl })
-                    setsubcategoryImages([...subcategoryImages, totalData])
-                })
+                }
+                setsubcategoryImages([])
+                setInternalTabs(internaltabs);
+                setSubcatLoading(false)
+            }).catch(err => {
+                console.log(err.response.data);
+                setSubcatLoading(false)
+            })
+        }
+    }
+    const getTabData = async (defaultTabDisplayTitle, defaultTabSeoUrl, defaultTabLayoutType) => {
+        setTabDataLoading(true);
+        setsubTabImages([])
+        const region = await AsyncStorage.getItem('country_code');
+        var subcategorydata = [];
+        let url2 = FIRETV_BASE_URL_STAGING + "/" + defaultTabSeoUrl + ".gzip?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN;
+        axios.get(url2).then(resp => {
+            totalData = [];
+            for (var d = 0; d < resp.data.data.catalog_list_items.length; d++) {
+
+                subcategorydata.push({ 'thumbnail': resp.data.data.catalog_list_items[d].thumbnails.medium_4_3.url, 'title': resp.data.data.catalog_list_items[d].title, 'date': resp.data.data.catalog_list_items[d].release_date_uts, 'premium': resp.data.data.catalog_list_items[d].access_control.is_free, 'theme': resp.data.data.catalog_list_items[d].theme, 'seo_url': resp.data.data.catalog_list_items[d].seo_url, 'short_description': resp.data.data.catalog_list_items[d].short_description, 'item_type': defaultTabLayoutType, 'play_url': resp.data.data.catalog_list_items[d].play_url.url, 'dynamic_url': resp.data.data.catalog_list_items[d].dynamic_url })
+            }
+            setSelectedTab(defaultTabDisplayTitle);
+            setsubTabImages([subcategorydata])
+            setSubcatLoading(false)
+            setTabDataLoading(false);
+        }).catch(err => {
+            console.log(err);
+            setSubcatLoading(false)
+            setTabDataLoading(false);
+        })
+    }
+
+    const downloadFile = async (offlineUrl) => {
+        var sessionId = await AsyncStorage.getItem('session');
+        if (sessionId == null || sessionId != "") {
+            navigation.dispatch(StackActions.replace("Login"));
+        }
+        else {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                {
+                    title: 'Download File',
+                    message:
+                        'Need App Access To Download Files',
+                    buttonPositive: 'OK',
+                },
+            );
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                // if (offlineUrl != "") {
+                var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
+                var offlineprefrences = [];
+                if (await RNFS.exists(downloaddirectory)) {
+                    //setDownloadedStatus(1)
+                }
+                else {
+                    RNFS.mkdir(downloaddirectory);
+                }
+                var offlinedownloadapi = offlineUrl + "?service_id=6&play_url=yes&protocol=http_pd&us=745d7e9f1e37ca27fdffbebfe8a99877";
+                await axios.get(offlinedownloadapi).then(response => {
+                    for (let o = 0; o < response.data.playback_urls.length; o++) {
+                        offlineprefrences.push({ "display_name": response.data.playback_urls[o].display_name, "playback_url": response.data.playback_urls[o].playback_url, "offlineUrl": offlineUrl, "downloaddirectory": downloaddirectory })
+                    }
+                    setPreference(offlineprefrences);
+                    toggleModal()
+                }).catch(error => { })
+
+                // }
+
+            }
+            else {
+                alert("Please give access to download files.");
             }
         }
     }
+
+    const startDownloading = async (playback_url, offlineUrl, downloaddirectory, downloadquality) => {
+        var splittedOfflineUrl = offlineUrl.split("/");
+        AsyncStorage.setItem('download_url' + splittedOfflineUrl[splittedOfflineUrl.length - 1], playback_url);
+        AsyncStorage.setItem('download_path' + splittedOfflineUrl[splittedOfflineUrl.length - 1], `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts.download`);
+        AsyncStorage.setItem('download_title' + splittedOfflineUrl[splittedOfflineUrl.length - 1], title);
+        AsyncStorage.setItem('download_thumbnail' + splittedOfflineUrl[splittedOfflineUrl.length - 1], thumbnailImage);
+        AsyncStorage.setItem('download_seourl' + splittedOfflineUrl[splittedOfflineUrl.length - 1], seourl)
+
+        let tasks = RNBackgroundDownloader.download({
+            id: splittedOfflineUrl[splittedOfflineUrl.length - 1],
+            url: playback_url,
+            destination: `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts.download`
+        }).begin((expectedBytes) => {
+            setDownloadedStatus(2)
+            // console.log(`Going to download ${expectedBytes} bytes!`);
+            toggleModal()
+        }).progress((percent) => {
+            let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "download_quality": downloadquality, "source": "source", "percentage_downloaded": `${percent * 100}` };
+            triggerOtherAnalytics('download_video', jsonObj)
+
+            AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(percent * 100));
+            // console.log(`Downloaded: ${percent * 100}%`);
+        }).done(() => {
+            AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(1 * 100));
+            setDownloadedStatus(1)
+            // console.log('Download is done!');
+        }).error((error) => {
+            // console.log('Download canceled due to error: ', error);
+        })
+        settaskdownloading(tasks);
+        AsyncStorage.setItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(tasks));
+        navigation.navigate('Offline');
+    }
+
+    const triggerOtherAnalytics = async (name, obj) => {
+        sdk.trackEvent(name, obj);
+    }
+
     const movetoscreen = (seo_url, ind, title) => {
-        toggleModal()
         navigation.navigate({ name: 'Shows', params: { seoUrl: seo_url, selectTitle: title, ind: ind }, key: { ind } })
     }
-    getThumbnailImages()
     function renderSubcat({ item }) {
 
         return (
-            <View style={{}}>
-
-                {item.map((subcat, i) => {
-                    return (
-                        <View style={{}} key={'main' + i}>
-                            {subcat.thumbnails.length > 0 ?
-                                <View>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 15, marginBottom: 10 }} key={'heading' + i}>{subcat.display_title}</Text>
-                                    {subcat.name != 'related' ? <Pressable style={{ position: 'absolute', right: 30 }} onPress={() => navigation.navigate('EpisodesMoreList', { firendlyId: subcat.friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>+MORE</Text></Pressable> : ""}
-
-                                </View> : ""}
-                            {isTablet ?
-                                <FlatList
-                                    data={subcat.thumbnails}
-                                    horizontal={true}
-                                    keyExtractor={(x, i) => i.toString()}
-                                    renderItem={(items, index) => {
-                                        if (subcat.display_title == 'Episodes') {
-                                            var episodeDate = new Date(items.item.date * 1000).toISOString().slice(0, 19).replace('T', ' ');
-                                            var splittedDate = episodeDate.split(" ");
-                                            var dateArray = splittedDate[0].split("-");
-                                        }
-                                        return (
-                                            <View style={{ marginBottom: 10 }} key={'innerkey' + index}>
-                                                <View>
-                                                    {VIDEO_TYPES.includes(items.item.theme) ?
-                                                        <Pressable onPress={() => navigation.navigate({ name: 'Episode', params: { seoUrl: items.item.seo_url }, key: { index } })}>
-                                                            <FastImage resizeMode={FastImage.resizeMode.stretch} key={'image' + index} style={styles.imageSectionHorizontalTab} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                        </Pressable>
-                                                        :
-                                                        <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.stretch} key={'image' + index} style={styles.imageSectionVerticalTab} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>
-                                                    }
-
-                                                    {VIDEO_TYPES.includes(items.item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
-                                                    {!items.item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                                </View>
-                                                <View style={VIDEO_TYPES.includes(items.item.theme) ?
-                                                    isTablet ?
-                                                        ""
-                                                        :
-                                                        { width: PAGE_WIDTH / 2.06 }
-
-                                                    :
-
-                                                    ""}>
-                                                    {subcat.display_title == 'Episodes' ?
-                                                        <View style={{ justifyContent: 'center', }}><Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 10 }}>{items.item.title} | {dateArray[2]}-{dateArray[1]}-{dateArray[0]}</Text></View> : ""
-                                                    }
-                                                </View>
-                                            </View>
-                                        )
-                                    }}
-                                ></FlatList>
-                                :
-                                <FlatList
-                                    data={subcat.thumbnails}
-                                    horizontal={true}
-                                    keyExtractor={(x, i) => i.toString()}
-                                    renderItem={(items, index) => {
-                                        if (subcat.display_title == 'Episodes') {
-                                            var episodeDate = new Date(items.item.date * 1000).toISOString().slice(0, 19).replace('T', ' ');
-                                            var splittedDate = episodeDate.split(" ");
-                                            var dateArray = splittedDate[0].split("-");
-                                        }
-                                        return (
-                                            <View style={{ marginBottom: 10 }} key={'innerkey' + index}>
-                                                <View>
-                                                    {VIDEO_TYPES.includes(items.item.theme) ?
-                                                        <Pressable onPress={() => navigation.navigate({ name: 'Episode', params: { seoUrl: items.item.seo_url }, key: { index } })}>
-                                                            <FastImage resizeMode={FastImage.resizeMode.cover} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                        </Pressable>
-                                                        :
-                                                        <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.cover} key={'image' + index} style={styles.imageSectionVertical} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>
-                                                    }
-
-                                                    {VIDEO_TYPES.includes(items.item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""}
-                                                    {!items.item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                                                </View>
-                                                <View style={VIDEO_TYPES.includes(items.item.theme) ? { width: PAGE_WIDTH / 2.06 } : ""}>
-                                                    {subcat.display_title == 'Episodes' ?
-                                                        <View style={{ justifyContent: 'center', }}><Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 12 }}>{items.item.title} | {dateArray[2]}-{dateArray[1]}-{dateArray[0]}</Text></View> : ""
-                                                    }
-                                                </View>
-                                            </View>
-                                        )
-                                    }}
-                                ></FlatList>
-                            }
-                        </View>
-                    )
-                })}
+            <View style={currentTab == item.name ? { flexDirection: 'row', borderBottomColor: TAB_COLOR, borderBottomWidth: 2 } : { flexDirection: 'row', }}>
+                <TouchableOpacity style={{ padding: 10, justifyContent: 'center', alignItems: 'center' }} onPress={() => getThumbnailImages(item.subcategoryurl, item.item_type, item.name, item.display_title, item.media_list, 1)}>
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: '500', marginRight: 20 }}>{item.display_title}</Text>
+                </TouchableOpacity>
             </View>
         )
     }
@@ -358,7 +468,6 @@ export default function Shows({ navigation, route }) {
                                 'Content-Type': 'application/json',
                             }
                         }).then(response => {
-                            console.log(JSON.stringify(response.data));
                             setratingdone(true);
                         }).catch(error => {
                             alert("Unable to rate the content. Please try again later.");
@@ -374,6 +483,37 @@ export default function Shows({ navigation, route }) {
         ]);
 
     }
+    const subcatrender = (item, index) => {
+        return (
+            <>
+                <Pressable style={VIDEO_TYPES.includes(item.item.item_type) ? { width: "100%", marginBottom: 20 } : { width: "33%", marginBottom: 20 }} onPress={() =>
+                    VIDEO_TYPES.includes(item.item.item_type) ?
+                        navigation.navigate({ name: 'Episode', params: { seoUrl: item.item.seo_url }, key: { index } })
+                        :
+                        navigation.navigate({ name: 'Shows', params: { seoUrl: item.item.seo_url }, key: { index } })
+
+                }>
+                    {VIDEO_TYPES.includes(item.item.item_type) ?
+                        <>
+                            <FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: item.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                            <View style={{ width: "100%", backgroundColor: DARKED_BORDER_COLOR, position: 'absolute', bottom: 0, borderRadius: 8, alignItems: 'flex-start', justifyContent: 'center', padding: 5 }}>
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: '500' }}>{item.item.title}</Text>
+                                <ReadMore numberOfLines={2} style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 12, fontWeight: '500' }} seeMoreText="" seeMoreStyle={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold' }}>
+                                    <Text style={{}}>{item.item.short_description}</Text>
+                                </ReadMore>
+                            </View>
+                        </>
+                        :
+                        <>
+                            <FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionVertical} source={{ uri: item.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                        </>
+                    }
+
+                </Pressable>
+            </>
+        )
+    }
+
     return (
         <View style={styles.mainContainer}>
             {loading ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator color={NORMAL_TEXT_COLOR} size={'large'}></ActivityIndicator></View> :
@@ -384,24 +524,24 @@ export default function Shows({ navigation, route }) {
                             <View
                                 style={
                                     isTablet ?
-                                        { height: 600, width: PAGE_WIDTH, }
+                                        { height: (PAGE_HEIGHT / 100) * 76, width: PAGE_WIDTH, }
                                         :
-                                        { height: 420, width: PAGE_WIDTH, }
+                                        { height: (PAGE_HEIGHT / 100) * 76, width: PAGE_WIDTH, }
                                 }
                             >
-                                <Pressable style={{ justifyContent: 'center', alignItems: 'center',width:"100%" }} onPress={() => navigation.navigate('Episode', { seoUrl: episodeSeoUrl, theme: 'video', showname: title, showcontentId: contentId })}>
-                                    <FastImage resizeMode={FastImage.resizeMode.cover} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={
+                                <Pressable style={{ justifyContent: 'center', alignItems: 'center', width: "100%" }} onPress={() => navigation.navigate('Episode', { seoUrl: episodeSeoUrl, theme: 'video', showname: title, showcontentId: contentId })}>
+                                    <FastImage resizeMode={FastImage.resizeMode.contain} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={
                                         isTablet ?
-                                            { width: '100%', height: 600 }
+                                            { width: PAGE_WIDTH, height: (PAGE_HEIGHT / 100) * 76, }
                                             :
-                                            { width: '100%', height: 420 }
+                                            { width: PAGE_WIDTH, height: (PAGE_HEIGHT / 100) * 76 }
                                     }></FastImage>
 
                                     <LinearGradient
                                         useAngle={true}
                                         angle={125}
                                         angleCenter={{ x: 0.5, y: 0.5 }}
-                                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
+                                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR, BUTTON_COLOR]}
                                         style={[styles.button]} >
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <FontAwesome5 name='play' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
@@ -440,7 +580,7 @@ export default function Shows({ navigation, route }) {
                                         <Text style={styles.detailsText}>{description}</Text>
                                     </ReadMore>
                                 </View>
-                                <View style={styles.options}>
+                                {/* <View style={styles.options}>
 
                                     <View style={styles.singleoption}>
                                         {ratingdone ?
@@ -473,61 +613,153 @@ export default function Shows({ navigation, route }) {
                                         }
 
                                     </View>
-                                </View>
+                                </View> */}
 
                             </View>
 
+                            <View style={{flexDirection:'row',justifyContent:'flex-start',alignItems:'flex-start',width:"100%",padding:10}}>
+                                <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',marginRight:50}}>
+                                    <TouchableOpacity onPress={shareOptions} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', width: 34, height: 34, borderRadius: 17, borderWidth: 2, borderColor: TAB_COLOR }}>
+                                        <MaterialCommunityIcons name="share-variant" size={20} color={NORMAL_TEXT_COLOR} />
+                                    </TouchableOpacity>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR,marginLeft:10 }}>Share</Text>
+                                </View>
+
+                                <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('Calendarscreen', { episodeUrl: episodeUrl })} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', width: 34, height: 34, borderRadius: 17, borderWidth: 2, borderColor: TAB_COLOR }}>
+                                        <MaterialCommunityIcons name="calendar-month" size={20} color={NORMAL_TEXT_COLOR} />
+                                    </TouchableOpacity>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR,marginLeft:10 }}>Filter By Date</Text>
+                                </View>
+                            </View>
                             <View style={{ width: "100%" }}>
                                 {seasons.length > 1 ?
                                     <>
-                                    <View style={{justifyContent:'center',alignItems:'center',marginTop:10}}>
-                                            <Text style={{fontSize:18,fontWeight:'500',color:NORMAL_TEXT_COLOR}}>SELECT SEASON</Text>
-                                    </View>
-                                    <FlatList
-                                        data={seasons}
-                                        horizontal={true}
-                                        renderItem={(item, index) => {
+                                        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                                            <Text style={{ fontSize: 18, fontWeight: '500', color: NORMAL_TEXT_COLOR }}>SELECT SEASON</Text>
+                                        </View>
+                                        <FlatList
+                                            data={seasons}
+                                            horizontal={true}
+                                            renderItem={(item, index) => {
 
-                                            return (
-                                                <>
-                                                    {selectTitle != item.item.title ?
-                                                        <Pressable key={'seasons' + index} onPress={() => movetoscreen(item.item.seo_url, index, item.item.title)}>
-                                                            <View style={{ borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, padding: 15 }}>
-                                                                <Text style={{ color: NORMAL_TEXT_COLOR,fontWeight:'500' }}>{item.item.title}</Text>
-                                                            </View>
-                                                        </Pressable>
-                                                        :
-                                                        <Pressable key={'seasons' + index} onPress={() => movetoscreen(item.item.seo_url, index, item.item.title)}>
-                                                            <View style={{ borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, padding: 15 }}>
-                                                                <Text style={{ color: TAB_COLOR,fontWeight:'500'  }}>{item.item.title}</Text>
-                                                            </View>
-                                                        </Pressable>
-                                                    }
-                                                </>
-                                            )
+                                                return (
+                                                    <>
+                                                        {selectTitle != item.item.title ?
+                                                            <Pressable key={'seasons' + index} onPress={() => movetoscreen(item.item.seo_url, index, item.item.title)}>
+                                                                <View style={{ borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, padding: 15 }}>
+                                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: '500' }}>{item.item.title}</Text>
+                                                                </View>
+                                                            </Pressable>
+                                                            :
+                                                            <Pressable key={'seasons' + index} onPress={() => movetoscreen(item.item.seo_url, index, item.item.title)}>
+                                                                <View style={{ borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, padding: 15 }}>
+                                                                    <Text style={{ color: TAB_COLOR, fontWeight: '500' }}>{item.item.title}</Text>
+                                                                </View>
+                                                            </Pressable>
+                                                        }
+                                                    </>
+                                                )
 
-                                        }}
-                                    />
+                                            }}
+                                        />
                                     </>
                                     : ""}
                             </View>
-
-                            <TouchableOpacity onPress={() => navigation.navigate('Calendarscreen', { episodeUrl: episodeUrl })} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', padding: 20 }}>
-                                <MaterialCommunityIcons name="calendar-month" size={20} color={NORMAL_TEXT_COLOR} />
-                                <Text style={{ fontSize: 13, color: NORMAL_TEXT_COLOR, fontWeight: 'bold' }}> FILTER BY DATE</Text>
-                            </TouchableOpacity>
                             <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', alignContent: 'flex-start', width: '100%' }}>
-
-                                {/* <Text style={{color:NORMAL_TEXT_COLOR}}>{JSON.stringify(subcategoryImages)}</Text> */}
-                                {subcategoryImages ? <FlatList
-                                    data={subcategoryImages}
+                                {subcategoryList ? <FlatList
+                                    data={subcategoryList}
                                     renderItem={renderSubcat}
+                                    horizontal={true}
                                     keyExtractor={(x, i) => i.toString()}
+                                    contentContainerStyle={{ width: "100%" }}
                                 /> : ""}
+                                <View style={{ borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, height: 5, width: "100%" }}></View>
+                                {!subcatLoading ?
+                                    <View style={{ width: "100%", }}>
+                                        {!tabDataLoading ?
+                                            <FlatList
+                                                keyExtractor={(x, i) => i.toString()}
+                                                contentContainerStyle={{}}
+                                                data={internalTabs}
+                                                horizontal={true}
+                                                renderItem={(item, index) => {
+                                                    return (
+                                                        <Pressable style={{ padding: 15 }} onPress={() => getTabData(item.item.display_title, item.item.seo_url, item.item.layout_type)}>
+                                                            <Text style={selectedTab == item.item.display_title ? { color: TAB_COLOR, fontSize: 14, fontWeight: '600' } : { color: NORMAL_TEXT_COLOR }}>{item.item.display_title}</Text>
+                                                        </Pressable>
+                                                    )
+                                                }}
+                                            />
+                                            :
+                                            <View style={{ justifyContent: 'center', alignItems: 'center', width: "100%", padding: 20 }}>
+                                                <ActivityIndicator size={'large'} color={NORMAL_TEXT_COLOR} />
+                                            </View>
 
+                                        }
+                                        {/* <Text style={{color:NORMAL_TEXT_COLOR}}>{JSON.stringify(subTabImages[0])}</Text> */}
+                                        <FlatList
+                                            data={subTabImages[0]}
+                                            keyExtractor={(x, i) => i.toString()}
+                                            contentContainerStyle={{ width: "100%", }}
+                                            renderItem={subcatrender}
+                                        />
+                                        {subcategoryImages.map((cat, i) => {
+                                            return (
+                                                <View key={{ i }} style={{ width: "100%", marginTop: 20 }}>
+                                                    {cat[0] ?
+                                                        <OptimizedFlatList
+                                                            data={cat[0].thumbnails}
+                                                            contentContainerStyle={VIDEO_TYPES.includes(itemType) ? { width: "100%", } : { width: "100%", flexDirection: 'row', flexWrap: 'wrap' }}
+                                                            keyExtractor={(x, i) => i.toString()}
+                                                            renderItem={subcatrender}
+                                                            initialNumToRender={5}
+                                                            maxToRenderPerBatch={10}
+                                                        />
+                                                        :
+                                                        <View style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }}>
+                                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>NO DATA AVAILABLE</Text>
+                                                        </View>
+                                                    }
+                                                </View>
+                                            )
+                                        })}
+                                    </View>
+                                    :
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', width: "100%", padding: 20 }}>
+                                        <ActivityIndicator size={'large'} color={NORMAL_TEXT_COLOR} />
+                                    </View>
+                                }
                             </View>
                         </View>
                     </ScrollView>
+
+                    <Modal
+                        isVisible={isModalVisible}
+                        testID={'modal'}
+                        animationIn="slideInDown"
+                        animationOut="slideOutDown"
+                        onBackdropPress={toggleModal}
+                        backdropColor={"black"}
+                        backdropOpacity={0.40}
+                    >
+                        <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR }}>
+                            {prefrence.map((pref, ind) => {
+                                return (
+                                    pref.display_name != "" ?
+                                        <TouchableOpacity key={'pref' + ind} onPress={() => { startDownloading(pref.playback_url, pref.offlineUrl, pref.downloaddirectory, pref.display_name) }}>
+                                            <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5 }}>
+                                                <Text style={{ color: NORMAL_TEXT_COLOR }}>{pref.display_name}</Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                        :
+                                        ""
+                                )
+                            })}
+                        </View>
+                    </Modal>
+
+
                     <StatusBar
                         animated
                         backgroundColor="transparent"
@@ -541,7 +773,7 @@ export default function Shows({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-    button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, width: "95%", position: 'absolute', bottom: 10, justifyContent: 'center', alignItems: 'center', borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
+    button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, width: "98%", position: 'absolute', bottom: 40, justifyContent: 'center', alignItems: 'center', borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
     playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
     crownIcon: { position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
     container: {
@@ -550,18 +782,17 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     mainContainer: { flex: 1, backgroundColor: BACKGROUND_COLOR },
-    bodyContent: { backgroundColor: BACKGROUND_COLOR },
+    bodyContent: { backgroundColor: BACKGROUND_COLOR, width: PAGE_WIDTH },
     headingLabel: { fontSize: 20, color: NORMAL_TEXT_COLOR, padding: 4, justifyContent: 'center', alignItems: 'center', width: "100%", borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, },
-    detailsText: { fontSize: 11, marginBottom: 5, color: DETAILS_TEXT_COLOR, padding: 4 },
+    detailsText: { fontSize: 12, marginBottom: 5, color: DETAILS_TEXT_COLOR, padding: 4 },
     options: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row', padding: 4 },
     singleoption: { width: "33.33%", alignItems: 'center', justifyContent: 'center', borderColor: DARKED_BORDER_COLOR, borderWidth: 1, height: 45 },
     marginContainer: { marginLeft: 5, marginRight: 5 },
     imageSectionHorizontal: {
-        width: PAGE_WIDTH / 2.06,
-        height: 117,
-        marginHorizontal: 3,
-        borderRadius: 10,
-        marginBottom: 10,
+        width: "100%",
+        height: actuatedNormalize(280),
+        borderRadius: 8,
+        marginBottom: 8,
         borderWidth: 1
     },
     sectionHeaderMore: {
@@ -570,11 +801,11 @@ const styles = StyleSheet.create({
         textAlign: 'right'
     },
     imageSectionVertical: {
-        width: PAGE_WIDTH / 3.15,
-        height: 170,
-        marginHorizontal: 3,
-        borderRadius: 10,
+        width: PAGE_WIDTH / 3.1,
+        height: actuatedNormalize(155),
+        borderRadius: 18,
         marginBottom: 10,
+        marginHorizontal: 1
 
     },
     imageSectionVerticalTab: {

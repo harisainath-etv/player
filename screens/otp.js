@@ -43,18 +43,18 @@ export default function Otp({ navigation, route }) {
         getData();
     })
     const triggersuccessanalytics = async (name, method, u_id, device_id) => {
-        await analytics().logEvent(name, {
+        sdk.trackEvent(name, {
             method: method,
             u_id: u_id,
             device_id: device_id
-        }).then(resp => { console.log(resp); }).catch(err => { console.log(err); })
+        });
     }
     const triggerfailureanalytics = async (name, error_type, method, device_id) => {
-        await analytics().logEvent(name, {
+        sdk.trackEvent(name, {
             error_type: error_type,
             method: method,
             device_id: device_id
-        }).then(resp => { console.log(resp); }).catch(err => { console.log(err); })
+        });
     }
 
     const verifyOtp = async () => {
