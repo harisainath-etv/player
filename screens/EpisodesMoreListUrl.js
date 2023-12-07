@@ -2,12 +2,11 @@ import * as React from 'react';
 import { useState, useEffect, useRef, } from 'react';
 import { View, FlatList, StyleSheet, Text, ActivityIndicator, Image, Pressable } from 'react-native';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, FIRETV_BASE_URL_STAGING, AUTH_TOKEN } from '../constants';
+import { BACKGROUND_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from './footer';
 import NormalHeader from './normalHeader';
-import { StackActions } from '@react-navigation/native';
 
 export const ElementsText = {
     AUTOPLAY: 'AutoPlay',
@@ -16,12 +15,10 @@ export const ElementsText = {
 var page = 'featured-1';
 var layout_type = LAYOUT_TYPES[0];
 var selectedItem = 0;
-var parent_id = "";
-function EpisodesMoreList({ navigation, route }) {
+function EpisodesMoreListUrl({ navigation, route }) {
     const [totalHomeData, settotalHomeData] = useState([]);
     { route.params ? page = route.params.firendlyId : page = '' }
     { route.params ? layout_type = route.params.layoutType : layout_type = LAYOUT_TYPES[0] }
-    { route.params ? parent_id = route.params.parent_id : parent_id = "" }
 
     const [pageName, setpageName] = useState(page);
     const dataFetchedRef = useRef(false);
@@ -40,14 +37,14 @@ function EpisodesMoreList({ navigation, route }) {
             var premiumCheckData = "";
             definedPageName = pageName;
             const region = await AsyncStorage.getItem('country_code');
-            const url = FIRETV_BASE_URL_STAGING +"catalog_lists/"+ pageName + ".gzip?item_language=eng&region=" + region + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10&auth_token="+AUTH_TOKEN+"&parent_id="+parent_id;
+            const url = pageName + "&item_language=eng&region=" + region + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
             const resp = await fetch(url);
             const data = await resp.json();
             setPagenumber(p + 1);
-            if (data.data.catalog_list_items.length > 0) {
-                for (var i = 0; i < data.data.catalog_list_items.length; i++) {
-                    if (data.data.catalog_list_items[i].hasOwnProperty('access_control')) {
-                        premiumCheckData = (data.data.catalog_list_items[i].access_control);
+            if (data.data.items.length > 0) {
+                for (var i = 0; i < data.data.items.length; i++) {
+                    if (data.data.items[i].hasOwnProperty('access_control')) {
+                        premiumCheckData = (data.data.items[i].access_control);
                         if (premiumCheckData != "") {
                             if (premiumCheckData['is_free']) {
                                 premiumContent = false;
@@ -57,23 +54,23 @@ function EpisodesMoreList({ navigation, route }) {
                             }
                         }
                     }
-                    var displayTitle = data.data.catalog_list_items[i].title
+                    var displayTitle = data.data.items[i].title
                     if (displayTitle.length > 19)
                         displayTitle = displayTitle.substr(0, 19) + "\u2026";
 
-                    if (data.data.catalog_list_items[i].media_list_in_list) {
-                        var splitted = data.data.catalog_list_items[i].seo_url.split("/");
+                    if (data.data.items[i].media_list_in_list) {
+                        var splitted = data.data.items[i].seo_url.split("/");
                         var friendlyId = splitted[splitted.length - 1];
-                        All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": friendlyId,"displayTitle":displayTitle });
+                        All.push({ "uri": data.data.items[i].list_item_object.banner_image, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist": data.data.items[i].media_list_in_list, "friendlyId": friendlyId,"displayTitle":displayTitle });
                     }
                     else {
 
-                        if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
+                        if (data.data.items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.items[i].thumbnails.hasOwnProperty('high_3_4')) {
                             if (layout_type == LAYOUT_TYPES[0])
-                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": "","displayTitle":displayTitle });
+                                All.push({ "uri": data.data.items[i].thumbnails.high_3_4.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist": data.data.items[i].media_list_in_list, "friendlyId": "","displayTitle":displayTitle });
                             else
                                 if (layout_type == LAYOUT_TYPES[1])
-                                    All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": "","displayTitle":displayTitle });
+                                    All.push({ "uri": data.data.items[i].thumbnails.high_4_3.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist": data.data.items[i].media_list_in_list, "friendlyId": "","displayTitle":displayTitle });
 
 
                         }
@@ -117,7 +114,7 @@ function EpisodesMoreList({ navigation, route }) {
                                             }
                                         }}>
                                             <FastImage
-                                                resizeMode={FastImage.resizeMode.contain}
+                                                resizeMode={FastImage.resizeMode.stretch}
                                                 style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
@@ -149,11 +146,11 @@ function EpisodesMoreList({ navigation, route }) {
                                                     navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                        navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
+                                                        navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
                                             }
                                         }}>
                                             <FastImage
-                                                resizeMode={FastImage.resizeMode.cover}
+                                                resizeMode={FastImage.resizeMode.stretch}
                                                 style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
@@ -194,7 +191,7 @@ function EpisodesMoreList({ navigation, route }) {
                 data={totalHomeData}
                 keyExtractor={(x, i) => i.toString()}
                 horizontal={false}
-                contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap' }}
+                contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap', }}
                 style={{ height: PAGE_HEIGHT,}}
                 renderItem={renderItem}
             /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} /></View>}
@@ -338,4 +335,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default EpisodesMoreList;
+export default EpisodesMoreListUrl;

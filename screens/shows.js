@@ -483,33 +483,40 @@ export default function Shows({ navigation, route }) {
         ]);
 
     }
-    const subcatrender = (item, index) => {
+    const subcatrender = ({ item, index }) => {
         return (
             <>
-                <Pressable style={VIDEO_TYPES.includes(item.item.item_type) ? { width: "100%", marginBottom: 20 } : { width: "33%", marginBottom: 20 }} onPress={() =>
-                    VIDEO_TYPES.includes(item.item.item_type) ?
-                        navigation.navigate({ name: 'Episode', params: { seoUrl: item.item.seo_url }, key: { index } })
+                <Pressable style={VIDEO_TYPES.includes(item.item_type) ? { width: "100%", marginBottom: 20 } : { width: "33%", marginBottom: 20 }} onPress={() =>
+                    VIDEO_TYPES.includes(item.item_type) ?
+                        navigation.navigate({ name: 'Episode', params: { seoUrl: item.seo_url }, key: { index } })
                         :
-                        navigation.navigate({ name: 'Shows', params: { seoUrl: item.item.seo_url }, key: { index } })
+                        navigation.navigate({ name: 'Shows', params: { seoUrl: item.seo_url }, key: { index } })
 
                 }>
-                    {VIDEO_TYPES.includes(item.item.item_type) ?
+                    {VIDEO_TYPES.includes(item.item_type) ?
                         <>
-                            <FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: item.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                            <FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                             <View style={{ width: "100%", backgroundColor: DARKED_BORDER_COLOR, position: 'absolute', bottom: 0, borderRadius: 8, alignItems: 'flex-start', justifyContent: 'center', padding: 5 }}>
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: '500' }}>{item.item.title}</Text>
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: '500' }}>{item.title}</Text>
                                 <ReadMore numberOfLines={2} style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 12, fontWeight: '500' }} seeMoreText="" seeMoreStyle={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold' }}>
-                                    <Text style={{}}>{item.item.short_description}</Text>
+                                    <Text style={{}}>{item.short_description}</Text>
                                 </ReadMore>
                             </View>
                         </>
                         :
                         <>
-                            <FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionVertical} source={{ uri: item.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                            <FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionVertical} source={{ uri: item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                         </>
                     }
 
                 </Pressable>
+                {subcategoryImages.length>0 ?
+                    index == (subcategoryImages[0][0].thumbnails.length - 1) && subcategoryImages[0][0].hasOwnProperty('friendlyId') ?
+                        <Pressable style={{ justifyContent: 'center', alignItems: 'center', marginTop: -20, marginBottom: 20, backgroundColor: DARKED_BORDER_COLOR, padding: 20 }} onPress={() => navigation.navigate('EpisodesMoreListUrl', { firendlyId: subcategoryImages[0][0].friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>Load more...</Text></Pressable>
+                        : ""
+                    : ""
+                }
+
             </>
         )
     }
@@ -617,19 +624,19 @@ export default function Shows({ navigation, route }) {
 
                             </View>
 
-                            <View style={{flexDirection:'row',justifyContent:'flex-start',alignItems:'flex-start',width:"100%",padding:10}}>
-                                <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',marginRight:50}}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start', width: "100%", padding: 10 }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginRight: 50 }}>
                                     <TouchableOpacity onPress={shareOptions} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', width: 34, height: 34, borderRadius: 17, borderWidth: 2, borderColor: TAB_COLOR }}>
                                         <MaterialCommunityIcons name="share-variant" size={20} color={NORMAL_TEXT_COLOR} />
                                     </TouchableOpacity>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR,marginLeft:10 }}>Share</Text>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 10 }}>Share</Text>
                                 </View>
 
-                                <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                     <TouchableOpacity onPress={() => navigation.navigate('Calendarscreen', { episodeUrl: episodeUrl })} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', width: 34, height: 34, borderRadius: 17, borderWidth: 2, borderColor: TAB_COLOR }}>
                                         <MaterialCommunityIcons name="calendar-month" size={20} color={NORMAL_TEXT_COLOR} />
                                     </TouchableOpacity>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR,marginLeft:10 }}>Filter By Date</Text>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 10 }}>Filter By Date</Text>
                                 </View>
                             </View>
                             <View style={{ width: "100%" }}>

@@ -47,6 +47,7 @@ import messaging from '@react-native-firebase/messaging';
 import queryString from 'query-string';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import Rate, { AndroidMarket } from 'react-native-rate';
+import EpisodesMoreListUrl from './screens/EpisodesMoreListUrl';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -501,6 +502,7 @@ export default function App() {
           <Stack.Screen name="HtmlWebview" component={HtmlWebview} options={{ header: () => null, }} />
           <Stack.Screen name="Menu" component={Menu} options={{ header: () => null, }} />
           <Stack.Screen name="HTMLRender" component={HTMLRender} options={{ header: () => null, }} />
+          <Stack.Screen name="EpisodesMoreListUrl" component={EpisodesMoreListUrl} options={{ header: () => null, }} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>
