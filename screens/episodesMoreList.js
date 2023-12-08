@@ -250,13 +250,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center',
-        marginBottom:80
+        marginBottom:20
     },
     sectionHeader: {
         color: HEADING_TEXT_COLOR,
         fontSize: 20,
         fontWeight: '400',
-        marginLeft: 20
+        marginLeft: 20,
+        marginTop:90
     },
     imageSectionHorizontal: {
         width: PAGE_WIDTH / 2.06,

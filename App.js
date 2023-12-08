@@ -37,7 +37,7 @@ import TransparentHeader from './screens/transparentHeader';
 import HtmlWebview from './screens/HtmlWebview';
 import HTMLRender from './screens/HTMLRender';
 import Menu from './screens/Menu';
-import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, ANDROID_PACKAGE_NAME, IOS_PACKAGE_NAME } from './constants';
+import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, ANDROID_PACKAGE_NAME, IOS_PACKAGE_NAME, VIDEO_TYPES } from './constants';
 import { View, Dimensions, Platform, Linking, Alert, Text, Image, StyleSheet } from 'react-native';
 import SplashScreen from 'react-native-splash-screen'
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -395,14 +395,20 @@ export default function App() {
     await AsyncStorage.setItem('tvLoginUrl', appConfigData.data.params_hash2.config_params.tv_login_url);
     // }
   }
+  const setAsynData = async (page, seourl, theme) => {
+    await AsyncStorage.setItem('notificationPage', page);
+    await AsyncStorage.setItem('notificationSeourl', seourl);
+    await AsyncStorage.setItem('notificationTheme', theme);
+  }
 
   React.useEffect(() => {
     loadDefaultData();
     gettoken();
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       var notficationData = (remoteMessage.data.data);
-      Alert.alert('A new FCM message arrived!', notficationData);
+      Alert.alert('Received New Notification', notficationData);
       console.log(JSON.stringify(notficationData));
+      VIDEO_TYPES.includes(remoteMessage.data.catalog_layout_type) ? setAsynData('Episode', remoteMessage.data.seo_url, remoteMessage.data.catalog_layout_type) : setAsynData('Shows', remoteMessage.data.seo_url, remoteMessage.data.catalog_layout_type)
     });
     return unsubscribe;
 
