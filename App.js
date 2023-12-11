@@ -128,6 +128,11 @@ export default function App() {
     const ipdetails = FIRETV_BASE_URL + "/regions/autodetect/ip.gzip?auth_token=" + AUTH_TOKEN;
     const ipResp = await fetch(ipdetails);
     const ipData = await ipResp.json();
+    sdk.userAttr.platform = Platform.OS;
+    sdk.userAttr.city= ipData.region.city_name;
+    sdk.userAttr.state= ipData.region.state;
+    sdk.userAttr.ip= ipData.region.ip;
+    sdk.userAttr.postal_code= ipData.region.postal_code;
     await AsyncStorage.setItem('requestIp', ipData.region.request)
     await AsyncStorage.setItem('ip', ipData.region.ip)
     await AsyncStorage.setItem('country_code', ipData.region.country_code2)

@@ -679,7 +679,7 @@ export default function Shows({ navigation, route }) {
                                     renderItem={renderSubcat}
                                     horizontal={true}
                                     keyExtractor={(x, i) => i.toString()}
-                                    contentContainerStyle={{ width: "100%" }}
+                                    contentContainerStyle={{  }}
                                 /> : ""}
                                 <View style={{ borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, height: 5, width: "100%" }}></View>
                                 {!subcatLoading ?
