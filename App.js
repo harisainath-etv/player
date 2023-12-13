@@ -157,7 +157,7 @@ export default function App() {
       await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.android_version.min_version);
       await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.android_version.force_upgrade);
       await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.android_version.message);
-      if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version || appConfigData.data.params_hash2.config_params.android_version.force_upgrade == true) {
+      if (APP_VERSION < appConfigData.data.params_hash2.config_params.android_version.min_version && appConfigData.data.params_hash2.config_params.android_version.force_upgrade == true) {
         alert(appConfigData.data.params_hash2.config_params.android_version.message);
         return true;
       }
@@ -168,7 +168,7 @@ export default function App() {
         await AsyncStorage.setItem('minVersion', appConfigData.data.params_hash2.config_params.ios_version.min_version);
         await AsyncStorage.setItem('forceUpdate', appConfigData.data.params_hash2.config_params.ios_version.force_upgrade);
         await AsyncStorage.setItem('forceUpdateMessage', appConfigData.data.params_hash2.config_params.ios_version.message);
-        if (APP_VERSION < appConfigData.data.params_hash2.config_params.ios_version.min_version || appConfigData.data.params_hash2.config_params.ios_version.force_upgrade == true) {
+        if (APP_VERSION < appConfigData.data.params_hash2.config_params.ios_version.min_version && appConfigData.data.params_hash2.config_params.ios_version.force_upgrade == true) {
           alert(appConfigData.data.params_hash2.config_params.ios_version.message);
           return true;
         }

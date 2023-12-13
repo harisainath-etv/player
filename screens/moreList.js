@@ -67,9 +67,9 @@ function MoreList({ navigation, route }) {
                     }
                     else {
 
-                        if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4')) {
+                        if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('medium_3_4')) {
                             if (layout_type == LAYOUT_TYPES[0])
-                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": "", "displayTitle": "" });
+                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.medium_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": "", "displayTitle": "" });
                             else
                                 if (layout_type == LAYOUT_TYPES[1])
                                     All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });

@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform, FlatList, Image } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform, FlatList, Image, TouchableWithoutFeedback } from 'react-native';
 import React, { useEffect, useState, createRef, useRef } from 'react';
 import * as NavigationBar from "expo-navigation-bar";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -25,6 +25,7 @@ import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, } from 're
 import DeviceInfo from 'react-native-device-info';
 import analytics from '@react-native-firebase/analytics';
 import FastImage from 'react-native-fast-image';
+import SwipeUpDown from 'react-native-swipe-up-down';
 var isTablet = DeviceInfo.isTablet();
 var relatedShows = [];
 export default function Episode({ navigation, route }) {
@@ -101,7 +102,11 @@ export default function Episode({ navigation, route }) {
   const [thumbImage, setThumbImage] = useState("");
   const [totalHomeData, settotalHomeData] = useState([]);
   const [currentFriendlyId, setCurrentFriendlyId] = useState("");
-  const [displayGuidelines,setDisplayGuidelines] = useState(true);
+  const [displayGuidelines, setDisplayGuidelines] = useState(true);
+  const [subcatcurrentTheme, setsubcatcurrentTheme] = useState("");
+  const [livetvshowstheme, setlivetvshowstheme] = useState("");
+  const swipeUpDownRef = useRef();
+
   var multiTapCount = 10;
   var multiTapDelay = 300;
   var client = useRemoteMediaClient();
@@ -279,21 +284,9 @@ export default function Episode({ navigation, route }) {
             setLoading(false);
           }
           )
-        if (response.data.data.theme == "movie") {
-          axios.get(FIRETV_BASE_URL_STAGING + "catalog_lists/movie-videolists?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&item_language=eng&region=" + region + "&parent_id=" + response.data.data.content_id).then(resp => {
-            for (var o = 0; o < resp.data.data.catalog_list_items.length; o++) {
-              var subcategorydata = [];
-              for (var s = 0; s < resp.data.data.catalog_list_items[o].catalog_list_items.length; s++) {
-                subcategorydata.push({ 'thumbnail': resp.data.data.catalog_list_items[o].catalog_list_items[s].thumbnails.high_4_3.url, 'title': resp.data.data.catalog_list_items[o].catalog_list_items[s].title, 'premium': resp.data.data.catalog_list_items[o].catalog_list_items[s].access_control.is_free, 'theme': resp.data.data.catalog_list_items[o].catalog_list_items[s].theme, 'seo_url': resp.data.data.catalog_list_items[o].catalog_list_items[s].seo_url, 'short_description': resp.data.data.catalog_list_items[o].catalog_list_items[s].description, 'item_type': resp.data.data.catalog_list_items[o].theme })
-              }
-              totalData.push({ 'display_title': resp.data.data.catalog_list_items[o].display_title, 'item_type': resp.data.data.catalog_list_items[o].theme, 'thumbnails': subcategorydata, 'friendlyId': resp.data.data.catalog_list_items[o].friendly_id, 'parent_id': response.data.data.content_id })
-              setsubcategoryImages([...subcategoryImages, totalData])
-            }
-          }).catch(err => {
-
-          })
-        }
         setCurrentFriendlyId(response.data.data.friendly_id)
+        setsubcatcurrentTheme(response.data.data.theme)
+        setlivetvshowstheme(passedtheme)
         if (passedtheme == 'live' || passedtheme == 'livetv') {
           axios.post(FIRETV_BASE_URL + "/get_all_shows?auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN, {
             friendly_id: response.data.data.friendly_id
@@ -337,7 +330,53 @@ export default function Episode({ navigation, route }) {
     if (lostTasks.length > 0)
       setIsresumeDownloading(true);
   }
+  const getlivetvshows = async () => {
+    console.log("hiiiioooooo");
+    var relatedShows = [];
+    await axios.post(FIRETV_BASE_URL + "/get_all_shows?auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN, {
+      friendly_id: currentFriendlyId
+    }).then(livetvshows => {
+      //console.log(JSON.stringify(livetvshows.data.resp));
+      if (livetvshows.data.resp.length >= 15)
+        var counter = 15;
+      else
+        var counter = livetvshows.data.resp.length;
+      for (var r = 0; r < counter; r++) {
+        relatedShows.push({ "catalog_id": livetvshows.data.resp[r].catalog_id, "content_id": livetvshows.data.resp[r].content_id, "title": livetvshows.data.resp[r].title, "image": livetvshows.data.resp[r].high_4_3.url, "desc": livetvshows.data.resp[r].description });
+      }
+      setRelatedShows(relatedShows);
+    }).catch(livetvshowserror => {
+      console.log(livetvshowserror);
+    })
 
+  }
+  const getsubcatDetails = async () => {
+    console.log("hi");
+    var totalData = [];
+    const region = await AsyncStorage.getItem('country_code');
+    await axios.get(FIRETV_BASE_URL_STAGING + "catalog_lists/movie-videolists?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&item_language=eng&region=" + region + "&parent_id=" + contentId).then(resp => {
+      if (resp.data.data.catalog_list_items.length > 10)
+        var len = 10;
+      else
+        var len = resp.data.data.catalog_list_items.length;
+
+      for (var o = 0; o < len; o++) {
+        var subcategorydata = [];
+        if (resp.data.data.catalog_list_items[o].catalog_list_items.length > 10)
+          var len1 = 10;
+        else
+          var len1 = resp.data.data.catalog_list_items[o].catalog_list_items.length;
+
+        for (var s = 0; s < len1; s++) {
+          subcategorydata.push({ 'thumbnail': resp.data.data.catalog_list_items[o].catalog_list_items[s].thumbnails.high_4_3.url, 'title': resp.data.data.catalog_list_items[o].catalog_list_items[s].title, 'premium': resp.data.data.catalog_list_items[o].catalog_list_items[s].access_control.is_free, 'theme': resp.data.data.catalog_list_items[o].catalog_list_items[s].theme, 'seo_url': resp.data.data.catalog_list_items[o].catalog_list_items[s].seo_url, 'short_description': resp.data.data.catalog_list_items[o].catalog_list_items[s].description, 'item_type': resp.data.data.catalog_list_items[o].theme })
+        }
+        totalData.push({ 'display_title': resp.data.data.catalog_list_items[o].display_title, 'item_type': resp.data.data.catalog_list_items[o].theme, 'thumbnails': subcategorydata, 'friendlyId': resp.data.data.catalog_list_items[o].friendly_id, 'parent_id': contentId })
+        setsubcategoryImages([...subcategoryImages, totalData])
+      }
+    }).catch(err => {
+      console.log(err);
+    })
+  }
 
   async function getLiveTvData() {
     var All = [];
@@ -553,9 +592,9 @@ export default function Episode({ navigation, route }) {
     else {
       navigationConfigVisible();
     }
-    setTimeout(function(){
+    setTimeout(function () {
       setDisplayGuidelines(false);
-    },5000);
+    }, 10000);
   })
   useEffect(() => {
     Orientation.getDeviceOrientation((orientation) => {
@@ -583,7 +622,7 @@ export default function Episode({ navigation, route }) {
       }
     })
     BackHandler.addEventListener('hardwareBackPress', exitScreen);
-  })
+  }, [subcatcurrentTheme, livetvshowstheme])
   function handleFullscreen() {
     setfullscreentap(!fullscreentap);
     Orientation.getOrientation((orientation) => {
@@ -854,8 +893,9 @@ export default function Episode({ navigation, route }) {
             'Content-Type': 'application/json',
           }
         }).then(response => {
-          // console.log(JSON.stringify(response.data));
+           console.log(JSON.stringify(response.data));
         }).catch(error => {
+          console.log(error);
         })
       }
     }
@@ -1127,18 +1167,18 @@ export default function Episode({ navigation, route }) {
                   </TouchableOpacity>
                   
                   {displayGuidelines && (
-                  <>
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold', position: 'absolute', top: 60, left: 20 }}>Rated : {contentRating}</Text>
-                    <View style={{ flexDirection: 'row', position: 'absolute', top: 85, left: 20 }}>
-                      {
-                        contentguidelines.map((sub, ind) => {
-                          return (
-                            <Text key={ind} style={{ color: NORMAL_TEXT_COLOR, fontSize: 10, fontWeight: 'bold', }}>{sub},</Text>
-                          )
-                        })
-                      }
-                    </View>
-                  </>)}
+                    <>
+                      <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold', position: 'absolute', top: 60, left: 20 }}>Rated : {contentRating}</Text>
+                      <View style={{ flexDirection: 'row', position: 'absolute', top: 85, left: 20 }}>
+                        {
+                          contentguidelines.map((sub, ind) => {
+                            return (
+                              <Text key={ind} style={{ color: NORMAL_TEXT_COLOR, fontSize: 10, fontWeight: 'bold', }}>{sub},</Text>
+                            )
+                          })
+                        }
+                      </View>
+                    </>)}
 
                   {showsettingsicon ?
                     <TouchableOpacity
@@ -1413,16 +1453,6 @@ export default function Episode({ navigation, route }) {
             </>
             :
             ""}
-          {
-            (passedtheme != 'live' && passedtheme != 'livetv' && subcategoryImages && !fullscreen) ?
-              <FlatList
-                data={subcategoryImages}
-                renderItem={renderSubcat}
-                keyExtractor={(x, i) => i.toString()}
-                contentContainerStyle={{ marginTop: 30 }}
-              />
-              :
-              ""}
 
           <Modal
             isVisible={isModalVisible}
@@ -1491,6 +1521,51 @@ export default function Episode({ navigation, route }) {
           />
         </View>
       </ScrollView>
+      {subcatcurrentTheme == 'movie' ? 
+      <SwipeUpDown
+        ref={swipeUpDownRef}
+        itemMini={(show) => (
+          <View
+            style={{
+              alignItems: "center",
+            }}
+          >
+            <Text onPress={show} style={{
+              color: NORMAL_TEXT_COLOR, fontWeight: '500'
+              , fontSize: 20
+            }}>Load More...</Text>
+          </View>
+        )}
+        itemFull={(close) => (
+            <TouchableWithoutFeedback>
+              {
+                (passedtheme != 'live' && passedtheme != 'livetv' && subcategoryImages && !fullscreen) ?
+                  <FlatList
+                    data={subcategoryImages}
+                    renderItem={renderSubcat}
+                    keyExtractor={(x, i) => i.toString()}
+                    contentContainerStyle={{ marginTop: 30 }}
+                  />
+                  :
+                  ""}
+            </TouchableWithoutFeedback>
+        )}
+        onShowMini={() => {
+          setsubcategoryImages([])
+        }}
+        onShowFull={() => {
+          if (subcatcurrentTheme == 'movie') {
+            getsubcatDetails()
+          }
+        }}
+        animation="spring"
+        extraMarginTop={25}
+        style={{ backgroundColor: DARKED_BORDER_COLOR, flex: 1 }}
+        iconColor={TAB_COLOR}
+      />
+      :""}
+
+
     </View>
   );
 }

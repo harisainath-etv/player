@@ -69,6 +69,9 @@ function Home({ navigation, route }) {
     const [pageName, setpageName] = useState(page);
     const [isVertical, setIsVertical] = useState(false);
     const [autoPlay, setAutoPlay] = useState(true);
+    const [tvshowsautoPlay, settvshowsautoPlay] = useState(true);
+    const [exclusiveautoPlay, setexclusiveautoPlay] = useState(true);
+    const [bannerautoPlay, setbannerautoPlay] = useState(true);
     const [pagingEnabled, setPagingEnabled] = useState(true);
     const [snapEnabled, setSnapEnabled] = useState(true);
     const [currentIndexValue, setcurrentIndexValue] = useState(0);
@@ -130,6 +133,7 @@ function Home({ navigation, route }) {
         const notificationPage = await AsyncStorage.getItem('notificationPage');
         const notificationSeourl = await AsyncStorage.getItem('notificationSeourl');
         const notificationTheme = await AsyncStorage.getItem('notificationTheme');
+        await AsyncStorage.getItem("loaded");
         if (notificationPage != "" && notificationPage != null && notificationSeourl != null && notificationSeourl != null && notificationTheme != null && notificationTheme != null) {
             await AsyncStorage.removeItem('notificationPage');
             await AsyncStorage.removeItem('notificationSeourl');
@@ -215,9 +219,9 @@ function Home({ navigation, route }) {
                                     if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
                                         if (data.data.catalog_list_items[i].layout_type == "top_banner") {
                                             if (isTablet)
-                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_16_9.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id,"title_image_display":data.data.catalog_list_items[i].catalog_list_items[j].title_image_display,"title_image":data.data.catalog_list_items[i].catalog_list_items[j].title_image });
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_16_9.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id, "title_image_display": data.data.catalog_list_items[i].catalog_list_items[j].title_image_display, "title_image": data.data.catalog_list_items[i].catalog_list_items[j].title_image });
                                             else
-                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id,"title_image_display":data.data.catalog_list_items[i].catalog_list_items[j].title_image_display,"title_image":data.data.catalog_list_items[i].catalog_list_items[j].title_image });
+                                                All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id, "title_image_display": data.data.catalog_list_items[i].catalog_list_items[j].title_image_display, "title_image": data.data.catalog_list_items[i].catalog_list_items[j].title_image });
                                         }
                                         else
                                             if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show" || data.data.catalog_list_items[i].layout_type == "movie_poster") {
@@ -307,10 +311,10 @@ function Home({ navigation, route }) {
                 if (Final.length <= 0)
                     settoload(false);
                 //settotalHomeData(Final);
-                if(!refreshing)
-                settotalHomeData((totalHomeData) => [...totalHomeData, ...Final]);
+                if (!refreshing)
+                    settotalHomeData((totalHomeData) => [...totalHomeData, ...Final]);
                 else
-                settotalHomeData(Final);
+                    settotalHomeData(Final);
                 setloading(false)
             }
             //offline downloads
@@ -529,6 +533,10 @@ function Home({ navigation, route }) {
 
     const naviagtetopage = async (page, url, theme) => {
         settotalHomeData([]);
+        setAutoPlay(false);
+        settvshowsautoPlay(false);
+        setexclusiveautoPlay(false);
+        setbannerautoPlay(false);
         navigation.navigate(page, { seoUrl: url, theme: theme })
     }
 
@@ -587,7 +595,7 @@ function Home({ navigation, route }) {
                                 snapEnabled={snapEnabled}
                                 autoPlay={autoPlay}
                                 autoPlayInterval={5000}
-                                modeConfig={{snapDirection: 'left',moveSize: window.width,stackInterval: 30,scaleInterval: 0.08,rotateZDeg: 135}}
+                                modeConfig={{ snapDirection: 'left', moveSize: window.width, stackInterval: 30, scaleInterval: 0.08, rotateZDeg: 135 }}
                                 onProgressChange={(_, absoluteProgress) => {
                                     (progressValue.value = absoluteProgress)
                                     setSliderKey(Math.trunc(absoluteProgress));
@@ -607,8 +615,14 @@ function Home({ navigation, route }) {
                                 renderItem={({ item, index, animationValue }) =>
 
 
-                                    <View style={{ height: (PAGE_HEIGHT / 100) * 76, width: "100%" }}>
+                                    <View style={{ height: (PAGE_HEIGHT / 100) * 76, width: "100%",justifyContent:'center',alignItems:'center' }}>
                                         <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.contain} key={index} style={[{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, width: "100%", height: (PAGE_HEIGHT / 100) * 76 }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                        
+                                        {item.title_image_display == true || item.title_image_display == "true" || item.title_image_display == 1 ?
+                                            <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.contain} key={"title"+index} style={[{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, width: PAGE_WIDTH - 150, height: 150,position:'absolute',bottom:30 }]} source={{ uri: item.title_image, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+
+                                            : ""}
+
                                     </View>
 
 
@@ -619,10 +633,6 @@ function Home({ navigation, route }) {
                             <View style={styles.buttonsContainer}>
                                 {/* <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500', position: 'absolute', bottom: 80, }}>{JSON.stringify(item.data[sliderKey].genres).toUpperCase().split('["').join(".").split('"]').join("").split('","').join("  .").split("_").join(" ")}</Text> */}
                                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold', position: 'absolute', bottom: 60, }}>
-                                    {item.data[sliderKey].title_image_display==true || item.data[sliderKey].title_image_display=="true" || item.data[sliderKey].title_image_display==1?
-                                    <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.contain} key={index} style={[{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, width: PAGE_WIDTH-150,height:150 }]} source={{ uri: item.data[sliderKey].title_image, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-
-                                    :""}
                                     {/* <FontAwesome5 size={11} color={TAB_COLOR} names="grip-lines-vertical" /> {item.data[sliderKey].displayTitle} */}
                                 </Text>
                                 <View style={styles.buttonsPosition}>
@@ -680,7 +690,7 @@ function Home({ navigation, route }) {
                             loop
                             pagingEnabled={pagingEnabled}
                             snapEnabled={snapEnabled}
-                            autoPlay={page == 'featured-1' ? !autoPlay : autoPlay}
+                            autoPlay={page == 'featured-1' ? !tvshowsautoPlay : tvshowsautoPlay}
                             autoPlayInterval={2000}
                             onProgressChange={(_, absoluteProgress) =>
                                 (progressValue1.value = absoluteProgress)
@@ -721,7 +731,7 @@ function Home({ navigation, route }) {
                                 loop
                                 pagingEnabled={pagingEnabled}
                                 snapEnabled={snapEnabled}
-                                autoPlay={page == 'featured-1' ? !autoPlay : autoPlay}
+                                autoPlay={page == 'featured-1' ? !exclusiveautoPlay : exclusiveautoPlay}
                                 autoPlayInterval={2000}
                                 onProgressChange={(_, absoluteProgress) =>
                                     (progressValue2.value = absoluteProgress)
@@ -754,7 +764,7 @@ function Home({ navigation, route }) {
                                 loop
                                 pagingEnabled={pagingEnabled}
                                 snapEnabled={snapEnabled}
-                                autoPlay={page == 'featured-1' ? !autoPlay : autoPlay}
+                                autoPlay={page == 'featured-1' ? !bannerautoPlay : bannerautoPlay}
                                 autoPlayInterval={2000}
                                 onProgressChange={(_, absoluteProgress) =>
                                     (progressValue3.value = absoluteProgress)
@@ -1315,7 +1325,7 @@ function Home({ navigation, route }) {
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         setTimeout(() => {
-            navigation.dispatch(StackActions.replace('Home',{pageFriendlyId:'featured-1'}))
+            navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
             setRefreshing(false);
         }, 1000);
     }, []);
@@ -1327,16 +1337,16 @@ function Home({ navigation, route }) {
 
     //     }, [totalHomeData])
     // );
-    useEffect(()=>{
+    useEffect(() => {
         // if (dataFetchedRef.current) return;
-            // dataFetchedRef.current = true;
-            getTopMenu();
-            loadData(0);
-            if (selectedItem == "") {
-                selectedItem = 0;
-            }
-            LogBox.ignoreLogs(['`new NativeEventEmitter()` was called with a non-null']);
-    },[totalHomeData])
+        // dataFetchedRef.current = true;
+        getTopMenu();
+        loadData(0);
+        if (selectedItem == "") {
+            selectedItem = 0;
+        }
+        LogBox.ignoreLogs(['`new NativeEventEmitter()` was called with a non-null']);
+    }, [totalHomeData])
 
     const memoizedValue = useMemo(() => renderItem, [totalHomeData]);
     const loadFilters = async () => {
@@ -1354,25 +1364,25 @@ function Home({ navigation, route }) {
 
             {/* body content */}
             {totalHomeData ?
-                
-                    <FlatList
-                        data={totalHomeData}
-                        keyExtractor={(x, i) => i.toString()}
-                        horizontal={false}
-                        onEndReached={loadNextData}
-                        onScroll={(resp) => {
-                            if (resp.nativeEvent.contentOffset.y != 0)
-                                setmenubgColor(BACKGROUND_TRANSPARENT_COLOR_MENU)
-                            else {
-                                setmenubgColor(BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU);
-                            }
-                        }}
-                        contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap', }}
-                        style={{ height: PAGE_HEIGHT }}
-                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-                        renderItem={renderItem}
-                    />
-                 : ""}
+
+                <FlatList
+                    data={totalHomeData}
+                    keyExtractor={(x, i) => i.toString()}
+                    horizontal={false}
+                    onEndReached={loadNextData}
+                    onScroll={(resp) => {
+                        if (resp.nativeEvent.contentOffset.y != 0)
+                            setmenubgColor(BACKGROUND_TRANSPARENT_COLOR_MENU)
+                        else {
+                            setmenubgColor(BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU);
+                        }
+                    }}
+                    contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap', }}
+                    style={{ height: PAGE_HEIGHT }}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    renderItem={renderItem}
+                />
+                : ""}
             {/* header menu */}
             <View style={{ left: "50%", position: 'absolute', zIndex: 10000, top: '50%' }}>
                 {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} style={{}}></ActivityIndicator> : ""}
