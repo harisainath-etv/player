@@ -56,11 +56,19 @@ const useInitialURL = () => {
   const [url, setUrl] = React.useState(null);
   const [processing, setProcessing] = React.useState(true);
 
+  // React.useEffect(() => {
+  //   const callback = url => setUrl(url.url);
+  //   Linking.addEventListener('url', callback);
+  //   return () => {
+  //     Linking.removeEventListener('url', callback);
+  //   };
+  // }, []);
+
+
   React.useEffect(() => {
     const getUrlAsync = async () => {
       // Get the deep link used to open the app
       const initialUrl = await Linking.getInitialURL();
-
       // The setTimeout is just for testing purpose
       if (initialUrl != "" && initialUrl != null && initialUrl != 'null') {
         setTimeout(() => {
@@ -70,6 +78,11 @@ const useInitialURL = () => {
           const parsed = queryString.parseUrl(initialUrl);
           if (parsed.query.device_code != "" && parsed.query.device_code != null && parsed.query.device_code != 'null')
             activateTv(parsed.query.device_code)
+          if(parsed.query.source != "" && parsed.query.source != null && parsed.query.source != 'null' && parsed.query.token != "" && parsed.query.token != null && parsed.query.token != 'null')
+          {
+            
+          }
+
         }, 1000);
       }
     };
@@ -472,11 +485,19 @@ export default function App() {
 
     );
   }
+  const linking = {
+    prefixes: ['hari://staging.etvwin.com'],
+    config: {
+      screens: {},
+    },
+  };
+
+
 
 
   return (
     <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
-      <NavigationContainer>
+      <NavigationContainer linking={linking}>
         <Stack.Navigator screenOptions={{ presentation: 'transparentModal', backgroundColor: BACKGROUND_COLOR }}>
           <Stack.Screen name="FrontProfile" component={FrontProfile} options={{ header: () => null, }} />
           <Stack.Screen name="Home" component={Home} options={{ header: () => null, }} />
