@@ -47,6 +47,7 @@ import {
   ACCESS_TOKEN,
   ANDROID_PACKAGE_NAME,
   IOS_PACKAGE_NAME,
+  VIDEO_TYPES,
 } from "./constants";
 import {
   View,
@@ -70,6 +71,7 @@ import {
   DrawerItemList,
 } from "@react-navigation/drawer";
 import Rate, { AndroidMarket } from "react-native-rate";
+import EpisodesMoreListUrl from "./screens/EpisodesMoreListUrl";
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -158,6 +160,11 @@ export default function App() {
       FIRETV_BASE_URL + "/regions/autodetect/ip.gzip?auth_token=" + AUTH_TOKEN;
     const ipResp = await fetch(ipdetails);
     const ipData = await ipResp.json();
+    sdk.userAttr.platform = Platform.OS;
+    sdk.userAttr.city = ipData.region.city_name;
+    sdk.userAttr.state = ipData.region.state;
+    sdk.userAttr.ip = ipData.region.ip;
+    sdk.userAttr.postal_code = ipData.region.postal_code;
     await AsyncStorage.setItem("requestIp", ipData.region.request);
     await AsyncStorage.setItem("ip", ipData.region.ip);
     await AsyncStorage.setItem("country_code", ipData.region.country_code2);
@@ -218,7 +225,7 @@ export default function App() {
       if (
         APP_VERSION <
           appConfigData.data.params_hash2.config_params.android_version
-            .min_version ||
+            .min_version &&
         appConfigData.data.params_hash2.config_params.android_version
           .force_upgrade == true
       ) {
@@ -248,7 +255,7 @@ export default function App() {
       if (
         APP_VERSION <
           appConfigData.data.params_hash2.config_params.ios_version
-            .min_version ||
+            .min_version &&
         appConfigData.data.params_hash2.config_params.ios_version
           .force_upgrade == true
       ) {
@@ -775,14 +782,30 @@ export default function App() {
     );
     // }
   };
+  const setAsynData = async (page, seourl, theme) => {
+    await AsyncStorage.setItem("notificationPage", page);
+    await AsyncStorage.setItem("notificationSeourl", seourl);
+    await AsyncStorage.setItem("notificationTheme", theme);
+  };
 
   React.useEffect(() => {
     loadDefaultData();
     gettoken();
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
       var notficationData = remoteMessage.data.data;
-      Alert.alert("A new FCM message arrived!", notficationData);
+      Alert.alert("Received New Notification", notficationData);
       console.log(JSON.stringify(notficationData));
+      VIDEO_TYPES.includes(remoteMessage.data.catalog_layout_type)
+        ? setAsynData(
+            "Episode",
+            remoteMessage.data.seo_url,
+            remoteMessage.data.catalog_layout_type
+          )
+        : setAsynData(
+            "Shows",
+            remoteMessage.data.seo_url,
+            remoteMessage.data.catalog_layout_type
+          );
     });
     return unsubscribe;
   });
@@ -884,7 +907,6 @@ export default function App() {
             component={Home}
             options={{ header: () => null }}
           />
-
           <Stack.Screen
             name="News"
             component={News}
@@ -1048,6 +1070,11 @@ export default function App() {
           <Stack.Screen
             name="HTMLRender"
             component={HTMLRender}
+            options={{ header: () => null }}
+          />
+          <Stack.Screen
+            name="EpisodesMoreListUrl"
+            component={EpisodesMoreListUrl}
             options={{ header: () => null }}
           />
         </Stack.Navigator>

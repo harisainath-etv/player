@@ -2,12 +2,11 @@ import * as React from 'react';
 import { useState, useEffect, useRef, } from 'react';
 import { View, FlatList, StyleSheet, Text, ActivityIndicator, Image, Pressable } from 'react-native';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
+import { BACKGROUND_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from './footer';
 import NormalHeader from './normalHeader';
-
 
 export const ElementsText = {
     AUTOPLAY: 'AutoPlay',
@@ -16,10 +15,11 @@ export const ElementsText = {
 var page = 'featured-1';
 var layout_type = LAYOUT_TYPES[0];
 var selectedItem = 0;
-function MoreList({ navigation, route }) {
+function EpisodesMoreListUrl({ navigation, route }) {
     const [totalHomeData, settotalHomeData] = useState([]);
-    { route.params ? page = route.params.firendlyId : page = 'featured-1' }
+    { route.params ? page = route.params.firendlyId : page = '' }
     { route.params ? layout_type = route.params.layoutType : layout_type = LAYOUT_TYPES[0] }
+
     const [pageName, setpageName] = useState(page);
     const dataFetchedRef = useRef(false);
     const paginationLoadCount = 18;
@@ -35,19 +35,16 @@ function MoreList({ navigation, route }) {
             var definedPageName = "";
             var premiumContent = false;
             var premiumCheckData = "";
-            if (pageName == 'featured-1')
-                definedPageName = "home";
-            else
-                definedPageName = pageName;
+            definedPageName = pageName;
             const region = await AsyncStorage.getItem('country_code');
-            const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
+            const url = pageName + "&item_language=eng&region=" + region + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
             const resp = await fetch(url);
             const data = await resp.json();
             setPagenumber(p + 1);
-            if (data.data.catalog_list_items.length > 0) {
-                for (var i = 0; i < data.data.catalog_list_items.length; i++) {
-                    if (data.data.catalog_list_items[i].hasOwnProperty('access_control')) {
-                        premiumCheckData = (data.data.catalog_list_items[i].access_control);
+            if (data.data.items.length > 0) {
+                for (var i = 0; i < data.data.items.length; i++) {
+                    if (data.data.items[i].hasOwnProperty('access_control')) {
+                        premiumCheckData = (data.data.items[i].access_control);
                         if (premiumCheckData != "") {
                             if (premiumCheckData['is_free']) {
                                 premiumContent = false;
@@ -57,22 +54,23 @@ function MoreList({ navigation, route }) {
                             }
                         }
                     }
-                    var displayTitle = data.data.catalog_list_items[i].title
+                    var displayTitle = data.data.items[i].title
                     if (displayTitle.length > 19)
                         displayTitle = displayTitle.substr(0, 19) + "\u2026";
-                    if (data.data.catalog_list_items[i].media_list_in_list) {
-                        var splitted = data.data.catalog_list_items[i].seo_url.split("/");
+
+                    if (data.data.items[i].media_list_in_list) {
+                        var splitted = data.data.items[i].seo_url.split("/");
                         var friendlyId = splitted[splitted.length - 1];
-                        All.push({ "uri": data.data.catalog_list_items[i].list_item_object.banner_image, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": friendlyId, "displayTitle": "" });
+                        All.push({ "uri": data.data.items[i].list_item_object.banner_image, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist": data.data.items[i].media_list_in_list, "friendlyId": friendlyId,"displayTitle":displayTitle });
                     }
                     else {
 
-                        if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('medium_3_4')) {
+                        if (data.data.items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.items[i].thumbnails.hasOwnProperty('high_3_4')) {
                             if (layout_type == LAYOUT_TYPES[0])
-                                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.medium_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": "", "displayTitle": "" });
+                                All.push({ "uri": data.data.items[i].thumbnails.high_3_4.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist": data.data.items[i].media_list_in_list, "friendlyId": "","displayTitle":displayTitle });
                             else
                                 if (layout_type == LAYOUT_TYPES[1])
-                                    All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": "", "displayTitle": displayTitle });
+                                    All.push({ "uri": data.data.items[i].thumbnails.high_4_3.url, "theme": data.data.items[i].theme, "premium": premiumContent, "seoUrl": data.data.items[i].seo_url, "medialistinlist": data.data.items[i].media_list_in_list, "friendlyId": "","displayTitle":displayTitle });
 
 
                         }
@@ -83,6 +81,7 @@ function MoreList({ navigation, route }) {
                 setDisplayTitle(data.data.display_title);
                 All = [];
             }
+
             if (Final.length <= 0)
                 settoload(false);
             settotalHomeData(totalHomeData => [...totalHomeData, ...Final]);
@@ -98,10 +97,10 @@ function MoreList({ navigation, route }) {
                             data={item.data}
                             keyExtractor={(x, i) => i.toString()}
                             horizontal={false}
-                            numColumns={3}
                             onEndReached={loadNextData}
                             showsHorizontalScrollIndicator={false}
                             style={styles.containerMargin}
+                            numColumns={3}
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
@@ -115,8 +114,8 @@ function MoreList({ navigation, route }) {
                                             }
                                         }}>
                                             <FastImage
-                                                resizeMode={FastImage.resizeMode.contain}
-                                                style={[styles.imageSectionVertical]}
+                                                resizeMode={FastImage.resizeMode.stretch}
+                                                style={[styles.imageSectionVertical, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
@@ -136,11 +135,11 @@ function MoreList({ navigation, route }) {
                             horizontal={false}
                             onEndReached={loadNextData}
                             showsHorizontalScrollIndicator={false}
-                            style={styles.containerMargin}
                             numColumns={2}
+                            style={styles.containerMargin}
                             renderItem={
                                 ({ item, index }) =>
-                                    <View style={{ width: PAGE_WIDTH / 2.06, }}>
+                                    <View style={{ width: PAGE_WIDTH / 2.06,}}>
                                         <Pressable onPress={() => {
                                             {
                                                 item.medialistinlist ?
@@ -151,17 +150,13 @@ function MoreList({ navigation, route }) {
                                             }
                                         }}>
                                             <FastImage
-                                                resizeMode={FastImage.resizeMode.contain}
-                                                style={[styles.imageSectionHorizontal]}
+                                                resizeMode={FastImage.resizeMode.stretch}
+                                                style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                         </Pressable>
-                                        {item.displayTitle != "" && item.displayTitle != null ?
-                                            <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center', marginBottom: 12 }}>{item.displayTitle}</Text>
-                                            :
-                                            ""
-                                        }
+                                        <Text style={{color:NORMAL_TEXT_COLOR,alignSelf:'center',marginBottom:20}}>{item.displayTitle}</Text>
                                     </View>
                             }
                         />
@@ -184,8 +179,9 @@ function MoreList({ navigation, route }) {
     return (
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR, }}>
 
-            <NormalHeader></NormalHeader>
+
             <View style={styles.sectionHeaderView}>
+                <NormalHeader></NormalHeader>
                 <Text style={styles.sectionHeader}>{displayTitle}</Text>
             </View>
 
@@ -195,16 +191,16 @@ function MoreList({ navigation, route }) {
                 data={totalHomeData}
                 keyExtractor={(x, i) => i.toString()}
                 horizontal={false}
-                contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap' }}
-                style={{ height: PAGE_HEIGHT }}
+                contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap', }}
+                style={{ height: PAGE_HEIGHT,}}
                 renderItem={renderItem}
             /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} /></View>}
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} ></ActivityIndicator> : ""}
             </View>
-            {/* <Footer
+            <Footer
                 pageName={page}
-            ></Footer> */}
+            ></Footer>
             <StatusBar
                 animated
                 backgroundColor="transparent"
@@ -251,7 +247,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center',
-        marginTop:100 
+        marginBottom:80
     },
     sectionHeader: {
         color: HEADING_TEXT_COLOR,
@@ -264,7 +260,7 @@ const styles = StyleSheet.create({
         height: 117,
         marginHorizontal: 3,
         borderRadius: 10,
-        marginBottom: 5,
+        marginBottom: 10,
         borderWidth: 1
     },
     imageSectionHorizontalSingle: {
@@ -339,4 +335,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default MoreList;
+export default EpisodesMoreListUrl;

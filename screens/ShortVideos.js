@@ -295,13 +295,13 @@ export default function Shorts({ navigation }) {
                 renderItem={renderItem}
                 pagingEnabled
             />
-            <Footer pageName="SHORTS" />
             <StatusBar
                 animated
                 backgroundColor="transparent"
                 barStyle="dark-content"
                 translucent={true}
             />
+            {/* <Footer pageName="SHORTS" /> */}
         </View>
     )
 }
