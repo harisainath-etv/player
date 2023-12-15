@@ -1,6 +1,6 @@
 import { View, FlatList, Pressable, StyleSheet, StatusBar, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, VIDEO_AUTH_TOKEN } from '../constants'
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, COMMON_BASE_URL, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, VIDEO_AUTH_TOKEN } from '../constants'
 import TransparentHeader from './transparentHeader';
 import Video from 'react-native-video';
 import axios from 'axios';
@@ -44,6 +44,26 @@ export default function Shorts({ navigation }) {
     const getData = async () => {
         const region = await AsyncStorage.getItem('country_code');
         var sessionId = await AsyncStorage.getItem('session');
+        const shortContent = await AsyncStorage.getItem("shortContent");
+        if (shortContent != "" && shortContent != null) {
+            const url = shortContent + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
+            console.log(url);
+            await AsyncStorage.removeItem("shortContent");
+
+            axios.get(url).then(response => {
+                var currentTimestamp = Math.floor(Date.now() / 1000).toString();
+                if (sessionId == null)
+                    sessionId = "";
+                var md5String = stringMd5(response.data.data.catalog_id + response.data.data.content_id + sessionId + currentTimestamp + SECRET_KEY)
+                var likecontent = false;
+                setlikecontent(false);
+                getDetails(response.data.data.catalog_id, response.data.data.content_id, currentTimestamp, md5String, COMMON_BASE_URL + response.data.data.seo_url, response.data.data.title, likecontent, response.data.data.shorts_full_video_details.catalog_id, response.data.data.shorts_full_video_details.content_id);
+            }).catch(error => {
+                console.log("forloop" + error);
+            })
+
+        }
+
 
         axios.get(FIRETV_BASE_URL_STAGING + "catalog_lists/shorts-data?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&page=" + startindex + "&page_size=" + limit).then(resp => {
             for (var s = 0; s < resp.data.data.catalog_list_items.length; s++) {
@@ -94,7 +114,7 @@ export default function Shorts({ navigation }) {
                 var md5String = stringMd5(response.data.data.catalog_id + response.data.data.content_id + sessionId + currentTimestamp + SECRET_KEY)
                 var likecontent = false;
                 setlikecontent(false);
-                getDetails(response.data.data.catalog_id, response.data.data.content_id, currentTimestamp, md5String, response.data.data.dynamic_url, response.data.data.title, likecontent, response.data.data.shorts_full_video_details.catalog_id, response.data.data.shorts_full_video_details.content_id);
+                getDetails(response.data.data.catalog_id, response.data.data.content_id, currentTimestamp, md5String, COMMON_BASE_URL + response.data.data.seo_url, response.data.data.title, likecontent, response.data.data.shorts_full_video_details.catalog_id, response.data.data.shorts_full_video_details.content_id);
             }).catch(error => {
                 console.log("forloop" + error);
             })
@@ -115,7 +135,7 @@ export default function Shorts({ navigation }) {
                     'Content-Type': 'application/json',
                 }
             }).then(res => {
-                setVideos((Videos) => [...Videos, ...[{ "video": res.data.data.stream_info.adaptive_url, "catalog_id": catalog_id, "content_id": content_id, "shareUrl": shareUrl, "title": title, "likecontent": likecontent, "full_catalog_id": full_catalog_id, "full_content_id": full_content_id }]]);
+                    setVideos((Videos) => [...Videos, ...[{ "video": res.data.data.stream_info.adaptive_url, "catalog_id": catalog_id, "content_id": content_id, "shareUrl": shareUrl, "title": title, "likecontent": likecontent, "full_catalog_id": full_catalog_id, "full_content_id": full_content_id }]]);
             }).catch(er => {
                 console.log("getall" + er);
             })
@@ -219,22 +239,22 @@ export default function Shorts({ navigation }) {
 
             <View style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flex: 1, flexGrow: 1 }}>
 
-                
-                    <Video
-                        ref={videoRef}
-                        source={{ uri: item.video }}
-                        controls={false}
-                        paused={currentIndexValue === index ? false : true}
-                        playInBackground={false}
-                        repeat={true}
-                        volume={1}
-                        rate={1.0}
-                        useTextureView={false}
-                        resizeMode={'contain'}
-                        style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flexGrow: 1, flex: 1 }}
-                        playWhenInactive={false}
-                    />
-                
+
+                <Video
+                    ref={videoRef}
+                    source={{ uri: item.video }}
+                    controls={false}
+                    paused={currentIndexValue === index ? false : true}
+                    playInBackground={false}
+                    repeat={true}
+                    volume={1}
+                    rate={1.0}
+                    useTextureView={false}
+                    resizeMode={'contain'}
+                    style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flexGrow: 1, flex: 1 }}
+                    playWhenInactive={false}
+                />
+
                 <View style={{ position: 'absolute', right: 15, top: '50%', }}>
                     {
                         item.likecontent ?
@@ -264,14 +284,12 @@ export default function Shorts({ navigation }) {
 
 
                 </View>
-                {/* :
-                                    ""} */}
             </View>
 
         );
     }
     return (
-        <View style={{ height: PAGE_HEIGHT, width: PAGE_WIDTH,backgroundColor: BACKGROUND_COLOR }}>
+        <View style={{ height: PAGE_HEIGHT, width: PAGE_WIDTH, backgroundColor: BACKGROUND_COLOR }}>
             <TransparentHeader></TransparentHeader>
             <FlatList
                 ref={flatListRef}
@@ -291,7 +309,7 @@ export default function Shorts({ navigation }) {
                         getlikes(val);
                     }
                 }}
-                contentContainerStyle={{ minHeight: '100%',}}
+                contentContainerStyle={{ minHeight: Math.round(PAGE_HEIGHT), }}
                 renderItem={renderItem}
                 pagingEnabled
             />

@@ -12,7 +12,7 @@ import { StackActions, useFocusEffect } from '@react-navigation/native';
 import Modal from "react-native-modal";
 import Share from 'react-native-share';
 import NormalHeader from './normalHeader';
-import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR, DETAILS_TEXT_COLOR, DARKED_BORDER_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, actuatedNormalize, PAGE_HEIGHT, FIRETV_BASE_URL_STAGING } from '../constants';
+import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR, DETAILS_TEXT_COLOR, DARKED_BORDER_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, actuatedNormalize, PAGE_HEIGHT, FIRETV_BASE_URL_STAGING, COMMON_BASE_URL } from '../constants';
 import DeviceInfo from 'react-native-device-info';
 import LinearGradient from 'react-native-linear-gradient';
 import { TouchableOpacity } from 'react-native';
@@ -136,7 +136,7 @@ export default function Shows({ navigation, route }) {
             setSeasons(response.data.data.subcategories);
             setContentId(response.data.data.content_id);
             setCatalogId(response.data.data.catalog_id);
-            setShareUrl(response.data.data.dynamic_url);
+            setShareUrl(COMMON_BASE_URL + seourl);
 
             if (sessionId != "" && sessionId != null) {
                 axios.get(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite/listitems.gzip?catalog_id=" + response.data.data.catalog_id + "&content_id=" + response.data.data.content_id + "&auth_token=" + AUTH_TOKEN + "&region=" + region).then(followresp => {
