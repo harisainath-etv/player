@@ -130,11 +130,46 @@ function Home({ navigation, route }) {
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
+    const silentLogin = async() =>{
+        console.log("silent login");
+        var region = await AsyncStorage.getItem('country_code');
+        const uniqueid = await DeviceInfo.getUniqueId();
+        const device_token = await messaging().getToken();
 
+        await axios.post(FIRETV_BASE_URL_STAGING + '/users/external_auth/sign_in',
+        {
+            access_token: ACCESS_TOKEN,
+            auth_token: VIDEO_AUTH_TOKEN,
+            user: {
+                provider: "etv_guest_user",
+                region: region,
+                uid: uniqueid,
+                device_token: device_token
+            }
+        },
+        {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        }).then(response => {
+                console.log(response.data);
+        }).catch(err => {
+            console.log(JSON.stringify(err));
+            //alert(err.response.data.message)
+        })
+
+
+    }
     async function loadData(p) {
         const notificationPage = await AsyncStorage.getItem('notificationPage');
         const notificationSeourl = await AsyncStorage.getItem('notificationSeourl');
         const notificationTheme = await AsyncStorage.getItem('notificationTheme');
+        const session = await AsyncStorage.getItem('session');
+        if(session=="" || session==null)
+        {
+            silentLogin()
+        }
         const qrlogin = await AsyncStorage.getItem("qrlogin");
         if (qrlogin != "" && qrlogin != null) {
             activateTv(qrlogin);
@@ -165,7 +200,6 @@ function Home({ navigation, route }) {
             naviagtetopage(notificationPage, notificationSeourl, notificationTheme)
         }
         const mobile = await AsyncStorage.getItem('mobile_number');
-        const session = await AsyncStorage.getItem('session');
         var region = await AsyncStorage.getItem('country_code');
         var show_popup = await AsyncStorage.getItem('show_popup');
         var popupshown = await AsyncStorage.getItem('popupshown');
