@@ -7,7 +7,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, BACKGROUND_TRANSPARENT_COLOR_MENU, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, DEVELOPMENT_MODE, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, actuatedNormalize, } from '../constants';
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, BACKGROUND_TRANSPARENT_COLOR_MENU, COMMON_BASE_URL, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, DEVELOPMENT_MODE, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, actuatedNormalize, } from '../constants';
 import axios from 'axios';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
@@ -156,7 +156,7 @@ export default function Episode({ navigation, route }) {
       var urlPath = "";
       var totalData = [];
       var sessionId = await AsyncStorage.getItem('session');
-      if (splittedData.length == 4 && checkChannel == 0) {
+      if (splittedData.length == 4 && checkChannel.length == 0) {
         urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/subcategories/" + splittedData[2] + "/episodes/" + splittedData[3];
       }
       else if (splittedData[0] == 'tv-shows') {
@@ -191,7 +191,7 @@ export default function Episode({ navigation, route }) {
       await axios.get(url).then(response => {
         setTitle(response.data.data.title);
         setOfflineUrl(response.data.data.play_url.saranyu.url);
-        setShareUrl(response.data.data.dynamic_url);
+        setShareUrl(COMMON_BASE_URL + seourl );
         if (response.data.data.hasOwnProperty('channel_object'))
           setChannel(response.data.data.channel_object.name);
         if (response.data.data.hasOwnProperty('cbfc_rating'))
@@ -1372,27 +1372,27 @@ export default function Episode({ navigation, route }) {
                   </View>
                   <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
                     <View style={styles.singleoption}>
-                      <Pressable onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={18} color={NORMAL_TEXT_COLOR} /></Pressable>
+                      <TouchableOpacity onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
                     </View>
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>Share</Text>
                   </View>
                   <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
                     {passedtheme != 'live' && passedtheme != 'livetv' && !preview ?
                       <View style={styles.singleoption}>
-                        {downloadedStatus == 0 ? <Pressable onPress={downloadFile}><MaterialCommunityIcons name="download" size={18} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
-                        {downloadedStatus == 1 ? <Pressable onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={18} color={NORMAL_TEXT_COLOR} /></Pressable> : ""}
+                        {downloadedStatus == 0 ? <TouchableOpacity onPress={downloadFile}><MaterialCommunityIcons name="download" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity> : ""}
+                        {downloadedStatus == 1 ? <TouchableOpacity onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity> : ""}
                         {downloadedStatus == 2 ?
 
                           pauseDownload ?
                             isresumeDownloading ?
-                              <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={18} color={NORMAL_TEXT_COLOR} /></Pressable>
+                              <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
                               :
-                              <Pressable onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={18} color={NORMAL_TEXT_COLOR} /></Pressable>
+                              <TouchableOpacity onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
                             :
                             isresumeDownloading ?
-                              <Pressable onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={18} color={NORMAL_TEXT_COLOR} /></Pressable>
+                              <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
                               :
-                              <Pressable onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={18} color={NORMAL_TEXT_COLOR} /></Pressable>
+                              <TouchableOpacity onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
 
                           : ""}
                       </View>

@@ -71,6 +71,8 @@ import Header from "./header";
 import DeviceInfo from "react-native-device-info";
 import LinearGradient from "react-native-linear-gradient";
 import { useFocusEffect } from "@react-navigation/native";
+import messaging from "@react-native-firebase/messaging";
+import base64 from "react-native-base64";
 
 export const ElementsText = {
   AUTOPLAY: "AutoPlay",
@@ -186,11 +188,77 @@ function Home({ navigation, route }) {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
+  const silentLogin = async () => {
+    console.log("silent login");
+    var region = await AsyncStorage.getItem("country_code");
+    const uniqueid = await DeviceInfo.getUniqueId();
+    const device_token = await messaging().getToken();
 
+    await axios
+      .post(
+        FIRETV_BASE_URL_STAGING + "/users/external_auth/sign_in",
+        {
+          access_token: ACCESS_TOKEN,
+          auth_token: VIDEO_AUTH_TOKEN,
+          user: {
+            provider: "etv_guest_user",
+            region: region,
+            uid: uniqueid,
+            device_token: device_token,
+          },
+        },
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((err) => {
+        console.log(JSON.stringify(err));
+        //alert(err.response.data.message)
+      });
+  };
   async function loadData(p) {
     const notificationPage = await AsyncStorage.getItem("notificationPage");
     const notificationSeourl = await AsyncStorage.getItem("notificationSeourl");
     const notificationTheme = await AsyncStorage.getItem("notificationTheme");
+    const session = await AsyncStorage.getItem("session");
+    if (session == "" || session == null) {
+      silentLogin();
+    }
+    const qrlogin = await AsyncStorage.getItem("qrlogin");
+    if (qrlogin != "" && qrlogin != null) {
+      activateTv(qrlogin);
+    }
+    const bbsource = await AsyncStorage.getItem("bbsource");
+    const bbtoken = await AsyncStorage.getItem("bbtoken");
+    const bburl = await AsyncStorage.getItem("bburl");
+    if (
+      bbsource != "" &&
+      bbsource != null &&
+      bbtoken != "" &&
+      bbtoken != null &&
+      bburl != "" &&
+      bburl != null
+    ) {
+      partnerLogin(bbsource, bbtoken, bburl);
+    }
+
+    const showcontent = await AsyncStorage.getItem("showcontent");
+    if (showcontent != "" && showcontent != null) {
+      var seourl = showcontent.split("etvwin.com/");
+      navigatetodeeplinkscreen(seourl[1]);
+    }
+
+    const shortContent = await AsyncStorage.getItem("shortContent");
+    if (shortContent != "" && shortContent != null) {
+      navigation.dispatch(StackActions.replace("Shorts"));
+    }
+
     await AsyncStorage.getItem("loaded");
     if (
       notificationPage != "" &&
@@ -206,7 +274,6 @@ function Home({ navigation, route }) {
       naviagtetopage(notificationPage, notificationSeourl, notificationTheme);
     }
     const mobile = await AsyncStorage.getItem("mobile_number");
-    const session = await AsyncStorage.getItem("session");
     var region = await AsyncStorage.getItem("country_code");
     var show_popup = await AsyncStorage.getItem("show_popup");
     var popupshown = await AsyncStorage.getItem("popupshown");
@@ -1081,6 +1148,347 @@ function Home({ navigation, route }) {
       appConfigData.data.params_hash2.config_params.tv_login_url
     );
     // }
+  };
+
+  const triggersuccessanalytics = async (name, method, u_id, device_id) => {
+    sdk.trackEvent(name, {
+      method: method,
+      u_id: u_id,
+      device_id: device_id,
+    });
+  };
+
+  const setAsyncData = async (key, value) => {
+    await AsyncStorage.setItem(key, value);
+    console.log(await AsyncStorage.getItem(key));
+  };
+  const filterItems = (stringNeeded, arrayvalues) => {
+    let query = stringNeeded.toLowerCase();
+    return arrayvalues.filter((item) => item.toLowerCase().indexOf(query) >= 0);
+  };
+
+  const partnerLogin = async (source, token, bburl) => {
+    await AsyncStorage.removeItem("bbsource");
+    await AsyncStorage.removeItem("bbtoken");
+    await AsyncStorage.removeItem("bburl");
+    const region = await AsyncStorage.getItem("country_code");
+    var frontpagedob = await AsyncStorage.getItem("frontpagedob");
+    var frontpagegender = await AsyncStorage.getItem("frontpagegender");
+    var frontpagepincode = await AsyncStorage.getItem("frontpagepincode");
+    const uniqueid = await DeviceInfo.getUniqueId();
+    const device_token = await messaging().getToken();
+    var seourl = bburl.split("etvwin.com/");
+    await axios
+      .post(
+        FIRETV_BASE_URL_STAGING + "/users/external_auth/sign_in",
+        {
+          access_token: ACCESS_TOKEN,
+          auth_token: VIDEO_AUTH_TOKEN,
+          user: {
+            ext_account_email_id: "",
+            firstname: "Guest",
+            provider: source,
+            region: region,
+            uid: base64.decode(token),
+            device_token: device_token,
+          },
+        },
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        triggersuccessanalytics(
+          "login_success",
+          "social",
+          response.data.data.user_id,
+          uniqueid
+        );
+        AsyncStorage.setItem("userobj", JSON.stringify(response.data.data));
+        AsyncStorage.setItem(
+          "ext_account_email_id",
+          response.data.data.ext_account_email_id
+        );
+        AsyncStorage.setItem(
+          "first_time_login",
+          JSON.stringify(response.data.data.first_time_login)
+        );
+        AsyncStorage.setItem("ext_user_id", response.data.data.ext_user_id);
+        AsyncStorage.setItem("firstname", response.data.data.firstname);
+        AsyncStorage.setItem("login_type", response.data.data.login_type);
+        AsyncStorage.setItem("session", response.data.data.session);
+        AsyncStorage.setItem("user_id", response.data.data.user_id);
+
+        if (
+          (frontpagedob != "" && frontpagedob != null) ||
+          (frontpagegender != "" && frontpagegender != null) ||
+          (frontpagepincode != "" && frontpagepincode != null)
+        ) {
+          axios
+            .put(
+              FIRETV_BASE_URL_STAGING +
+                "users/" +
+                response.data.data.session +
+                "/account",
+              {
+                access_token: ACCESS_TOKEN,
+                auth_token: VIDEO_AUTH_TOKEN,
+                user: {
+                  birthdate: frontpagedob,
+                  gender: frontpagegender,
+                  address: frontpagepincode,
+                },
+              }
+            )
+            .then((resp) => {
+              AsyncStorage.removeItem("frontpagedob");
+              AsyncStorage.removeItem("frontpagegender");
+              AsyncStorage.removeItem("frontpagepincode");
+            })
+            .catch((error) => {
+              console.log(error.response.data);
+            });
+        }
+
+        axios
+          .get(
+            FIRETV_BASE_URL_STAGING +
+              "users/" +
+              response.data.data.session +
+              "/account.gzip?auth_token=" +
+              AUTH_TOKEN
+          )
+          .then((resp) => {
+            setAsyncData("address", resp.data.data.address);
+            setAsyncData("age", resp.data.data.age);
+            setAsyncData("birthdate", resp.data.data.birthdate);
+            setAsyncData("email_id", resp.data.data.email_id);
+            setAsyncData(
+              "ext_account_email_id",
+              resp.data.data.ext_account_email_id
+            );
+            setAsyncData("firstname", resp.data.data.firstname);
+            setAsyncData("gender", resp.data.data.gender);
+            setAsyncData("lastname", JSON.stringify(resp.data.data.lastname));
+            setAsyncData("login_type", resp.data.data.login_type);
+            setAsyncData("mobile_number", resp.data.data.mobile_number);
+            setAsyncData("user_id", resp.data.data.user_id);
+          })
+          .catch((err) => {
+            alert("Error in fetching account details. Please try again later.");
+          });
+
+        axios
+          .get(
+            FIRETV_BASE_URL_STAGING +
+              "users/" +
+              response.data.data.session +
+              "/user_plans.gzip?auth_token=" +
+              AUTH_TOKEN +
+              "&tran_history=true&region=" +
+              region
+          )
+          .then((planresponse) => {
+            if (planresponse.data.data.length > 0) {
+              setAsyncData("subscription", "done");
+              setAsyncData("user_id", planresponse.data.data[0].user_id);
+              setAsyncData(
+                "subscription_id",
+                planresponse.data.data[0].subscription_id
+              );
+              setAsyncData("plan_id", planresponse.data.data[0].plan_id);
+              setAsyncData("category", planresponse.data.data[0].category);
+              setAsyncData("valid_till", planresponse.data.data[0].valid_till);
+              setAsyncData("start_date", planresponse.data.data[0].start_date);
+              setAsyncData(
+                "transaction_id",
+                planresponse.data.data[0].transaction_id
+              );
+              setAsyncData("created_at", planresponse.data.data[0].created_at);
+              setAsyncData("updated_at", planresponse.data.data[0].updated_at);
+              setAsyncData(
+                "plan_status",
+                planresponse.data.data[0].plan_status
+              );
+              setAsyncData(
+                "invoice_inc_id",
+                JSON.stringify(planresponse.data.data[0].invoice_inc_id)
+              );
+              setAsyncData(
+                "price_charged",
+                JSON.stringify(planresponse.data.data[0].price_charged)
+              );
+              setAsyncData(
+                "email_id",
+                JSON.stringify(planresponse.data.data[0].email_id)
+              );
+              setAsyncData(
+                "plan_title",
+                JSON.stringify(planresponse.data.data[0].plan_title)
+              );
+              setAsyncData(
+                "subscription_title",
+                JSON.stringify(planresponse.data.data[0].subscription_title)
+              );
+              setAsyncData(
+                "invoice_id",
+                JSON.stringify(planresponse.data.data[0].invoice_id)
+              );
+              setAsyncData(
+                "currency",
+                JSON.stringify(planresponse.data.data[0].currency)
+              );
+              setAsyncData(
+                "currency_symbol",
+                JSON.stringify(planresponse.data.data[0].currency_symbol)
+              );
+              setAsyncData(
+                "status",
+                JSON.stringify(planresponse.data.data[0].status)
+              );
+            }
+          })
+          .catch((planerror) => {
+            console.log(planerror.response.data);
+          });
+        navigatetodeeplinkscreen(seourl[1]);
+      })
+      .catch((err) => {
+        // console.log(JSON.stringify(err));
+        //alert(err.response.data.message)
+      });
+  };
+
+  const navigatetodeeplinkscreen = async (seourl) => {
+    await AsyncStorage.removeItem("showcontent");
+    const region = await AsyncStorage.getItem("country_code");
+    const baseUrl = FIRETV_BASE_URL;
+    var removequeryStrings = seourl.split("?");
+    var splittedData = removequeryStrings[0].split("/");
+    splittedData = splittedData.filter(function (e) {
+      return e;
+    });
+    const checkNews = filterItems("news", splittedData);
+    const checkShow = filterItems("show", splittedData);
+    const checkSeason = filterItems("season", splittedData);
+    const checkChannel = filterItems("channel", splittedData);
+    const checkEvent = filterItems("event", splittedData);
+    const checkLive = filterItems("live", splittedData);
+    var urlPath = "";
+    if (splittedData.length == 4 && checkChannel == 0) {
+      console.log("first");
+      urlPath =
+        baseUrl +
+        "catalogs/" +
+        splittedData[0] +
+        "/items/" +
+        splittedData[1] +
+        "/subcategories/" +
+        splittedData[2] +
+        "/episodes/" +
+        splittedData[3];
+    } else if (splittedData[0] == "tv-shows") {
+      console.log("sec");
+      urlPath =
+        baseUrl +
+        "catalogs/" +
+        splittedData[0] +
+        "/episodes/" +
+        splittedData[splittedData.length - 1];
+    } else if (splittedData[0] == "news" || checkNews.length > 0) {
+      console.log("third");
+      urlPath =
+        baseUrl +
+        "catalogs/" +
+        splittedData[splittedData.length - 3] +
+        "/items/" +
+        splittedData[splittedData.length - 2] +
+        "/episodes/" +
+        splittedData[splittedData.length - 1];
+    } else if (
+      (checkShow.length > 0 || checkEvent.length > 0) &&
+      checkLive.length == 0 &&
+      splittedData.length > 2
+    ) {
+      console.log("four");
+      urlPath =
+        baseUrl +
+        "catalogs/" +
+        splittedData[0] +
+        "/items/" +
+        splittedData[splittedData.length - 2] +
+        "/episodes/" +
+        splittedData[splittedData.length - 1];
+    } else if (checkChannel.length > 0) {
+      console.log("five");
+      urlPath =
+        baseUrl +
+        "catalogs/" +
+        splittedData[1] +
+        "/items/" +
+        splittedData[splittedData.length - 1];
+    } else {
+      console.log("final");
+      urlPath =
+        baseUrl +
+        "catalogs/" +
+        splittedData[0] +
+        "/items/" +
+        splittedData[splittedData.length - 1];
+    }
+    const url =
+      urlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
+    console.log(url);
+    axios
+      .get(url)
+      .then((deepresp) => {
+        VIDEO_TYPES.includes(deepresp.data.data.theme)
+          ? navigation.dispatch(
+              StackActions.replace("Episode", {
+                seoUrl: seourl,
+                theme: deepresp.data.data.theme,
+              })
+            )
+          : navigation.dispatch(
+              StackActions.replace("Shows", {
+                seoUrl: seourl,
+                theme: deepresp.data.data.theme,
+              })
+            );
+      })
+      .catch((deeperr) => {});
+  };
+  const activateTv = async (otp) => {
+    var sessionId = await AsyncStorage.getItem("session");
+    var region = await AsyncStorage.getItem("country_code");
+    await AsyncStorage.removeItem("qrlogin");
+    if (sessionId != "" && sessionId != null && sessionId != "null") {
+      axios
+        .post(
+          FIRETV_BASE_URL_STAGING + "/generate_session_tv",
+          {
+            auth_token: VIDEO_AUTH_TOKEN,
+            access_token: ACCESS_TOKEN,
+            region: region,
+            user: { session_id: sessionId, token: otp },
+          },
+          {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          alert("Activated");
+        })
+        .catch((error) => {});
+    } else {
+      navigation.dispatch(StackActions.replace("Login"));
+    }
   };
 
   async function getTopMenu() {

@@ -88,6 +88,10 @@ const useInitialURL = () => {
   //   };
   // }, []);
 
+  const filterItems = (stringNeeded, arrayvalues) => {
+    let query = stringNeeded.toLowerCase();
+    return arrayvalues.filter((item) => item.toLowerCase().indexOf(query) >= 0);
+  };
   React.useEffect(() => {
     const getUrlAsync = async () => {
       // Get the deep link used to open the app
@@ -97,15 +101,14 @@ const useInitialURL = () => {
         setTimeout(() => {
           setUrl(initialUrl);
           setProcessing(false);
-          console.log(initialUrl);
           const parsed = queryString.parseUrl(initialUrl);
           if (
             parsed.query.device_code != "" &&
             parsed.query.device_code != null &&
             parsed.query.device_code != "null"
           )
-            activateTv(parsed.query.device_code);
-          if (
+            setAsyncData("qrlogin", JSON.stringify(parsed.query.device_code));
+          else if (
             parsed.query.source != "" &&
             parsed.query.source != null &&
             parsed.query.source != "null" &&
@@ -113,6 +116,30 @@ const useInitialURL = () => {
             parsed.query.token != null &&
             parsed.query.token != "null"
           ) {
+            setAsyncData("bbsource", parsed.query.source);
+            setAsyncData("bbtoken", parsed.query.token);
+            setAsyncData("bburl", parsed.url);
+          } else {
+            var removequeryStrings = parsed.url.split("?");
+            var splittedData = removequeryStrings[0].split("/");
+            splittedData = splittedData.filter(function (e) {
+              return e;
+            });
+            const checkShorts = filterItems("shorts", splittedData);
+            if (checkShorts.length > 0) {
+              var seourl = removequeryStrings[0].split("etvwin.com/");
+              var splittedSeoUrl = seourl[1].split("/");
+              var urlPath =
+                FIRETV_BASE_URL +
+                "catalogs/" +
+                splittedSeoUrl[0] +
+                "/items/" +
+                splittedSeoUrl[splittedSeoUrl.length - 1];
+              setAsyncData("shortContent", urlPath);
+            } else {
+              setAsyncData("showcontent", parsed.url);
+              setAsyncData("showcontentlayout", parsed.query.layout);
+            }
           }
         }, 1000);
       }
@@ -123,32 +150,8 @@ const useInitialURL = () => {
 
   return { url, processing };
 };
-
-const activateTv = async (otp) => {
-  var sessionId = await AsyncStorage.getItem("session");
-  var region = await AsyncStorage.getItem("country_code");
-  if (sessionId != "" && sessionId != null && sessionId != "null") {
-    axios
-      .post(
-        FIRETV_BASE_URL_STAGING + "/generate_session_tv",
-        {
-          auth_token: VIDEO_AUTH_TOKEN,
-          access_token: ACCESS_TOKEN,
-          region: region,
-          user: { session_id: sessionId, token: otp },
-        },
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .then((response) => {
-        alert("Activated");
-      })
-      .catch((error) => {});
-  }
+const setAsyncData = async (key, value) => {
+  await AsyncStorage.setItem(key, value);
 };
 
 var gateways = [];
@@ -397,7 +400,7 @@ export default function App() {
       await loadasyncdata();
     };
     if (session != "" && session != null) {
-      axios
+      await axios
         .get(
           FIRETV_BASE_URL_STAGING +
             "user/session/" +
@@ -425,74 +428,56 @@ export default function App() {
         )
         .then((planresponse) => {
           if (planresponse.data.data.length > 0) {
-            AsyncStorage.setItem("subscription", "done");
-            AsyncStorage.setItem("user_id", planresponse.data.data[0].user_id);
-            AsyncStorage.setItem(
+            setAsyncData("subscription", "done");
+            setAsyncData("user_id", planresponse.data.data[0].user_id);
+            setAsyncData(
               "subscription_id",
               planresponse.data.data[0].subscription_id
             );
-            AsyncStorage.setItem("plan_id", planresponse.data.data[0].plan_id);
-            AsyncStorage.setItem(
-              "category",
-              planresponse.data.data[0].category
-            );
-            AsyncStorage.setItem(
-              "valid_till",
-              planresponse.data.data[0].valid_till
-            );
-            AsyncStorage.setItem(
-              "start_date",
-              planresponse.data.data[0].start_date
-            );
-            AsyncStorage.setItem(
+            setAsyncData("plan_id", planresponse.data.data[0].plan_id);
+            setAsyncData("category", planresponse.data.data[0].category);
+            setAsyncData("valid_till", planresponse.data.data[0].valid_till);
+            setAsyncData("start_date", planresponse.data.data[0].start_date);
+            setAsyncData(
               "transaction_id",
               planresponse.data.data[0].transaction_id
             );
-            AsyncStorage.setItem(
-              "created_at",
-              planresponse.data.data[0].created_at
-            );
-            AsyncStorage.setItem(
-              "updated_at",
-              planresponse.data.data[0].updated_at
-            );
-            AsyncStorage.setItem(
-              "plan_status",
-              planresponse.data.data[0].plan_status
-            );
-            AsyncStorage.setItem(
+            setAsyncData("created_at", planresponse.data.data[0].created_at);
+            setAsyncData("updated_at", planresponse.data.data[0].updated_at);
+            setAsyncData("plan_status", planresponse.data.data[0].plan_status);
+            setAsyncData(
               "invoice_inc_id",
               JSON.stringify(planresponse.data.data[0].invoice_inc_id)
             );
-            AsyncStorage.setItem(
+            setAsyncData(
               "price_charged",
               JSON.stringify(planresponse.data.data[0].price_charged)
             );
-            AsyncStorage.setItem(
+            setAsyncData(
               "email_id",
               JSON.stringify(planresponse.data.data[0].email_id)
             );
-            AsyncStorage.setItem(
+            setAsyncData(
               "plan_title",
               JSON.stringify(planresponse.data.data[0].plan_title)
             );
-            AsyncStorage.setItem(
+            setAsyncData(
               "subscription_title",
               JSON.stringify(planresponse.data.data[0].subscription_title)
             );
-            AsyncStorage.setItem(
+            setAsyncData(
               "invoice_id",
               JSON.stringify(planresponse.data.data[0].invoice_id)
             );
-            AsyncStorage.setItem(
+            setAsyncData(
               "currency",
               JSON.stringify(planresponse.data.data[0].currency)
             );
-            AsyncStorage.setItem(
+            setAsyncData(
               "currency_symbol",
               JSON.stringify(planresponse.data.data[0].currency_symbol)
             );
-            AsyncStorage.setItem(
+            setAsyncData(
               "status",
               JSON.stringify(planresponse.data.data[0].status)
             );
@@ -513,32 +498,29 @@ export default function App() {
             AUTH_TOKEN
         )
         .then((resp) => {
-          AsyncStorage.setItem("address", resp.data.data.address);
-          AsyncStorage.setItem("age", resp.data.data.age);
-          AsyncStorage.setItem("birthdate", resp.data.data.birthdate);
-          AsyncStorage.setItem("email_id", resp.data.data.email_id);
-          AsyncStorage.setItem(
+          setAsyncData("address", resp.data.data.address);
+          setAsyncData("age", resp.data.data.age);
+          setAsyncData("birthdate", resp.data.data.birthdate);
+          setAsyncData("email_id", resp.data.data.email_id);
+          setAsyncData(
             "ext_account_email_id",
             resp.data.data.ext_account_email_id
           );
-          AsyncStorage.setItem("ext_user_id", resp.data.data.ext_user_id);
-          AsyncStorage.setItem("firstname", resp.data.data.firstname);
-          AsyncStorage.setItem("gender", resp.data.data.gender);
-          //AsyncStorage.setItem('is_mobile_verify',JSON.stringify(resp.data.data.is_mobile_verify))
-          AsyncStorage.setItem(
-            "lastname",
-            JSON.stringify(resp.data.data.lastname)
-          );
-          AsyncStorage.setItem("login_type", resp.data.data.login_type);
-          AsyncStorage.setItem("mobile_number", resp.data.data.mobile_number);
-          //AsyncStorage.setItem('mobile_number',"")
-          AsyncStorage.setItem("primary_id", resp.data.data.primary_id);
-          AsyncStorage.setItem("profile_pic", resp.data.data.profile_pic);
-          AsyncStorage.setItem("user_email_id", resp.data.data.user_email_id);
-          AsyncStorage.setItem("user_id", resp.data.data.user_id);
+          setAsyncData("ext_user_id", resp.data.data.ext_user_id);
+          setAsyncData("firstname", resp.data.data.firstname);
+          setAsyncData("gender", resp.data.data.gender);
+          //setAsyncData('is_mobile_verify',JSON.stringify(resp.data.data.is_mobile_verify))
+          setAsyncData("lastname", JSON.stringify(resp.data.data.lastname));
+          setAsyncData("login_type", resp.data.data.login_type);
+          setAsyncData("mobile_number", resp.data.data.mobile_number);
+          //setAsyncData('mobile_number',"")
+          setAsyncData("primary_id", resp.data.data.primary_id);
+          setAsyncData("profile_pic", resp.data.data.profile_pic);
+          setAsyncData("user_email_id", resp.data.data.user_email_id);
+          setAsyncData("user_id", resp.data.data.user_id);
           if (resp.data.data.isUserSubscribed)
-            AsyncStorage.setItem("isUserSubscribed", "yes");
-          else AsyncStorage.setItem("isUserSubscribed", "no");
+            setAsyncData("isUserSubscribed", "yes");
+          else setAsyncData("isUserSubscribed", "no");
         })
         .catch((err) => {
           removeunwanted();
@@ -810,7 +792,6 @@ export default function App() {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
       var notficationData = remoteMessage.data.data;
       Alert.alert("Received New Notification", notficationData);
-      console.log(JSON.stringify(notficationData));
       VIDEO_TYPES.includes(remoteMessage.data.catalog_layout_type)
         ? setAsynData(
             "Episode",
@@ -827,7 +808,6 @@ export default function App() {
   });
   const gettoken = async () => {
     const token = await messaging().getToken();
-    console.log(token);
     await AsyncStorage.setItem("fcm_token", token);
   };
 

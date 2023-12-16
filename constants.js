@@ -14,6 +14,7 @@ export const ACCESS_TOKEN= "Ay6KCkajdBzztJ4bptpW";
 export const WEB_CLIENT_ID = "416227379708-naqjmgpfidspo7nqb77de795sqjcovg4.apps.googleusercontent.com";
 export const FIRETV_BASE_URL_STAGING = DEVELOPMENT_MODE=="staging" ? "https://stagingott.etvwin.com/" : "https://firetvapi.etvwin.com/";
 export const FIRETV_BASE_URL = DEVELOPMENT_MODE=="staging" ? "https://stagingott.etvwin.com/" : "https://firetvapi.etvwin.com/";
+export const COMMON_BASE_URL = DEVELOPMENT_MODE=="staging" ? "https://staging.etvwin.com/" : "https://www.etvwin.com/";
 export const BACKGROUND_COLOR ="#292828";
 export const BACKGROUND_TRANSPARENT_COLOR ="rgba(41, 40, 40, 0.4)";
 export const BACKGROUND_TRANSPARENT_GRADIENT_MENU ="rgba(0, 0, 0, 0.8)";
