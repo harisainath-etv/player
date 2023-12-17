@@ -26,7 +26,7 @@ import SwipeUpDown from 'react-native-swipe-up-down';
 var isTablet = DeviceInfo.isTablet();
 var relatedShows = [];
 export default function Episode({ navigation, route }) {
-  const { seoUrl, theme, showname, showcontentId, goto } = route.params;
+  const { seoUrl, theme, showname, showcontentId, goto, suburl } = route.params;
   const [seourl, setSeourl] = useState(seoUrl);
   const [passedtheme, setpassedtheme] = useState(theme);
   const filterItems = (stringNeeded, arrayvalues) => {
@@ -177,7 +177,6 @@ export default function Episode({ navigation, route }) {
       const url = urlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
       const relatedurl = urlPath + "/related.gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
       //  console.log(seourl);
-      //  console.log(url);
       await axios.get(url).then(response => {
         setTitle(response.data.data.title);
         setOfflineUrl(response.data.data.play_url.saranyu.url);
@@ -852,7 +851,7 @@ export default function Episode({ navigation, route }) {
                     <View style={{ marginBottom: 20 }} key={'innerkey' + index}>
                       <View>
                         {VIDEO_TYPES.includes(items.item.theme) ?
-                          <Pressable onPress={() => navigation.navigate({ name: 'Episode', params: { seoUrl: items.item.seo_url }, key: { index } })}>
+                          <Pressable onPress={() => navigation.navigate({ name: 'Episode', params: { seoUrl: items.item.seo_url,theme:"videolist",suburl:seourl }, key: { index } })}>
                             <FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
 
                             <View style={{ width: "100%", backgroundColor: DARKED_BORDER_COLOR, position: 'absolute', bottom: 0, borderRadius: 8, alignItems: 'flex-start', justifyContent: 'center', padding: 5 }}>
@@ -864,7 +863,7 @@ export default function Episode({ navigation, route }) {
 
                           </Pressable>
                           :
-                          <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                          <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url,theme:"videolist",suburl:seourl }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
 
                             <View style={{ width: "100%", backgroundColor: DARKED_BORDER_COLOR, position: 'absolute', bottom: 0, borderRadius: 8, alignItems: 'flex-start', justifyContent: 'center', padding: 5 }}>
                               <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: '500' }}>{items.item.title}</Text>
@@ -1362,7 +1361,7 @@ export default function Episode({ navigation, route }) {
             </>
             :
             ""}
-          {passedtheme != 'live' && passedtheme != 'livetv' ?
+          {passedtheme != 'live' && passedtheme != 'livetv' && relatedMovies.length>0 ?
             <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', width: "100%", marginTop: 30,padding:2 }}>
               <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: '500',marginBottom:20,marginLeft:20 }}>Related</Text>
               <FlatList
