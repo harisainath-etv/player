@@ -72,7 +72,10 @@ export default function Search({ navigation }) {
                 }
                 if (Final.length <= 0)
                     settoload(false);
-                setEpisodes(Final);
+                // if(clear)
+                // setEpisodes(Final);
+                // else
+                setEpisodes(episodes => [...episodes, ...Final]);
                 setloading(false);
             }).catch(error => { })
         }
