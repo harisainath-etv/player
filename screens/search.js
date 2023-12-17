@@ -1,7 +1,7 @@
 import { View, TextInput, TouchableOpacity, StyleSheet, Text, Pressable, StatusBar, FlatList, ActivityIndicator, Image } from 'react-native'
 import React, { useState } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, NORMAL_TEXT_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, PAGE_HEIGHT, PAGE_WIDTH, LAYOUT_TYPES, VIDEO_TYPES } from '../constants'
+import { BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, NORMAL_TEXT_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, PAGE_HEIGHT, PAGE_WIDTH, LAYOUT_TYPES, VIDEO_TYPES, actuatedNormalize } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import FastImage from 'react-native-fast-image';
@@ -72,12 +72,12 @@ export default function Search({ navigation }) {
                 }
                 if (Final.length <= 0)
                     settoload(false);
-                setEpisodes(episodes => [...episodes, ...Final]);
+                setEpisodes(Final);
                 setloading(false);
             }).catch(error => { })
         }
     }
-    const loadDataCheck = async() =>{
+    const loadDataCheck = async () => {
         loadData(clear)
     }
     const loadNextData = async () => {
@@ -108,8 +108,8 @@ export default function Search({ navigation }) {
                                         }
                                     }}>
                                         <FastImage
-                                            resizeMode={FastImage.resizeMode.stretch}
-                                            style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
+                                            resizeMode={FastImage.resizeMode.cover}
+                                            style={[styles.imageSectionHorizontal]}
                                             source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                         {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
                                         {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
@@ -124,7 +124,7 @@ export default function Search({ navigation }) {
     }
     return (
         <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <View style={{ width: "100%", flexDirection: 'row', marginTop: 20, position: 'absolute', top: 0, zIndex: 40 }}>
+            <View style={{ width: "100%", flexDirection: 'row', marginTop: 50, position: 'absolute', top: 0, zIndex: 40 }}>
                 <View style={{ marginRight: 10 }}>
                     <TouchableOpacity onPress={() => {
                         if (navigation.canGoBack())
@@ -136,10 +136,10 @@ export default function Search({ navigation }) {
                     </TouchableOpacity>
                 </View>
                 <View style={{ width: "80%" }}>
-                    <TextInput onChangeText={setSearch} value={search} style={styles.textinput} placeholder="Start Searching.." placeholderTextColor={NORMAL_TEXT_COLOR} onKeyPress={loadDataCheck} />
+                    <TextInput onChangeText={setSearch} value={search} style={styles.textinput} placeholder="Start Searching.." placeholderTextColor={NORMAL_TEXT_COLOR} />
                 </View>
                 <View style={{ marginLeft: 0 }}>
-                    <Pressable onPress={() => setSearch("")}><Ionicons name="close-circle" size={30} color="#ffffff" style={{ marginTop: 10 }} /></Pressable>
+                    <TouchableOpacity onPress={loadDataCheck}><Ionicons name="search-circle" size={30} color="#ffffff" style={{ marginTop: 10 }} /></TouchableOpacity>
                 </View>
             </View>
             {episodes.length == 0 && search == "" ?
@@ -147,7 +147,7 @@ export default function Search({ navigation }) {
                     <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 22 }}>Search for Shows, Serials, Episodes, Movies, Recipes and Videos</Text>
                 </View>
                 :
-                <View style={{ marginTop: 70 }}>
+                <View style={{ marginTop: 120 }}>
                     {/* body content */}
                     {episodes ? <FlatList
                         data={episodes}
@@ -181,12 +181,13 @@ export default function Search({ navigation }) {
 const styles = StyleSheet.create({
     textinput: { borderColor: SLIDER_PAGINATION_UNSELECTED_COLOR, borderBottomWidth: 1, fontSize: 18, color: NORMAL_TEXT_COLOR, padding: 5, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%" },
     playIcon: { position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 },
-    crownIcon: { position: 'absolute', width: 25, height: 25, left: 10, top: 10 },
+    crownIcon: { position: 'absolute', width: 25, height: 25, left: 20, top: 10 },
     imageSectionHorizontal: {
-        width: PAGE_WIDTH / 2.06,
-        height: 117,
-        marginHorizontal: 3,
-        borderRadius: 10,
+        width: PAGE_WIDTH / 2.20,
+        height: actuatedNormalize(117),
+        marginRight: 5,
+        borderRadius: 15,
+        marginHorizontal: 10,
         marginBottom: 10,
         borderWidth: 1
     },
