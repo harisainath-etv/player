@@ -771,6 +771,28 @@ export default function Episode({ navigation, route }) {
   }
 
   const toHoursAndMinutes = async (totalSeconds) => {
+    Orientation.getDeviceOrientation((orientation) => {
+      if (orientation === 'LANDSCAPE-LEFT') {
+        setFullscreen(true);
+        StatusBar.setHidden(true)
+        Orientation.lockToLandscapeLeft();
+      }
+      else
+        if (orientation === 'LANDSCAPE-RIGHT') {
+          setFullscreen(true);
+          StatusBar.setHidden(true)
+          Orientation.lockToLandscapeRight();
+        }
+
+      if (!fullscreentap) {
+        if (orientation === 'PORTRAIT' || orientation === 'UNKNOWN' || orientation === '') {
+          setFullscreen(false);
+          StatusBar.setHidden(false)
+          Orientation.lockToPortrait();
+        }
+      }
+    })
+
     const totalMinutes = Math.floor(totalSeconds / 60);
 
     var seconds = totalSeconds % 60;
