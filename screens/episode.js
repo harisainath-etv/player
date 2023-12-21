@@ -7,7 +7,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, BACKGROUND_TRANSPARENT_COLOR_MENU, COMMON_BASE_URL, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, DEVELOPMENT_MODE, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, actuatedNormalize, } from '../constants';
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, COMMON_BASE_URL, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, actuatedNormalize, } from '../constants';
 import axios from 'axios';
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { stringMd5 } from 'react-native-quick-md5';
@@ -19,17 +19,14 @@ import RNBackgroundDownloader from 'react-native-background-downloader';
 import Share from 'react-native-share';
 import Modal from "react-native-modal";
 import Slider from '@react-native-community/slider';
-import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, } from 'react-native-google-cast';
-// import VideoViewAndroid from '../components/VideoViewAndroid';
-// import VideoViewIos from '../components/VideoViewIos';
+import GoogleCast, { useRemoteMediaClient, } from 'react-native-google-cast';
 import DeviceInfo from 'react-native-device-info';
-import analytics from '@react-native-firebase/analytics';
 import FastImage from 'react-native-fast-image';
 import SwipeUpDown from 'react-native-swipe-up-down';
 var isTablet = DeviceInfo.isTablet();
 var relatedShows = [];
 export default function Episode({ navigation, route }) {
-  const { seoUrl, theme, showname, showcontentId, goto } = route.params;
+  const { seoUrl, theme, showname, showcontentId, goto, suburl } = route.params;
   const [seourl, setSeourl] = useState(seoUrl);
   const [passedtheme, setpassedtheme] = useState(theme);
   const filterItems = (stringNeeded, arrayvalues) => {
@@ -74,8 +71,6 @@ export default function Episode({ navigation, route }) {
   const [videoType, setvideoType] = useState('auto');
   const [videoresolution, setvideoresolution] = useState('1280');
   const [subcategoryImages, setsubcategoryImages] = useState([])
-  const [lastPress, setLastPress] = useState(null);
-  const [tapCount, setTapCount] = useState(0);
   const [seektime, setseektime] = useState();
   const [showsettingsicon, setshowsettingsicon] = useState(true);
   const [introstarttime, setintrostarttime] = useState("");
@@ -94,21 +89,15 @@ export default function Episode({ navigation, route }) {
   const [loginrequired, setloginrequired] = useState(false);
   const [isfree, setisfree] = useState(false);
   const [relatedshows, setRelatedShows] = useState([]);
-  const [totalImages, setTotalImages] = useState([]);
-  const [thumbnailimageTop, setthumbnailimageTop] = useState(0);
-  const [thumbnailimageLeft, setthumbnailimageLeft] = useState(0);
-  const [thumbnailimageWidth, setthumbnailimageWidth] = useState(0);
-  const [thumbnailimageHeight, setthumbnailimageHeight] = useState(0);
-  const [thumbImage, setThumbImage] = useState("");
   const [totalHomeData, settotalHomeData] = useState([]);
   const [currentFriendlyId, setCurrentFriendlyId] = useState("");
   const [displayGuidelines, setDisplayGuidelines] = useState(true);
   const [subcatcurrentTheme, setsubcatcurrentTheme] = useState("");
   const [livetvshowstheme, setlivetvshowstheme] = useState("");
+  const [durationsttring, setdurationsttring] = useState("");
+  const [relatedMovies, setRelatedMovies] = useState([]);
   const swipeUpDownRef = useRef();
 
-  var multiTapCount = 10;
-  var multiTapDelay = 300;
   var client = useRemoteMediaClient();
   const dataFetchedRef = useRef(false);
 
@@ -186,12 +175,12 @@ export default function Episode({ navigation, route }) {
         //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/" + splittedData[2] + "/" + splittedData[3];
       }
       const url = urlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
+      const relatedurl = urlPath + "/related.gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
       //  console.log(seourl);
-      //  console.log(url);
       await axios.get(url).then(response => {
         setTitle(response.data.data.title);
         setOfflineUrl(response.data.data.play_url.saranyu.url);
-        setShareUrl(COMMON_BASE_URL + seourl );
+        setShareUrl(COMMON_BASE_URL + seourl);
         if (response.data.data.hasOwnProperty('channel_object'))
           setChannel(response.data.data.channel_object.name);
         if (response.data.data.hasOwnProperty('cbfc_rating'))
@@ -216,6 +205,7 @@ export default function Episode({ navigation, route }) {
         setcontentlanguage(response.data.data.language)
         setloginrequired(response.data.data.access_control.login_required)
         setisfree(response.data.data.access_control.is_free)
+        setdurationsttring(response.data.data.duration_string)
         if (response.data.data.hasOwnProperty('subcategory_object')) {
           setseriesname(response.data.data.subcategory_object.parentree.sub_name)
           setseriesid(response.data.data.subcategory_object.parentree.sub_id)
@@ -310,25 +300,28 @@ export default function Episode({ navigation, route }) {
       }).catch(error => {
         setLoading(false);
       })
+      if (passedtheme != 'live' && passedtheme != 'livetv') {
+        loadRelatedData(relatedurl);
+      }
     }
 
-    //thumbnail images
-    // await axios.get("https://prod.suv.etvwin.com/v2/smart_urls/6529227a49882c24b7c3d509?service_id=6&play_url=yes&protocol=hls&us=745d7e9f1e37ca27fdffbebfe8a99877").
-    //   then(tresp => {
-    //     axios.get(tresp.data.seekbar_thumbnail_url).then(vresp => {
-    //       const jsonContent = webvttToJson(vresp.data);
-    //       generateTimeIntervalsWithImageChanges(jsonContent);
-    //       //console.log(finalData);
-    //     }).catch(verr => {
-    //       console.log(verr);
-    //     })
-    //   }).catch(terr => {
-    //     console.log(terr);
-    //   })
+
     //ofline downloads
     let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
     if (lostTasks.length > 0)
       setIsresumeDownloading(true);
+  }
+  const loadRelatedData = async (relatedurl) => {
+    axios.get(relatedurl).then(resp => {
+      var subcategorydata = [];
+      for (var s = 0; s < resp.data.data.items.length; s++) {
+        subcategorydata.push({ 'thumbnail': resp.data.data.items[s].thumbnails.medium_3_4.url, 'title': resp.data.data.items[s].title, 'date': resp.data.data.items[s].release_date_uts, 'premium': resp.data.data.items[s].access_control.is_free, 'theme': resp.data.data.items[s].theme, 'seo_url': resp.data.data.items[s].seo_url })
+      }
+      console.log(JSON.stringify(subcategorydata));
+      setRelatedMovies(subcategorydata)
+    }).catch(err => {
+      console.log("related" + err);
+    })
   }
   const getlivetvshows = async () => {
     console.log("hiiiioooooo");
@@ -430,81 +423,6 @@ export default function Episode({ navigation, route }) {
     }
     console.log(JSON.stringify(Final));
     settotalHomeData(Final);
-  }
-
-  function webvttToJson(webvttContent) {
-    const lines = webvttContent.trim().split(/\r?\n/);
-    const cues = [];
-    let currentCue = null;
-
-    for (const line of lines) {
-      if (line.includes("-->")) {
-        const [startTime, endTime] = line.split(" --> ");
-        var a = startTime.split(':');
-        var b = endTime.split(':');
-        var startseconds = (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2]);
-        var endseconds = (+b[0]) * 60 * 60 + (+b[1]) * 60 + (+b[2]);
-        currentCue = {
-          start: startseconds,
-          end: endseconds,
-          filename: null,
-          coordinates: null
-        };
-        if (currentCue && currentCue.start && currentCue.end) {
-          cues.push(currentCue);
-        }
-      } else if (currentCue) {
-        if (line.includes("#xywh=")) {
-          const [filename, coordinates] = line.split("#xywh=");
-          currentCue.filename = filename.trim();
-          currentCue.coordinates = coordinates.trim();
-        }
-      }
-    }
-
-    if (currentCue && currentCue.start && currentCue.end) {
-      cues.push(currentCue);
-    }
-
-    return { cues };
-  }
-  function generateTimeIntervalsWithImageChanges(jsonContent) {
-    const intervals = [];
-    jsonContent.cues.forEach((cue, index) => {
-      const filename = cue.filename;
-      const startTime = cue.start;
-      const endTime = cue.end;
-      const coordinates = cue.coordinates;
-      intervals.push({
-        time: cue.start,
-        filename,
-        coordinates
-      });
-      for (let time = startTime; time <= endTime; time += 1) {
-        intervals.push({
-          time: time,
-          filename,
-          coordinates
-        });
-      }
-    });
-    setTotalImages(intervals);
-  }
-
-  function getThumbnailImage(time) {
-    var results = [];
-    console.log(time);
-    for (var i = 0; i < totalImages.length; i++) {
-      if (totalImages[i].time == time) {
-        results.push(totalImages[i]);
-        setThumbImage("https://etvwin-s3.akamaized.net/6529227449882c24b7c3d508/myvideofile/" + totalImages[i].filename)
-        var coordinateDetails = totalImages[i].coordinates.split(",");
-        setthumbnailimageLeft(coordinateDetails[0]);
-        setthumbnailimageTop(coordinateDetails[1]);
-        setthumbnailimageWidth(coordinateDetails[2]);
-        setthumbnailimageHeight(coordinateDetails[3]);
-      }
-    }
   }
 
   const triggeranalytics = async (name, sec) => {
@@ -622,7 +540,7 @@ export default function Episode({ navigation, route }) {
       }
     })
     BackHandler.addEventListener('hardwareBackPress', exitScreen);
-  }, [subcatcurrentTheme, livetvshowstheme])
+  }, [subcatcurrentTheme, livetvshowstheme, relatedMovies])
   function handleFullscreen() {
     setfullscreentap(!fullscreentap);
     Orientation.getOrientation((orientation) => {
@@ -851,21 +769,8 @@ export default function Episode({ navigation, route }) {
 
     const ShareResponse = await Share.open(shareOptions);
   }
-  // const onAdsLoaded = () => {
-  //   setTimeout(() => {
-  //     videoRef.startAds();
-  //   }, 10000);
-  // }
 
-  // const onAdStarted = () => {
-  //   setPlay(true);
-  // }
-
-  // const onAdsComplete = () => {
-  //   setPlay(false);
-  // }
   const toHoursAndMinutes = async (totalSeconds) => {
-    triggeranalytics("pb_end", totalSeconds);
     const totalMinutes = Math.floor(totalSeconds / 60);
 
     var seconds = totalSeconds % 60;
@@ -875,8 +780,13 @@ export default function Episode({ navigation, route }) {
     hours = String(hours).padStart(2, '0');
     minutes = String(minutes).padStart(2, '0');
     var timestamp = hours + ":" + minutes + ":" + seconds;
-    setcurrenttimestamp(timestamp);
-    setcurrentloadingtime(totalSeconds);
+    if (state.showControls) {
+      setcurrenttimestamp(timestamp);
+      setcurrentloadingtime(totalSeconds);
+    }
+    if (totalSeconds % 60 == 0) {
+      triggeranalytics("pb_end", totalSeconds);
+    }
     if ((totalSeconds % 30) == 0) {
       var sessionId = await AsyncStorage.getItem('session');
       if (sessionId != "" && sessionId != null && timestamp != "" && timestamp != null) {
@@ -893,7 +803,7 @@ export default function Episode({ navigation, route }) {
             'Content-Type': 'application/json',
           }
         }).then(response => {
-           console.log(JSON.stringify(response.data));
+          console.log(JSON.stringify(response.data));
         }).catch(error => {
           console.log(error);
         })
@@ -941,7 +851,7 @@ export default function Episode({ navigation, route }) {
                     <View style={{ marginBottom: 20 }} key={'innerkey' + index}>
                       <View>
                         {VIDEO_TYPES.includes(items.item.theme) ?
-                          <Pressable onPress={() => navigation.navigate({ name: 'Episode', params: { seoUrl: items.item.seo_url }, key: { index } })}>
+                          <Pressable onPress={() => navigation.navigate({ name: 'Episode', params: { seoUrl: items.item.seo_url,theme:"videolist",suburl:seourl }, key: { index } })}>
                             <FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
 
                             <View style={{ width: "100%", backgroundColor: DARKED_BORDER_COLOR, position: 'absolute', bottom: 0, borderRadius: 8, alignItems: 'flex-start', justifyContent: 'center', padding: 5 }}>
@@ -953,7 +863,7 @@ export default function Episode({ navigation, route }) {
 
                           </Pressable>
                           :
-                          <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                          <Pressable onPress={() => navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url,theme:"videolist",suburl:seourl }, key: { index } })}><FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
 
                             <View style={{ width: "100%", backgroundColor: DARKED_BORDER_COLOR, position: 'absolute', bottom: 0, borderRadius: 8, alignItems: 'flex-start', justifyContent: 'center', padding: 5 }}>
                               <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: '500' }}>{items.item.title}</Text>
@@ -986,24 +896,6 @@ export default function Episode({ navigation, route }) {
       </View>
     )
   }
-  const handlePress = () => {
-    const now = Date.now();
-
-    setLastPress(now);
-    if (now - lastPress <= multiTapDelay) {
-      if (tapCount < multiTapCount - 1) {
-        setTapCount(tapCount + 1);
-        console.log(tapCount);
-      } else {
-        showControls()
-      }
-    } else {
-      //setTapCount(1);
-      showControls()
-    }
-
-    //videoRef.current.seek()
-  };
 
   const playnextitem = async () => {
     const session = await AsyncStorage.getItem('session');
@@ -1077,11 +969,26 @@ export default function Episode({ navigation, route }) {
     );
   }
 
+  const renderRelatedMovies = ({ item, index }) => {
+    return (
+      <>
+        <Pressable style={{ width: "33%", marginBottom: 20 }} onPress={() =>
+          VIDEO_TYPES.includes(item.theme) ?
+            navigation.navigate({ name: 'Episode', params: { seoUrl: item.seo_url }, key: { index } })
+            :
+            navigation.navigate({ name: 'Shows', params: { seoUrl: item.seo_url }, key: { index } })
+
+        }>
+          <FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionVertical} source={{ uri: item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+        </Pressable>
+      </>
+    )
+  }
 
 
   return (
     <View style={styles.mainContainer}>
-      <ScrollView style={{ flex: 1, flexGrow: 1 }} nestedScrollEnabled={true} horizontal={false}>
+      <ScrollView style={{ flex: 1, flexGrow: 1, }} nestedScrollEnabled={true} horizontal={false}>
         <View style={styles.container}>
           {playUrl != "" && playUrl != null && streemexceedlimit == false && !showupgrade ?
 
@@ -1165,7 +1072,7 @@ export default function Episode({ navigation, route }) {
                     style={styles.navigationBack}>
                     <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
                   </TouchableOpacity>
-                  
+
                   {displayGuidelines && (
                     <>
                       <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold', position: 'absolute', top: 60, left: 20 }}>Rated : {contentRating}</Text>
@@ -1341,7 +1248,7 @@ export default function Episode({ navigation, route }) {
                   <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', }]}>| </Text>
                   {title}</Text>
                 <View style={{ flexDirection: 'row' }}>
-                  {channel ? <Text style={styles.detailsText}>{channel} - {contentRating} </Text> : ""}
+                  {channel ? <Text style={styles.detailsText}>{channel} - {contentRating}</Text> : ""}
                   {displayGenres.map((resp, index) => {
 
                     return (
@@ -1352,6 +1259,7 @@ export default function Episode({ navigation, route }) {
                     )
 
                   })}
+                  {durationsttring ? <Text style={styles.detailsText}> - {' '} {durationsttring}</Text> : ""}
                 </View>
                 <ReadMore numberOfLines={5} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
                   <Text style={styles.detailsText}>{description}</Text>
@@ -1453,6 +1361,20 @@ export default function Episode({ navigation, route }) {
             </>
             :
             ""}
+          {passedtheme != 'live' && passedtheme != 'livetv' && relatedMovies.length>0 ?
+            <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', width: "100%", marginTop: 30,padding:2 }}>
+              <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: '500',marginBottom:20,marginLeft:20 }}>Related</Text>
+              <FlatList
+                data={relatedMovies}
+                renderItem={renderRelatedMovies}
+                keyExtractor={(x, i) => i.toString()}
+                contentContainerStyle={{ marginBottom: 50 }}
+                numColumns={3}
+              />
+            </View>
+            : ""
+
+          }
 
           <Modal
             isVisible={isModalVisible}
@@ -1521,22 +1443,22 @@ export default function Episode({ navigation, route }) {
           />
         </View>
       </ScrollView>
-      {subcatcurrentTheme == 'movie' ? 
-      <SwipeUpDown
-        ref={swipeUpDownRef}
-        itemMini={(show) => (
-          <View
-            style={{
-              alignItems: "center",
-            }}
-          >
-            <Text onPress={show} style={{
-              color: NORMAL_TEXT_COLOR, fontWeight: '500'
-              , fontSize: 20
-            }}>Load More...</Text>
-          </View>
-        )}
-        itemFull={(close) => (
+      {subcatcurrentTheme == 'movie' ?
+        <SwipeUpDown
+          ref={swipeUpDownRef}
+          itemMini={(show) => (
+            <View
+              style={{
+                alignItems: "center",
+              }}
+            >
+              <Text onPress={show} style={{
+                color: NORMAL_TEXT_COLOR, fontWeight: '500'
+                , fontSize: 20
+              }}>Load More...</Text>
+            </View>
+          )}
+          itemFull={(close) => (
             <TouchableWithoutFeedback>
               {
                 (passedtheme != 'live' && passedtheme != 'livetv' && subcategoryImages && !fullscreen) ?
@@ -1549,21 +1471,21 @@ export default function Episode({ navigation, route }) {
                   :
                   ""}
             </TouchableWithoutFeedback>
-        )}
-        onShowMini={() => {
-          setsubcategoryImages([])
-        }}
-        onShowFull={() => {
-          if (subcatcurrentTheme == 'movie') {
-            getsubcatDetails()
-          }
-        }}
-        animation="spring"
-        extraMarginTop={25}
-        style={{ backgroundColor: DARKED_BORDER_COLOR, flex: 1 }}
-        iconColor={TAB_COLOR}
-      />
-      :""}
+          )}
+          onShowMini={() => {
+            setsubcategoryImages([])
+          }}
+          onShowFull={() => {
+            if (subcatcurrentTheme == 'movie') {
+              getsubcatDetails()
+            }
+          }}
+          animation="spring"
+          extraMarginTop={25}
+          style={{ backgroundColor: DARKED_BORDER_COLOR, flex: 1 }}
+          iconColor={TAB_COLOR}
+        />
+        : ""}
 
 
     </View>

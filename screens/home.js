@@ -1557,7 +1557,9 @@ function Home({ navigation, route }) {
     settvshowsautoPlay(false);
     setexclusiveautoPlay(false);
     setbannerautoPlay(false);
-    navigation.navigate(page, { seoUrl: url, theme: theme });
+    navigation.dispatch(
+      StackActions.replace(page, { seoUrl: url, theme: theme })
+    );
   };
 
   // const blockStyle = useAnimatedStyle(() => {
