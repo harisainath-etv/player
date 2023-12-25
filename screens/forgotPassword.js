@@ -113,7 +113,7 @@ export default function ForgotPassword() {
 
                 <Text style={styles.errormessage}>{responseError}</Text>
                 {region == 'IN' ?
-                    <TextInput onChangeText={setEmail} value={email} style={styles.textinput} placeholder="Registered Email Id / Mobile Number*" placeholderTextColor={NORMAL_TEXT_COLOR} />
+                    <TextInput onChangeText={setEmail} value={email} style={styles.textinput} placeholder="Registered Email Id *" placeholderTextColor={NORMAL_TEXT_COLOR} />
                     :
                     <TextInput onChangeText={setEmail} value={email} style={styles.textinput} placeholder="Registered Email Id *" placeholderTextColor={NORMAL_TEXT_COLOR} />
                 }

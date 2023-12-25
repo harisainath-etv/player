@@ -245,7 +245,7 @@ function Home({ navigation, route }) {
                 else
                     definedPageName = pageName;
                 const region = await AsyncStorage.getItem('country_code');
-                const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
+                const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&page=" + p + "&page_size=" + paginationLoadCount + "&npage_size=10";
                 const resp = await fetch(url);
                 const data = await resp.json();
                 setPagenumber(p + 1);
@@ -1475,7 +1475,7 @@ function Home({ navigation, route }) {
                     <View style={index == 0 ? {} : {}}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => {
+                            {item.data.length > 2 && item.layoutType!='continue_watching' && item.displayName.toLowerCase()!='food' ? <Pressable style={{ width: "100%" }} onPress={() => {
                                 settotalHomeData([]);
                                 navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })
                             }}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
