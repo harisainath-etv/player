@@ -25,6 +25,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import messaging from '@react-native-firebase/messaging';
 import base64 from 'react-native-base64';
+import Orientation from 'react-native-orientation-locker';
 
 
 export const ElementsText = {
@@ -162,6 +163,7 @@ function Home({ navigation, route }) {
 
     }
     async function loadData(p) {
+        Orientation.lockToPortrait();
         const notificationPage = await AsyncStorage.getItem('notificationPage');
         const notificationSeourl = await AsyncStorage.getItem('notificationSeourl');
         const notificationTheme = await AsyncStorage.getItem('notificationTheme');
