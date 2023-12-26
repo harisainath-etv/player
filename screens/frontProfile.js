@@ -206,7 +206,7 @@ export default function FrontProfile({ navigation }) {
 
                         <View style={{ marginBottom: 60 }}>
                             <Text style={{ color: NORMAL_TEXT_COLOR }}>Pincode</Text>
-                            <TextInput placeholder='000000' onChangeText={setpincode} placeholderTextColor={NORMAL_TEXT_COLOR} style={{ color: NORMAL_TEXT_COLOR, borderBottomColor: DETAILS_TEXT_COLOR, borderBottomWidth: 0.5, padding: 10 }} keyboardType='numeric'></TextInput>
+                            <TextInput placeholder='000000' maxLength={6} onChangeText={setpincode} placeholderTextColor={NORMAL_TEXT_COLOR} style={{ color: NORMAL_TEXT_COLOR, borderBottomColor: DETAILS_TEXT_COLOR, borderBottomWidth: 0.5, padding: 10 }} keyboardType='numeric'></TextInput>
                         </View>
 
                         <View style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 30 }}>
@@ -236,6 +236,7 @@ export default function FrontProfile({ navigation }) {
                         onCancel={() => {
                             setOpen(false)
                         }}
+                        maximumDate={new Date()}
                         mode='date'
                     />
                 </View>

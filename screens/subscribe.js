@@ -492,7 +492,7 @@ export default function Subscribe({ navigation }) {
                                 borderWidth: 1, borderColor: DETAILS_TEXT_COLOR, width: '90%'
                                 , padding: 7, borderTopRightRadius: 10, borderTopLeftRadius: 10, backgroundColor: NORMAL_TEXT_COLOR
                             }}>
-                                <Text style={{ color: BACKGROUND_COLOR, fontSize: 13, fontWeight: '500' }}>Avalibale Features</Text>
+                                <Text style={{ color: BACKGROUND_COLOR, fontSize: 13, fontWeight: '500' }}>Available Features</Text>
                             </View>
                             <View style={{
                                 borderWidth: 1, borderColor: DETAILS_TEXT_COLOR
