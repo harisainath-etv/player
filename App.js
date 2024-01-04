@@ -884,7 +884,7 @@ export default function App() {
     );
   }
   const linking = {
-    prefixes: ["hari://staging.etvwin.com"],
+    prefixes: ["https://staging.etvwin.com"],
     config: {
       screens: {},
     },

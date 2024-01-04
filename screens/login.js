@@ -5,10 +5,6 @@ import axios from 'axios';
 import { BACKGROUND_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, AUTH_TOKEN, DETAILS_TEXT_COLOR, MORE_LINK_COLOR, FIRETV_BASE_URL_STAGING, WEB_CLIENT_ID, ACCESS_TOKEN, VIDEO_AUTH_TOKEN, SLIDER_PAGINATION_SELECTED_COLOR, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, FIRETV_BASE_URL } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
-import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
-import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
-import auth from '@react-native-firebase/auth';
-import analytics from '@react-native-firebase/analytics';
 import DeviceInfo from 'react-native-device-info';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
@@ -43,27 +39,27 @@ export default function Login({ navigation }) {
         // });
         isSignedIn()
     }, [])
-    async function onFacebookButtonPress() {
-        // Attempt login with permissions
-        const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+    // async function onFacebookButtonPress() {
+    //     // Attempt login with permissions
+    //     const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
 
-        if (result.isCancelled) {
-            throw 'User cancelled the login process';
-        }
+    //     if (result.isCancelled) {
+    //         throw 'User cancelled the login process';
+    //     }
 
-        // Once signed in, get the users AccessToken
-        const data = await AccessToken.getCurrentAccessToken();
+    //     // Once signed in, get the users AccessToken
+    //     const data = await AccessToken.getCurrentAccessToken();
 
-        if (!data) {
-            throw 'Something went wrong obtaining access token';
-        }
+    //     if (!data) {
+    //         throw 'Something went wrong obtaining access token';
+    //     }
 
-        // Create a Firebase credential with the AccessToken
-        const facebookCredential = auth.FacebookAuthProvider.credential(data.accessToken);
+    //     // Create a Firebase credential with the AccessToken
+    //     const facebookCredential = auth.FacebookAuthProvider.credential(data.accessToken);
 
-        // Sign-in the user with the credential
-        return auth().signInWithCredential(facebookCredential);
-    }
+    //     // Sign-in the user with the credential
+    //     return auth().signInWithCredential(facebookCredential);
+    // }
     const triggersuccessanalytics = async (name, method, u_id, device_id) => {
         sdk.trackEvent(name, {
             method: method,

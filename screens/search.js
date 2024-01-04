@@ -20,10 +20,12 @@ export default function Search({ navigation }) {
     const paginationLoadCount = 18;
 
     const loadData = async (clear) => {
-        // if(clear)
-        // {
-        //     setEpisodes("");
-        // }
+        if(clear)
+        {
+            setEpisodes([]);
+            setPagenumber(0);
+            settoload(true);
+        }
         if (toload) {
             setloading(true);
             setEmptyResponse("");
@@ -33,7 +35,7 @@ export default function Search({ navigation }) {
             var premiumCheckData = "";
             const region = await AsyncStorage.getItem('country_code');
             const from = paginationLoadCount * pagenumber;
-            // console.log(FIRETV_BASE_URL_STAGING + "/search?q=" + search + "&page_size=" + paginationLoadCount + "&from=" + from + "&start_count=0&page=" + pagenumber + "&item_language=eng&region=" + region + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN);
+            console.log(FIRETV_BASE_URL_STAGING + "/search?q=" + search + "&page_size=" + paginationLoadCount + "&from=" + from + "&start_count=0&page=" + pagenumber + "&item_language=eng&region=" + region + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN);
             axios.get(FIRETV_BASE_URL_STAGING + "/search?q=" + search + "&page_size=" + paginationLoadCount + "&from=" + from + "&start_count=0&page=" + pagenumber + "&item_language=eng&region=" + region + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN).then(response => {
                 setPagenumber(pagenumber + 1);
                 if (response.data.data.items.length > 0) {

@@ -317,7 +317,7 @@ export default function Profile({ navigation }) {
 
             }
             <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
-                <TouchableOpacity onPress={() => { navigation.navigate('EditProfile',{letter:name.charAt(0)}) }} style={{}}>
+                <TouchableOpacity onPress={() => { navigation.navigate('EditProfile',{letter: name!="" && name!=null  && name!="-" ? name.charAt(0) : ""}) }} style={{}}>
 
                     <LinearGradient
                         useAngle={true}

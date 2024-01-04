@@ -42,7 +42,7 @@
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
         <data android:scheme="ETV Win" />
-        <data android:scheme="hari" android:host="staging.etvwin.com" 
+        <data android:scheme="https" android:host="staging.etvwin.com" 
          android:pathPrefix="/" />
         <data android:scheme="http" android:host="staging.etvwin.com" 
         android:pathPrefix="/"/>

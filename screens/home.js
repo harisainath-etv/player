@@ -73,6 +73,7 @@ import LinearGradient from "react-native-linear-gradient";
 import { useFocusEffect } from "@react-navigation/native";
 import messaging from "@react-native-firebase/messaging";
 import base64 from "react-native-base64";
+import Orientation from "react-native-orientation-locker";
 
 export const ElementsText = {
   AUTOPLAY: "AutoPlay",
@@ -223,6 +224,7 @@ function Home({ navigation, route }) {
       });
   };
   async function loadData(p) {
+    Orientation.lockToPortrait();
     const notificationPage = await AsyncStorage.getItem("notificationPage");
     const notificationSeourl = await AsyncStorage.getItem("notificationSeourl");
     const notificationTheme = await AsyncStorage.getItem("notificationTheme");
@@ -327,8 +329,6 @@ function Home({ navigation, route }) {
           region +
           "&auth_token=" +
           AUTH_TOKEN +
-          "&access_token=" +
-          ACCESS_TOKEN +
           "&page=" +
           p +
           "&page_size=" +
@@ -2961,7 +2961,9 @@ function Home({ navigation, route }) {
           <View style={index == 0 ? {} : {}}>
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
-              {item.data.length > 2 ? (
+              {item.data.length > 2 &&
+              item.layoutType != "continue_watching" &&
+              item.displayName.toLowerCase() != "food" ? (
                 <Pressable
                   style={{ width: "100%" }}
                   onPress={() => {
