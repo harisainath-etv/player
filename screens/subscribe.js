@@ -53,8 +53,11 @@ export default function Subscribe({ navigation }) {
   const [currentplan, setcurrentplan] = useState("");
   const [usersubscribed, setusersubscribed] = useState();
   const [userRenewUpgrade, setuserRenewUpgrade] = useState("");
+  const [buttonchange, setButtonchange] = useState("");
+  const [activeplan, setActiveplan] = useState("");
   const loadData = async () => {
     var currentplan = await AsyncStorage.getItem("plan_id");
+    setActiveplan(currentplan);
     setusersubscribed(await AsyncStorage.getItem("payable_coupon_display"));
     setcurrentplan(currentplan);
     var items = [];
@@ -86,6 +89,15 @@ export default function Subscribe({ navigation }) {
       })
       .catch((error) => {});
   };
+  console.log("plan==========", activeplan);
+  // const Allplan = async () => {
+  //   const plandetail = await AsyncStorage.getItem("plan_id");
+  //   setActiveplan(JSON.stringify(plandetail));
+  //   // console.log(JSON.stringify(plandetail), "hfy123fyy=============");
+  // };
+  // useEffect(() => {
+  //   Allplan();
+  // }, [navigation]);
   async function loadpackdetails() {
     var plans = [];
     const region = await AsyncStorage.getItem("country_code");
@@ -614,6 +626,7 @@ export default function Subscribe({ navigation }) {
                       key={resp.id}
                       style={{}}
                       onPress={() => {
+                        setButtonchange(resp.title);
                         setselectedprice(resp.id);
                         setselectedpriceforpayment(resp.price);
                         setselectedpriceforduration(resp.display_period);
@@ -714,7 +727,7 @@ export default function Subscribe({ navigation }) {
                     fontWeight: "500",
                   }}
                 >
-                  Avalibale Features
+                  Available Features
                 </Text>
               </View>
               <View
@@ -789,44 +802,93 @@ export default function Subscribe({ navigation }) {
                       onPress={proceedtopay}
                       style={{ width: "100%" }}
                     >
-                      <LinearGradient
-                        useAngle={true}
-                        angle={125}
-                        angleCenter={{ x: 0.5, y: 0.5 }}
-                        colors={[
-                          BUTTON_COLOR,
-                          TAB_COLOR,
-                          TAB_COLOR,
-                          TAB_COLOR,
-                          BUTTON_COLOR,
-                        ]}
-                        style={{
-                          justifyContent: "center",
-                          alignItems: "center",
-                          backgroundColor: TAB_COLOR,
-                          color: NORMAL_TEXT_COLOR,
-                          width: "100%",
-                          padding: 12,
-                          borderRadius: 10,
-                          marginRight: 20,
-                          borderColor: TAB_COLOR,
-                          borderWidth: 0.5,
-                        }}
-                      >
-                        <View
-                          style={{ flexDirection: "row", alignItems: "center" }}
+                      {activeplan ? (
+                        <LinearGradient
+                          useAngle={true}
+                          angle={125}
+                          angleCenter={{ x: 0.5, y: 0.5 }}
+                          colors={[
+                            BUTTON_COLOR,
+                            TAB_COLOR,
+                            TAB_COLOR,
+                            TAB_COLOR,
+                            BUTTON_COLOR,
+                          ]}
+                          style={{
+                            justifyContent: "center",
+                            alignItems: "center",
+                            backgroundColor: TAB_COLOR,
+                            color: NORMAL_TEXT_COLOR,
+                            width: "100%",
+                            padding: 12,
+                            borderRadius: 10,
+                            marginRight: 20,
+                            borderColor: TAB_COLOR,
+                            borderWidth: 0.5,
+                          }}
                         >
-                          <Text
+                          <View
                             style={{
-                              color: NORMAL_TEXT_COLOR,
-                              fontSize: 13,
-                              fontWeight: "bold",
+                              flexDirection: "row",
+                              alignItems: "center",
                             }}
                           >
-                            Subscribe
-                          </Text>
-                        </View>
-                      </LinearGradient>
+                            <Text
+                              style={{
+                                color: NORMAL_TEXT_COLOR,
+                                fontSize: 13,
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {(buttonchange == "" && "Subscribe") ||
+                                (buttonchange == "Year" && "Renewal") ||
+                                (buttonchange == "Month" && "Upgrade")}
+                            </Text>
+                          </View>
+                        </LinearGradient>
+                      ) : (
+                        <LinearGradient
+                          useAngle={true}
+                          angle={125}
+                          angleCenter={{ x: 0.5, y: 0.5 }}
+                          colors={[
+                            BUTTON_COLOR,
+                            TAB_COLOR,
+                            TAB_COLOR,
+                            TAB_COLOR,
+                            BUTTON_COLOR,
+                          ]}
+                          style={{
+                            justifyContent: "center",
+                            alignItems: "center",
+                            backgroundColor: TAB_COLOR,
+                            color: NORMAL_TEXT_COLOR,
+                            width: "100%",
+                            padding: 12,
+                            borderRadius: 10,
+                            marginRight: 20,
+                            borderColor: TAB_COLOR,
+                            borderWidth: 0.5,
+                          }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Text
+                              style={{
+                                color: NORMAL_TEXT_COLOR,
+                                fontSize: 13,
+                                fontWeight: "bold",
+                              }}
+                            >
+                              Subscribe
+                            </Text>
+                          </View>
+                        </LinearGradient>
+                      )}
                     </TouchableOpacity>
                   </View>
                 </View>

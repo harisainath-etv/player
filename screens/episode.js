@@ -23,6 +23,7 @@ import GoogleCast, { useRemoteMediaClient, } from 'react-native-google-cast';
 import DeviceInfo from 'react-native-device-info';
 import FastImage from 'react-native-fast-image';
 import SwipeUpDown from 'react-native-swipe-up-down';
+import { check, PERMISSIONS, RESULTS } from 'react-native-permissions';
 var isTablet = DeviceInfo.isTablet();
 var relatedShows = [];
 export default function Episode({ navigation, route }) {
@@ -120,8 +121,8 @@ export default function Episode({ navigation, route }) {
   };
   const exitScreen = async () => {
     StatusBar.setHidden(false)
-    { 
-      !fullscreentap ? handleFullscreen() : checkgoback() 
+    {
+      !fullscreentap ? handleFullscreen() : checkgoback()
     }
   }
 
@@ -991,7 +992,7 @@ export default function Episode({ navigation, route }) {
   const renderRelatedMovies = ({ item, index }) => {
     return (
       <>
-        <Pressable style={{ width: "33%", marginBottom: 20 }} onPress={() =>
+        <Pressable style={{ marginBottom: 20 }} onPress={() =>
           VIDEO_TYPES.includes(item.theme) ?
             navigation.navigate({ name: 'Episode', params: { seoUrl: item.seo_url }, key: { index } })
             :
@@ -1501,7 +1502,7 @@ export default function Episode({ navigation, route }) {
           }}
           animation="spring"
           extraMarginTop={25}
-          style={{ backgroundColor: DARKED_BORDER_COLOR, flex: 1 }}
+          style={{ backgroundColor: DARKED_BORDER_COLOR, height: PAGE_HEIGHT }}
           iconColor={TAB_COLOR}
         />
         : ""}
