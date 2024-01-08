@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressable } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressable, Alert } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
@@ -71,8 +71,10 @@ export default function Otp({ navigation, route }) {
         var frontpagegender = await AsyncStorage.getItem('frontpagegender');
         var frontpagepincode = await AsyncStorage.getItem('frontpagepincode');
         const device_token = await messaging().getToken();
+        if((otp1 + otp2 + otp3 + otp4 + otp5 + otp6).length==6)
+        {
         if (otpkey == "loginMobile") {
-            console.log(JSON.stringify({ action: "signin", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: loginMobile, mobile_number: loginMobile, device_token: device_token }));
+          
             axios.post(FIRETV_BASE_URL_STAGING + "users/verify_otp", {
                 auth_token: AUTH_TOKEN,
                 user: { action: "signin", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: loginMobile, mobile_number: loginMobile, device_token: device_token }
@@ -354,6 +356,9 @@ export default function Otp({ navigation, route }) {
                         }
                         );
                 }
+        }
+        else
+        Alert.alert('OTP Validation','Please enter a valid otp.')
     }
     const resendOtp = async () => {
 

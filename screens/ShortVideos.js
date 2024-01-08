@@ -1,4 +1,4 @@
-import { View, FlatList, Pressable, StyleSheet, StatusBar, TouchableOpacity } from 'react-native'
+import { View, FlatList, Text, StyleSheet, StatusBar, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, COMMON_BASE_URL, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, VIDEO_AUTH_TOKEN } from '../constants'
 import TransparentHeader from './transparentHeader';
@@ -135,7 +135,7 @@ export default function Shorts({ navigation }) {
                     'Content-Type': 'application/json',
                 }
             }).then(res => {
-                    setVideos((Videos) => [...Videos, ...[{ "video": res.data.data.stream_info.adaptive_url, "catalog_id": catalog_id, "content_id": content_id, "shareUrl": shareUrl, "title": title, "likecontent": likecontent, "full_catalog_id": full_catalog_id, "full_content_id": full_content_id }]]);
+                setVideos((Videos) => [...Videos, ...[{ "video": res.data.data.stream_info.adaptive_url, "catalog_id": catalog_id, "content_id": content_id, "shareUrl": shareUrl, "title": title, "likecontent": likecontent, "full_catalog_id": full_catalog_id, "full_content_id": full_content_id }]]);
             }).catch(er => {
                 console.log("getall" + er);
             })
@@ -238,8 +238,6 @@ export default function Shorts({ navigation }) {
         return (
 
             <View style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flex: 1, flexGrow: 1 }}>
-
-
                 <Video
                     ref={videoRef}
                     source={{ uri: item.video }}
@@ -254,6 +252,25 @@ export default function Shorts({ navigation }) {
                     style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flexGrow: 1, flex: 1 }}
                     playWhenInactive={false}
                 />
+                <TouchableOpacity style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), position: 'absolute', top: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.1)' }} onPress={() => {
+                    if (currentIndexValue == -1) {
+                        setcurrentIndexValue(index)
+                    }
+                    else {
+                        setcurrentIndexValue(-1)
+                    }
+                }}>
+                    {currentIndexValue == -1 ?
+                        <AntDesign
+                        name='pausecircle'
+                        color={NORMAL_TEXT_COLOR}
+                        size={40}
+                        ></AntDesign> : ""
+                    }
+                    {/* <Text style={{color:NORMAL_TEXT_COLOR,fontSize:16,fontWeignt:'800',marginLeft:10,position:'absolute',bottom:80,left:10}}>
+                        {item.title}
+                    </Text> */}
+                </TouchableOpacity>
 
                 <View style={{ position: 'absolute', right: 15, top: '50%', }}>
                     {

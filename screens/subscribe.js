@@ -714,7 +714,7 @@ export default function Subscribe({ navigation }) {
                     fontWeight: "500",
                   }}
                 >
-                  Avalibale Features
+                  Available Features
                 </Text>
               </View>
               <View
