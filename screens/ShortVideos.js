@@ -13,7 +13,7 @@ import Share from 'react-native-share';
 import { StackActions } from '@react-navigation/native';
 export default function Shorts({ navigation }) {
     const [startindex, setstartindex] = useState(0);
-    var limit = 3;
+    var limit = 5;
     const [Videos, setVideos] = useState([]);
     const flatListRef = useRef();
     const videoRef = useRef();
@@ -135,6 +135,7 @@ export default function Shorts({ navigation }) {
                     'Content-Type': 'application/json',
                 }
             }).then(res => {
+                console.log(title+","+res.data.data.stream_info.adaptive_url);
                 setVideos((Videos) => [...Videos, ...[{ "video": res.data.data.stream_info.adaptive_url, "catalog_id": catalog_id, "content_id": content_id, "shareUrl": shareUrl, "title": title, "likecontent": likecontent, "full_catalog_id": full_catalog_id, "full_content_id": full_content_id }]]);
             }).catch(er => {
                 console.log("getall" + er);

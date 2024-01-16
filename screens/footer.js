@@ -173,7 +173,7 @@ export default function Footer(props) {
                 }
             </View>
 
-            {castState != NO_CAST_DEVICES && castDisplay != 'basic_plan' && castDisplay != '' && pageName != 'SHORTS' ?
+            {castState != NO_CAST_DEVICES && pageName != 'SHORTS' ?
                 castSet ?
                     <TouchableOpacity onPress={CastSession}><View style={styles.chromeCast}><MaterialCommunityIcons name="cast-connected" size={20} color="white" /></View></TouchableOpacity>
                     :

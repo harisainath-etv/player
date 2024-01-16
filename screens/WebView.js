@@ -14,7 +14,11 @@ export default function Webview({ navigation, route }) {
             <NormalHeader></NormalHeader>
             {uri != "" ?
                 <WebView ref={ref} source={{ uri: uri }} scalesPageToFit
-                originWhitelist={["*"]}  style={{ flex: 1,width:PAGE_WIDTH, height: PAGE_HEIGHT+50,backgroundColor:BACKGROUND_COLOR,marginTop:90 }} onNavigationStateChange={(resp)=>{
+                originWhitelist={["*"]}  
+                geolocationEnabled={true}
+                mediaPlaybackRequiresUserAction={false}
+                javaScriptEnabled={true} 
+                style={{ flex: 1,width:PAGE_WIDTH, height: PAGE_HEIGHT+50,backgroundColor:BACKGROUND_COLOR,marginTop:90 }} onNavigationStateChange={(resp)=>{
                     console.log(resp.url);
                     if (resp.url.startsWith('tel:')) {
                       const phoneNumber = resp.url.substring(4);

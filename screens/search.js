@@ -26,7 +26,7 @@ export default function Search({ navigation }) {
             setPagenumber(0);
             settoload(true);
         }
-        if (toload) {
+        if (toload && search!="") {
             setloading(true);
             setEmptyResponse("");
             var Final = [];

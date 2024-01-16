@@ -48,12 +48,13 @@ export default function Feedback({ navigation }) {
     setloading(true);
 
     const region = await AsyncStorage.getItem('country_code');
-    
+
       if (selectedchannelname == "" || selectedchannelname == null || comments == "" || comments == null || showname == "" || showname == null || email == "" || email == null) { 
        alert('Please fill all the mandatory details.');
        setloading(false);
       }
-      else {
+      else 
+      if(ValidateEmail(email)){
         axios.post(FIRETV_BASE_URL_STAGING + "users/feedback", {
           access_token: ACCESS_TOKEN,
           auth_token: VIDEO_AUTH_TOKEN,
@@ -74,6 +75,11 @@ export default function Feedback({ navigation }) {
         }).catch(error => {
           alert("Something went wrong. Please try again later.")
         })
+      }
+      else
+      {
+        alert('Invalid Email');
+        setloading(false);
       }
 
   }

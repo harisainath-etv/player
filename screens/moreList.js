@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState, useEffect, useRef, } from 'react';
 import { View, FlatList, StyleSheet, Text, ActivityIndicator, Image, Pressable } from 'react-native';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES } from '../constants';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, actuatedNormalize } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from './footer';
@@ -115,7 +115,7 @@ function MoreList({ navigation, route }) {
                                             }
                                         }}>
                                             <FastImage
-                                                resizeMode={FastImage.resizeMode.contain}
+                                                resizeMode={FastImage.resizeMode.cover}
                                                 style={[styles.imageSectionVertical]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
@@ -151,7 +151,7 @@ function MoreList({ navigation, route }) {
                                             }
                                         }}>
                                             <FastImage
-                                                resizeMode={FastImage.resizeMode.contain}
+                                                resizeMode={FastImage.resizeMode.cover}
                                                 style={[styles.imageSectionHorizontal]}
                                                 source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 30, height: 30, right: 10, bottom: 15 }}></Image> : ""}
@@ -277,11 +277,11 @@ const styles = StyleSheet.create({
         resizeMode: 'stretch'
     },
     imageSectionVertical: {
-        width: PAGE_WIDTH / 3.15,
-        height: 170,
-        marginHorizontal: 3,
-        borderRadius: 10,
+        width: PAGE_WIDTH / 3.1,
+        height: actuatedNormalize(155),
+        borderRadius: 18,
         marginBottom: 10,
+        marginHorizontal: 1
 
     },
     imageSectionCircle: {

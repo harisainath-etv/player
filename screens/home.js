@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
-import { View, FlatList, StyleSheet, Text, Pressable, ActivityIndicator, RefreshControl, TouchableOpacity, Image, LogBox, StatusBar } from 'react-native';
+import { View, FlatList, StyleSheet, Text, Pressable, ActivityIndicator, RefreshControl, TouchableOpacity, Image, LogBox, StatusBar, BackHandler } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -786,12 +786,11 @@ function Home({ navigation, route }) {
     }
 
     const naviagtetopage = async (page, url, theme) => {
-        settotalHomeData([]);
         setAutoPlay(false);
         settvshowsautoPlay(false);
         setexclusiveautoPlay(false);
         setbannerautoPlay(false);
-        navigation.dispatch(StackActions.replace(page, { seoUrl: url, theme: theme }))
+        navigation.navigate(page, { seoUrl: url, theme: theme })
     }
 
     // const blockStyle = useAnimatedStyle(() => {
@@ -1479,7 +1478,7 @@ function Home({ navigation, route }) {
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
                             {item.data.length > 2 && item.layoutType!='continue_watching' && item.displayName.toLowerCase()!='food' ? <Pressable style={{ width: "100%" }} onPress={() => {
                                 settotalHomeData([]);
-                                navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[0] })
+                                navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                             }}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
                         </View>
                         {isTablet ?
@@ -1544,7 +1543,7 @@ function Home({ navigation, route }) {
                             />
                         }
                     </View> : ""}
-
+                    {index == totalHomeData.length-1 ? <View style={{marginBottom:50}}></View>: ""}
             </View>
         );
     }
@@ -1599,12 +1598,17 @@ function Home({ navigation, route }) {
         if (selectedItem == "") {
             selectedItem = 0;
         }
+        BackHandler.addEventListener('hardwareBackPress', handleBack);
         LogBox.ignoreLogs(['`new NativeEventEmitter()` was called with a non-null']);
     }, [totalHomeData])
 
     const memoizedValue = useMemo(() => renderItem, [totalHomeData]);
     const loadFilters = async () => {
         navigation.navigate('FoodFilter');
+    }
+    const handleBack = async() =>{
+        Orientation.lockToPortrait();
+        return true;
     }
     return (
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
@@ -1639,7 +1643,7 @@ function Home({ navigation, route }) {
                 : ""}
             {/* header menu */}
             <View style={{ left: "50%", position: 'absolute', zIndex: 10000, top: '50%' }}>
-                {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} style={{}}></ActivityIndicator> : ""}
+                {loading ? <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} style={{}}></ActivityIndicator></View> : ""}
             </View>
             <View style={{ position: 'absolute', backgroundColor: menubgcolor, width: PAGE_WIDTH }}>
                 <View style={{ marginTop: 30, justifyContent: 'center', alignContent: 'center', alignItems: 'center', flexDirection: 'row', width: "100%" }}>

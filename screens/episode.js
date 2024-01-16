@@ -55,7 +55,7 @@ export default function Episode({ navigation, route }) {
   const [loggedin, setloggedin] = useState(false);
   const [showupgrade, setshowupgrade] = useState(false);
   const videoRef = createRef();
-  const [state, setState] = useState({ showControls: true, progress: 0, isPaused: false, });
+  const [state, setState] = useState({ showControls: false, progress: 0, isPaused: false, });
   const [contentId, setContentId] = useState();
   const [catalogId, setCatalogId] = useState();
   const [watchlatercontent, setwatchlatercontent] = useState();
@@ -97,6 +97,7 @@ export default function Episode({ navigation, route }) {
   const [livetvshowstheme, setlivetvshowstheme] = useState("");
   const [durationsttring, setdurationsttring] = useState("");
   const [relatedMovies, setRelatedMovies] = useState([]);
+  const [castDisplay, setCastDisplay] = useState('basic_plan');
   const swipeUpDownRef = useRef();
 
   var client = useRemoteMediaClient();
@@ -121,61 +122,309 @@ export default function Episode({ navigation, route }) {
   };
   const exitScreen = async () => {
     StatusBar.setHidden(false)
-    {
-      !fullscreentap ? handleFullscreen() : checkgoback()
-    }
+    Orientation.getOrientation((orientation) => {
+      if (orientation === 'PORTRAIT' || orientation === 'UNKNOWN' || orientation === '') {
+        checkgoback()
+      }
+      else
+      {
+        handleFullscreen()
+      }
+    })
   }
 
   const loadData = async () => {
-    if (playUrl == "") {
+    if (playUrl == '') {
       setLoading(true);
       const baseUrl = FIRETV_BASE_URL;
-      var removequeryStrings = seourl.split("?");
-      var splittedData = removequeryStrings[0].split("/");
-      splittedData = splittedData.filter(function (e) { return e });
+      var removequeryStrings = seourl.split('?');
+      var splittedData = removequeryStrings[0].split('/');
+      splittedData = splittedData.filter(function (e) {
+        return e;
+      });
       const checkNews = filterItems('news', splittedData);
       const checkShow = filterItems('show', splittedData);
       const checkSeason = filterItems('season', splittedData);
+      const checkMovies = filterItems('movie', splittedData);
       const checkChannel = filterItems('channel', splittedData);
       const checkEvent = filterItems('event', splittedData);
       const checkLive = filterItems('live', splittedData);
       const region = await AsyncStorage.getItem('country_code');
-      var urlPath = "";
+      var urlPath = '';
+      var urlPath1 = '';
       var totalData = [];
       var sessionId = await AsyncStorage.getItem('session');
       if (splittedData.length == 4 && checkChannel.length == 0) {
-        urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/subcategories/" + splittedData[2] + "/episodes/" + splittedData[3];
-      }
-      else if (splittedData[0] == 'tv-shows') {
+        urlPath =
+          baseUrl +
+          'catalogs/' +
+          splittedData[0] +
+          '/items/' +
+          splittedData[1] +
+          '/subcategories/' +
+          splittedData[2] +
+          '/episodes/' +
+          splittedData[3];
+      } else if (splittedData[0] == 'tv-shows') {
         // if (splittedData[3] == "" || splittedData[3] == null || splittedData[3] == 'undefined')
         //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/episodes/" + splittedData[1];
         // else
-        urlPath = baseUrl + "catalogs/" + splittedData[0] + "/episodes/" + splittedData[splittedData.length - 1];
-      }
-      else if (splittedData[0] == 'news' || checkNews.length > 0) {
-        urlPath = baseUrl + "catalogs/" + splittedData[splittedData.length - 3] + "/items/" + splittedData[splittedData.length - 2] + "/episodes/" + splittedData[splittedData.length - 1];
-      }
-      else if ((checkShow.length > 0 || checkEvent.length > 0) && checkLive.length == 0) {
-        urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[splittedData.length - 2] + "/episodes/" + splittedData[splittedData.length - 1];
-      }
-      else if (checkChannel.length > 0) {
-        urlPath = baseUrl + "catalogs/" + splittedData[1] + "/items/" + splittedData[splittedData.length - 1];
-      }
-      else if (theme == "videolist") {
-        urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/videolists/" + splittedData[2];
-      }
-      else {
+        urlPath =
+          baseUrl +
+          'catalogs/' +
+          splittedData[0] +
+          '/episodes/' +
+          splittedData[splittedData.length - 1];
+      } else if ((splittedData[0] == 'news' || checkNews.length > 0) && checkMovies.length==0) {
+        urlPath =
+          baseUrl +
+          'catalogs/' +
+          splittedData[splittedData.length - 3] +
+          '/items/' +
+          splittedData[splittedData.length - 2] +
+          '/episodes/' +
+          splittedData[splittedData.length - 1];
+      } else if (
+        (checkShow.length > 0 || checkEvent.length > 0) &&
+        checkLive.length == 0
+      ) {
+        urlPath =
+          baseUrl +
+          'catalogs/' +
+          splittedData[0] +
+          '/items/' +
+          splittedData[splittedData.length - 2] +
+          '/episodes/' +
+          splittedData[splittedData.length - 1];
+      } else if (checkChannel.length > 0) {
+        urlPath =
+          baseUrl +
+          'catalogs/' +
+          splittedData[1] +
+          '/items/' +
+          splittedData[splittedData.length - 1];
+      } else if (theme == 'videolist') {
+        urlPath =
+          baseUrl +
+          'catalogs/' +
+          splittedData[0] +
+          '/items/' +
+          splittedData[1] +
+          '/videolists/' +
+          splittedData[2];
+      } else {
         //if (splittedData.length == 2)
-        urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[splittedData.length - 1];
-        // if (splittedData.length == 3)
+        urlPath =
+          baseUrl +
+          'catalogs/' +
+          splittedData[0] +
+          '/items/' +
+          splittedData[splittedData.length - 1];
+        if (splittedData.length == 3)
+          urlPath1 =
+            baseUrl +
+            'catalogs/' +
+            splittedData[splittedData.length - 3] +
+            '/items/' +
+            splittedData[splittedData.length - 2] +
+            '/episodes/' +
+            splittedData[splittedData.length - 1];
         //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/" + splittedData[2];
         // if (splittedData.length == 4)
         //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/" + splittedData[2] + "/" + splittedData[3];
       }
-      const url = urlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
-      const relatedurl = urlPath + "/related.gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
+      console.log(urlPath);
+      const url =
+        urlPath + '.gzip?&auth_token=' + AUTH_TOKEN + '&region=' + region;
+      const relatedurl =
+        urlPath +
+        '/related.gzip?&auth_token=' +
+        AUTH_TOKEN +
+        '&region=' +
+        region;
       //  console.log(seourl);
-      await axios.get(url).then(response => {
+      await axios
+        .get(url)
+        .then(response => {
+          setTitle(response.data.data.title);
+          setOfflineUrl(response.data.data.play_url.saranyu.url);
+          setShareUrl(COMMON_BASE_URL + seourl);
+          if (response.data.data.hasOwnProperty('channel_object'))
+            setChannel(response.data.data.channel_object.name);
+          if (response.data.data.hasOwnProperty('cbfc_rating'))
+            setContentRating(response.data.data.cbfc_rating);
+          if (response.data.data.hasOwnProperty('display_ott_guidelines'))
+            setContentguidelines(response.data.data.display_ott_guidelines);
+          if (response.data.data.hasOwnProperty('display_genres'))
+            setDisplayGenres(response.data.data.display_genres);
+          if (response.data.data.hasOwnProperty('description'))
+            setDescription(response.data.data.description);
+          if (response.data.data.hasOwnProperty('thumbnails'))
+            setThumbnailImage(response.data.data.thumbnails.high_4_3.url);
+          setContentId(response.data.data.content_id);
+          setCatalogId(response.data.data.catalog_id);
+          setintrostarttime(response.data.data.intro_start_time_sec);
+          setintroendtime(response.data.data.intro_end_time_sec);
+          setendcreditsstarttime(response.data.data.end_credits_start_time_sec);
+          setnextepisode(response.data.data.next_item);
+          setcontenttype(response.data.data.media_type);
+          setcontentprovider(response.data.data.content_provider);
+          setcontentvalue(response.data.data.content_value);
+          setcontentlanguage(response.data.data.language);
+          setloginrequired(response.data.data.access_control.login_required);
+          setisfree(response.data.data.access_control.is_free);
+          setdurationsttring(response.data.data.duration_string);
+          if (response.data.data.hasOwnProperty('subcategory_object')) {
+            setseriesname(
+              response.data.data.subcategory_object.parentree.sub_name,
+            );
+            setseriesid(response.data.data.subcategory_object.parentree.sub_id);
+          }
+          AsyncStorage.getItem('watchLater_' + response.data.data.content_id)
+            .then(resp => {
+              if (resp != '' && resp != null) setwatchlatercontent(true);
+            })
+            .catch(erro => {});
+          AsyncStorage.getItem('like_' + response.data.data.content_id)
+            .then(resp => {
+              //console.log(resp);
+              if (resp != '' && resp != null) setlikecontent(true);
+            })
+            .catch(erro => {});
+          var currentTimestamp = Math.floor(Date.now() / 1000).toString();
+          //console.log(sessionId);
+          if (sessionId != null) setloggedin(true);
+          if (sessionId == null) sessionId = '';
+          var md5String = stringMd5(
+            response.data.data.catalog_id +
+              response.data.data.content_id +
+              sessionId +
+              currentTimestamp +
+              SECRET_KEY,
+          );
+          axios
+            .post(
+              FIRETV_BASE_URL + 'v2/users/get_all_details',
+              {
+                catalog_id: response.data.data.catalog_id,
+                content_id: response.data.data.content_id,
+                category: '',
+                region: region,
+                auth_token: VIDEO_AUTH_TOKEN,
+                access_token: ACCESS_TOKEN,
+                id: sessionId,
+                ts: currentTimestamp,
+                md5: md5String,
+              },
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              },
+            )
+            .then(resp => {
+              checkOfflineDownload();
+              setstreemexceedlimit(
+                resp.data.data.stream_info.is_stream_limit_exceed,
+              );
+              setstreemexceedlimitmessage(resp.data.data.stream_info.message);
+              if (onlineplayUrl == false) {
+                if (resp.data.data.stream_info.adaptive_url != '') {
+                  setPlayUrl(resp.data.data.stream_info.adaptive_url);
+                  setseektime(resp.data.data.stream_info.play_back_time);
+                  if (resp.data.data.access_control.login_required == true) {
+                    if (sessionId == '' || sessionId == null) {
+                      setPlayUrl('');
+                    }
+                    axios
+                      .get(
+                        FIRETV_BASE_URL_STAGING +
+                          'user/session/' +
+                          sessionId +
+                          '?auth_token=' +
+                          AUTH_TOKEN,
+                      )
+                      .then(resp => {
+                        if (resp.data.message != 'Valid session id.') {
+                          setPlayUrl('');
+                        }
+                      })
+                      .catch(err => {
+                        setPlayUrl('');
+                      });
+                  }
+                } else if (
+                  resp.data.data.stream_info.preview.adaptive_url != ''
+                ) {
+                  setPlayUrl(resp.data.data.stream_info.preview.adaptive_url);
+                  setPreview(true);
+                }
+              }
+              setLoading(false);
+            })
+            .catch(error => {
+              //console.log(JSON.stringify(error.response.data));
+              setLoading(false);
+            });
+          setCurrentFriendlyId(response.data.data.friendly_id);
+          setsubcatcurrentTheme(response.data.data.theme);
+          setlivetvshowstheme(passedtheme);
+          if (passedtheme == 'live' || passedtheme == 'livetv') {
+            axios
+              .post(
+                FIRETV_BASE_URL +
+                  '/get_all_shows?auth_token=' +
+                  AUTH_TOKEN +
+                  '&access_token=' +
+                  ACCESS_TOKEN,
+                {
+                  friendly_id: response.data.data.friendly_id,
+                },
+              )
+              .then(livetvshows => {
+                //console.log(JSON.stringify(livetvshows.data.resp));
+                if (livetvshows.data.resp.length >= 15) var counter = 15;
+                else var counter = livetvshows.data.resp.length;
+                for (var r = 0; r < counter; r++) {
+                  relatedShows.push({
+                    catalog_id: livetvshows.data.resp[r].catalog_id,
+                    content_id: livetvshows.data.resp[r].content_id,
+                    title: livetvshows.data.resp[r].title,
+                    image: livetvshows.data.resp[r].high_4_3.url,
+                    desc: livetvshows.data.resp[r].description,
+                  });
+                }
+                setRelatedShows(relatedShows);
+              })
+              .catch(livetvshowserror => {
+                console.log(livetvshowserror);
+              });
+          }
+
+          setLoading(false);
+        })
+        .catch(error => {
+          setLoading(false);
+          alternativeUrl(
+            urlPath1 + '.gzip?&auth_token=' + AUTH_TOKEN + '&region=' + region,
+            sessionId,
+            region,
+          );
+        });
+      if (passedtheme != 'live' && passedtheme != 'livetv') {
+        loadRelatedData(relatedurl);
+      }
+    }
+
+    //ofline downloads
+    let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
+    if (lostTasks.length > 0) setIsresumeDownloading(true);
+  };
+  async function alternativeUrl(url, sessionId, region) {
+    console.log(url);
+    await axios
+      .get(url)
+      .then(response => {
         setTitle(response.data.data.title);
         setOfflineUrl(response.data.data.play_url.saranyu.url);
         setShareUrl(COMMON_BASE_URL + seourl);
@@ -195,119 +444,148 @@ export default function Episode({ navigation, route }) {
         setCatalogId(response.data.data.catalog_id);
         setintrostarttime(response.data.data.intro_start_time_sec);
         setintroendtime(response.data.data.intro_end_time_sec);
-        setendcreditsstarttime(response.data.data.end_credits_start_time_sec)
-        setnextepisode(response.data.data.next_item)
-        setcontenttype(response.data.data.media_type)
-        setcontentprovider(response.data.data.content_provider)
-        setcontentvalue(response.data.data.content_value)
-        setcontentlanguage(response.data.data.language)
-        setloginrequired(response.data.data.access_control.login_required)
-        setisfree(response.data.data.access_control.is_free)
-        setdurationsttring(response.data.data.duration_string)
+        setendcreditsstarttime(response.data.data.end_credits_start_time_sec);
+        setnextepisode(response.data.data.next_item);
+        setcontenttype(response.data.data.media_type);
+        setcontentprovider(response.data.data.content_provider);
+        setcontentvalue(response.data.data.content_value);
+        setcontentlanguage(response.data.data.language);
+        setloginrequired(response.data.data.access_control.login_required);
+        setisfree(response.data.data.access_control.is_free);
+        setdurationsttring(response.data.data.duration_string);
         if (response.data.data.hasOwnProperty('subcategory_object')) {
-          setseriesname(response.data.data.subcategory_object.parentree.sub_name)
-          setseriesid(response.data.data.subcategory_object.parentree.sub_id)
+          setseriesname(
+            response.data.data.subcategory_object.parentree.sub_name,
+          );
+          setseriesid(response.data.data.subcategory_object.parentree.sub_id);
         }
-        AsyncStorage.getItem("watchLater_" + response.data.data.content_id).then(resp => {
-          if (resp != "" && resp != null)
-            setwatchlatercontent(true);
-        }).catch(erro => { })
-        AsyncStorage.getItem("like_" + response.data.data.content_id).then(resp => {
-          //console.log(resp);
-          if (resp != "" && resp != null)
-            setlikecontent(true);
-        }).catch(erro => { })
+        AsyncStorage.getItem('watchLater_' + response.data.data.content_id)
+          .then(resp => {
+            if (resp != '' && resp != null) setwatchlatercontent(true);
+          })
+          .catch(erro => {});
+        AsyncStorage.getItem('like_' + response.data.data.content_id)
+          .then(resp => {
+            //console.log(resp);
+            if (resp != '' && resp != null) setlikecontent(true);
+          })
+          .catch(erro => {});
         var currentTimestamp = Math.floor(Date.now() / 1000).toString();
         //console.log(sessionId);
-        if (sessionId != null)
-          setloggedin(true);
-        if (sessionId == null)
-          sessionId = "";
-        var md5String = stringMd5(response.data.data.catalog_id + response.data.data.content_id + sessionId + currentTimestamp + SECRET_KEY)
-        axios.post(FIRETV_BASE_URL + "v2/users/get_all_details", {
-          catalog_id: response.data.data.catalog_id,
-          content_id: response.data.data.content_id,
-          category: "",
-          region: region,
-          auth_token: VIDEO_AUTH_TOKEN,
-          access_token: ACCESS_TOKEN,
-          id: sessionId,
-          ts: currentTimestamp,
-          md5: md5String
-        }, {
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        })
+        if (sessionId != null) setloggedin(true);
+        if (sessionId == null) sessionId = '';
+        var md5String = stringMd5(
+          response.data.data.catalog_id +
+            response.data.data.content_id +
+            sessionId +
+            currentTimestamp +
+            SECRET_KEY,
+        );
+        axios
+          .post(
+            FIRETV_BASE_URL + 'v2/users/get_all_details',
+            {
+              catalog_id: response.data.data.catalog_id,
+              content_id: response.data.data.content_id,
+              category: '',
+              region: region,
+              auth_token: VIDEO_AUTH_TOKEN,
+              access_token: ACCESS_TOKEN,
+              id: sessionId,
+              ts: currentTimestamp,
+              md5: md5String,
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
+          )
           .then(resp => {
             checkOfflineDownload();
-            setstreemexceedlimit(resp.data.data.stream_info.is_stream_limit_exceed)
+            setstreemexceedlimit(
+              resp.data.data.stream_info.is_stream_limit_exceed,
+            );
             setstreemexceedlimitmessage(resp.data.data.stream_info.message);
             if (onlineplayUrl == false) {
-              if (resp.data.data.stream_info.adaptive_url != "") {
+              if (resp.data.data.stream_info.adaptive_url != '') {
                 setPlayUrl(resp.data.data.stream_info.adaptive_url);
                 setseektime(resp.data.data.stream_info.play_back_time);
                 if (resp.data.data.access_control.login_required == true) {
-                  if (sessionId == "" || sessionId == null) {
-                    setPlayUrl("");
+                  if (sessionId == '' || sessionId == null) {
+                    setPlayUrl('');
                   }
-                  axios.get(FIRETV_BASE_URL_STAGING + "user/session/" + sessionId + "?auth_token=" + AUTH_TOKEN).then(resp => {
-                    if (resp.data.message != 'Valid session id.') {
-                      setPlayUrl("");
-                    }
-                  }).catch(err => {
-                    setPlayUrl("");
-                  })
+                  axios
+                    .get(
+                      FIRETV_BASE_URL_STAGING +
+                        'user/session/' +
+                        sessionId +
+                        '?auth_token=' +
+                        AUTH_TOKEN,
+                    )
+                    .then(resp => {
+                      if (resp.data.message != 'Valid session id.') {
+                        setPlayUrl('');
+                      }
+                    })
+                    .catch(err => {
+                      setPlayUrl('');
+                    });
                 }
+              } else if (
+                resp.data.data.stream_info.preview.adaptive_url != ''
+              ) {
+                setPlayUrl(resp.data.data.stream_info.preview.adaptive_url);
+                setPreview(true);
               }
-              else
-                if (resp.data.data.stream_info.preview.adaptive_url != "") {
-                  setPlayUrl(resp.data.data.stream_info.preview.adaptive_url);
-                  setPreview(true);
-                }
             }
             setLoading(false);
-          }).catch(error => {
+          })
+          .catch(error => {
             //console.log(JSON.stringify(error.response.data));
             setLoading(false);
-          }
-          )
-        setCurrentFriendlyId(response.data.data.friendly_id)
-        setsubcatcurrentTheme(response.data.data.theme)
-        setlivetvshowstheme(passedtheme)
+          });
+        setCurrentFriendlyId(response.data.data.friendly_id);
+        setsubcatcurrentTheme(response.data.data.theme);
+        setlivetvshowstheme(passedtheme);
         if (passedtheme == 'live' || passedtheme == 'livetv') {
-          axios.post(FIRETV_BASE_URL + "/get_all_shows?auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN, {
-            friendly_id: response.data.data.friendly_id
-          }).then(livetvshows => {
-            //console.log(JSON.stringify(livetvshows.data.resp));
-            if (livetvshows.data.resp.length >= 15)
-              var counter = 15;
-            else
-              var counter = livetvshows.data.resp.length;
-            for (var r = 0; r < counter; r++) {
-              relatedShows.push({ "catalog_id": livetvshows.data.resp[r].catalog_id, "content_id": livetvshows.data.resp[r].content_id, "title": livetvshows.data.resp[r].title, "image": livetvshows.data.resp[r].high_4_3.url, "desc": livetvshows.data.resp[r].description });
-            }
-            setRelatedShows(relatedShows);
-          }).catch(livetvshowserror => {
-            console.log(livetvshowserror);
-          })
+          axios
+            .post(
+              FIRETV_BASE_URL +
+                '/get_all_shows?auth_token=' +
+                AUTH_TOKEN +
+                '&access_token=' +
+                ACCESS_TOKEN,
+              {
+                friendly_id: response.data.data.friendly_id,
+              },
+            )
+            .then(livetvshows => {
+              //console.log(JSON.stringify(livetvshows.data.resp));
+              if (livetvshows.data.resp.length >= 15) var counter = 15;
+              else var counter = livetvshows.data.resp.length;
+              for (var r = 0; r < counter; r++) {
+                relatedShows.push({
+                  catalog_id: livetvshows.data.resp[r].catalog_id,
+                  content_id: livetvshows.data.resp[r].content_id,
+                  title: livetvshows.data.resp[r].title,
+                  image: livetvshows.data.resp[r].high_4_3.url,
+                  desc: livetvshows.data.resp[r].description,
+                });
+              }
+              setRelatedShows(relatedShows);
+            })
+            .catch(livetvshowserror => {
+              console.log(livetvshowserror);
+            });
         }
 
-
-        setLoading(false);
-      }).catch(error => {
         setLoading(false);
       })
-      if (passedtheme != 'live' && passedtheme != 'livetv') {
-        loadRelatedData(relatedurl);
-      }
-    }
-
-
-    //ofline downloads
-    let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
-    if (lostTasks.length > 0)
-      setIsresumeDownloading(true);
+      .catch(error => {
+        setLoading(false);
+        alternativeUrl(urlPath1);
+      });
   }
   const loadRelatedData = async (relatedurl) => {
     axios.get(relatedurl).then(resp => {
@@ -542,6 +820,7 @@ export default function Episode({ navigation, route }) {
   function handleFullscreen() {
     setfullscreentap(!fullscreentap);
     Orientation.getOrientation((orientation) => {
+      console.log(orientation);
       if (orientation === 'LANDSCAPE-LEFT' || orientation === 'LANDSCAPE-RIGHT') {
         setFullscreen(false);
         StatusBar.setHidden(false)
@@ -994,7 +1273,7 @@ export default function Episode({ navigation, route }) {
       <>
         <Pressable style={{ marginBottom: 20 }} onPress={() =>
           VIDEO_TYPES.includes(item.theme) ?
-            navigation.navigate({ name: 'Episode', params: { seoUrl: item.seo_url }, key: { index } })
+            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seo_url }))
             :
             navigation.navigate({ name: 'Shows', params: { seoUrl: item.seo_url }, key: { index } })
 
@@ -1052,32 +1331,59 @@ export default function Episode({ navigation, route }) {
                     videoRef.current.seek(+(splittedtime[0] * 3600) + +(splittedtime[1] * 60) + +(splittedtime[2]));
                   }
 
-                  GoogleCast.getCastState().then(state => {
-                    if (state == 'connected' && playUrl != "") {
+                  if (castDisplay != 'basic_plan') {
+                    GoogleCast.getCastState().then(state => {
+                      if (state == 'connected' && playUrl != "") {
 
-                      if (!client) {
-                        GoogleCast.getDiscoveryManager()
-                      }
-                      console.log('client changed ', client)
-                      const started = client?.onMediaPlaybackStarted(() =>
-                        console.log("playback started")
-                      );
-                      const ended = client?.onMediaPlaybackEnded(() =>
-                        console.log("playback ended")
-                      );
-                      if (client && playUrl != "" && playUrl != null) {
-                        client?.loadMedia({
-                          mediaInfo: {
-                            contentUrl:
-                              playUrl,
-                          },
-                        })
-                      }
+                        if (!client) {
+                          GoogleCast.getDiscoveryManager()
+                        }
+                        console.log('client changed ', client)
+                        const started = client?.onMediaPlaybackStarted(() =>
+                          console.log("playback started")
+                        );
+                        const ended = client?.onMediaPlaybackEnded(() =>
+                          console.log("playback ended")
+                        );
+                        if (client && playUrl != "" && playUrl != null) {
+                          client?.loadMedia({
+                            mediaInfo: {
+                              contentUrl:
+                                playUrl,
+                            },
+                          })
+                        }
 
+                      }
+                    })
+                  }
+                  else
+                    if (castDisplay == 'basic_plan' && isfree==true) {
+                      GoogleCast.getCastState().then(state => {
+                        if (state == 'connected' && playUrl != "") {
+
+                          if (!client) {
+                            GoogleCast.getDiscoveryManager()
+                          }
+                          console.log('client changed ', client)
+                          const started = client?.onMediaPlaybackStarted(() =>
+                            console.log("playback started")
+                          );
+                          const ended = client?.onMediaPlaybackEnded(() =>
+                            console.log("playback ended")
+                          );
+                          if (client && playUrl != "" && playUrl != null) {
+                            client?.loadMedia({
+                              mediaInfo: {
+                                contentUrl:
+                                  playUrl,
+                              },
+                            })
+                          }
+
+                        }
+                      })
                     }
-                  })
-
-
                 }}
               />
               {state.showControls && (
@@ -1381,7 +1687,7 @@ export default function Episode({ navigation, route }) {
             </>
             :
             ""}
-          {passedtheme != 'live' && passedtheme != 'livetv' && relatedMovies.length > 0 ?
+          {passedtheme != 'live' && passedtheme != 'livetv' && relatedMovies.length > 0 && !fullscreen ?
             <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', width: "100%", marginTop: 30, padding: 2 }}>
               <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: '500', marginBottom: 20, marginLeft: 20 }}>Related</Text>
               <FlatList
