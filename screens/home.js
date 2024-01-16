@@ -1842,7 +1842,6 @@ function Home({ navigation, route }) {
                           name="pluscircle"
                           size={50}
                           color={TAB_COLOR}
-                          marginRight={60}
                         />
                       </View>
                     </Pressable>
