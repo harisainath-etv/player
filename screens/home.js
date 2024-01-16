@@ -1842,6 +1842,7 @@ function Home({ navigation, route }) {
                           name="pluscircle"
                           size={50}
                           color={TAB_COLOR}
+                          marginRight={60}
                         />
                       </View>
                     </Pressable>
@@ -3517,8 +3518,8 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
   },
   wishlistbutton: {
-    // borderRadius: 40,
-    // borderWidth: 1.5,
+    borderRadius: 40,
+    borderWidth: 1.5,
     borderColor: TAB_COLOR,
     justifyContent: "center",
     alignItems: "center",
