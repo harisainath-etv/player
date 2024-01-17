@@ -1,6 +1,6 @@
 import React from 'react'
-import { useState, useEffect, useRef } from 'react';
-import { StackActions } from '@react-navigation/native';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { NORMAL_TEXT_COLOR, BACKGROUND_COLOR, TAB_COLOR, BUTTON_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, SIDEBAR_BACKGROUND_COLOR, PAGE_HEIGHT, PAGE_WIDTH, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, DARKED_BORDER_COLOR, FOOTER_DEFAULT_TEXT_COLOR, ANDROID_PACKAGE_NAME, ANDROID_SHARE_MESSAGE, ANDROID_SHARE_URL, IOS_PACKAGE_NAME } from '../constants';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -69,11 +69,14 @@ export default function Menu() {
     })
   }
 
-  useEffect(() => {
-    if (dataFetchedRef.current) return;
-    dataFetchedRef.current = true;
-    loadData();
-  })
+  useFocusEffect(
+    useCallback(() => {
+      if (dataFetchedRef.current) return;
+      dataFetchedRef.current = true;
+      loadData();
+
+    }, [])
+  );
   function validURL(str) {
     var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
       '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
@@ -143,14 +146,14 @@ export default function Menu() {
         </View>
         <View style={{ marginBottom: 50 }}>
           {!login ?
-            <View style={{justifyContent:'center',alignItems:'center'}}>
-            <ActivityIndicator size={'large'} color={NORMAL_TEXT_COLOR} />
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size={'large'} color={NORMAL_TEXT_COLOR} />
             </View>
 
             :
             <Pressable onPress={() => { navigation.navigate('Profile') }}>
               <View style={styles.drawerHeaderImage}>
-                <View style={{ padding: 0,  backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ padding: 0, backgroundColor: BACKGROUND_TRANSPARENT_COLOR, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
                   <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR, width: 60, height: 60, borderRadius: 30 }}>
 
                     <MaterialCommunityIcons name='account-edit' color={NORMAL_TEXT_COLOR} size={25} style={{}}></MaterialCommunityIcons>
@@ -179,7 +182,7 @@ export default function Menu() {
                   useAngle={true}
                   angle={125}
                   angleCenter={{ x: 0.5, y: 0.5 }}
-                  colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
+                  colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
                   style={[styles.button, { width: "95%" }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <FontAwesome5 name='lock' size={16} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
@@ -196,7 +199,7 @@ export default function Menu() {
                   useAngle={true}
                   angle={125}
                   angleCenter={{ x: 0.5, y: 0.5 }}
-                  colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
+                  colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
                   style={[styles.button, { width: "95%" }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <FontAwesome5 name='lock' size={16} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
@@ -254,7 +257,7 @@ export default function Menu() {
               <View style={{ alignItems: 'center', marginBottom: 20, }}>
                 <Text style={{ fontWeight: 'bold', color: NORMAL_TEXT_COLOR, fontSize: 15 }}>Activate ETV WIN on your TV</Text>
                 <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>Enter the Activation code displayed on your TV screen</Text>
-                <Text style={{marginTop:5,color:TAB_COLOR}}>{otpactivatteError}</Text>
+                <Text style={{ marginTop: 5, color: TAB_COLOR }}>{otpactivatteError}</Text>
                 <View style={{ flexDirection: 'row', marginTop: 20 }}>
                   <TextInput
                     textAlign='center'
@@ -272,7 +275,7 @@ export default function Menu() {
                         useAngle={true}
                         angle={125}
                         angleCenter={{ x: 0.5, y: 0.5 }}
-                        colors={[BUTTON_COLOR,TAB_COLOR,BUTTON_COLOR]}
+                        colors={[BUTTON_COLOR, TAB_COLOR, BUTTON_COLOR]}
                         style={[styles.button]}>
 
                         <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13 }}>Activate</Text>
@@ -302,35 +305,35 @@ export default function Menu() {
               <View style={{ marginTop: 15 }}>
                 <Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold', marginBottom: 10 }}>EXTRAS</Text>
 
-                <TouchableOpacity style={{marginBottom:7}} onPress={() => navigation.navigate('HTMLRender',{pagename:'about_us'})}>
+                <TouchableOpacity style={{ marginBottom: 7 }} onPress={() => navigation.navigate('HTMLRender', { pagename: 'about_us' })}>
                   <Text style={styles.listitemsText}>About Us</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{marginBottom:7}} onPress={()=>loadView('contactUs')}>
+                <TouchableOpacity style={{ marginBottom: 7 }} onPress={() => loadView('contactUs')}>
                   <Text style={styles.listitemsText}>Contact Us</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{marginBottom:7}} onPress={()=>loadView('privacy')}>
+                <TouchableOpacity style={{ marginBottom: 7 }} onPress={() => loadView('privacy')}>
                   <Text style={styles.listitemsText}>Privacy Policy</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{marginBottom:7}} onPress={()=>navigation.navigate('HTMLRender',{pagename:'terms_conditions'})}>
+                <TouchableOpacity style={{ marginBottom: 7 }} onPress={() => navigation.navigate('HTMLRender', { pagename: 'terms_conditions' })}>
                   <Text style={styles.listitemsText}>Terms of Service</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{marginBottom:7}} onPress={()=>loadView('faq')}>
+                <TouchableOpacity style={{ marginBottom: 7 }} onPress={() => loadView('faq')}>
                   <Text style={styles.listitemsText}>FAQ</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{marginBottom:7}} onPress={navigatetopage}>
+                <TouchableOpacity style={{ marginBottom: 7 }} onPress={navigatetopage}>
                   <Text style={styles.listitemsText}>Feedback</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{marginBottom:7}} onPress={shareOptions}>
+                <TouchableOpacity style={{ marginBottom: 7 }} onPress={shareOptions}>
                   <Text style={styles.listitemsText}>Share the app</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{marginBottom:7}} onPress={()=>{
-                Rate.rate(options, (success, errorMessage)=>{
+                <TouchableOpacity style={{ marginBottom: 7 }} onPress={() => {
+                  Rate.rate(options, (success, errorMessage) => {
                     if (success) {
                     }
                     if (errorMessage) {
@@ -338,8 +341,8 @@ export default function Menu() {
                       console.error(`Example page Rate.rate() error: ${errorMessage}`)
                     }
                   })
-        
-            }}>
+
+                }}>
                   <Text style={styles.listitemsText}>Rate the app</Text>
                 </TouchableOpacity>
 
@@ -353,11 +356,11 @@ export default function Menu() {
         <Footer pageName="MENU" />
       </View>
       <StatusBar
-                animated
-                backgroundColor="transparent"
-                barStyle="dark-content"
-                translucent={true}
-            />
+        animated
+        backgroundColor="transparent"
+        barStyle="dark-content"
+        translucent={true}
+      />
     </View>
   )
 }
@@ -367,7 +370,7 @@ const styles = StyleSheet.create({
   tabBlock: { width: "100%", backgroundColor: DARKED_BORDER_COLOR, height: 35, borderRadius: 3, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center', padding: 3, marginBottom: 3 },
   menuItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 30 },
   drawerHeaderText: { color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold' },
-  drawerHeaderImage: { width: "100%",  },
+  drawerHeaderImage: { width: "100%", },
   drawerContainer: { flex: 1, backgroundColor: SIDEBAR_BACKGROUND_COLOR, height: PAGE_HEIGHT, width: (PAGE_WIDTH / 1.3), left: -20, position: 'absolute' },
   headerContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 5 },
   leftItems: { width: '50%', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', },

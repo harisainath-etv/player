@@ -17,6 +17,7 @@ export default function Calendarscreen({ navigation, route }) {
         { counter == 0 ? setCounter(1) : setCounter(0) }
     }
     const searchCalendar = async () =>{
+        console.log(episodeUrl);
         if(fromDate=="" || fromDate== null || toDate=="" || toDate== null)
         {
             alert("Please select from and to date");

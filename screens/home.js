@@ -20,6 +20,7 @@ import {
   Image,
   LogBox,
   StatusBar,
+  BackHandler,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, {
@@ -62,9 +63,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StackActions } from "@react-navigation/native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-
-import { AntDesign } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 // import RNBackgroundDownloader from 'react-native-background-downloader';
 import axios from "axios";
 import Modal from "react-native-modal";
@@ -1554,14 +1553,11 @@ function Home({ navigation, route }) {
   };
 
   const naviagtetopage = async (page, url, theme) => {
-    settotalHomeData([]);
     setAutoPlay(false);
     settvshowsautoPlay(false);
     setexclusiveautoPlay(false);
     setbannerautoPlay(false);
-    navigation.dispatch(
-      StackActions.replace(page, { seoUrl: url, theme: theme })
-    );
+    navigation.navigate(page, { seoUrl: url, theme: theme });
   };
 
   // const blockStyle = useAnimatedStyle(() => {
@@ -1758,70 +1754,39 @@ function Home({ navigation, route }) {
                       }
                     }}
                   >
-                    <View
-                      style={{
-                        alignItems: "center",
-                        flexDirection: "row",
-                        position: "relative",
-                      }}
+                    <LinearGradient
+                      useAngle={true}
+                      angle={125}
+                      angleCenter={{ x: 0.5, y: 0.5 }}
+                      colors={[
+                        BUTTON_COLOR,
+                        TAB_COLOR,
+                        TAB_COLOR,
+                        TAB_COLOR,
+                        BUTTON_COLOR,
+                      ]}
+                      style={[styles.button, { borderRadius: 40 }]}
                     >
                       <View
-                        style={{
-                          position: "absolute",
-                          zIndex: 2,
-                          marginLeft: 10,
-                        }}
+                        style={{ flexDirection: "row", alignItems: "center" }}
                       >
-                        <Ionicons
-                          name="play-circle"
-                          size={68}
-                          backgroundColor={
-                            <LinearGradient
-                              colors={[
-                                BUTTON_COLOR,
-                                TAB_COLOR,
-                                TAB_COLOR,
-                                BUTTON_COLOR,
-                              ]}
-                            ></LinearGradient>
-                          }
-                          color={TAB_COLOR}
+                        <FontAwesome5
+                          name="play"
+                          size={13}
+                          color={NORMAL_TEXT_COLOR}
+                          style={{ marginRight: 10 }}
                         />
-                      </View>
-                      <View>
-                        <LinearGradient
-                          useAngle={true}
-                          angle={125}
-                          angleCenter={{ x: 0.5, y: 0.5 }}
-                          colors={[
-                            BUTTON_COLOR,
-                            TAB_COLOR,
-                            TAB_COLOR,
-                            BUTTON_COLOR,
-                          ]}
+                        <Text
                           style={{
-                            padding: 10,
-                            borderBottomEndRadius: 40,
-                            borderTopEndRadius: 40,
-                            borderBottomLeftRadius: 5,
-                            borderTopLeftRadius: 5,
-                            borderRadius: 20,
-                            width: 130,
-                            marginLeft: 55,
+                            color: NORMAL_TEXT_COLOR,
+                            fontSize: 13,
+                            fontWeight: "bold",
                           }}
                         >
-                          <Text
-                            style={{
-                              textAlign: "center",
-                              color: "white",
-                              fontSize: 18,
-                            }}
-                          >
-                            Watch Now
-                          </Text>
-                        </LinearGradient>
+                          Watch Now
+                        </Text>
                       </View>
-                    </View>
+                    </LinearGradient>
                   </Pressable>
 
                   {VIDEO_TYPES.includes(item.data[sliderKey].theme) ? (
@@ -1832,18 +1797,18 @@ function Home({ navigation, route }) {
                           item.data[sliderKey].content_id
                         );
                       }}
+                      style={styles.wishlistbutton}
                     >
-                      <View
+                      <Text
                         style={{
-                          alignItems: "center",
+                          color: NORMAL_TEXT_COLOR,
+                          fontSize: 13,
+                          fontWeight: "bold",
                         }}
                       >
-                        <AntDesign
-                          name="pluscircle"
-                          size={50}
-                          color={TAB_COLOR}
-                        />
-                      </View>
+                        {" "}
+                        + Watch Later
+                      </Text>
                     </Pressable>
                   ) : (
                     ""
@@ -3003,7 +2968,7 @@ function Home({ navigation, route }) {
                     settotalHomeData([]);
                     navigation.navigate("MoreList", {
                       firendlyId: item.friendlyId,
-                      layoutType: LAYOUT_TYPES[0],
+                      layoutType: LAYOUT_TYPES[1],
                     });
                   }}
                 >
@@ -3142,6 +3107,11 @@ function Home({ navigation, route }) {
         ) : (
           ""
         )}
+        {index == totalHomeData.length - 1 ? (
+          <View style={{ marginBottom: 50 }}></View>
+        ) : (
+          ""
+        )}
       </View>
     );
   };
@@ -3214,6 +3184,7 @@ function Home({ navigation, route }) {
     if (selectedItem == "") {
       selectedItem = 0;
     }
+    BackHandler.addEventListener("hardwareBackPress", handleBack);
     LogBox.ignoreLogs([
       "`new NativeEventEmitter()` was called with a non-null",
     ]);
@@ -3222,6 +3193,10 @@ function Home({ navigation, route }) {
   const memoizedValue = useMemo(() => renderItem, [totalHomeData]);
   const loadFilters = async () => {
     navigation.navigate("FoodFilter");
+  };
+  const handleBack = async () => {
+    Orientation.lockToPortrait();
+    return true;
   };
   return (
     <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
@@ -3275,11 +3250,15 @@ function Home({ navigation, route }) {
         style={{ left: "50%", position: "absolute", zIndex: 10000, top: "50%" }}
       >
         {loading ? (
-          <ActivityIndicator
-            size="large"
-            color={NORMAL_TEXT_COLOR}
-            style={{}}
-          ></ActivityIndicator>
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <ActivityIndicator
+              size="large"
+              color={NORMAL_TEXT_COLOR}
+              style={{}}
+            ></ActivityIndicator>
+          </View>
         ) : (
           ""
         )}
