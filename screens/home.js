@@ -63,6 +63,7 @@ import { StackActions } from "@react-navigation/native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { Ionicons, Entypo } from "@expo/vector-icons";
 // import RNBackgroundDownloader from 'react-native-background-downloader';
 import axios from "axios";
 import Modal from "react-native-modal";
@@ -1756,39 +1757,70 @@ function Home({ navigation, route }) {
                       }
                     }}
                   >
-                    <LinearGradient
-                      useAngle={true}
-                      angle={125}
-                      angleCenter={{ x: 0.5, y: 0.5 }}
-                      colors={[
-                        BUTTON_COLOR,
-                        TAB_COLOR,
-                        TAB_COLOR,
-                        TAB_COLOR,
-                        BUTTON_COLOR,
-                      ]}
-                      style={[styles.button, { borderRadius: 40 }]}
+                    <View
+                      style={{
+                        alignItems: "center",
+                        flexDirection: "row",
+                        position: "relative",
+                      }}
                     >
                       <View
-                        style={{ flexDirection: "row", alignItems: "center" }}
+                        style={{
+                          position: "absolute",
+                          zIndex: 2,
+                          marginLeft: 10,
+                        }}
                       >
-                        <FontAwesome5
-                          name="play"
-                          size={13}
-                          color={NORMAL_TEXT_COLOR}
-                          style={{ marginRight: 10 }}
+                        <Ionicons
+                          name="play-circle"
+                          size={68}
+                          backgroundColor={
+                            <LinearGradient
+                              colors={[
+                                BUTTON_COLOR,
+                                TAB_COLOR,
+                                TAB_COLOR,
+                                BUTTON_COLOR,
+                              ]}
+                            ></LinearGradient>
+                          }
+                          color={TAB_COLOR}
                         />
-                        <Text
+                      </View>
+                      <View>
+                        <LinearGradient
+                          useAngle={true}
+                          angle={125}
+                          angleCenter={{ x: 0.5, y: 0.5 }}
+                          colors={[
+                            BUTTON_COLOR,
+                            TAB_COLOR,
+                            TAB_COLOR,
+                            BUTTON_COLOR,
+                          ]}
                           style={{
-                            color: NORMAL_TEXT_COLOR,
-                            fontSize: 13,
-                            fontWeight: "bold",
+                            padding: 10,
+                            borderBottomEndRadius: 40,
+                            borderTopEndRadius: 40,
+                            borderBottomLeftRadius: 5,
+                            borderTopLeftRadius: 5,
+                            borderRadius: 20,
+                            width: 130,
+                            marginLeft: 55,
                           }}
                         >
-                          Watch Now
-                        </Text>
+                          <Text
+                            style={{
+                              textAlign: "center",
+                              color: "white",
+                              fontSize: 18,
+                            }}
+                          >
+                            Watch Now
+                          </Text>
+                        </LinearGradient>
                       </View>
-                    </LinearGradient>
+                    </View>
                   </Pressable>
 
                   {VIDEO_TYPES.includes(item.data[sliderKey].theme) ? (
@@ -1799,18 +1831,19 @@ function Home({ navigation, route }) {
                           item.data[sliderKey].content_id
                         );
                       }}
-                      style={styles.wishlistbutton}
                     >
-                      <Text
+                      <View
                         style={{
-                          color: NORMAL_TEXT_COLOR,
-                          fontSize: 13,
-                          fontWeight: "bold",
+                          alignContent: "space-between",
+                          marginRight: 40,
                         }}
                       >
-                        {" "}
-                        + Watch Later
-                      </Text>
+                        <Entypo
+                          name="circle-with-plus"
+                          size={55}
+                          color={TAB_COLOR}
+                        />
+                      </View>
                     </Pressable>
                   ) : (
                     ""
