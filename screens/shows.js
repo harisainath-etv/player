@@ -457,7 +457,7 @@ export default function Shows({ navigation, route }) {
             // console.log(`Going to download ${expectedBytes} bytes!`);
             toggleModal()
         }).progress((percent) => {
-            let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "download_quality": downloadquality, "source": "source", "percentage_downloaded": `${percent * 100}` };
+            let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "download_quality": downloadquality, "source": "source", "percentage_downloaded": `${percent * 100}`,'event_time':new Date(),'event_id':'09' };
             triggerOtherAnalytics('download_video', jsonObj)
 
             AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(percent * 100));

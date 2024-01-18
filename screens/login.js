@@ -461,7 +461,7 @@ export default function Login({ navigation }) {
                 }
             }).then(response => {
                 setemailRegError("");
-                triggersuccessanalytics('login_success', 'email id', user_id, uniqueid)
+                triggersuccessanalytics('login_success', 'email id', user_id, uniqueid,'05')
                 AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                 AsyncStorage.setItem('add_profile', JSON.stringify(response.data.data.add_profile))
                 AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
@@ -639,7 +639,7 @@ export default function Login({ navigation }) {
                     'Content-Type': 'application/json',
                 }
             }).then(response => {
-                triggersuccessanalytics('login_success', 'email id', user_id, uniqueid)
+                triggersuccessanalytics('login_success', 'email id', user_id, uniqueid,'05')
                 console.log(response.data.data);
                 AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                 AsyncStorage.setItem('add_profile', JSON.stringify(response.data.data.add_profile))

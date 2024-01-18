@@ -50,18 +50,22 @@ export default function Signup({ navigation }) {
         else
             return false;
     }
-    const triggersuccessanalytics = async (name, method, u_id, device_id) => {
+    const triggersuccessanalytics = async (name, method, u_id, device_id,event_id) => {
         sdk.trackEvent(name, {
             method: method,
             u_id: u_id,
-            device_id: device_id
+            device_id: device_id,
+            event_time: new Date(),
+            event_id:event_id
         });
     }
-    const triggerfailureanalytics = async (name, error_type, method, device_id) => {
+    const triggerfailureanalytics = async (name, error_type, method, device_id,event_id) => {
         sdk.trackEvent(name, {
             error_type: error_type,
             method: method,
-            device_id: device_id
+            device_id: device_id,
+            event_time: new Date(),
+            event_id:event_id
         });
     }
     async function postData(type) {
@@ -86,13 +90,13 @@ export default function Signup({ navigation }) {
                 setOtpError('')
                 setOtpError('Verification link has been sent to \r\n \r\n ' + userId + '. \r\n \r\n Please click the link in that email to continue.');
                 setshowresend(true);
-                triggersuccessanalytics('signup_success', 'email id', user_id, uniqueid)
+                triggersuccessanalytics('signup_success', 'email id', user_id, uniqueid,'03')
 
             }).catch(error => {
                 //console.log(error.response.status);
                 //console.log(error.response.headers);
                 setOtpError(error.response.data.error.message)
-                triggerfailureanalytics('signup_failure', error.response.data.error.message, 'email id', uniqueid)
+                triggerfailureanalytics('signup_failure', error.response.data.error.message, 'email id', uniqueid,'04')
             }
             );
     }
@@ -219,7 +223,7 @@ export default function Signup({ navigation }) {
                         :
                         navigation.navigate('Otp', { 'otpkey': 'signupMobile' })
 
-                    type == 'email' ? triggersuccessanalytics('signup_success', 'email id', user_id, uniqueid) : ""
+                    type == 'email' ? triggersuccessanalytics('signup_success', 'email id', user_id, uniqueid,'03') : ""
                 }
                 setshowresend(true);
 
@@ -227,7 +231,7 @@ export default function Signup({ navigation }) {
                 //console.log(error.response.status);
                 //console.log(error.response.headers);
                 setOtpError(error.response.data.error.message)
-                type == 'email' ? triggerfailureanalytics('signup_failure', error.response.data.error.message, 'email id', uniqueid) : ""
+                type == 'email' ? triggerfailureanalytics('signup_failure', error.response.data.error.message, 'email id', uniqueid,'04') : ""
             }
             );
     }

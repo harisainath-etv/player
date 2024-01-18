@@ -88,6 +88,10 @@ export default function Search({ navigation }) {
     const loadNextData = async () => {
         loadData(!clear);
     }
+    const naviagtetopage = async (page, url, theme, sourceName) => {
+        await AsyncStorage.setItem('sourceName',sourceName);
+        navigation.navigate(page, { seoUrl: url, theme: theme })
+    }
     const renderItem = ({ item, index }) => {
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
@@ -109,7 +113,7 @@ export default function Search({ navigation }) {
                                                 navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                                                 :
                                                 VIDEO_TYPES.includes(item.theme) ?
-                                                    navigation.navigate('Episode', { seoUrl: item.seoUrl }) : navigation.navigate('Shows', { seoUrl: item.seoUrl })
+                                                naviagtetopage('Episode',item.seoUrl,'','Search') : naviagtetopage('Shows',item.seoUrl,'','Search')
                                         }
                                     }}>
                                         <FastImage
