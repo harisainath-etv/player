@@ -1773,17 +1773,7 @@ function Home({ navigation, route }) {
                       >
                         <Ionicons
                           name="play-circle"
-                          size={68}
-                          backgroundColor={
-                            <LinearGradient
-                              colors={[
-                                BUTTON_COLOR,
-                                TAB_COLOR,
-                                TAB_COLOR,
-                                BUTTON_COLOR,
-                              ]}
-                            ></LinearGradient>
-                          }
+                          size={65}
                           color={TAB_COLOR}
                         />
                       </View>
