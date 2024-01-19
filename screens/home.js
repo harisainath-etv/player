@@ -274,7 +274,12 @@ function Home({ navigation, route }) {
       await AsyncStorage.removeItem("notificationPage");
       await AsyncStorage.removeItem("notificationSeourl");
       await AsyncStorage.removeItem("notificationTheme");
-      naviagtetopage(notificationPage, notificationSeourl, notificationTheme);
+      naviagtetopage(
+        notificationPage,
+        notificationSeourl,
+        notificationTheme,
+        "Notification"
+      );
     }
     const mobile = await AsyncStorage.getItem("mobile_number");
     var region = await AsyncStorage.getItem("country_code");
@@ -414,7 +419,8 @@ function Home({ navigation, route }) {
                       if (isTablet)
                         All.push({
                           uri: data.data.catalog_list_items[i]
-                            .catalog_list_items[j].thumbnails.high_16_9.url,
+                            .catalog_list_items[j].thumbnails
+                            .mobile_banner_image.url,
                           theme:
                             data.data.catalog_list_items[i].catalog_list_items[
                               j
@@ -457,7 +463,8 @@ function Home({ navigation, route }) {
                       else
                         All.push({
                           uri: data.data.catalog_list_items[i]
-                            .catalog_list_items[j].thumbnails.high_3_4.url,
+                            .catalog_list_items[j].thumbnails
+                            .mobile_banner_image.url,
                           theme:
                             data.data.catalog_list_items[i].catalog_list_items[
                               j
@@ -670,7 +677,7 @@ function Home({ navigation, route }) {
                           internalAll.push({
                             uri: data.data.catalog_list_items[i]
                               .catalog_list_items[j].catalog_list_items[k]
-                              .thumbnails.high_3_4.url,
+                              .thumbnails.mobile_banner_image.url,
                             theme:
                               data.data.catalog_list_items[i]
                                 .catalog_list_items[j].catalog_list_items[k]
@@ -1151,11 +1158,19 @@ function Home({ navigation, route }) {
     // }
   };
 
-  const triggersuccessanalytics = async (name, method, u_id, device_id) => {
+  const triggersuccessanalytics = async (
+    name,
+    method,
+    u_id,
+    device_id,
+    event_id
+  ) => {
     sdk.trackEvent(name, {
       method: method,
       u_id: u_id,
       device_id: device_id,
+      event_id: event_id,
+      event_time: new Date(),
     });
   };
 
@@ -1206,7 +1221,8 @@ function Home({ navigation, route }) {
           "login_success",
           "social",
           response.data.data.user_id,
-          uniqueid
+          uniqueid,
+          "05"
         );
         AsyncStorage.setItem("userobj", JSON.stringify(response.data.data));
         AsyncStorage.setItem(
@@ -1552,11 +1568,13 @@ function Home({ navigation, route }) {
     }
   };
 
-  const naviagtetopage = async (page, url, theme) => {
+  const naviagtetopage = async (page, url, theme, sourceName) => {
     setAutoPlay(false);
     settvshowsautoPlay(false);
     setexclusiveautoPlay(false);
     setbannerautoPlay(false);
+    console.log(sourceName);
+    await AsyncStorage.setItem("sourceName", sourceName);
     navigation.navigate(page, { seoUrl: url, theme: theme });
   };
 
@@ -1610,6 +1628,7 @@ function Home({ navigation, route }) {
           parallaxAdjacentItemScale: 0.82,
         };
     var mainIndex = index;
+    const sourceName = item.displayName;
     return (
       <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
         <View
@@ -1744,12 +1763,14 @@ function Home({ navigation, route }) {
                           ? naviagtetopage(
                               "Episode",
                               item.data[sliderKey].seoUrl,
-                              item.data[sliderKey].theme
+                              item.data[sliderKey].theme,
+                              "Banner"
                             )
                           : naviagtetopage(
                               "Shows",
                               item.data[sliderKey].seoUrl,
-                              item.data[sliderKey].theme
+                              item.data[sliderKey].theme,
+                              "Banner"
                             );
                       }
                     }}
@@ -1885,8 +1906,18 @@ function Home({ navigation, route }) {
                             })
                           )
                         : VIDEO_TYPES.includes(item.theme)
-                        ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                        : naviagtetopage("Shows", item.seoUrl, item.theme);
+                        ? naviagtetopage(
+                            "Episode",
+                            item.seoUrl,
+                            item.theme,
+                            sourceName
+                          )
+                        : naviagtetopage(
+                            "Shows",
+                            item.seoUrl,
+                            item.theme,
+                            sourceName
+                          );
                     }
                   }}
                 >
@@ -1971,8 +2002,18 @@ function Home({ navigation, route }) {
                               })
                             )
                           : VIDEO_TYPES.includes(item.theme)
-                          ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                          : naviagtetopage("Shows", item.seoUrl, item.theme);
+                          ? naviagtetopage(
+                              "Episode",
+                              item.seoUrl,
+                              item.theme,
+                              sourceName
+                            )
+                          : naviagtetopage(
+                              "Shows",
+                              item.seoUrl,
+                              item.theme,
+                              sourceName
+                            );
                       }
                     }}
                   >
@@ -2037,8 +2078,18 @@ function Home({ navigation, route }) {
                               })
                             )
                           : VIDEO_TYPES.includes(item.theme)
-                          ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                          : naviagtetopage("Shows", item.seoUrl, item.theme);
+                          ? naviagtetopage(
+                              "Episode",
+                              item.seoUrl,
+                              item.theme,
+                              sourceName
+                            )
+                          : naviagtetopage(
+                              "Shows",
+                              item.seoUrl,
+                              item.theme,
+                              sourceName
+                            );
                       }
                     }}
                   >
@@ -2136,8 +2187,18 @@ function Home({ navigation, route }) {
                                 })
                               )
                             : VIDEO_TYPES.includes(item.theme)
-                            ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                            : naviagtetopage("Shows", item.seoUrl, item.theme);
+                            ? naviagtetopage(
+                                "Episode",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              )
+                            : naviagtetopage(
+                                "Shows",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              );
                         }
                       }}
                     >
@@ -2186,8 +2247,18 @@ function Home({ navigation, route }) {
                                 })
                               )
                             : VIDEO_TYPES.includes(item.theme)
-                            ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                            : naviagtetopage("Shows", item.seoUrl, item.theme);
+                            ? naviagtetopage(
+                                "Episode",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              )
+                            : naviagtetopage(
+                                "Shows",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              );
                         }
                       }}
                     >
@@ -2276,12 +2347,14 @@ function Home({ navigation, route }) {
                               ? naviagtetopage(
                                   "Episode",
                                   item.seoUrl,
-                                  item.theme
+                                  item.theme,
+                                  sourceName
                                 )
                               : naviagtetopage(
                                   "Shows",
                                   item.seoUrl,
-                                  item.theme
+                                  item.theme,
+                                  sourceName
                                 );
                           }
                         }}
@@ -2339,12 +2412,14 @@ function Home({ navigation, route }) {
                               ? naviagtetopage(
                                   "Episode",
                                   item.seoUrl,
-                                  item.theme
+                                  item.theme,
+                                  sourceName
                                 )
                               : naviagtetopage(
                                   "Shows",
                                   item.seoUrl,
-                                  item.theme
+                                  item.theme,
+                                  sourceName
                                 );
                           }
                         }}
@@ -2400,8 +2475,18 @@ function Home({ navigation, route }) {
                                 })
                               )
                             : VIDEO_TYPES.includes(item.theme)
-                            ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                            : naviagtetopage("Shows", item.seoUrl, item.theme);
+                            ? naviagtetopage(
+                                "Episode",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              )
+                            : naviagtetopage(
+                                "Shows",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              );
                         }
                       }}
                     >
@@ -2461,8 +2546,18 @@ function Home({ navigation, route }) {
                                 })
                               )
                             : VIDEO_TYPES.includes(item.theme)
-                            ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                            : naviagtetopage("Shows", item.seoUrl, item.theme);
+                            ? naviagtetopage(
+                                "Episode",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              )
+                            : naviagtetopage(
+                                "Shows",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              );
                         }
                       }}
                     >
@@ -2559,8 +2654,18 @@ function Home({ navigation, route }) {
                                 })
                               )
                             : VIDEO_TYPES.includes(item.theme)
-                            ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                            : naviagtetopage("Shows", item.seoUrl, item.theme);
+                            ? naviagtetopage(
+                                "Episode",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              )
+                            : naviagtetopage(
+                                "Shows",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              );
                         }
                       }}
                     >
@@ -2619,8 +2724,18 @@ function Home({ navigation, route }) {
                                 })
                               )
                             : VIDEO_TYPES.includes(item.theme)
-                            ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                            : naviagtetopage("Shows", item.seoUrl, item.theme);
+                            ? naviagtetopage(
+                                "Episode",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              )
+                            : naviagtetopage(
+                                "Shows",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              );
                         }
                       }}
                     >
@@ -2712,8 +2827,18 @@ function Home({ navigation, route }) {
                                 })
                               )
                             : VIDEO_TYPES.includes(item.theme)
-                            ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                            : naviagtetopage("Shows", item.seoUrl, item.theme);
+                            ? naviagtetopage(
+                                "Episode",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              )
+                            : naviagtetopage(
+                                "Shows",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              );
                         }
                       }}
                     >
@@ -2772,8 +2897,18 @@ function Home({ navigation, route }) {
                                 })
                               )
                             : VIDEO_TYPES.includes(item.theme)
-                            ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                            : naviagtetopage("Shows", item.seoUrl, item.theme);
+                            ? naviagtetopage(
+                                "Episode",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              )
+                            : naviagtetopage(
+                                "Shows",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              );
                         }
                       }}
                     >
@@ -2879,8 +3014,18 @@ function Home({ navigation, route }) {
                               })
                             )
                           : VIDEO_TYPES.includes(item.theme)
-                          ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                          : naviagtetopage("Shows", item.seoUrl, item.theme);
+                          ? naviagtetopage(
+                              "Episode",
+                              item.seoUrl,
+                              item.theme,
+                              sourceName
+                            )
+                          : naviagtetopage(
+                              "Shows",
+                              item.seoUrl,
+                              item.theme,
+                              sourceName
+                            );
                       }
                     }}
                   >
@@ -3004,8 +3149,18 @@ function Home({ navigation, route }) {
                                 })
                               )
                             : VIDEO_TYPES.includes(item.theme)
-                            ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                            : naviagtetopage("Shows", item.seoUrl, item.theme);
+                            ? naviagtetopage(
+                                "Episode",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              )
+                            : naviagtetopage(
+                                "Shows",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              );
                         }
                       }}
                     >
@@ -3063,8 +3218,18 @@ function Home({ navigation, route }) {
                                 })
                               )
                             : VIDEO_TYPES.includes(item.theme)
-                            ? naviagtetopage("Episode", item.seoUrl, item.theme)
-                            : naviagtetopage("Shows", item.seoUrl, item.theme);
+                            ? naviagtetopage(
+                                "Episode",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              )
+                            : naviagtetopage(
+                                "Shows",
+                                item.seoUrl,
+                                item.theme,
+                                sourceName
+                              );
                         }
                       }}
                     >

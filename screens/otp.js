@@ -42,18 +42,22 @@ export default function Otp({ navigation, route }) {
     useEffect(() => {
         getData();
     })
-    const triggersuccessanalytics = async (name, method, u_id, device_id) => {
+    const triggersuccessanalytics = async (name, method, u_id, device_id,event_id) => {
         sdk.trackEvent(name, {
             method: method,
             u_id: u_id,
-            device_id: device_id
+            device_id: device_id,
+            event_time: new Date(),
+            event_id: event_id
         });
     }
-    const triggerfailureanalytics = async (name, error_type, method, device_id) => {
+    const triggerfailureanalytics = async (name, error_type, method, device_id,event_id) => {
         sdk.trackEvent(name, {
             error_type: error_type,
             method: method,
-            device_id: device_id
+            device_id: device_id,
+            event_time: new Date(),
+            event_id:event_id
         });
     }
 
@@ -85,7 +89,7 @@ export default function Otp({ navigation, route }) {
                 }
             })
                 .then(response => {
-                    triggersuccessanalytics('login_success', 'phone number', user_id, uniqueid)
+                    triggersuccessanalytics('login_success', 'phone number', user_id, uniqueid,'05')
                     AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                     AsyncStorage.setItem('add_profile', JSON.stringify(response.data.data.add_profile))
                     AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
@@ -186,7 +190,7 @@ export default function Otp({ navigation, route }) {
 
                 axios.get(FIRETV_BASE_URL_STAGING + "users/verification/" + otp1 + otp2 + otp3 + otp4 + otp5 + otp6 + "?mobile_number=" + loginMobile + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&device_token=" + device_token)
                     .then(response => {
-                        triggersuccessanalytics('signup_success', 'phone number', user_id, uniqueid)
+                        triggersuccessanalytics('signup_success', 'phone number', user_id, uniqueid,'03')
                         AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                         AsyncStorage.setItem('add_profile', JSON.stringify(response.data.data.add_profile))
                         AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
@@ -278,7 +282,7 @@ export default function Otp({ navigation, route }) {
                         //console.log(error.response.status);
                         //console.log(error.response.headers);
                         setOtpError(error.response.data.error.message)
-                        triggerfailureanalytics('signup_failure', error.response.data.error.message, 'phone number', uniqueid)
+                        triggerfailureanalytics('signup_failure', error.response.data.error.message, 'phone number', uniqueid,'04')
                     }
                     );
 

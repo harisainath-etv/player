@@ -13,7 +13,7 @@ import Share from 'react-native-share';
 import { StackActions } from '@react-navigation/native';
 export default function Shorts({ navigation }) {
     const [startindex, setstartindex] = useState(0);
-    var limit = 5;
+    var limit = 100;
     const [Videos, setVideos] = useState([]);
     const flatListRef = useRef();
     const videoRef = useRef();
@@ -135,8 +135,10 @@ export default function Shorts({ navigation }) {
                     'Content-Type': 'application/json',
                 }
             }).then(res => {
-                console.log(title+","+res.data.data.stream_info.adaptive_url);
-                setVideos((Videos) => [...Videos, ...[{ "video": res.data.data.stream_info.adaptive_url, "catalog_id": catalog_id, "content_id": content_id, "shareUrl": shareUrl, "title": title, "likecontent": likecontent, "full_catalog_id": full_catalog_id, "full_content_id": full_content_id }]]);
+                console.log(title + "," + res.data.data.stream_info.adaptive_url);
+                if (res.data.data.stream_info.adaptive_url != "") {
+                    setVideos((Videos) => [...Videos, ...[{ "video": res.data.data.stream_info.adaptive_url, "catalog_id": catalog_id, "content_id": content_id, "shareUrl": shareUrl, "title": title, "likecontent": likecontent, "full_catalog_id": full_catalog_id, "full_content_id": full_content_id }]]);
+                }
             }).catch(er => {
                 console.log("getall" + er);
             })
@@ -263,9 +265,9 @@ export default function Shorts({ navigation }) {
                 }}>
                     {currentIndexValue == -1 ?
                         <AntDesign
-                        name='pausecircle'
-                        color={NORMAL_TEXT_COLOR}
-                        size={40}
+                            name='pausecircle'
+                            color={NORMAL_TEXT_COLOR}
+                            size={40}
                         ></AntDesign> : ""
                     }
                     {/* <Text style={{color:NORMAL_TEXT_COLOR,fontSize:16,fontWeignt:'800',marginLeft:10,position:'absolute',bottom:80,left:10}}>

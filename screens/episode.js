@@ -98,6 +98,7 @@ export default function Episode({ navigation, route }) {
   const [durationsttring, setdurationsttring] = useState("");
   const [relatedMovies, setRelatedMovies] = useState([]);
   const [castDisplay, setCastDisplay] = useState('basic_plan');
+  const [pbtime,setpbtime] = useState(1);
   const swipeUpDownRef = useRef();
 
   var client = useRemoteMediaClient();
@@ -701,7 +702,7 @@ export default function Episode({ navigation, route }) {
     settotalHomeData(Final);
   }
 
-  const triggeranalytics = async (name, sec) => {
+  const triggeranalytics = async (name, sec,event_id) => {
     var chromeCastConnected = 0;
     GoogleCast.getCastState().then(state => {
       if (state == 'connected') {
@@ -714,6 +715,8 @@ export default function Episode({ navigation, route }) {
     const uniqueid = await DeviceInfo.getUniqueId();
     const sessionId = await AsyncStorage.getItem('session');
     const user_id = await AsyncStorage.getItem('user_id');
+    const source = await AsyncStorage.getItem('sourceName');
+    console.log(source);
     sdk.trackEvent(name, {
       content_provider: contentprovider,
       consumption_type: downloadedStatus == 1 ? "Offline" : "Online",
@@ -721,21 +724,23 @@ export default function Episode({ navigation, route }) {
       content_value: contentvalue,
       chromecast: chromeCastConnected,
       device_id: uniqueid,
-      genre: displayGenres,
+      genre: displayGenres.join(","),
       quality: videoresolution,
-      source: 'banner',
+      source: source,
       show_name: showname,
       show_id: showcontentId,
       series_name: seriesname,
       series_id: seriesid,
-      session_id: sessionId,
-      tray_name: "",
+      session_id: sessionId==null ? "NA" : sessionId,
+      tray_name: source,
       u_id: user_id,
       value: sec,
       video_id: contentId,
       video_name: title,
       video_language: contentlanguage,
-      subtitles: 'none'
+      subtitles: 'none',
+      event_time: new Date(),
+      event_id:event_id
     });
   }
   const triggerOtherAnalytics = async (name, obj) => {
@@ -912,7 +917,7 @@ export default function Episode({ navigation, route }) {
       // console.log(`Going to download ${expectedBytes} bytes!`);
       toggleModal()
     }).progress((percent) => {
-      let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "download_quality": downloadquality, "source": "source", "percentage_downloaded": `${percent * 100}` };
+      let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "download_quality": downloadquality, "source": "source", "percentage_downloaded": `${percent * 100}`,'event_time':new Date(),'event_id':'09' };
       triggerOtherAnalytics('download_video', jsonObj)
 
       AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(percent * 100));
@@ -961,6 +966,7 @@ export default function Episode({ navigation, route }) {
     setPauseDownload(false);
   }
   const checkpreviewContent = async () => {
+    triggeranalytics('pb_end',pbtime,'02')
     if (preview) {
       setshowupgrade(true);
     }
@@ -985,7 +991,7 @@ export default function Episode({ navigation, route }) {
       }).then(response => {
         alert("Added to watchlist");
         AsyncStorage.setItem("watchLater_" + contentId, contentId);
-        let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage };
+        let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage,'event_time':new Date(),'event_id':'07' };
         triggerOtherAnalytics('watch_later', jsonObj);
         setwatchlatercontent(true);
       }).catch(error => {
@@ -1011,7 +1017,7 @@ export default function Episode({ navigation, route }) {
       }).then(response => {
         AsyncStorage.setItem("like_" + contentId, contentId);
         setlikecontent(true);
-        let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "content_value": contentvalue };
+        let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "content_value": contentvalue,'event_time':new Date(),'event_id':'08' };
         triggerOtherAnalytics('like_button', jsonObj)
       }).catch(error => {
         alert("Unable to like the content. Please try again later.");
@@ -1041,7 +1047,7 @@ export default function Episode({ navigation, route }) {
       failOnCancel: false,
       urls: [shareUrl],
     };
-    let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "content_value": contentvalue };
+    let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "content_value": contentvalue,'event_time':new Date(),'event_id':'11' };
     triggerOtherAnalytics('share', jsonObj)
 
     const ShareResponse = await Share.open(shareOptions);
@@ -1083,9 +1089,8 @@ export default function Episode({ navigation, route }) {
       setcurrenttimestamp(timestamp);
       setcurrentloadingtime(totalSeconds);
     }
-    if (totalSeconds % 60 == 0) {
-      triggeranalytics("pb_end", totalSeconds);
-    }
+    setpbtime(pbtime+1)
+    console.log(pbtime);
     if ((totalSeconds % 30) == 0) {
       var sessionId = await AsyncStorage.getItem('session');
       if (sessionId != "" && sessionId != null && timestamp != "" && timestamp != null) {
@@ -1197,12 +1202,15 @@ export default function Episode({ navigation, route }) {
   }
 
   const playnextitem = async () => {
+    triggeranalytics('pb_start',pbtime,'01')
     const session = await AsyncStorage.getItem('session');
     const region = await AsyncStorage.getItem('country_code');
     var nextitem = FIRETV_BASE_URL_STAGING + "/catalogs/" + catalogId + "/items/" + contentId + "/next_item?auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region + "&item_language=eng";
     axios.get(nextitem).then(response => {
       navigation.replace('Episode', { seoUrl: response.data.data.seo_url, theme: 'episode' });
-    }).catch(error => { })
+    }).catch(error => {
+      console.log(error.response.data);
+     })
   }
   const gotoPage = async (full_catalog_id, full_content_id) => {
     const region = await AsyncStorage.getItem('country_code');
@@ -1325,7 +1333,7 @@ export default function Episode({ navigation, route }) {
                 }}
                 onLoad={(data) => {
                   setDuration(data.duration)
-                  triggeranalytics("pb_start", 1);
+                  triggeranalytics("pb_start", 1,'01');
                   if (seektime != "" && seektime != null && data != '' && data != null) {
                     var splittedtime = seektime.split(":");
                     videoRef.current.seek(+(splittedtime[0] * 3600) + +(splittedtime[1] * 60) + +(splittedtime[2]));
@@ -1464,7 +1472,14 @@ export default function Episode({ navigation, route }) {
                       </TouchableOpacity>
 
                       <TouchableOpacity
-                        onPress={() => { setPlay(!play); setState({ ...state, showControls: true }); }}
+                        onPress={() => { 
+                          setPlay(!play); 
+                          setState({ ...state, showControls: true }); 
+                          if(play)
+                          triggeranalytics('pb_end',pbtime,'02')
+                          else
+                          triggeranalytics('pb_start',pbtime,'01')
+                        }}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                         style={{ right: 10, left: 10, width: "10%" }}>
                         {play ?

@@ -513,8 +513,9 @@ function News({ navigation, route }) {
         }
     }
 
-    const naviagtetopage = async (page, url, theme) => {
+    const naviagtetopage = async (page, url, theme, sourceName) => {
         settotalHomeData([]);
+        await AsyncStorage.setItem('sourceName',sourceName);
         navigation.navigate(page, { seoUrl: url, theme: theme })
     }
 
@@ -528,6 +529,7 @@ function News({ navigation, route }) {
             parallaxScrollingOffset: 50,
             parallaxAdjacentItemScale: 0.82,
         });
+        const sourceName = item.displayName;
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
                 <View style={{ width: PAGE_WIDTH, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
@@ -565,7 +567,7 @@ function News({ navigation, route }) {
                                                     navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                     :
                                                     VIDEO_TYPES.includes(item.theme) ?
-                                                        naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                        naviagtetopage('Episode', item.seoUrl, item.theme,'banner') : naviagtetopage('Shows', item.seoUrl, item.theme,'banner')
                                             }
 
                                         }}>
@@ -629,7 +631,7 @@ function News({ navigation, route }) {
                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                         :
                                         VIDEO_TYPES.includes(item.theme) ?
-                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                 }
                             }}><FastImage key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
@@ -665,7 +667,7 @@ function News({ navigation, route }) {
                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -698,7 +700,7 @@ function News({ navigation, route }) {
                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -752,7 +754,7 @@ function News({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -781,7 +783,7 @@ function News({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -822,7 +824,7 @@ function News({ navigation, route }) {
                                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                             :
                                                             VIDEO_TYPES.includes(item.theme) ?
-                                                                naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                                naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                                     }
                                                 }}>
                                                     <FastImage
@@ -852,7 +854,7 @@ function News({ navigation, route }) {
                                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                             :
                                                             VIDEO_TYPES.includes(item.theme) ?
-                                                                naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                                naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                                     }
                                                 }}>
                                                     <FastImage
@@ -888,7 +890,7 @@ function News({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -918,7 +920,7 @@ function News({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -957,7 +959,7 @@ function News({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -986,7 +988,7 @@ function News({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1026,7 +1028,7 @@ function News({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1055,7 +1057,7 @@ function News({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1095,7 +1097,7 @@ function News({ navigation, route }) {
                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.stretch} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
 
@@ -1141,7 +1143,7 @@ function News({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1171,7 +1173,7 @@ function News({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme) : naviagtetopage('Shows', item.seoUrl, item.theme)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
                                                 }
                                             }}>
                                                 <FastImage
