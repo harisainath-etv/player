@@ -89,15 +89,8 @@ export default function Subscribe({ navigation }) {
       })
       .catch((error) => {});
   };
-  console.log("plan==========", activeplan);
-  // const Allplan = async () => {
-  //   const plandetail = await AsyncStorage.getItem("plan_id");
-  //   setActiveplan(JSON.stringify(plandetail));
-  //   // console.log(JSON.stringify(plandetail), "hfy123fyy=============");
-  // };
-  // useEffect(() => {
-  //   Allplan();
-  // }, [navigation]);
+  console.log("plan", activeplan);
+
   async function loadpackdetails() {
     var plans = [];
     const region = await AsyncStorage.getItem("country_code");
@@ -841,8 +834,9 @@ export default function Subscribe({ navigation }) {
                               }}
                             >
                               {(buttonchange == "" && "Subscribe") ||
-                                (buttonchange == "Year" && "Renewal") ||
-                                (buttonchange == "Month" && "Upgrade")}
+                                (currentplan == selectedprice
+                                  ? "Renewal"
+                                  : "Upgrade")}
                             </Text>
                           </View>
                         </LinearGradient>
