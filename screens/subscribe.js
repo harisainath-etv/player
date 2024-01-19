@@ -841,8 +841,9 @@ export default function Subscribe({ navigation }) {
                               }}
                             >
                               {(buttonchange == "" && "Subscribe") ||
-                                (buttonchange == "Year" && "Renewal") ||
-                                (buttonchange == "Month" && "Upgrade")}
+                                (currentplan == selectedprice
+                                  ? "Renewal"
+                                  : "Upgrade")}
                             </Text>
                           </View>
                         </LinearGradient>
