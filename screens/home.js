@@ -804,6 +804,7 @@ function Home({ navigation, route }) {
         setexclusiveautoPlay(false);
         setbannerautoPlay(false);
         console.log(sourceName);
+        if(sourceName!=null)
         await AsyncStorage.setItem('sourceName',sourceName);
         navigation.navigate(page, { seoUrl: url, theme: theme })
     }

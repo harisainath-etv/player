@@ -215,7 +215,9 @@ export default function Shows({ navigation, route }) {
             else{
                 alternativeUrl(urlPath1,relatedurlPath,sessionId,region,baseUrl)
             }
+            setLoading(false);
         }).catch(error => {
+            setLoading(false);
             alternativeUrl(urlPath1 + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region,relatedurlPath,sessionId,region,baseUrl)})
     }
 
