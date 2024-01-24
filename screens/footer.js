@@ -1,12 +1,12 @@
 import { View, StyleSheet, Text, TouchableOpacity, FlatList } from 'react-native'
 import React, { useState, useEffect, } from 'react'
-import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, } from 'react-native-google-cast';
+import GoogleCast, { useCastDevice, useDevices, useRemoteMediaClient, CastButton } from 'react-native-google-cast';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Modal from "react-native-modal";
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation, StackActions } from '@react-navigation/native';
-import { PAGE_WIDTH, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, NO_CAST_DEVICES, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, FIRETV_BASE_URL_STAGING, AUTH_TOKEN, FOOTER_DEFAULT_TEXT_COLOR } from '../constants'
+import { PAGE_WIDTH, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, NO_CAST_DEVICES, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, FIRETV_BASE_URL_STAGING, AUTH_TOKEN, FOOTER_DEFAULT_TEXT_COLOR, PAGE_HEIGHT } from '../constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
@@ -173,13 +173,13 @@ export default function Footer(props) {
                 }
             </View>
 
-            {castState != NO_CAST_DEVICES && pageName != 'SHORTS' ?
+            {/* {castState != NO_CAST_DEVICES && pageName != 'SHORTS' ?
                 castSet ?
                     <TouchableOpacity onPress={CastSession}><View style={styles.chromeCast}><MaterialCommunityIcons name="cast-connected" size={20} color="white" /></View></TouchableOpacity>
                     :
-                    <TouchableOpacity onPress={toggleModal}><View style={styles.chromeCast}><FontAwesome5 name="chromecast" size={20} color="white" /></View></TouchableOpacity>
+                    <TouchableOpacity onPress={toggleModal}><View style={styles.chromeCast}><FontAwesome5 name="chromecast" size={20} color="white" /></View></TouchableOpacity> */}
 
-                : ""}
+            {/* : ""} */}
 
             {devices ?
                 <Modal

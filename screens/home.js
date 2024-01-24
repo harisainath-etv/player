@@ -26,6 +26,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import messaging from '@react-native-firebase/messaging';
 import base64 from 'react-native-base64';
 import Orientation from 'react-native-orientation-locker';
+import { CastButton } from 'react-native-google-cast';
+import { Ionicons, Entypo } from "@expo/vector-icons";
 
 
 export const ElementsText = {
@@ -131,34 +133,34 @@ function Home({ navigation, route }) {
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
-    const silentLogin = async() =>{
+    const silentLogin = async () => {
         console.log("silent login");
         var region = await AsyncStorage.getItem('country_code');
         const uniqueid = await DeviceInfo.getUniqueId();
         const device_token = await messaging().getToken();
 
         await axios.post(FIRETV_BASE_URL_STAGING + '/users/external_auth/sign_in',
-        {
-            access_token: ACCESS_TOKEN,
-            auth_token: VIDEO_AUTH_TOKEN,
-            user: {
-                provider: "etv_guest_user",
-                region: region,
-                uid: uniqueid,
-                device_token: device_token
-            }
-        },
-        {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            }
-        }).then(response => {
+            {
+                access_token: ACCESS_TOKEN,
+                auth_token: VIDEO_AUTH_TOKEN,
+                user: {
+                    provider: "etv_guest_user",
+                    region: region,
+                    uid: uniqueid,
+                    device_token: device_token
+                }
+            },
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }).then(response => {
                 console.log(response.data);
-        }).catch(err => {
-            console.log(JSON.stringify(err));
-            //alert(err.response.data.message)
-        })
+            }).catch(err => {
+                console.log(JSON.stringify(err));
+                //alert(err.response.data.message)
+            })
 
 
     }
@@ -168,8 +170,7 @@ function Home({ navigation, route }) {
         const notificationSeourl = await AsyncStorage.getItem('notificationSeourl');
         const notificationTheme = await AsyncStorage.getItem('notificationTheme');
         const session = await AsyncStorage.getItem('session');
-        if(session=="" || session==null)
-        {
+        if (session == "" || session == null) {
             silentLogin()
         }
         const qrlogin = await AsyncStorage.getItem("qrlogin");
@@ -278,21 +279,16 @@ function Home({ navigation, route }) {
                                 else {
                                     if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('high_16_9')) {
                                         if (data.data.catalog_list_items[i].layout_type == "top_banner") {
-                                            if (isTablet)
-                                                {
-                                                    if(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('mobile_banner_image'))
-                                                    {All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.mobile_banner_image.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id, "title_image_display": data.data.catalog_list_items[i].catalog_list_items[j].title_image_display, "title_image": data.data.catalog_list_items[i].catalog_list_items[j].title_image });}
-                                                    else
-                                                    {All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.l_large.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id, "title_image_display": data.data.catalog_list_items[i].catalog_list_items[j].title_image_display, "title_image": data.data.catalog_list_items[i].catalog_list_items[j].title_image });}
+                                            if (isTablet) {
+                                                if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('mobile_banner_image')) { All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.mobile_banner_image.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id, "title_image_display": data.data.catalog_list_items[i].catalog_list_items[j].title_image_display, "title_image": data.data.catalog_list_items[i].catalog_list_items[j].title_image }); }
+                                                else { All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.l_large.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id, "title_image_display": data.data.catalog_list_items[i].catalog_list_items[j].title_image_display, "title_image": data.data.catalog_list_items[i].catalog_list_items[j].title_image }); }
                                             }
-                                            else
-                                                {
-                                                    if(data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('mobile_banner_image'))
-                                                    {All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.mobile_banner_image.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id, "title_image_display": data.data.catalog_list_items[i].catalog_list_items[j].title_image_display, "title_image": data.data.catalog_list_items[i].catalog_list_items[j].title_image });}
-                                                    else{
-                                                        All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.l_large.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id, "title_image_display": data.data.catalog_list_items[i].catalog_list_items[j].title_image_display, "title_image": data.data.catalog_list_items[i].catalog_list_items[j].title_image });
-                                                    }
+                                            else {
+                                                if (data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.hasOwnProperty('mobile_banner_image')) { All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.mobile_banner_image.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id, "title_image_display": data.data.catalog_list_items[i].catalog_list_items[j].title_image_display, "title_image": data.data.catalog_list_items[i].catalog_list_items[j].title_image }); }
+                                                else {
+                                                    All.push({ "uri": data.data.catalog_list_items[i].catalog_list_items[j].thumbnails.l_large.url, "theme": data.data.catalog_list_items[i].catalog_list_items[j].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].catalog_list_items[j].seo_url, "medialistinlist": data.data.catalog_list_items[i].catalog_list_items[j].media_list_in_list, "friendlyId": "", "displayTitle": data.data.catalog_list_items[i].catalog_list_items[j].title, "genres": data.data.catalog_list_items[i].catalog_list_items[j].genres, "content_id": data.data.catalog_list_items[i].catalog_list_items[j].content_id, "catalog_id": data.data.catalog_list_items[i].catalog_list_items[j].catalog_id, "title_image_display": data.data.catalog_list_items[i].catalog_list_items[j].title_image_display, "title_image": data.data.catalog_list_items[i].catalog_list_items[j].title_image });
                                                 }
+                                            }
                                         }
                                         else
                                             if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show" || data.data.catalog_list_items[i].layout_type == "movie_poster") {
@@ -555,12 +551,12 @@ function Home({ navigation, route }) {
         // }
     }
 
-    const triggersuccessanalytics = async (name, method, u_id, device_id,event_id) => {
+    const triggersuccessanalytics = async (name, method, u_id, device_id, event_id) => {
         sdk.trackEvent(name, {
             method: method,
             u_id: u_id,
             device_id: device_id,
-            event_id:event_id,
+            event_id: event_id,
             event_time: new Date()
         });
     }
@@ -604,7 +600,7 @@ function Home({ navigation, route }) {
                     'Content-Type': 'application/json',
                 }
             }).then(response => {
-                triggersuccessanalytics('login_success', 'social', response.data.data.user_id, uniqueid,'05')
+                triggersuccessanalytics('login_success', 'social', response.data.data.user_id, uniqueid, '05')
                 AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                 AsyncStorage.setItem('ext_account_email_id', response.data.data.ext_account_email_id)
                 AsyncStorage.setItem('first_time_login', JSON.stringify(response.data.data.first_time_login))
@@ -707,7 +703,7 @@ function Home({ navigation, route }) {
             console.log("third");
             urlPath = baseUrl + "catalogs/" + splittedData[splittedData.length - 3] + "/items/" + splittedData[splittedData.length - 2] + "/episodes/" + splittedData[splittedData.length - 1];
         }
-        else if ((checkShow.length > 0 || checkEvent.length > 0) && checkLive.length == 0 && splittedData.length>2) {
+        else if ((checkShow.length > 0 || checkEvent.length > 0) && checkLive.length == 0 && splittedData.length > 2) {
             console.log("four");
             urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[splittedData.length - 2] + "/episodes/" + splittedData[splittedData.length - 1];
         }
@@ -722,7 +718,7 @@ function Home({ navigation, route }) {
         const url = urlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
         console.log(url);
         axios.get(url).then(deepresp => {
-            VIDEO_TYPES.includes(deepresp.data.data.theme) ? navigation.dispatch(StackActions.replace('Episode', {seoUrl:seourl, theme:deepresp.data.data.theme})) : navigation.dispatch(StackActions.replace('Shows', {seoUrl:seourl, theme:deepresp.data.data.theme}))
+            VIDEO_TYPES.includes(deepresp.data.data.theme) ? navigation.dispatch(StackActions.replace('Episode', { seoUrl: seourl, theme: deepresp.data.data.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: seourl, theme: deepresp.data.data.theme }))
         }).catch(deeperr => { })
 
     }
@@ -804,8 +800,8 @@ function Home({ navigation, route }) {
         setexclusiveautoPlay(false);
         setbannerautoPlay(false);
         console.log(sourceName);
-        if(sourceName!=null)
-        await AsyncStorage.setItem('sourceName',sourceName);
+        if (sourceName != null)
+            await AsyncStorage.setItem('sourceName', sourceName);
         navigation.navigate(page, { seoUrl: url, theme: theme })
     }
 
@@ -913,27 +909,75 @@ function Home({ navigation, route }) {
                                                 navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                 :
                                                 VIDEO_TYPES.includes(item.data[sliderKey].theme) ?
-                                                    naviagtetopage('Episode', item.data[sliderKey].seoUrl, item.data[sliderKey].theme,'Banner') : naviagtetopage('Shows', item.data[sliderKey].seoUrl, item.data[sliderKey].theme,'Banner')
+                                                    naviagtetopage('Episode', item.data[sliderKey].seoUrl, item.data[sliderKey].theme, 'Banner') : naviagtetopage('Shows', item.data[sliderKey].seoUrl, item.data[sliderKey].theme, 'Banner')
                                         }
 
                                     }}>
-                                        <LinearGradient
-                                            useAngle={true}
-                                            angle={125}
-                                            angleCenter={{ x: 0.5, y: 0.5 }}
-                                            colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR, BUTTON_COLOR]}
-                                            style={[styles.button, { borderRadius: 40 }]}>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <FontAwesome5 name='play' size={13} color={NORMAL_TEXT_COLOR} style={{ marginRight: 10 }} />
-                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Watch Now</Text>
+                                        <View
+                                            style={{
+                                                alignItems: "center",
+                                                flexDirection: "row",
+                                                position: "relative",
+                                            }}
+                                        >
+                                            <View style={{
+                                                position: "absolute",
+                                                zIndex: 2,
+                                                marginLeft: 10,
+                                            }}>
+                                                <Ionicons
+                                                    name="play-circle"
+                                                    size={50}
+                                                    color={TAB_COLOR}
+                                                />
                                             </View>
-                                        </LinearGradient>
+                                            <View>
+                                                <LinearGradient
+                                                    useAngle={true}
+                                                    angle={125}
+                                                    angleCenter={{ x: 0.5, y: 0.5 }}
+                                                    colors={[
+                                                        BUTTON_COLOR,
+                                                        TAB_COLOR,
+                                                        TAB_COLOR,
+                                                        BUTTON_COLOR,
+                                                    ]}
+                                                    style={{
+                                                        padding: 7,
+                                                        borderBottomEndRadius: 40,
+                                                        borderTopEndRadius: 40,
+                                                        borderBottomLeftRadius: 5,
+                                                        borderTopLeftRadius: 5,
+                                                        borderRadius: 20,
+                                                        width: 130,
+                                                        marginLeft: 40,
+                                                    }}
+                                                >
+                                                    <Text
+                                                        style={{
+                                                            textAlign: "center",
+                                                            color: "white",
+                                                            fontSize: 15,
+                                                            fontWeight:'500'
+                                                        }}
+                                                    >
+                                                        Watch Now
+                                                    </Text>
+                                                </LinearGradient>
+                                            </View>
+                                        </View>
                                     </Pressable>
 
 
                                     {VIDEO_TYPES.includes(item.data[sliderKey].theme) ?
-                                        <Pressable onPress={() => { watchLater(item.data[sliderKey].catalog_id, item.data[sliderKey].content_id) }} style={styles.wishlistbutton}>
-                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}> + Watch Later</Text>
+                                        <Pressable onPress={() => { watchLater(item.data[sliderKey].catalog_id, item.data[sliderKey].content_id) }}>
+                                            <View style={{ alignContent: "space-between", marginRight: 40, }}>
+                                                <Entypo
+                                                    name="circle-with-plus"
+                                                    size={40}
+                                                    color={TAB_COLOR}
+                                                />
+                                            </View>
                                         </Pressable>
                                         :
                                         ""}
@@ -977,7 +1021,7 @@ function Home({ navigation, route }) {
                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                         :
                                         VIDEO_TYPES.includes(item.theme) ?
-                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                            naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                 }
                             }}><FastImage resizeMode={FastImage.resizeMode.contain} key={index} style={styles.showsbannerimage} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                         />
@@ -1016,7 +1060,7 @@ function Home({ navigation, route }) {
                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.contain} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -1049,7 +1093,7 @@ function Home({ navigation, route }) {
                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.contain} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
@@ -1105,7 +1149,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1134,7 +1178,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1178,7 +1222,7 @@ function Home({ navigation, route }) {
                                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                             :
                                                             VIDEO_TYPES.includes(item.theme) ?
-                                                                naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                                naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                                     }
                                                 }}>
                                                     <FastImage
@@ -1208,7 +1252,7 @@ function Home({ navigation, route }) {
                                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                             :
                                                             VIDEO_TYPES.includes(item.theme) ?
-                                                                naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                                naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                                     }
                                                 }}>
                                                     <FastImage
@@ -1244,7 +1288,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1274,7 +1318,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1316,7 +1360,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1345,7 +1389,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1388,7 +1432,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1417,7 +1461,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1465,7 +1509,7 @@ function Home({ navigation, route }) {
                                             navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                             :
                                             VIDEO_TYPES.includes(item.theme) ?
-                                                naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                     }
                                 }}><FastImage resizeMode={FastImage.resizeMode.contain} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
 
@@ -1493,7 +1537,7 @@ function Home({ navigation, route }) {
                     <View style={index == 0 ? {} : {}}>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
-                            {item.data.length > 2 && item.layoutType!='continue_watching' && item.displayName.toLowerCase()!='food' ? <Pressable style={{ width: "100%" }} onPress={() => {
+                            {item.data.length > 2 && item.layoutType != 'continue_watching' && item.displayName.toLowerCase() != 'food' ? <Pressable style={{ width: "100%" }} onPress={() => {
                                 settotalHomeData([]);
                                 navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
                             }}><Text style={styles.sectionHeaderMore}><MaterialCommunityIcons name='dots-grid' size={25} color={NORMAL_TEXT_COLOR} />    </Text></Pressable> : ""}
@@ -1514,7 +1558,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1544,7 +1588,7 @@ function Home({ navigation, route }) {
                                                         navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
                                                         :
                                                         VIDEO_TYPES.includes(item.theme) ?
-                                                            naviagtetopage('Episode', item.seoUrl, item.theme,sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme,sourceName)
+                                                            naviagtetopage('Episode', item.seoUrl, item.theme, sourceName) : naviagtetopage('Shows', item.seoUrl, item.theme, sourceName)
                                                 }
                                             }}>
                                                 <FastImage
@@ -1560,7 +1604,7 @@ function Home({ navigation, route }) {
                             />
                         }
                     </View> : ""}
-                    {index == totalHomeData.length-1 ? <View style={{marginBottom:50}}></View>: ""}
+                {index == totalHomeData.length - 1 ? <View style={{ marginBottom: 50 }}></View> : ""}
             </View>
         );
     }
@@ -1623,7 +1667,7 @@ function Home({ navigation, route }) {
     const loadFilters = async () => {
         navigation.navigate('FoodFilter');
     }
-    const handleBack = async() =>{
+    const handleBack = async () => {
         Orientation.lockToPortrait();
         return true;
     }
@@ -1660,7 +1704,7 @@ function Home({ navigation, route }) {
                 : ""}
             {/* header menu */}
             <View style={{ left: "50%", position: 'absolute', zIndex: 10000, top: '50%' }}>
-                {loading ? <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} style={{}}></ActivityIndicator></View> : ""}
+                {loading ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} style={{}}></ActivityIndicator></View> : ""}
             </View>
             <View style={{ position: 'absolute', backgroundColor: menubgcolor, width: PAGE_WIDTH }}>
                 <View style={{ marginTop: 30, justifyContent: 'center', alignContent: 'center', alignItems: 'center', flexDirection: 'row', width: "100%" }}>
@@ -1729,6 +1773,7 @@ function Home({ navigation, route }) {
                 </View>
             </Modal>
 
+            <CastButton style={{ width: 24, height: 24, tintColor: '#ffffff', zIndex: 10000000, position: 'absolute', right: 30, bottom: 70 }} />
 
             <StatusBar
                 animated
@@ -1798,7 +1843,7 @@ const PaginationItem = (props) => {
 
 const styles = StyleSheet.create({
     buttonsContainer: { width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', zIndex: 1000, position: 'absolute' },
-    buttonsPosition: { position: 'absolute', bottom: 20, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-evenly' },
+    buttonsPosition: { position: 'absolute', bottom: 10, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-evenly' },
     button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, marginRight: 5, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
     wishlistbutton: { borderRadius: 40, borderWidth: 1.5, borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7 },
     subscribeImage: { width: actuatedNormalize(160), height: actuatedNormalizeVertical(85), resizeMode: 'contain', justifyContent: 'center', alignItems: 'center', },

@@ -29,8 +29,11 @@ export default function Subscribe({ navigation }) {
     const [currentplan, setcurrentplan] = useState("");
     const [usersubscribed, setusersubscribed] = useState();
     const [userRenewUpgrade, setuserRenewUpgrade] = useState("");
+    const [buttonchange, setButtonchange] = useState("");
+    const [activeplan, setActiveplan] = useState("");
     const loadData = async () => {
         var currentplan = await AsyncStorage.getItem('plan_id');
+        setActiveplan(currentplan);
         setusersubscribed(await AsyncStorage.getItem('payable_coupon_display'));
         setcurrentplan(currentplan);
         var items = [];
@@ -127,7 +130,7 @@ export default function Subscribe({ navigation }) {
                             useAngle={true}
                             angle={125}
                             angleCenter={{ x: 0.5, y: 0.5 }}
-                            colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
+                            colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR, BUTTON_COLOR]}
                             style={styles.gradirentButton}
                         >
                             <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -423,7 +426,14 @@ export default function Subscribe({ navigation }) {
                                     return (
                                         <>
                                             <TouchableOpacity key={resp.id} style={{}} onPress={() => {
-                                                setselectedprice(resp.id); setselectedpriceforpayment(resp.price); setselectedpriceforduration(resp.display_period); setselectedpricecurrency(resp.currency_symbol); setcurrency(resp.currency); setplanid(resp.id); setdescription(resp.description);
+                                                setButtonchange(resp.title);
+                                                setselectedprice(resp.id);
+                                                setselectedpriceforpayment(resp.price);
+                                                setselectedpriceforduration(resp.display_period);
+                                                setselectedpricecurrency(resp.currency_symbol);
+                                                setcurrency(resp.currency);
+                                                setplanid(resp.id);
+                                                setdescription(resp.description);
                                                 currentplan == resp.id ?
                                                     setAsyncData(1)
                                                     : setAsyncData(2);
@@ -530,30 +540,96 @@ export default function Subscribe({ navigation }) {
                                         <TouchableOpacity onPress={proceedtopay} style={{ width: "100%" }}>
 
 
-                                            <LinearGradient
-                                                useAngle={true}
-                                                angle={125}
-                                                angleCenter={{ x: 0.5, y: 0.5 }}
-                                                colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
-                                                style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: "100%", padding: 12, borderRadius: 10, marginRight: 20, borderColor: TAB_COLOR, borderWidth: 0.5 }}
-                                            >
-                                                <View
-                                                    style={{ flexDirection: "row", alignItems: "center" }}
-                                                >
-
-                                                    <Text
+                                            {activeplan ?
+                                                (
+                                                    <LinearGradient
+                                                        useAngle={true}
+                                                        angle={125}
+                                                        angleCenter={{ x: 0.5, y: 0.5 }}
+                                                        colors={[
+                                                            BUTTON_COLOR,
+                                                            TAB_COLOR,
+                                                            TAB_COLOR,
+                                                            TAB_COLOR,
+                                                            BUTTON_COLOR,
+                                                        ]}
                                                         style={{
+                                                            justifyContent: "center",
+                                                            alignItems: "center",
+                                                            backgroundColor: TAB_COLOR,
                                                             color: NORMAL_TEXT_COLOR,
-                                                            fontSize: 13,
-                                                            fontWeight: "bold",
+                                                            width: "100%",
+                                                            padding: 12,
+                                                            borderRadius: 10,
+                                                            marginRight: 20,
+                                                            borderColor: TAB_COLOR,
+                                                            borderWidth: 0.5,
                                                         }}
                                                     >
-                                                        Subscribe
-                                                    </Text>
+                                                        <View
+                                                            style={{ flexDirection: "row", alignItems: "center" }}
+                                                        >
 
-                                                </View>
-                                            </LinearGradient>
+                                                            <Text
+                                                                style={{
+                                                                    color: NORMAL_TEXT_COLOR,
+                                                                    fontSize: 13,
+                                                                    fontWeight: "bold",
+                                                                }}
+                                                            >
+                                                                {(buttonchange == "" && "Subscribe") ||
+                                                                    (currentplan == selectedprice
+                                                                        ? "Renewal"
+                                                                        : "Upgrade")}
+                                                            </Text>
 
+                                                        </View>
+                                                    </LinearGradient>
+                                                )
+                                                :
+                                                (
+                                                    <LinearGradient
+                                                        useAngle={true}
+                                                        angle={125}
+                                                        angleCenter={{ x: 0.5, y: 0.5 }}
+                                                        colors={[
+                                                            BUTTON_COLOR,
+                                                            TAB_COLOR,
+                                                            TAB_COLOR,
+                                                            TAB_COLOR,
+                                                            BUTTON_COLOR,
+                                                        ]}
+                                                        style={{
+                                                            justifyContent: "center",
+                                                            alignItems: "center",
+                                                            backgroundColor: TAB_COLOR,
+                                                            color: NORMAL_TEXT_COLOR,
+                                                            width: "100%",
+                                                            padding: 12,
+                                                            borderRadius: 10,
+                                                            marginRight: 20,
+                                                            borderColor: TAB_COLOR,
+                                                            borderWidth: 0.5,
+                                                        }}
+                                                    >
+                                                        <View
+                                                            style={{
+                                                                flexDirection: "row",
+                                                                alignItems: "center",
+                                                            }}
+                                                        >
+                                                            <Text
+                                                                style={{
+                                                                    color: NORMAL_TEXT_COLOR,
+                                                                    fontSize: 13,
+                                                                    fontWeight: "bold",
+                                                                }}
+                                                            >
+                                                                Subscribe
+                                                            </Text>
+                                                        </View>
+                                                    </LinearGradient>
+                                                )}
 
                                         </TouchableOpacity>
                                     </View>
