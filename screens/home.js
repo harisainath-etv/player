@@ -1780,84 +1780,43 @@ function Home({ navigation, route }) {
                       style={{
                         alignItems: "center",
                         flexDirection: "row",
+                        // justifyContent: "space-between",
                         position: "relative",
                       }}
                     >
-                      <View
+                      <Image
                         style={{
-                          position: "absolute",
-                          zIndex: 2,
-                          marginLeft: 10,
+                          justifyContent: "center",
+                          width: "60%",
+                          height: 40,
+                          resizeMode: "contain",
                         }}
-                      >
-                        <Ionicons
-                          name="play-circle"
-                          size={65}
-                          color={TAB_COLOR}
-                        />
-                      </View>
-                      <View>
-                        <LinearGradient
-                          useAngle={true}
-                          angle={125}
-                          angleCenter={{ x: 0.5, y: 0.5 }}
-                          colors={[
-                            BUTTON_COLOR,
-                            TAB_COLOR,
-                            TAB_COLOR,
-                            BUTTON_COLOR,
-                          ]}
-                          style={{
-                            padding: 10,
-                            borderBottomEndRadius: 40,
-                            borderTopEndRadius: 40,
-                            borderBottomLeftRadius: 5,
-                            borderTopLeftRadius: 5,
-                            borderRadius: 20,
-                            width: 130,
-                            marginLeft: 55,
+                        source={require("../assets/images/playbutton.png")}
+                      />
+                      {VIDEO_TYPES.includes(item.data[sliderKey].theme) ? (
+                        <Pressable
+                          onPress={() => {
+                            watchLater(
+                              item.data[sliderKey].catalog_id,
+                              item.data[sliderKey].content_id
+                            );
                           }}
                         >
-                          <Text
+                          <Image
                             style={{
-                              textAlign: "center",
-                              color: "white",
-                              fontSize: 18,
+                              width: "135%",
+                              height: 50,
+                              resizeMode: "contain",
+                              marginLeft: 30,
                             }}
-                          >
-                            Watch Now
-                          </Text>
-                        </LinearGradient>
-                      </View>
+                            source={require("../assets/images/Plus.png")}
+                          />
+                        </Pressable>
+                      ) : (
+                        ""
+                      )}
                     </View>
                   </Pressable>
-
-                  {VIDEO_TYPES.includes(item.data[sliderKey].theme) ? (
-                    <Pressable
-                      onPress={() => {
-                        watchLater(
-                          item.data[sliderKey].catalog_id,
-                          item.data[sliderKey].content_id
-                        );
-                      }}
-                      // style={styles.wishlistbutton}
-                    >
-                      <View
-                        style={{
-                          alignContent: "space-between",
-                          marginRight: 40,
-                        }}
-                      >
-                        <Entypo
-                          name="circle-with-plus"
-                          size={55}
-                          color={TAB_COLOR}
-                        />
-                      </View>
-                    </Pressable>
-                  ) : (
-                    ""
-                  )}
                 </View>
               </View>
             </>
@@ -3673,6 +3632,7 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "space-evenly",
+    marginLeft: 30,
   },
   button: {
     paddingLeft: 35,
