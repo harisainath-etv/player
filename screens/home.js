@@ -14,7 +14,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
 // import RNBackgroundDownloader from 'react-native-background-downloader';
 import axios from 'axios';
 import Modal from "react-native-modal";
@@ -27,7 +28,6 @@ import messaging from '@react-native-firebase/messaging';
 import base64 from 'react-native-base64';
 import Orientation from 'react-native-orientation-locker';
 import { CastButton } from 'react-native-google-cast';
-import { Ionicons, Entypo } from "@expo/vector-icons";
 
 
 export const ElementsText = {
