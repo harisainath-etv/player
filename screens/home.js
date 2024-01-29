@@ -903,82 +903,37 @@ function Home({ navigation, route }) {
                                 </Text>
                                 <View style={styles.buttonsPosition}>
 
-                                    <Pressable onPress={() => {
-                                        {
-                                            item.data[sliderKey].medialistinlist ?
-                                                navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
-                                                :
-                                                VIDEO_TYPES.includes(item.data[sliderKey].theme) ?
-                                                    naviagtetopage('Episode', item.data[sliderKey].seoUrl, item.data[sliderKey].theme, 'Banner') : naviagtetopage('Shows', item.data[sliderKey].seoUrl, item.data[sliderKey].theme, 'Banner')
-                                        }
+                                    <View style={VIDEO_TYPES.includes(item.data[sliderKey].theme) ? { width: "50%", justifyContent: 'flex-end', alignItems: 'flex-end' } : { width: "100%", justifyContent: 'center', alignItems: 'center' }}>
+                                        <Pressable style={VIDEO_TYPES.includes(item.data[sliderKey].theme) ? { width: "100%", justifyContent: 'flex-end', alignItems: 'flex-end' } : { width: "100%", justifyContent: 'center', alignItems: 'center' }} onPress={() => {
+                                            {
+                                                item.data[sliderKey].medialistinlist ?
+                                                    navigation.dispatch(StackActions.replace('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] }))
+                                                    :
+                                                    VIDEO_TYPES.includes(item.data[sliderKey].theme) ?
+                                                        naviagtetopage('Episode', item.data[sliderKey].seoUrl, item.data[sliderKey].theme, 'Banner') : naviagtetopage('Shows', item.data[sliderKey].seoUrl, item.data[sliderKey].theme, 'Banner')
+                                            }
 
-                                    }}>
-                                        <View
-                                            style={{
-                                                alignItems: "center",
-                                                flexDirection: "row",
-                                                position: "relative",
-                                            }}
-                                        >
-                                            <View style={{
-                                                position: "absolute",
-                                                zIndex: 2,
-                                                marginLeft: 10,
-                                            }}>
-                                                <Ionicons
-                                                    name="play-circle"
-                                                    size={50}
-                                                    color={TAB_COLOR}
-                                                />
-                                            </View>
-                                            <View>
-                                                <LinearGradient
-                                                    useAngle={true}
-                                                    angle={125}
-                                                    angleCenter={{ x: 0.5, y: 0.5 }}
-                                                    colors={[
-                                                        BUTTON_COLOR,
-                                                        TAB_COLOR,
-                                                        TAB_COLOR,
-                                                        BUTTON_COLOR,
-                                                    ]}
-                                                    style={{
-                                                        padding: 7,
-                                                        borderBottomEndRadius: 40,
-                                                        borderTopEndRadius: 40,
-                                                        borderBottomLeftRadius: 5,
-                                                        borderTopLeftRadius: 5,
-                                                        borderRadius: 20,
-                                                        width: 130,
-                                                        marginLeft: 40,
-                                                    }}
-                                                >
-                                                    <Text
-                                                        style={{
-                                                            textAlign: "center",
-                                                            color: "white",
-                                                            fontSize: 15,
-                                                            fontWeight:'500'
-                                                        }}
-                                                    >
-                                                        Watch Now
-                                                    </Text>
-                                                </LinearGradient>
-                                            </View>
-                                        </View>
-                                    </Pressable>
+                                        }}>
+
+                                            <Image style={{
+                                                width: "60%",
+                                                height: 40,
+                                                resizeMode: "contain",
+                                            }} source={require("../assets/images/playbutton.png")} />
+
+                                        </Pressable>
+                                    </View>
+
 
 
                                     {VIDEO_TYPES.includes(item.data[sliderKey].theme) ?
-                                        <Pressable onPress={() => { watchLater(item.data[sliderKey].catalog_id, item.data[sliderKey].content_id) }}>
-                                            <View style={{ alignContent: "space-between", marginRight: 40, }}>
-                                                <Entypo
-                                                    name="circle-with-plus"
-                                                    size={40}
-                                                    color={TAB_COLOR}
-                                                />
-                                            </View>
-                                        </Pressable>
+                                        <View style={{ width: "50%", justifyContent: 'flex-start', alignItems: 'flex-start' }}><Pressable style={{ width: "100%" }} onPress={() => { watchLater(item.data[sliderKey].catalog_id, item.data[sliderKey].content_id) }}>
+                                            <Image style={{
+                                                width: "60%",
+                                                height: 40,
+                                                resizeMode: "contain",
+                                            }} source={require("../assets/images/Plus.png")} />
+                                        </Pressable></View>
                                         :
                                         ""}
 
@@ -1843,7 +1798,7 @@ const PaginationItem = (props) => {
 
 const styles = StyleSheet.create({
     buttonsContainer: { width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', zIndex: 1000, position: 'absolute' },
-    buttonsPosition: { position: 'absolute', bottom: 10, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-evenly' },
+    buttonsPosition: { position: 'absolute', bottom: 10, flexDirection: 'row', width: '100%', alignItems: 'center', },
     button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, marginRight: 5, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
     wishlistbutton: { borderRadius: 40, borderWidth: 1.5, borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7 },
     subscribeImage: { width: actuatedNormalize(160), height: actuatedNormalizeVertical(85), resizeMode: 'contain', justifyContent: 'center', alignItems: 'center', },
