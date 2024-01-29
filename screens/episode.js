@@ -1085,10 +1085,54 @@ export default function Episode({ navigation, route }) {
     hours = String(hours).padStart(2, '0');
     minutes = String(minutes).padStart(2, '0');
     var timestamp = hours + ":" + minutes + ":" + seconds;
-    if (state.showControls) {
+
+
+    function secondsToTimestamp(seconds) {
+      const tigtotalSeconds = Math.floor(seconds);
+      const hours = Math.floor(tigtotalSeconds / 3600);
+      const minutes = Math.floor((tigtotalSeconds % 3600) / 60);
+      const remainingSeconds = tigtotalSeconds % 60;
+
+      const formattedTime = `${String(hours).padStart(2, "0")}:${String(
+        minutes
+      ).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
+
+      return formattedTime;
+    }
+
+    const totalDurationSeconds = duration;
+
+    const percent10 = totalDurationSeconds * 0.1;
+    const percent25 = totalDurationSeconds * 0.25;
+    const percent50 = totalDurationSeconds * 0.5;
+    const percent75 = totalDurationSeconds * 0.75;
+    const percent90 = totalDurationSeconds * 0.9;
+
+    const formattedTime10 = secondsToTimestamp(percent10);
+    const formattedTime25 = secondsToTimestamp(percent25);
+    const formattedTime50 = secondsToTimestamp(percent50);
+    const formattedTime75 = secondsToTimestamp(percent75);
+    const formattedTime90 = secondsToTimestamp(percent90);
+
+    console.log("10%:", formattedTime10);
+
+    if (formattedTime10 === currenttimestamp) {
+      triggeranalytics("pb_10", totalSeconds);
+    } else if (formattedTime25 === currenttimestamp) {
+      triggeranalytics("pb_25", totalSeconds);
+    } else if (formattedTime50 === currenttimestamp) {
+      triggeranalytics("pb_50", totalSeconds);
+    } else if (formattedTime75 === currenttimestamp) {
+      triggeranalytics("pb_75", totalSeconds);
+    } else if (formattedTime90 === currenttimestamp) {
+      triggerOtherAnalytics("pb_90", totalSeconds);
+    }
+
+
+    // if (state.showControls) {
       setcurrenttimestamp(timestamp);
       setcurrentloadingtime(totalSeconds);
-    }
+    // }
     setpbtime(pbtime+1)
     console.log(pbtime);
     if ((totalSeconds % 30) == 0) {
@@ -1874,7 +1918,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   mainContainer: { flex: 1, backgroundColor: BACKGROUND_COLOR },
-  bodyContent: { backgroundColor: BACKGROUND_COLOR, padding: 10 },
+  bodyContent: { backgroundColor: BACKGROUND_COLOR, padding: 10,width:PAGE_WIDTH,flexWrap:'wrap' },
   headingLabel: { fontSize: 20, color: NORMAL_TEXT_COLOR, padding: 4, justifyContent: 'center', alignItems: 'center', width: "100%", borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, },
   detailsText: { fontSize: 11, marginBottom: 5, color: DETAILS_TEXT_COLOR, padding: 4 },
   options: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row', },

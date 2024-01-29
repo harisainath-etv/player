@@ -89,8 +89,6 @@ export default function Subscribe({ navigation }) {
       })
       .catch((error) => {});
   };
-  console.log("plan", activeplan);
-
   async function loadpackdetails() {
     var plans = [];
     const region = await AsyncStorage.getItem("country_code");

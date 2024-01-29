@@ -63,8 +63,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StackActions } from "@react-navigation/native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import { Ionicons, Entypo } from "@expo/vector-icons";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import Entypo from "react-native-vector-icons/Entypo";
 // import RNBackgroundDownloader from 'react-native-background-downloader';
 import axios from "axios";
 import Modal from "react-native-modal";
@@ -76,6 +76,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import messaging from "@react-native-firebase/messaging";
 import base64 from "react-native-base64";
 import Orientation from "react-native-orientation-locker";
+import { CastButton } from "react-native-google-cast";
 
 export const ElementsText = {
   AUTOPLAY: "AutoPlay",
@@ -417,94 +418,157 @@ function Home({ navigation, route }) {
                       data.data.catalog_list_items[i].layout_type ==
                       "top_banner"
                     ) {
-                      if (isTablet)
-                        All.push({
-                          uri: data.data.catalog_list_items[i]
-                            .catalog_list_items[j].thumbnails
-                            .mobile_banner_image.url,
-                          theme:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].theme,
-                          premium: premiumContent,
-                          seoUrl:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].seo_url,
-                          medialistinlist:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].media_list_in_list,
-                          friendlyId: "",
-                          displayTitle:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].title,
-                          genres:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].genres,
-                          content_id:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].content_id,
-                          catalog_id:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].catalog_id,
-                          title_image_display:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].title_image_display,
-                          title_image:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].title_image,
-                        });
-                      else
-                        All.push({
-                          uri: data.data.catalog_list_items[i]
-                            .catalog_list_items[j].thumbnails
-                            .mobile_banner_image.url,
-                          theme:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].theme,
-                          premium: premiumContent,
-                          seoUrl:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].seo_url,
-                          medialistinlist:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].media_list_in_list,
-                          friendlyId: "",
-                          displayTitle:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].title,
-                          genres:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].genres,
-                          content_id:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].content_id,
-                          catalog_id:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].catalog_id,
-                          title_image_display:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].title_image_display,
-                          title_image:
-                            data.data.catalog_list_items[i].catalog_list_items[
-                              j
-                            ].title_image,
-                        });
+                      if (isTablet) {
+                        if (
+                          data.data.catalog_list_items[i].catalog_list_items[
+                            j
+                          ].thumbnails.hasOwnProperty("mobile_banner_image")
+                        ) {
+                          All.push({
+                            uri: data.data.catalog_list_items[i]
+                              .catalog_list_items[j].thumbnails
+                              .mobile_banner_image.url,
+                            theme:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].theme,
+                            premium: premiumContent,
+                            seoUrl:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].seo_url,
+                            medialistinlist:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].media_list_in_list,
+                            friendlyId: "",
+                            displayTitle:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].title,
+                            genres:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].genres,
+                            content_id:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].content_id,
+                            catalog_id:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].catalog_id,
+                            title_image_display:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].title_image_display,
+                            title_image:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].title_image,
+                          });
+                        } else {
+                          All.push({
+                            uri: data.data.catalog_list_items[i]
+                              .catalog_list_items[j].thumbnails.l_large.url,
+                            theme:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].theme,
+                            premium: premiumContent,
+                            seoUrl:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].seo_url,
+                            medialistinlist:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].media_list_in_list,
+                            friendlyId: "",
+                            displayTitle:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].title,
+                            genres:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].genres,
+                            content_id:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].content_id,
+                            catalog_id:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].catalog_id,
+                            title_image_display:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].title_image_display,
+                            title_image:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].title_image,
+                          });
+                        }
+                      } else {
+                        if (
+                          data.data.catalog_list_items[i].catalog_list_items[
+                            j
+                          ].thumbnails.hasOwnProperty("mobile_banner_image")
+                        ) {
+                          All.push({
+                            uri: data.data.catalog_list_items[i]
+                              .catalog_list_items[j].thumbnails
+                              .mobile_banner_image.url,
+                            theme:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].theme,
+                            premium: premiumContent,
+                            seoUrl:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].seo_url,
+                            medialistinlist:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].media_list_in_list,
+                            friendlyId: "",
+                            displayTitle:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].title,
+                            genres:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].genres,
+                            content_id:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].content_id,
+                            catalog_id:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].catalog_id,
+                            title_image_display:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].title_image_display,
+                            title_image:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].title_image,
+                          });
+                        } else {
+                          All.push({
+                            uri: data.data.catalog_list_items[i]
+                              .catalog_list_items[j].thumbnails.l_large.url,
+                            theme:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].theme,
+                            premium: premiumContent,
+                            seoUrl:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].seo_url,
+                            medialistinlist:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].media_list_in_list,
+                            friendlyId: "",
+                            displayTitle:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].title,
+                            genres:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].genres,
+                            content_id:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].content_id,
+                            catalog_id:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].catalog_id,
+                            title_image_display:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].title_image_display,
+                            title_image:
+                              data.data.catalog_list_items[i]
+                                .catalog_list_items[j].title_image,
+                          });
+                        }
+                      }
                     } else if (
                       data.data.catalog_list_items[i].layout_type ==
                         "tv_shows" ||
@@ -1575,7 +1639,8 @@ function Home({ navigation, route }) {
     setexclusiveautoPlay(false);
     setbannerautoPlay(false);
     console.log(sourceName);
-    await AsyncStorage.setItem("sourceName", sourceName);
+    if (sourceName != null)
+      await AsyncStorage.setItem("sourceName", sourceName);
     navigation.navigate(page, { seoUrl: url, theme: theme });
   };
 
@@ -1780,43 +1845,84 @@ function Home({ navigation, route }) {
                       style={{
                         alignItems: "center",
                         flexDirection: "row",
-                        // justifyContent: "space-between",
                         position: "relative",
                       }}
                     >
-                      <Image
+                      <View
                         style={{
-                          justifyContent: "center",
-                          width: "60%",
-                          height: 40,
-                          resizeMode: "contain",
+                          position: "absolute",
+                          zIndex: 2,
+                          marginLeft: 10,
                         }}
-                        source={require("../assets/images/playbutton.png")}
-                      />
-                      {VIDEO_TYPES.includes(item.data[sliderKey].theme) ? (
-                        <Pressable
-                          onPress={() => {
-                            watchLater(
-                              item.data[sliderKey].catalog_id,
-                              item.data[sliderKey].content_id
-                            );
+                      >
+                        <Ionicons
+                          name="play-circle"
+                          size={50}
+                          color={TAB_COLOR}
+                        />
+                      </View>
+                      <View>
+                        <LinearGradient
+                          useAngle={true}
+                          angle={125}
+                          angleCenter={{ x: 0.5, y: 0.5 }}
+                          colors={[
+                            BUTTON_COLOR,
+                            TAB_COLOR,
+                            TAB_COLOR,
+                            BUTTON_COLOR,
+                          ]}
+                          style={{
+                            padding: 7,
+                            borderBottomEndRadius: 40,
+                            borderTopEndRadius: 40,
+                            borderBottomLeftRadius: 5,
+                            borderTopLeftRadius: 5,
+                            borderRadius: 20,
+                            width: 130,
+                            marginLeft: 40,
                           }}
                         >
-                          <Image
+                          <Text
                             style={{
-                              width: "135%",
-                              height: 50,
-                              resizeMode: "contain",
-                              marginLeft: 30,
+                              textAlign: "center",
+                              color: "white",
+                              fontSize: 15,
+                              fontWeight: "500",
                             }}
-                            source={require("../assets/images/Plus.png")}
-                          />
-                        </Pressable>
-                      ) : (
-                        ""
-                      )}
+                          >
+                            Watch Now
+                          </Text>
+                        </LinearGradient>
+                      </View>
                     </View>
                   </Pressable>
+
+                  {VIDEO_TYPES.includes(item.data[sliderKey].theme) ? (
+                    <Pressable
+                      onPress={() => {
+                        watchLater(
+                          item.data[sliderKey].catalog_id,
+                          item.data[sliderKey].content_id
+                        );
+                      }}
+                    >
+                      <View
+                        style={{
+                          alignContent: "space-between",
+                          marginRight: 40,
+                        }}
+                      >
+                        <Entypo
+                          name="circle-with-plus"
+                          size={40}
+                          color={TAB_COLOR}
+                        />
+                      </View>
+                    </Pressable>
+                  ) : (
+                    ""
+                  )}
                 </View>
               </View>
             </>
@@ -3551,6 +3657,18 @@ function Home({ navigation, route }) {
         </View>
       </Modal>
 
+      <CastButton
+        style={{
+          width: 24,
+          height: 24,
+          tintColor: "#ffffff",
+          zIndex: 10000000,
+          position: "absolute",
+          right: 30,
+          bottom: 70,
+        }}
+      />
+
       <StatusBar
         animated
         backgroundColor="transparent"
@@ -3627,12 +3745,11 @@ const styles = StyleSheet.create({
   },
   buttonsPosition: {
     position: "absolute",
-    bottom: 3,
+    bottom: 10,
     flexDirection: "row",
     width: "100%",
     alignItems: "center",
     justifyContent: "space-evenly",
-    marginLeft: 30,
   },
   button: {
     paddingLeft: 35,
