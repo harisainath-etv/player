@@ -99,6 +99,7 @@ export default function Episode({ navigation, route }) {
   const [relatedMovies, setRelatedMovies] = useState([]);
   const [castDisplay, setCastDisplay] = useState('basic_plan');
   const [pbtime,setpbtime] = useState(1);
+  const [descriptionLines,setdescriptionLines] = useState(5);
   const swipeUpDownRef = useRef();
 
   var client = useRemoteMediaClient();
@@ -1646,9 +1647,17 @@ export default function Episode({ navigation, route }) {
                   })}
                   {durationsttring ? <Text style={styles.detailsText}> - {' '} {durationsttring}</Text> : ""}
                 </View>
-                <ReadMore numberOfLines={5} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
-                  <Text style={styles.detailsText}>{description}</Text>
-                </ReadMore>
+                {/* <ReadMore numberOfLines={5} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}> */}
+                  <Text style={styles.detailsText} numberOfLines={descriptionLines} >{description}</Text>
+                  {description ?
+                  <TouchableOpacity onPress={()=>{
+                    if(descriptionLines==5)
+                    setdescriptionLines(100)
+                    else
+                    setdescriptionLines(5)
+                  }} style={{right:0,position:'absolute',bottom:5}}><Text style={{color: TAB_COLOR, fontWeight: 'bold',fontSize:14,marginBottom:10}}>{descriptionLines==5 ? 'Read More' : 'Read Less'}</Text></TouchableOpacity>
+                  :""}
+                {/* </ReadMore> */}
               </View>
 
               {!loading ?
@@ -1920,7 +1929,7 @@ const styles = StyleSheet.create({
   mainContainer: { flex: 1, backgroundColor: BACKGROUND_COLOR },
   bodyContent: { backgroundColor: BACKGROUND_COLOR, padding: 10,width:PAGE_WIDTH,flexWrap:'wrap' },
   headingLabel: { fontSize: 20, color: NORMAL_TEXT_COLOR, padding: 4, justifyContent: 'center', alignItems: 'center', width: "100%", borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, },
-  detailsText: { fontSize: 11, marginBottom: 5, color: DETAILS_TEXT_COLOR, padding: 4 },
+  detailsText: { fontSize: 11, color: DETAILS_TEXT_COLOR, padding: 4,marginBottom:3 },
   options: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row', },
   singleoption: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', borderColor: TAB_COLOR, borderWidth: 1, marginRight: 3 },
   marginContainer: { marginLeft: 5, marginRight: 5 },
@@ -1940,7 +1949,7 @@ const styles = StyleSheet.create({
   imageSectionVertical: {
     width: PAGE_WIDTH / 3.1,
     height: actuatedNormalize(155),
-    borderRadius: 18,
+    borderRadius: 5,
     marginBottom: 10,
     marginHorizontal: 1
   },
@@ -1948,7 +1957,7 @@ const styles = StyleSheet.create({
     width: 135,
     height: 150,
     marginHorizontal: 4,
-    borderRadius: 10,
+    borderRadius: 5,
     marginBottom: 10,
   },
   playIcon: { position: 'absolute', width: 25, height: 25, right: 6, bottom: 12 },

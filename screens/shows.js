@@ -912,7 +912,7 @@ const styles = StyleSheet.create({
     imageSectionVertical: {
         width: PAGE_WIDTH / 3.1,
         height: actuatedNormalize(155),
-        borderRadius: 18,
+        borderRadius: 5,
         marginBottom: 10,
         marginHorizontal: 1
 
@@ -921,7 +921,7 @@ const styles = StyleSheet.create({
         width: 150,
         height: 170,
         marginHorizontal: 3,
-        borderRadius: 10,
+        borderRadius: 5,
         marginBottom: 10,
 
     },
