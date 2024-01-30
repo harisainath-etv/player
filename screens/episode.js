@@ -235,7 +235,6 @@ export default function Episode({ navigation, route }) {
         // if (splittedData.length == 4)
         //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/" + splittedData[2] + "/" + splittedData[3];
       }
-      console.log(urlPath);
       const url =
         urlPath + '.gzip?&auth_token=' + AUTH_TOKEN + '&region=' + region;
       const relatedurl =
@@ -355,18 +354,23 @@ export default function Episode({ navigation, route }) {
                         setPlayUrl('');
                       });
                   }
+                  setLoading(false);
                 } else if (
                   resp.data.data.stream_info.preview.adaptive_url != ''
                 ) {
                   setPlayUrl(resp.data.data.stream_info.preview.adaptive_url);
                   setPreview(true);
+                  setLoading(false);
+                }
+                else
+                {
+                  setLoading(false);
                 }
               }
-              setLoading(false);
             })
             .catch(error => {
-              //console.log(JSON.stringify(error.response.data));
               setLoading(false);
+              //console.log(JSON.stringify(error.response.data));
             });
           setCurrentFriendlyId(response.data.data.friendly_id);
           setsubcatcurrentTheme(response.data.data.theme);
@@ -402,8 +406,6 @@ export default function Episode({ navigation, route }) {
                 console.log(livetvshowserror);
               });
           }
-
-          setLoading(false);
         })
         .catch(error => {
           setLoading(false);
@@ -1342,7 +1344,7 @@ export default function Episode({ navigation, route }) {
     <View style={styles.mainContainer}>
       <ScrollView style={{ flex: 1, flexGrow: 1, }} nestedScrollEnabled={true} horizontal={false}>
         <View style={styles.container}>
-          {playUrl != "" && playUrl != null && streemexceedlimit == false && !showupgrade ?
+          {playUrl != "" && playUrl != null && streemexceedlimit == false && !showupgrade && !loading ?
 
             <Pressable onPress={showControls} >
               <Video
@@ -1631,7 +1633,7 @@ export default function Episode({ navigation, route }) {
             <View style={styles.bodyContent}>
               <View style={styles.marginContainer}>
                 <Text style={styles.headingLabel}>
-                  <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', }]}>| </Text>
+                  <Text style={[{ color: TAB_COLOR, fontWeight: 'bold',}]}>| </Text>
                   {title}</Text>
                 <View style={{ flexDirection: 'row' }}>
                   {channel ? <Text style={styles.detailsText}>{channel} - {contentRating}</Text> : ""}
@@ -1928,11 +1930,11 @@ const styles = StyleSheet.create({
   },
   mainContainer: { flex: 1, backgroundColor: BACKGROUND_COLOR },
   bodyContent: { backgroundColor: BACKGROUND_COLOR, padding: 10,width:PAGE_WIDTH,flexWrap:'wrap' },
-  headingLabel: { fontSize: 20, color: NORMAL_TEXT_COLOR, padding: 4, justifyContent: 'center', alignItems: 'center', width: "100%", borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, },
+  headingLabel: { fontSize: 17, color: NORMAL_TEXT_COLOR, padding: 4, justifyContent: 'center', alignItems: 'center', width: "100%", borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, },
   detailsText: { fontSize: 11, color: DETAILS_TEXT_COLOR, padding: 4,marginBottom:3 },
   options: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row', },
   singleoption: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', borderColor: TAB_COLOR, borderWidth: 1, marginRight: 3 },
-  marginContainer: { marginLeft: 5, marginRight: 5 },
+  marginContainer: { marginLeft: 5, marginRight: 5, },
   button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 10, borderRadius: 20, marginRight: 10 },
   imageSectionHorizontal: {
     width: PAGE_WIDTH,
