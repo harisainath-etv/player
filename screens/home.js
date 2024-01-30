@@ -903,7 +903,7 @@ function Home({ navigation, route }) {
                                 </Text>
                                 <View style={styles.buttonsPosition}>
 
-                                    <View style={VIDEO_TYPES.includes(item.data[sliderKey].theme) ? { width: "50%", justifyContent: 'flex-end', alignItems: 'flex-end' } : { width: "100%", justifyContent: 'center', alignItems: 'center' }}>
+                                    <View style={VIDEO_TYPES.includes(item.data[sliderKey].theme) ? {  } : { width: "100%", justifyContent: 'center', alignItems: 'center' }}>
                                         <Pressable style={VIDEO_TYPES.includes(item.data[sliderKey].theme) ? { width: "100%", justifyContent: 'flex-end', alignItems: 'flex-end' } : { width: "100%", justifyContent: 'center', alignItems: 'center' }} onPress={() => {
                                             {
                                                 item.data[sliderKey].medialistinlist ?
@@ -916,7 +916,7 @@ function Home({ navigation, route }) {
                                         }}>
 
                                             <Image style={{
-                                                width: "60%",
+                                                width: 150,
                                                 height: 40,
                                                 resizeMode: "contain",
                                             }} source={require("../assets/images/playbutton.png")} />
@@ -927,9 +927,9 @@ function Home({ navigation, route }) {
 
 
                                     {VIDEO_TYPES.includes(item.data[sliderKey].theme) ?
-                                        <View style={{ width: "50%", justifyContent: 'flex-start', alignItems: 'flex-start' }}><Pressable style={{ width: "100%" }} onPress={() => { watchLater(item.data[sliderKey].catalog_id, item.data[sliderKey].content_id) }}>
+                                        <View style={{  }}><Pressable style={{ width: "100%" }} onPress={() => { watchLater(item.data[sliderKey].catalog_id, item.data[sliderKey].content_id) }}>
                                             <Image style={{
-                                                width: "60%",
+                                                width: 80,
                                                 height: 40,
                                                 resizeMode: "contain",
                                             }} source={require("../assets/images/Plus.png")} />
@@ -1798,7 +1798,7 @@ const PaginationItem = (props) => {
 
 const styles = StyleSheet.create({
     buttonsContainer: { width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', zIndex: 1000, position: 'absolute' },
-    buttonsPosition: { position: 'absolute', bottom: 10, flexDirection: 'row', width: '100%', alignItems: 'center', },
+    buttonsPosition: { position: 'absolute', bottom: 10, flexDirection: 'row', width: '100%', alignItems: 'center',justifyContent:'center' },
     button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, marginRight: 5, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
     wishlistbutton: { borderRadius: 40, borderWidth: 1.5, borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7 },
     subscribeImage: { width: actuatedNormalize(160), height: actuatedNormalizeVertical(85), resizeMode: 'contain', justifyContent: 'center', alignItems: 'center', },
@@ -1868,7 +1868,7 @@ const styles = StyleSheet.create({
         width: PAGE_WIDTH / 2.12,
         height: actuatedNormalize(125),
         marginRight: 5,
-        borderRadius: 15,
+        borderRadius: 5,
         marginHorizontal: 10,
         marginBottom: 10,
         borderWidth: 1
@@ -1889,7 +1889,7 @@ const styles = StyleSheet.create({
     imageSectionVertical: {
         width: PAGE_WIDTH / 3.1,
         height: actuatedNormalize(155),
-        borderRadius: 18,
+        borderRadius: 5,
         marginBottom: 10,
         marginHorizontal: 1
     },
@@ -1897,14 +1897,14 @@ const styles = StyleSheet.create({
         width: actuatedNormalize(PAGE_WIDTH / 1.75),
         height: actuatedNormalizeVertical(300),
         marginHorizontal: 3,
-        borderRadius: 20,
+        borderRadius: 5,
         marginBottom: 10,
     },
     imageSectionMiniMoviePoster: {
         width: actuatedNormalize(PAGE_WIDTH / 3.5),
         height: actuatedNormalizeVertical(70),
         marginHorizontal: 3,
-        borderRadius: 10,
+        borderRadius: 8,
         marginBottom: 10,
     },
     imageSectionVerticalTab: {

@@ -707,9 +707,9 @@ const styles = StyleSheet.create({
     },
     imageSectionHorizontal: {
         width: PAGE_WIDTH / 2.12,
-        height: actuatedNormalize(125),
+        height: actuatedNormalize(120),
         marginRight: 5,
-        borderRadius: 15,
+        borderRadius: 5,
         marginHorizontal: 10,
         marginBottom: 10,
         borderWidth: 1
@@ -718,7 +718,7 @@ const styles = StyleSheet.create({
         width: PAGE_WIDTH - 20,
         height: 250,
         marginHorizontal: 3,
-        borderRadius: 10,
+        borderRadius: 5,
         marginBottom: 10,
         borderWidth: 1,
         resizeMode: 'contain'
@@ -726,7 +726,7 @@ const styles = StyleSheet.create({
     imageSectionVertical: {
         width: PAGE_WIDTH / 3.1,
         height: actuatedNormalize(155),
-        borderRadius: 18,
+        borderRadius: 5,
         marginBottom: 10,
         marginHorizontal:1
     },
