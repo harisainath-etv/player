@@ -37,32 +37,23 @@ import TransparentHeader from './screens/transparentHeader';
 import HtmlWebview from './screens/HtmlWebview';
 import HTMLRender from './screens/HTMLRender';
 import Menu from './screens/Menu';
-import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, ANDROID_PACKAGE_NAME, IOS_PACKAGE_NAME, VIDEO_TYPES } from './constants';
-import { View, Dimensions, Platform, Linking, Alert, Text, Image, StyleSheet } from 'react-native';
+import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING, ANDROID_PACKAGE_NAME, IOS_PACKAGE_NAME, VIDEO_TYPES } from './constants';
+import { View, Dimensions, Platform, Linking, Alert, StyleSheet } from 'react-native';
 import SplashScreen from 'react-native-splash-screen'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 import messaging from '@react-native-firebase/messaging';
 import queryString from 'query-string';
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import EpisodesMoreListUrl from './screens/EpisodesMoreListUrl';
 
 const Stack = createStackNavigator();
-const Drawer = createDrawerNavigator();
+
 
 const useInitialURL = () => {
   const [url, setUrl] = React.useState(null);
   const [processing, setProcessing] = React.useState(true);
-
-  // React.useEffect(() => {
-  //   const callback = url => setUrl(url.url);
-  //   Linking.addEventListener('url', callback);
-  //   return () => {
-  //     Linking.removeEventListener('url', callback);
-  //   };
-  // }, []);
 
   const filterItems = (stringNeeded, arrayvalues) => {
     let query = stringNeeded.toLowerCase();
@@ -437,53 +428,6 @@ export default function App() {
   }
 
 
-  const CustomDrawer = (props) => {
-    return (
-      <View style={{ flex: 1 }}>
-        <DrawerContentScrollView {...props}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 20, alignItems: 'center', backgroundColor: '#f6f6f6', marginBottom: 20, }}>
-            <View>
-              <Text>Hari</Text>
-              <Text>hari.sainath@etv.co.in</Text>
-            </View>
-            <Image
-              style={styles.profilePic}
-              source={require('./assets/images/logo.png')}
-            />
-          </View>
-          <DrawerItemList  {...props}></DrawerItemList>
-        </DrawerContentScrollView>
-        <Text style={{ position: 'absolute', bottom: 0, fontSize: 10, fontWeight: 'bold', right: 0 }}>v.1.1.1</Text>
-      </View>
-    );
-  }
-
-  function MyDrawer({ navigation }) {
-    return (
-
-      <Drawer.Navigator
-        initialRouteName='Home'
-        screenOptions={{
-          drawerType: "back",
-          drawerPosition: 'left',
-          swipeEnabled: true,
-          gestureEnabled: true,
-          headerTitleAlign: 'center',
-          headerTitle: '',
-          drawerStyle: { backgroundColor: '#ffffff' },
-          headerStyle: { backgroundColor: '#191D4F', elevation: 0, shadowOpacity: 0 },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontSize: 25,
-          }
-        }}
-        drawerContent={(props) => <CustomDrawer {...props}></CustomDrawer>}
-      >
-        <Drawer.Screen name='Home' component={Home} options={{ header: () => null }}></Drawer.Screen>
-      </Drawer.Navigator>
-
-    );
-  }
   const linking = {
     prefixes: ['hari://staging.etvwin.com'],
     config: {

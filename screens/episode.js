@@ -1401,6 +1401,7 @@ export default function Episode({ navigation, route }) {
                           console.log("playback ended")
                         );
                         if (client && playUrl != "" && playUrl != null) {
+                          client.stop();
                           client?.loadMedia({
                             mediaInfo: {
                               contentUrl:

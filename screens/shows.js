@@ -3,7 +3,6 @@ import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, Image, 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import { Rating, AirbnbRating } from 'react-native-ratings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import FastImage from 'react-native-fast-image';

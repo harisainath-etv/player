@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, } from 'react';
 import { View, FlatList, StyleSheet, Text, Pressable, ActivityIndicator, RefreshControl, TouchableOpacity, Image, LogBox, StatusBar, BackHandler } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
@@ -9,21 +9,16 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, DARKED_BORDER_COLOR, BACKGROUND_TRANSPARENT_COLOR, BACKGROUND_TRANSPARENT_GRADIENT_MENU, actuatedNormalize, actuatedNormalizeVertical } from '../constants';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, actuatedNormalize, actuatedNormalizeVertical } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Entypo from 'react-native-vector-icons/Entypo';
-// import RNBackgroundDownloader from 'react-native-background-downloader';
 import axios from 'axios';
 import Modal from "react-native-modal";
 import Footer from './footer';
-import Header from './header';
 import DeviceInfo from 'react-native-device-info';
 import LinearGradient from 'react-native-linear-gradient';
-import { useFocusEffect } from '@react-navigation/native';
 import messaging from '@react-native-firebase/messaging';
 import base64 from 'react-native-base64';
 import Orientation from 'react-native-orientation-locker';
@@ -72,7 +67,6 @@ function Home({ navigation, route }) {
     { route.params ? popup = route.params.popup : popup = false }
     // const {pageFriendlyId}=route.params;
     const [pageName, setpageName] = useState(page);
-    const [isVertical, setIsVertical] = useState(false);
     const [autoPlay, setAutoPlay] = useState(true);
     const [tvshowsautoPlay, settvshowsautoPlay] = useState(true);
     const [exclusiveautoPlay, setexclusiveautoPlay] = useState(true);
@@ -96,7 +90,6 @@ function Home({ navigation, route }) {
     const progressValue1 = useSharedValue(0);
     const progressValue2 = useSharedValue(0);
     const progressValue3 = useSharedValue(0);
-    const dataFetchedRef = useRef(false);
     const scrollx = useRef(new Animated.Value(0)).current;
 
     const [subscription_title, setsubscription_title] = useState("");
@@ -384,22 +377,6 @@ function Home({ navigation, route }) {
                     settotalHomeData(Final);
                 setloading(false)
             }
-            //offline downloads
-            // let lostTasks = await RNBackgroundDownloader.checkForExistingDownloads();
-            // for (let task of lostTasks) {
-            //     task.begin(expectedBytes => {
-            //         //console.log('Expected: ' + expectedBytes);
-            //     }).progress((percent) => {
-            //         AsyncStorage.setItem('download_' + task.id, JSON.stringify(percent * 100));
-            //         //console.log(`Downloaded: ${percent * 100}%`);
-            //     }).done(() => {
-            //         AsyncStorage.setItem('download_' + task.id, JSON.stringify(1 * 100));
-            //         //console.log('Downlaod is done!');
-            //     }).error((error) => {
-            //         //console.log('Download canceled due to error: ', error);
-            //     });
-
-            // }
 
             //watchlater content
             var allkeys = await AsyncStorage.getAllKeys();
@@ -805,34 +782,6 @@ function Home({ navigation, route }) {
         navigation.navigate(page, { seoUrl: url, theme: theme })
     }
 
-    // const blockStyle = useAnimatedStyle(() => {
-    //     const translateX = interpolate(
-    //       animationValue.value,
-    //       [-1, 0, 1],
-    //       [0, 60, 60],
-    //     );
-
-    //     const translateY = interpolate(
-    //       animationValue.value,
-    //       [-1, 0, 1],
-    //       [0, -40, -40],
-    //     );
-
-    //     const rotateZ = interpolate(
-    //       animationValue.value,
-    //       [-1, 0, 1],
-    //       [0, 0, -25],
-    //     );
-
-    //     return {
-    //       transform: [
-    //         { translateX },
-    //         { translateY },
-    //         { rotateZ: `${rotateZ}deg` },
-    //       ],
-    //     };
-    //   }, []);
-
     const renderItem = ({ item, index }) => {
         const inputRange = [(index - 1) * PAGE_WIDTH, index * PAGE_WIDTH, (index + 1) * PAGE_WIDTH];
         const translateX = scrollx.interpolate({ inputRange, outputRange: [-PAGE_WIDTH * 0.5, 0, PAGE_WIDTH * 0.5] })
@@ -897,10 +846,6 @@ function Home({ navigation, route }) {
 
 
                             <View style={styles.buttonsContainer}>
-                                {/* <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500', position: 'absolute', bottom: 80, }}>{JSON.stringify(item.data[sliderKey].genres).toUpperCase().split('["').join(".").split('"]').join("").split('","').join("  .").split("_").join(" ")}</Text> */}
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold', position: 'absolute', bottom: 60, }}>
-                                    {/* <FontAwesome5 size={11} color={TAB_COLOR} names="grip-lines-vertical" /> {item.data[sliderKey].displayTitle} */}
-                                </Text>
                                 <View style={styles.buttonsPosition}>
 
                                     <View style={VIDEO_TYPES.includes(item.data[sliderKey].theme) ? {  } : { width: "100%", justifyContent: 'center', alignItems: 'center' }}>
@@ -1053,30 +998,6 @@ function Home({ navigation, route }) {
                                 }}><FastImage resizeMode={FastImage.resizeMode.contain} key={index} style={isTablet ? styles.imageSectionHorizontalSingleTab : styles.imageSectionHorizontalSingle} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} /></Pressable>}
                             />
                         </View>
-                        {/* {!!progressValue3 ?
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    width: 200,
-                                    alignSelf: 'center',
-                                    top: -1,
-                                }}
-                            >
-                                {colors1.map((backgroundColor, index) => {
-                                    return (
-                                        <PaginationItem
-                                            backgroundColor={backgroundColor}
-                                            animValue={progressValue3}
-                                            index={index}
-                                            key={index}
-                                            isRotate={isVertical}
-                                            length={colors1.length}
-                                        />
-                                    );
-                                })}
-                            </View>
-                            : ""} */}
                     </View>
                     : ""}
                 {(item.layoutType == 'tv_shows' || item.layoutType == "show") && item.data.length != 0 ?
@@ -1112,7 +1033,6 @@ function Home({ navigation, route }) {
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             </Pressable>
-                                            {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={[styles.crownIcon, { left: 10, top: 5 }]}></Image> : ""}
                                         </View>
                                 }
@@ -1141,7 +1061,6 @@ function Home({ navigation, route }) {
                                                     resizeMode={FastImage.resizeMode.contain}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
                                             </Pressable>
-                                            {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
                                             {item.premium ? <Image source={require('../assets/images/crown.png')} style={[styles.crownIcon, { left: 5, top: 10 }]}></Image> : ""}
                                         </View>
                                 }
@@ -1214,7 +1133,6 @@ function Home({ navigation, route }) {
                                                         style={[styles.imageSectionCircle,]}
                                                         resizeMode={FastImage.resizeMode.stretch}
                                                         source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                    {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
                                                     {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                                 </Pressable>
                                             </View>
@@ -1520,7 +1438,6 @@ function Home({ navigation, route }) {
                                                     style={[styles.imageSectionHorizontalTab, { resizeMode: 'stretch', }]}
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                             <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center', marginBottom: 20 }}>{item.displayTitle}</Text>
@@ -1550,7 +1467,6 @@ function Home({ navigation, route }) {
                                                     style={[styles.imageSectionHorizontal, { resizeMode: 'stretch', }]}
                                                     resizeMode={FastImage.resizeMode.stretch}
                                                     source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                                                {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
                                                 {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
                                             </Pressable>
                                             <Text style={{ color: NORMAL_TEXT_COLOR, alignSelf: 'center', marginBottom: 20 }}>{item.displayTitle}</Text>
@@ -1601,14 +1517,7 @@ function Home({ navigation, route }) {
     const loadNextData = async () => {
         loadData(pagenumber);
     }
-    // useFocusEffect(
-    //     useCallback(() => {
-
-    //     }, [totalHomeData])
-    // );
     useEffect(() => {
-        // if (dataFetchedRef.current) return;
-        // dataFetchedRef.current = true;
         getTopMenu();
         loadData(0);
         if (selectedItem == "") {
@@ -1671,8 +1580,6 @@ function Home({ navigation, route }) {
 
                         <FlatList
                             data={totalMenuData}
-                            // initialNumToRender={8}
-                            // initialScrollIndex={currentIndexValue}
                             renderItem={menuRender}
                             keyExtractor={(x, i) => i.toString()}
                             horizontal={true}
@@ -1739,62 +1646,6 @@ function Home({ navigation, route }) {
         </View>
     );
 }
-
-const PaginationItem = (props) => {
-    const { animValue, index, length, backgroundColor, isRotate } = props;
-    const width = 10;
-
-    const animStyle = useAnimatedStyle(() => {
-        let inputRange = [index - 1, index, index + 1];
-        let outputRange = [-width, 0, width];
-
-        if (index === 0 && animValue?.value > length - 1) {
-            inputRange = [length - 1, length, length + 1];
-            outputRange = [-width, 0, width];
-        }
-
-        return {
-            transform: [
-                {
-                    translateX: interpolate(
-                        animValue?.value,
-                        inputRange,
-                        outputRange,
-                        Extrapolate.CLAMP
-                    ),
-                },
-            ],
-        };
-    }, [animValue, index, length]);
-    return (
-        <View
-            style={{
-                backgroundColor: SLIDER_PAGINATION_UNSELECTED_COLOR,
-                width,
-                height: width,
-                borderRadius: 50,
-                overflow: 'hidden',
-                transform: [
-                    {
-                        rotateZ: isRotate ? '90deg' : '0deg',
-                    },
-                ],
-            }}
-        >
-            <Animated.View
-                style={[
-                    {
-                        borderRadius: 50,
-                        backgroundColor,
-                        flex: 1,
-                    },
-                    animStyle,
-                ]}
-            />
-        </View>
-    );
-};
-
 
 const styles = StyleSheet.create({
     buttonsContainer: { width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', zIndex: 1000, position: 'absolute' },
