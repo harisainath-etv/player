@@ -251,7 +251,7 @@ export default function Shorts({ navigation }) {
                     volume={1}
                     rate={1.0}
                     useTextureView={false}
-                    resizeMode={'contain'}
+                    resizeMode={'cover'}
                     style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flexGrow: 1, flex: 1 }}
                     playWhenInactive={false}
                 />
