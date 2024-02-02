@@ -944,38 +944,6 @@ export default function Login({ navigation }) {
                                 <Text style={styles.errormessage}>{signinError}</Text>
                                 <Text style={styles.successmessage}>{signinSuccess}</Text>
 
-
-
-                                {/* <View style={{ justifyContent: 'center', alignItems: 'center', }}>
-                                    <Text style={{ color: DETAILS_TEXT_COLOR }}>----- OR -----</Text>
-                                </View> */}
-
-                                {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}> */}
-
-
-                                {/* <Pressable
-                                        onPress={() => onFacebookButtonPress().then((resp) => {
-                                            console.log(resp);
-                                            socialsignin(resp)
-                                        })}
-                                        style={{ width: 195, height: 50, backgroundColor: '#395694', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginBottom: 20 }}
-                                    >
-                                        <Text style={{ color: NORMAL_TEXT_COLOR }}>Signin with Facebook</Text>
-                                    </Pressable> */}
-
-                                {/* {!user.idToken ? */}
-                                {/* <GoogleSigninButton
-                                        style={{ width: 200, height: 50 }}
-                                        size={GoogleSigninButton.Size.Wide}
-                                        color={GoogleSigninButton.Color.Dark}
-                                        onPress={signin}
-                                    ></GoogleSigninButton> */}
-                                {/* :
-                                ""
-                            } */}
-
-                                {/* </View> */}
-
                             </View>
                             :
 

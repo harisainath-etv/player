@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform, FlatList, Image, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform, FlatList, Image, TouchableWithoutFeedback, DeviceEventEmitter } from 'react-native';
 import React, { useEffect, useState, createRef, useRef } from 'react';
 import * as NavigationBar from "expo-navigation-bar";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -24,6 +24,10 @@ import DeviceInfo from 'react-native-device-info';
 import FastImage from 'react-native-fast-image';
 import SwipeUpDown from 'react-native-swipe-up-down';
 import { check, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import JioAdView from "../JioAdView";
+import { log } from "react-native-reanimated";
+import { createThumbnail } from "react-native-create-thumbnail";
+import normalize from "../Utils/Helpers/Dimen";
 var isTablet = DeviceInfo.isTablet();
 var relatedShows = [];
 export default function Episode({ navigation, route }) {
@@ -54,7 +58,7 @@ export default function Episode({ navigation, route }) {
   const [preview, setPreview] = useState(false);
   const [loggedin, setloggedin] = useState(false);
   const [showupgrade, setshowupgrade] = useState(false);
-  const videoRef = createRef();
+  const videoRef = useRef(null);
   const [state, setState] = useState({ showControls: false, progress: 0, isPaused: false, });
   const [contentId, setContentId] = useState();
   const [catalogId, setCatalogId] = useState();
@@ -99,6 +103,12 @@ export default function Episode({ navigation, route }) {
   const [relatedMovies, setRelatedMovies] = useState([]);
   const [castDisplay, setCastDisplay] = useState('basic_plan');
   const [pbtime,setpbtime] = useState(1);
+  const [descriptionLines,setdescriptionLines] = useState(5);
+  const [showAd, setShowAd] = useState(false);
+  const [currenttimesec, setCurrenttimesec] = useState(0);
+  const [addcount, setAddcount] = useState(0);
+  const[thumbimg,setThumbimg] = useState('');
+  const[realseek, setRealseek] = useState(false);
   const swipeUpDownRef = useRef();
 
   var client = useRemoteMediaClient();
@@ -234,7 +244,6 @@ export default function Episode({ navigation, route }) {
         // if (splittedData.length == 4)
         //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/" + splittedData[2] + "/" + splittedData[3];
       }
-      console.log(urlPath);
       const url =
         urlPath + '.gzip?&auth_token=' + AUTH_TOKEN + '&region=' + region;
       const relatedurl =
@@ -354,18 +363,23 @@ export default function Episode({ navigation, route }) {
                         setPlayUrl('');
                       });
                   }
+                  setLoading(false);
                 } else if (
                   resp.data.data.stream_info.preview.adaptive_url != ''
                 ) {
                   setPlayUrl(resp.data.data.stream_info.preview.adaptive_url);
                   setPreview(true);
+                  setLoading(false);
+                }
+                else
+                {
+                  setLoading(false);
                 }
               }
-              setLoading(false);
             })
             .catch(error => {
-              //console.log(JSON.stringify(error.response.data));
               setLoading(false);
+              //console.log(JSON.stringify(error.response.data));
             });
           setCurrentFriendlyId(response.data.data.friendly_id);
           setsubcatcurrentTheme(response.data.data.theme);
@@ -401,8 +415,6 @@ export default function Episode({ navigation, route }) {
                 console.log(livetvshowserror);
               });
           }
-
-          setLoading(false);
         })
         .catch(error => {
           setLoading(false);
@@ -1266,6 +1278,71 @@ export default function Episode({ navigation, route }) {
       console.log(error);
     })
   }
+
+  useEffect(() => {
+    var thumbnailHit =[];
+    const fetchData = async () => {
+      var offlinedownloadapi =
+        offlineUrl +
+        "?service_id=6&play_url=yes&protocol=http_pd&us=745d7e9f1e37ca27fdffbebfe8a99877";
+      try {
+        const response = await axios.get(offlinedownloadapi);
+        for(let i=0; i< response?.data?.playback_urls?.length; i++ ){
+           thumbnailHit.push({
+              finalImg:response?.data?.playback_urls[1]
+           })
+        }
+        setThumbimg(thumbnailHit);
+        console.log(response?.data?.playback_urls[1], "responseoffline data----------");
+      } catch (error) {
+        console.error("AxiosError:", error);
+      }
+    };
+    fetchData();
+  }, [offlineUrl]);
+console.log(thumbimg.length > 0 && thumbimg.map((nn)=>{return nn?.finalImg?.playback_url}),"prefrence111");
+console.log(thumbimg)
+
+
+  useEffect(() => {
+    const adClosedSubscription = DeviceEventEmitter.addListener(
+      'onAdClosed',
+      (isVideoCompleted) => {
+         setShowAd(isVideoCompleted);
+         if(!isVideoCompleted){
+          console.log(currenttimesec,"currenttimesec-------------")
+          videoRef.current.seek(Math.floor(currenttimesec + 1));
+          setPlay(true);
+        }      
+      }
+    );
+    return () => {
+      adClosedSubscription.remove();
+    };
+  }, [showAd]);
+ const onVideoloda =(data)=>{
+  console.log(data,"hjjhjfg")
+   data.seek(currenttimestamp);
+ }
+const [img , setImg] = useState(null)
+  const onValueChange = async (value) => {
+    const wholeUrl = thumbimg ;
+    const playbackUrls = wholeUrl.length> 0 &&  wholeUrl?.map(item => item?.finalImg?.playback_url);
+    console.log(playbackUrls[0]);
+    setPlay(false);
+    console.log("value+>================================",value);
+    const time = value.currentTime * 1000;
+      const thumbnailPath = await createThumbnail({
+        url: playbackUrls[0],
+        timeStamp: time, // Adjust timestamps if needed
+      })
+      setImg(thumbnailPath)
+      console.log(">>$$$$$$thumbnailPath>>",thumbnailPath);
+  };
+console.log(img,"lllloooooooooooooooooooo");
+
+
+
   const renderShows = (item, index) => {
     return (
       <TouchableOpacity onPress={() => gotoPage(item.item.catalog_id, item.item.content_id)} key={"RealtedShows" + index} style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 30, width: "100%" }}>
@@ -1340,10 +1417,65 @@ export default function Episode({ navigation, route }) {
   return (
     <View style={styles.mainContainer}>
       <ScrollView style={{ flex: 1, flexGrow: 1, }} nestedScrollEnabled={true} horizontal={false}>
-        <View style={styles.container}>
-          {playUrl != "" && playUrl != null && streemexceedlimit == false && !showupgrade ?
-
-            <Pressable onPress={showControls} >
+          <View style={[styles.container, { marginTop: !fullscreen ? 50 : 0 }]}>
+          {showAd ? (
+            <JioAdView
+              adType={4}
+              adspotKey={"fkh9qm1i"}
+              adHeight={200}
+              adWidth={400}
+            />
+          ) : playUrl != "" && 
+            playUrl != null &&
+            streemexceedlimit == false &&
+            !showupgrade ? (
+            <Pressable onPress={showControls}>
+                     {img ?  (
+                // <View
+                //   style={ realseek === true ? {
+                //     position: "relative",
+                //     height: 355,
+                //     width: PAGE_WIDTH,
+                //     marginLeft:normalize(250)
+                //   }:{
+                //     position: "relative",
+                //     height: 270,
+                //     width: PAGE_WIDTH,
+                //     // marginLeft:normalize(250)
+                //   }}
+                // >
+                  <View
+                    style={realseek ==true ? {
+                      position: "absolute",
+                      top: 240,
+                      left: 0,
+                      right: 0,
+                      zIndex: 1,
+                    }:{
+                      position: "absolute",
+                      top: 180,
+                      left: 0,
+                      right: 0,
+                      zIndex: 1,
+                    }}
+                  >
+                    <Image
+        style={{
+          height: realseek ? normalize(45):normalize(30),
+          width: realseek ? normalize(70):normalize(50),
+          alignSelf: "center",
+          marginRight: realseek ? normalize(-210):normalize(-50),
+        }}
+        resizeMode="stretch"
+        source={{
+          uri:img.path
+        }}
+      />
+                  
+                 </View>
+                // </View>
+              ):null}
+                  
               <Video
                 ref={videoRef}
                 source={{ uri: playUrl }}
@@ -1353,220 +1485,340 @@ export default function Episode({ navigation, route }) {
                 volume={1}
                 selectedVideoTrack={{
                   type: videoType,
-                  value: videoresolution
+                  value: videoresolution,
                 }}
                 bufferConfig={{
                   minBufferMs: 1000000,
                   maxBufferMs: 2000000,
-                  bufferForPlaybackMs: 7000
+                  bufferForPlaybackMs: 7000,
                 }}
                 rate={1.0}
-                resizeMode={fullscreen ? 'contain' : 'none'}
-                style={fullscreen ? styles.fullscreenVideo :
-                  isTablet ?
-                    styles.videoTab
-                    :
-                    styles.video
+                resizeMode={fullscreen ? "contain" : "none"}
+                style={
+                  fullscreen
+                    ? styles.fullscreenVideo
+                    : isTablet
+                    ? styles.videoTab
+                    : styles.video
                 }
                 onEnd={checkpreviewContent}
                 playWhenInactive={false}
                 progressUpdateInterval={1000}
-                onProgress={play => {
+                onSeek={onValueChange}
+                onProgress={(play) => {
+                  setImg(null);
                   var milliseconds = play.currentTime;
                   toHoursAndMinutes(Math.floor(milliseconds));
+                  setCurrenttimesec(play.currentTime);
+                  if (play.currentTime >= 10 && currenttimestamp !== '00:00:10' && !addcount) {
+                    setPlay(false); // Pause the video when JioAdView ends
+                    setShowAd(true);
+                    setAddcount(()=> addcount + 1); // Show JioAdView
+                  } else if(showAd === 'false'){
+                    // setPlay(true);
+                    // videoRef.current.seek('00:00:05')
+                  }
                 }}
                 onLoad={(data) => {
-                  setDuration(data.duration)
-                  triggeranalytics("pb_start", 1,'01');
-                  if (seektime != "" && seektime != null && data != '' && data != null) {
+                  onVideoloda
+                  // console.log('====================================',data,currenttimestamp);
+                  setDuration(data.duration);
+                  triggeranalytics("pb_start", 1, "01");
+                  if (
+                    seektime != "" &&
+                    seektime != null &&
+                    data != "" &&
+                    data != null
+                  ) {
                     var splittedtime = seektime.split(":");
-                    videoRef.current.seek(+(splittedtime[0] * 3600) + +(splittedtime[1] * 60) + +(splittedtime[2]));
+                    videoRef.current.seek(
+                      +(splittedtime[0] * 3600) +
+                        +(splittedtime[1] * 60) +
+                        +splittedtime[2]
+                    );
                   }
 
-                  if (castDisplay != 'basic_plan') {
-                    GoogleCast.getCastState().then(state => {
-                      if (state == 'connected' && playUrl != "") {
-
-                        if (!client) {
-                          GoogleCast.getDiscoveryManager()
-                        }
-                        console.log('client changed ', client)
-                        const started = client?.onMediaPlaybackStarted(() =>
-                          console.log("playback started")
-                        );
-                        const ended = client?.onMediaPlaybackEnded(() =>
-                          console.log("playback ended")
-                        );
-                        if (client && playUrl != "" && playUrl != null) {
-                          client?.loadMedia({
-                            mediaInfo: {
-                              contentUrl:
-                                playUrl,
-                            },
-                          })
-                        }
-
+                  GoogleCast.getCastState().then((state) => {
+                    if (state == "connected" && playUrl != "") {
+                      if (!client) {
+                        GoogleCast.getDiscoveryManager();
                       }
-                    })
-                  }
-                  else
-                    if (castDisplay == 'basic_plan' && isfree==true) {
-                      GoogleCast.getCastState().then(state => {
-                        if (state == 'connected' && playUrl != "") {
-
-                          if (!client) {
-                            GoogleCast.getDiscoveryManager()
-                          }
-                          console.log('client changed ', client)
-                          const started = client?.onMediaPlaybackStarted(() =>
-                            console.log("playback started")
-                          );
-                          const ended = client?.onMediaPlaybackEnded(() =>
-                            console.log("playback ended")
-                          );
-                          if (client && playUrl != "" && playUrl != null) {
-                            client?.loadMedia({
-                              mediaInfo: {
-                                contentUrl:
-                                  playUrl,
-                              },
-                            })
-                          }
-
-                        }
-                      })
+                      console.log("client changed ", client);
+                      const started = client?.onMediaPlaybackStarted(() =>
+                        console.log("playback started")
+                      );
+                      const ended = client?.onMediaPlaybackEnded(() =>
+                        console.log("playback ended")
+                      );
+                      if (client && playUrl != "" && playUrl != null) {
+                        client?.loadMedia({
+                          mediaInfo: {
+                            contentUrl: playUrl,
+                          },
+                        });
+                      }
                     }
+                  });
                 }}
               />
               {state.showControls && (
-                <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 60 }}>
-                  {preview ?
-                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 35 }}><Text style={{ color: NORMAL_TEXT_COLOR }}>You are watching Trailer</Text></View>
-                    :
-                    ""}
+                <View
+                  style={{
+                    width: "100%",
+                    position: "absolute",
+                    backgroundColor: BACKGROUND_TRANSPARENT_COLOR,
+                    height: 60,
+                  }}
+                >
+                  {preview ? (
+                    <View
+                      style={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginTop: 35,
+                      }}
+                    >
+                      <Text style={{ color: NORMAL_TEXT_COLOR }}>
+                        You are watching Trailer
+                      </Text>
+                    </View>
+                  ) : (
+                    ""
+                  )}
                   <TouchableOpacity
-                    onPress={() => { fullscreen ? handleFullscreen() : checkgoback() }}
+                    onPress={() => {
+                      fullscreen ? handleFullscreen() : checkgoback();
+                    }}
                     hitSlop={{ top: 35, bottom: 10, left: 10, right: 10 }}
-                    style={styles.navigationBack}>
-                    <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
+                    style={styles.navigationBack}
+                  >
+                    <MaterialCommunityIcons
+                      name="keyboard-backspace"
+                      size={25}
+                      color={NORMAL_TEXT_COLOR}
+                    ></MaterialCommunityIcons>
                   </TouchableOpacity>
 
                   {displayGuidelines && (
                     <>
-                      <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold', position: 'absolute', top: 60, left: 20 }}>Rated : {contentRating}</Text>
-                      <View style={{ flexDirection: 'row', position: 'absolute', top: 85, left: 20 }}>
-                        {
-                          contentguidelines.map((sub, ind) => {
-                            return (
-                              <Text key={ind} style={{ color: NORMAL_TEXT_COLOR, fontSize: 10, fontWeight: 'bold', }}>{sub},</Text>
-                            )
-                          })
-                        }
+                      <Text
+                        style={{
+                          color: NORMAL_TEXT_COLOR,
+                          fontSize: 15,
+                          fontWeight: "bold",
+                          position: "absolute",
+                          top: 60,
+                          left: 20,
+                        }}
+                      >
+                        Rated : {contentRating}
+                      </Text>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          position: "absolute",
+                          top: 85,
+                          left: 20,
+                        }}
+                      >
+                        {contentguidelines.map((sub, ind) => {
+                          return (
+                            <Text
+                              key={ind}
+                              style={{
+                                color: NORMAL_TEXT_COLOR,
+                                fontSize: 10,
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {sub},
+                            </Text>
+                          );
+                        })}
                       </View>
-                    </>)}
+                    </>
+                  )}
 
-                  {showsettingsicon ?
+                  {showsettingsicon ? (
                     <TouchableOpacity
                       onPress={loadResolutionSettings}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      style={styles.settingsicon}>
-                      <Ionicons name="settings" size={25} color={NORMAL_TEXT_COLOR}></Ionicons>
+                      style={styles.settingsicon}
+                    >
+                      <Ionicons
+                        name="settings"
+                        size={25}
+                        color={NORMAL_TEXT_COLOR}
+                      ></Ionicons>
                     </TouchableOpacity>
-                    :
-                    ""}
+                  ) : (
+                    ""
+                  )}
 
                   <TouchableOpacity
                     onPress={handleFullscreen}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    style={styles.fullscreenButton}>
-                    {fullscreen ? <Feather name="minimize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather> : <Feather name="maximize-2" size={25} color={NORMAL_TEXT_COLOR}></Feather>}
+                    style={styles.fullscreenButton}
+                  >
+                    {fullscreen ? (
+                      <Feather
+                        name="minimize-2"
+                        size={25}
+                        color={NORMAL_TEXT_COLOR}
+                      ></Feather>
+                    ) : (
+                      <Feather
+                        name="maximize-2"
+                        size={25}
+                        color={NORMAL_TEXT_COLOR}
+                      ></Feather>
+                    )}
                   </TouchableOpacity>
                 </View>
               )}
 
-              <View style={{ position: 'absolute', right: 20, bottom: 80 }}>
-                {introstarttime != "" && introstarttime != null && !preview && introstarttime <= currentloadingtime && introendtime >= currentloadingtime ?
-                  <TouchableOpacity onPress={() => { videoRef.current.seek(introendtime) }} style={{ backgroundColor: DETAILS_TEXT_COLOR, padding: 5, borderRadius: 10 }}>
-                    <Text style={{ fontWeight: 'bold' }}>Skip Intro</Text>
+              <View style={{ position: "absolute", right: 20, bottom: 80 }}>
+                {introstarttime != "" &&
+                introstarttime != null &&
+                !preview &&
+                introstarttime <= currentloadingtime &&
+                introendtime >= currentloadingtime ? (
+                  <TouchableOpacity
+                    onPress={() => {
+                      videoRef.current.seek(introendtime);
+                    }}
+                    style={{
+                      backgroundColor: DETAILS_TEXT_COLOR,
+                      padding: 5,
+                      borderRadius: 10,
+                    }}
+                  >
+                    <Text style={{ fontWeight: "bold" }}>Skip Intro</Text>
                   </TouchableOpacity>
-                  :
-                  ""}
+                ) : (
+                  ""
+                )}
               </View>
 
-              <View style={{ position: 'absolute', right: 20, bottom: 80 }}>
-                {endcreditsstarttime != "" && endcreditsstarttime != null && !preview && endcreditsstarttime <= currentloadingtime ?
-                  <TouchableOpacity onPress={playnextitem} style={{ backgroundColor: DETAILS_TEXT_COLOR, padding: 5, borderRadius: 10 }}>
-                    <Text style={{ fontWeight: 'bold' }}>Play Next</Text>
+              <View style={{ position: "absolute", right: 20, bottom: 80 }}>
+                {endcreditsstarttime != "" &&
+                endcreditsstarttime != null &&
+                !preview &&
+                endcreditsstarttime <= currentloadingtime ? (
+                  <TouchableOpacity
+                    onPress={playnextitem}
+                    style={{
+                      backgroundColor: DETAILS_TEXT_COLOR,
+                      padding: 5,
+                      borderRadius: 10,
+                    }}
+                  >
+                    <Text style={{ fontWeight: "bold" }}>Play Next</Text>
                   </TouchableOpacity>
-                  :
-                  ""}
+                ) : (
+                  ""
+                )}
               </View>
 
               {state.showControls && (
-                <View style={{ width: "100%", position: 'absolute', top: "40%", flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                  {passedtheme != 'live' && passedtheme != 'livetv' ?
+                <View
+                  style={{
+                    width: "100%",
+                    position: "absolute",
+                    top: "40%",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  {passedtheme != "live" && passedtheme != "livetv" ? (
                     <>
                       <TouchableOpacity
                         onPress={() => {
-                          videoRef.current.seek(currentloadingtime - 10)
+                          videoRef.current.seek(currentloadingtime - 10);
                           setState({ ...state, showControls: true });
                         }}
-                        style={{ marginRight: 50 }}>
-                        <Ionicons name="md-caret-back-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
+                        style={{ marginRight: 50 }}
+                      >
+                        <Ionicons
+                          name="md-caret-back-circle-sharp"
+                          size={40}
+                          color={NORMAL_TEXT_COLOR}
+                        ></Ionicons>
                       </TouchableOpacity>
 
-                      <TouchableOpacity
-                        onPress={() => { 
-                          setPlay(!play); 
-                          setState({ ...state, showControls: true }); 
-                          if(play)
-                          triggeranalytics('pb_end',pbtime,'02')
-                          else
-                          triggeranalytics('pb_start',pbtime,'01')
+                  <TouchableOpacity
+                        onPress={() => {
+                          setPlay(!play);
+                          // if (showAd) {
+                          //   setPlay(false);
+                          //   // setLastKnownTimestamp(currenttimestamp);
+                          // } else {
+                          //   setPlay(true);
+                          //   // videoRef.current.seek(currenttimestamp);
+                          // }
+                          setState({ ...state, showControls: true });
+                          if (play) triggeranalytics("pb_end", pbtime, "02");
+                          else triggeranalytics("pb_start", pbtime, "01");
                         }}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                        style={{ right: 10, left: 10, width: "10%" }}>
-                        {play ?
-                          <MaterialCommunityIcons name="pause-circle" size={35} color={NORMAL_TEXT_COLOR} />
-                          :
-                          <MaterialCommunityIcons name="play-circle" size={35} color={NORMAL_TEXT_COLOR} />
-                        }
+                        style={{ right: 10, left: 10, width: "10%" }}
+                      >
+                        {play ? (
+                          <MaterialCommunityIcons
+                            name="pause-circle"
+                            size={35}
+                            color={NORMAL_TEXT_COLOR}
+                          />
+                        ) : (
+                          <MaterialCommunityIcons
+                            name="play-circle"
+                            size={35}
+                            color={NORMAL_TEXT_COLOR}
+                          />
+                        )}
                       </TouchableOpacity>
 
                       <TouchableOpacity
                         onPress={() => {
                           console.log(currentloadingtime);
-                          videoRef.current.seek(currentloadingtime + 10)
+                          videoRef.current.seek(currentloadingtime + 10);
                           setState({ ...state, showControls: true });
                         }}
-                        style={{ marginLeft: 50 }}>
-                        <Ionicons name="md-caret-forward-circle-sharp" size={40} color={NORMAL_TEXT_COLOR}></Ionicons>
+                        style={{ marginLeft: 50 }}
+                      >
+                        <Ionicons
+                          name="md-caret-forward-circle-sharp"
+                          size={40}
+                          color={NORMAL_TEXT_COLOR}
+                        ></Ionicons>
                       </TouchableOpacity>
                     </>
-                    :
-                    ""}
+                  ) : (
+                    ""
+                  )}
                 </View>
               )}
-              {/* {thumbImage ? */}
-              {/* <View style={{ width: 64, height: 64, overflow: 'hidden' }}>
-                <Image
-                  // source={{uri:thumbImage}}
-                  source={{ uri: "https://etvwin-s3.akamaized.net/6529227449882c24b7c3d508/myvideofile/myvideofile_sprite.png" }}
-                  style={{
-                    width: "100%",
-                    height:50
-                        }}
-                  resizeMode='contain'
-                />
-              </View> */}
 
-              {/* :
-                    ""} */}
               {state.showControls && (
                 <>
-
-                  <View style={{ width: "100%", position: 'absolute', backgroundColor: BACKGROUND_TRANSPARENT_COLOR, height: 60, bottom: 0, flexDirection: 'row' }}>
-                    <View style={passedtheme != 'live' && passedtheme != 'livetv' ? { width: "85%", top: 20 } : { width: "100%", top: 20 }}>
+                  <View
+                    style={{
+                      width: "100%",
+                      position: "absolute",
+                      backgroundColor: BACKGROUND_TRANSPARENT_COLOR,
+                      height: 60,
+                      bottom: 0,
+                      flexDirection: "row",
+                    }}
+                  >
+                    <View
+                      style={
+                        passedtheme != "live" && passedtheme != "livetv"
+                          ? { width: "85%", top: 20 }
+                          : { width: "100%", top: 20 }
+                      }
+                    >
                       <Slider
                         style={{ width: "100%", height: 40 }}
                         minimumValue={0}
@@ -1575,180 +1827,455 @@ export default function Episode({ navigation, route }) {
                         maximumTrackTintColor={NORMAL_TEXT_COLOR}
                         tapToSeek={true}
                         value={currentloadingtime}
-                        onSlidingComplete={val => {
-                          videoRef.current.seek(Math.floor(val))
+                        onSlidingComplete={(val) => {
+                          // console.log(val,"slider")
+                          // handleSlidingComplete(val);
+                          setPlay(true);
+                          setImg(null);
+                          setAddcount(0);
+                          if (videoRef.current) {
+                            videoRef.current.seek(Math.floor(val));
+                          }
                         }}
-                        onValueChange={val => {
-                          //getThumbnailImage(Math.round(val));
+                        onValueChange={(val)=> {
+                          console.log(val,"val")
+                          // val ? setRold(!rold): undefined
                         }}
                         animateTransitions={true}
-                        disabled={passedtheme != 'live' && passedtheme != 'livetv' ? false : true}
+                        disabled={
+                          passedtheme != "live" && passedtheme != "livetv"
+                            ? false
+                            : true
+                        }
                       />
                     </View>
-                    {passedtheme != 'live' && passedtheme != 'livetv' ?
+                    {passedtheme != "live" && passedtheme != "livetv" ? (
                       <View style={{ top: 30, width: "15%", right: 5 }}>
                         <Text style={{ color: "#ffffff", fontSize: 11 }}>
                           {currenttimestamp}
                         </Text>
                       </View>
-                      : ""}
+                    ) : (
+                      ""
+                    )}
                   </View>
                 </>
               )}
             </Pressable>
-
-
-            :
-
-            <View style={{ width: PAGE_WIDTH, height: 270, backgroundColor: "#000000", justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
-
+          ) : (
+            <View
+              style={{
+                width: PAGE_WIDTH,
+                height: 270,
+                backgroundColor: "#000000",
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "row",
+              }}
+            >
               <TouchableOpacity
-                onPress={() => { fullscreen ? handleFullscreen() : checkgoback() }}
+                onPress={() => {
+                  fullscreen ? handleFullscreen() : checkgoback();
+                }}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                style={styles.navigationBack}>
-                <MaterialCommunityIcons name="keyboard-backspace" size={25} color={NORMAL_TEXT_COLOR}></MaterialCommunityIcons>
+                style={styles.navigationBack}
+              >
+                <MaterialCommunityIcons
+                  name="keyboard-backspace"
+                  size={25}
+                  color={NORMAL_TEXT_COLOR}
+                ></MaterialCommunityIcons>
               </TouchableOpacity>
-              {loading ? <ActivityIndicator size={'large'} color={"#ffffff"}></ActivityIndicator> :
+              {loading ? (
+                <ActivityIndicator
+                  size={"large"}
+                  color={"#ffffff"}
+                ></ActivityIndicator>
+              ) : streemexceedlimit == true ? (
+                <TouchableOpacity style={[styles.button, { width: 200 }]}>
+                  <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>
+                    {streemexceedlimitmessage}
+                  </Text>
+                </TouchableOpacity>
+              ) : loggedin ? (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Subscribe")}
+                  style={[styles.button, { width: 200 }]}
+                >
+                  <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>
+                    Upgrade / Subscribe
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <View
+                  style={{
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "row",
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("Login")}
+                    style={styles.button}
+                  >
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>
+                      LOGIN
+                    </Text>
+                  </TouchableOpacity>
 
-                streemexceedlimit == true ?
-                  <TouchableOpacity style={[styles.button, { width: 200 }]}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>{streemexceedlimitmessage}</Text></TouchableOpacity>
-                  :
-                  loggedin ? <TouchableOpacity onPress={() => navigation.navigate('Subscribe')} style={[styles.button, { width: 200 }]}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Upgrade / Subscribe</Text></TouchableOpacity>
-                    :
-                    <View style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
-                      <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>LOGIN</Text></TouchableOpacity>
-
-                      <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.button}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>SIGN UP</Text></TouchableOpacity>
-                    </View>
-
-              }
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("Signup")}
+                    style={styles.button}
+                  >
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>
+                      SIGN UP
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
+          )}
 
-          }
-
-          {!fullscreen ?
+          {!fullscreen ? (
             <View style={styles.bodyContent}>
               <View style={styles.marginContainer}>
                 <Text style={styles.headingLabel}>
-                  <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', }]}>| </Text>
-                  {title}</Text>
-                <View style={{ flexDirection: 'row' }}>
-                  {channel ? <Text style={styles.detailsText}>{channel} - {contentRating}</Text> : ""}
+                  <Text style={[{ color: TAB_COLOR, fontWeight: "bold" }]}>
+                    |{" "}
+                  </Text>
+                  {title}
+                </Text>
+                <View style={{ flexDirection: "row" }}>
+                  {channel ? (
+                    <Text style={styles.detailsText}>
+                      {channel} - {contentRating}
+                    </Text>
+                  ) : (
+                    ""
+                  )}
                   {displayGenres.map((resp, index) => {
-
                     return (
-                      <View key={index} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginLeft: 5 }}>
-                        <FontAwesome5 name='dot-circle' size={10} color={TAB_COLOR} />
-                        <Text key={index} style={[styles.detailsText, { color: TAB_COLOR, fontWeight: 'bold', }]}>{resp}</Text>
+                      <View
+                        key={index}
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          marginLeft: 5,
+                        }}
+                      >
+                        <FontAwesome5
+                          name="dot-circle"
+                          size={10}
+                          color={TAB_COLOR}
+                        />
+                        <Text
+                          key={index}
+                          style={[
+                            styles.detailsText,
+                            { color: TAB_COLOR, fontWeight: "bold" },
+                          ]}
+                        >
+                          {resp}
+                        </Text>
                       </View>
-                    )
-
+                    );
                   })}
-                  {durationsttring ? <Text style={styles.detailsText}> - {' '} {durationsttring}</Text> : ""}
+                  {durationsttring ? (
+                    <Text style={styles.detailsText}> - {durationsttring}</Text>
+                  ) : (
+                    ""
+                  )}
                 </View>
-                <ReadMore numberOfLines={5} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
+                <ReadMore
+                  numberOfLines={5}
+                  style={styles.detailsText}
+                  seeMoreText="Read More"
+                  seeMoreStyle={{ color: TAB_COLOR, fontWeight: "bold" }}
+                  seeLessStyle={{ color: TAB_COLOR, fontWeight: "bold" }}
+                >
                   <Text style={styles.detailsText}>{description}</Text>
                 </ReadMore>
               </View>
 
-              {!loading ?
+              {!loading ? (
                 <View style={styles.options}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginRight: 8,
+                    }}
+                  >
                     <View style={styles.singleoption}>
-                      {!likecontent ?
-                        <Pressable onPress={likeContent}><MaterialIcons name="thumb-up-off-alt" size={18} color={NORMAL_TEXT_COLOR} /></Pressable>
-                        :
-                        <Pressable onPress={() => deleteLike(catalogId, contentId)}><MaterialIcons name="thumb-up" size={18} color={NORMAL_TEXT_COLOR} /></Pressable>
-                      }
+                      {!likecontent ? (
+                        <Pressable onPress={likeContent}>
+                          <MaterialIcons
+                            name="thumb-up-off-alt"
+                            size={18}
+                            color={NORMAL_TEXT_COLOR}
+                          />
+                        </Pressable>
+                      ) : (
+                        <Pressable
+                          onPress={() => deleteLike(catalogId, contentId)}
+                        >
+                          <MaterialIcons
+                            name="thumb-up"
+                            size={18}
+                            color={NORMAL_TEXT_COLOR}
+                          />
+                        </Pressable>
+                      )}
                     </View>
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>Like</Text>
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>
+                      Like
+                    </Text>
                   </View>
-                  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginRight: 8,
+                    }}
+                  >
                     <View style={styles.singleoption}>
-                      <TouchableOpacity onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
+                      <TouchableOpacity onPress={shareOptions}>
+                        <MaterialCommunityIcons
+                          name="share-variant"
+                          size={18}
+                          color={NORMAL_TEXT_COLOR}
+                        />
+                      </TouchableOpacity>
                     </View>
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>Share</Text>
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>
+                      Share
+                    </Text>
                   </View>
-                  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
-                    {passedtheme != 'live' && passedtheme != 'livetv' && !preview ?
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginRight: 8,
+                    }}
+                  >
+                    {passedtheme != "live" &&
+                    passedtheme != "livetv" &&
+                    !preview ? (
                       <View style={styles.singleoption}>
-                        {downloadedStatus == 0 ? <TouchableOpacity onPress={downloadFile}><MaterialCommunityIcons name="download" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity> : ""}
-                        {downloadedStatus == 1 ? <TouchableOpacity onPress={deleteDownload}><MaterialCommunityIcons name="check-circle" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity> : ""}
-                        {downloadedStatus == 2 ?
-
-                          pauseDownload ?
-                            isresumeDownloading ?
-                              <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
-                              :
-                              <TouchableOpacity onPress={resumeDownloadAction}><MaterialCommunityIcons name="motion-pause" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
-                            :
-                            isresumeDownloading ?
-                              <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Offline'))}><MaterialCommunityIcons name="download" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
-                              :
-                              <TouchableOpacity onPress={pauseDownloadAction}><MaterialCommunityIcons name="progress-download" size={18} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
-
-                          : ""}
+                        {downloadedStatus == 0 ? (
+                          <TouchableOpacity onPress={downloadFile}>
+                            <MaterialCommunityIcons
+                              name="download"
+                              size={18}
+                              color={NORMAL_TEXT_COLOR}
+                            />
+                          </TouchableOpacity>
+                        ) : (
+                          ""
+                        )}
+                        {downloadedStatus == 1 ? (
+                          <TouchableOpacity onPress={deleteDownload}>
+                            <MaterialCommunityIcons
+                              name="check-circle"
+                              size={18}
+                              color={NORMAL_TEXT_COLOR}
+                            />
+                          </TouchableOpacity>
+                        ) : (
+                          ""
+                        )}
+                        {downloadedStatus == 2 ? (
+                          pauseDownload ? (
+                            isresumeDownloading ? (
+                              <TouchableOpacity
+                                onPress={() =>
+                                  navigation.dispatch(
+                                    StackActions.replace("Offline")
+                                  )
+                                }
+                              >
+                                <MaterialCommunityIcons
+                                  name="download"
+                                  size={18}
+                                  color={NORMAL_TEXT_COLOR}
+                                />
+                              </TouchableOpacity>
+                            ) : (
+                              <TouchableOpacity onPress={resumeDownloadAction}>
+                                <MaterialCommunityIcons
+                                  name="motion-pause"
+                                  size={18}
+                                  color={NORMAL_TEXT_COLOR}
+                                />
+                              </TouchableOpacity>
+                            )
+                          ) : isresumeDownloading ? (
+                            <TouchableOpacity
+                              onPress={() =>
+                                navigation.dispatch(
+                                  StackActions.replace("Offline")
+                                )
+                              }
+                            >
+                              <MaterialCommunityIcons
+                                name="download"
+                                size={18}
+                                color={NORMAL_TEXT_COLOR}
+                              />
+                            </TouchableOpacity>
+                          ) : (
+                            <TouchableOpacity onPress={pauseDownloadAction}>
+                              <MaterialCommunityIcons
+                                name="progress-download"
+                                size={18}
+                                color={NORMAL_TEXT_COLOR}
+                              />
+                            </TouchableOpacity>
+                          )
+                        ) : (
+                          ""
+                        )}
                       </View>
-                      :
+                    ) : (
                       <View style={styles.singleoption}>
-                        <MaterialCommunityIcons name="download" size={18} color={DARKED_BORDER_COLOR} />
+                        <MaterialCommunityIcons
+                          name="download"
+                          size={18}
+                          color={DARKED_BORDER_COLOR}
+                        />
                       </View>
-                    }
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>Download</Text>
+                    )}
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>
+                      Download
+                    </Text>
                   </View>
-                  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
                     <View style={styles.singleoption}>
-
-                      {!watchlatercontent ?
-                        <Pressable onPress={watchLater}><MaterialIcons name="watch-later" size={18} color={NORMAL_TEXT_COLOR} /></Pressable>
-                        :
-                        <Pressable onPress={() => { navigation.dispatch(StackActions.replace('WatchLater')) }}><MaterialIcons name="watch-later" size={18} color={DARKED_BORDER_COLOR} /></Pressable>
-                      }
+                      {!watchlatercontent ? (
+                        <Pressable onPress={watchLater}>
+                          <MaterialIcons
+                            name="watch-later"
+                            size={18}
+                            color={NORMAL_TEXT_COLOR}
+                          />
+                        </Pressable>
+                      ) : (
+                        <Pressable
+                          onPress={() => {
+                            navigation.dispatch(
+                              StackActions.replace("WatchLater")
+                            );
+                          }}
+                        >
+                          <MaterialIcons
+                            name="watch-later"
+                            size={18}
+                            color={DARKED_BORDER_COLOR}
+                          />
+                        </Pressable>
+                      )}
                     </View>
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>Watch Later</Text>
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>
+                      Watch Later
+                    </Text>
                   </View>
                 </View>
-                : ""}
-            </View> : ""}
-          {
-            (passedtheme == 'live' || passedtheme == 'livetv') && !fullscreen && totalHomeData ?
-              <FlatList
-                data={totalHomeData}
-                keyExtractor={(x, i) => i.toString()}
-                horizontal={false}
-                contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap' }}
-                style={{ marginTop: 20, marginBottom: 20 }}
-                renderItem={renderItem}
-              /> : ""
-          }
+              ) : (
+                ""
+              )}
+            </View>
+            
+          ) : (
+            ""
+          )}
+          {(passedtheme == "live" || passedtheme == "livetv") &&
+          !fullscreen &&
+          totalHomeData ? (
+            <FlatList
+              data={totalHomeData}
+              keyExtractor={(x, i) => i.toString()}
+              horizontal={false}
+              contentContainerStyle={{ flexGrow: 1, flexWrap: "nowrap" }}
+              style={{ marginTop: 20, marginBottom: 20 }}
+              renderItem={renderItem}
+            />
+          ) : (
+            ""
+          )}
 
-          {(passedtheme == 'live' || passedtheme == 'livetv') && relatedshows.length > 0 && !fullscreen ?
-
+          {(passedtheme == "live" || passedtheme == "livetv") &&
+          relatedshows.length > 0 &&
+          !fullscreen ? (
             <>
-              <View style={{ marginTop: 20, padding: 6, flex: 1, width: "100%" }}>
-                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: '500', marginBottom: 20, justifyContent: 'flex-start', alignItems: 'flex-start' }}>Related Shows</Text>
-                {isTablet ?
+              <View
+                style={{ marginTop: 20, padding: 6, flex: 1, width: "100%" }}
+              >
+                <Text
+                  style={{
+                    color: NORMAL_TEXT_COLOR,
+                    fontSize: 18,
+                    fontWeight: "500",
+                    marginBottom: 20,
+                    justifyContent: "flex-start",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  Related Shows
+                </Text>
+
+                {isTablet ? (
                   <FlatList
                     data={relatedshows}
                     renderItem={renderShows}
                     horizontal={true}
                     nestedScrollEnabled
                   />
-                  :
+                ) : (
                   <FlatList
                     data={relatedshows}
                     renderItem={renderShows}
                     horizontal={false}
                     nestedScrollEnabled
                   />
-                }
+                )}
               </View>
             </>
-            :
-            ""}
-          {passedtheme != 'live' && passedtheme != 'livetv' && relatedMovies.length > 0 && !fullscreen ?
-            <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', width: "100%", marginTop: 30, padding: 2 }}>
-              <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18, fontWeight: '500', marginBottom: 20, marginLeft: 20 }}>Related</Text>
+          ) : (
+            ""
+          )}
+          {passedtheme != "live" &&
+          passedtheme != "livetv" &&
+          relatedMovies.length > 0 ? (
+            <View
+              style={{
+                justifyContent: "flex-start",
+                alignItems: "flex-start",
+                width: "100%",
+                marginTop: 30,
+                padding: 2,
+              }}
+            >
+              <Text
+                style={{
+                  color: NORMAL_TEXT_COLOR,
+                  fontSize: 18,
+                  fontWeight: "500",
+                  marginBottom: 20,
+                  marginLeft: 20,
+                }}
+              >
+                Relateds
+              </Text>
               <FlatList
                 data={relatedMovies}
                 renderItem={renderRelatedMovies}
@@ -1757,68 +2284,140 @@ export default function Episode({ navigation, route }) {
                 numColumns={3}
               />
             </View>
-            : ""
-
-          }
-
+          ) : (
+            ""
+          )}
           <Modal
             isVisible={isModalVisible}
-            testID={'modal'}
+            testID={"modal"}
             animationIn="slideInDown"
             animationOut="slideOutDown"
             onBackdropPress={toggleModal}
             backdropColor={"black"}
-            backdropOpacity={0.40}
+            backdropOpacity={0.4}
           >
-            <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR }}>
+            <View
+              style={{
+                backgroundColor: NORMAL_TEXT_COLOR,
+                width: "100%",
+                backgroundColor: BACKGROUND_COLOR,
+              }}
+            >
               {prefrence.map((pref, ind) => {
-                return (
-                  pref.display_name != "" ?
-                    <TouchableOpacity key={'pref' + ind} onPress={() => { startDownloading(pref.playback_url, pref.offlineUrl, pref.downloaddirectory, pref.display_name) }}>
-                      <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5 }}>
-                        <Text style={{ color: NORMAL_TEXT_COLOR }}>{pref.display_name}</Text>
-                      </View>
-                    </TouchableOpacity>
-                    :
-                    ""
-                )
+                return pref.display_name != "" ? (
+                  <TouchableOpacity
+                    key={"pref" + ind}
+                    onPress={() => {
+                      startDownloading(
+                        pref.playback_url,
+                        pref.offlineUrl,
+                        pref.downloaddirectory,
+                        pref.display_name
+                      );
+                    }}
+                  >
+                    <View
+                      style={{
+                        padding: 13,
+                        borderBottomColor: IMAGE_BORDER_COLOR,
+                        borderBottomWidth: 0.5,
+                      }}
+                    >
+                      <Text style={{ color: NORMAL_TEXT_COLOR }}>
+                        {pref.display_name}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ) : (
+                  ""
+                );
               })}
             </View>
           </Modal>
 
-
           <Modal
             isVisible={isResolutionModalVisible}
-            testID={'modal'}
+            testID={"modal"}
             animationIn="slideInDown"
             animationOut="slideOutDown"
             onBackdropPress={toggleModalResolution}
             backdropColor={"black"}
-            backdropOpacity={0.40}
+            backdropOpacity={0.4}
           >
-            <View style={{ backgroundColor: NORMAL_TEXT_COLOR, width: '100%', backgroundColor: BACKGROUND_COLOR }}>
-              <TouchableOpacity key={'pref'} onPress={() => { setVideoResolution('auto', '1280') }}>
-                <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, flexDirection: 'row' }}>
-                  <Text style={{ color: NORMAL_TEXT_COLOR, marginRight: 10 }}>Auto</Text>
-                  {videoType == 'auto' ? <MaterialCommunityIcons name="check-bold" size={18} color={NORMAL_TEXT_COLOR} /> : ""}
+            <View
+              style={{
+                backgroundColor: NORMAL_TEXT_COLOR,
+                width: "100%",
+                backgroundColor: BACKGROUND_COLOR,
+              }}
+            >
+              <TouchableOpacity
+                key={"pref"}
+                onPress={() => {
+                  setVideoResolution("auto", "1280");
+                }}
+              >
+                <View
+                  style={{
+                    padding: 13,
+                    borderBottomColor: IMAGE_BORDER_COLOR,
+                    borderBottomWidth: 0.5,
+                    flexDirection: "row",
+                  }}
+                >
+                  <Text style={{ color: NORMAL_TEXT_COLOR, marginRight: 10 }}>
+                    Auto
+                  </Text>
+                  {videoType == "auto" ? (
+                    <MaterialCommunityIcons
+                      name="check-bold"
+                      size={18}
+                      color={NORMAL_TEXT_COLOR}
+                    />
+                  ) : (
+                    ""
+                  )}
                 </View>
               </TouchableOpacity>
               {resolutionPreference.map((pref, ind) => {
-                return (
-                  pref.display_name != "" ?
-                    <TouchableOpacity key={'pref' + ind} onPress={() => { setVideoResolution('resolution', pref.vheight) }}>
-                      <View style={{ padding: 13, borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, flexDirection: 'row' }}>
-                        <Text style={{ color: NORMAL_TEXT_COLOR, marginRight: 10 }}>{pref.display_name}</Text>
-                        {videoType == 'resolution' && videoresolution == pref.vheight ? <MaterialCommunityIcons name="check-bold" size={18} color={NORMAL_TEXT_COLOR} /> : ""}
-                      </View>
-                    </TouchableOpacity>
-                    :
-                    ""
-                )
+                return pref.display_name != "" ? (
+                  <TouchableOpacity
+                    key={"pref" + ind}
+                    onPress={() => {
+                      setVideoResolution("resolution", pref.vheight);
+                    }}
+                  >
+                    <View
+                      style={{
+                        padding: 13,
+                        borderBottomColor: IMAGE_BORDER_COLOR,
+                        borderBottomWidth: 0.5,
+                        flexDirection: "row",
+                      }}
+                    >
+                      <Text
+                        style={{ color: NORMAL_TEXT_COLOR, marginRight: 10 }}
+                      >
+                        {pref.display_name}
+                      </Text>
+                      {videoType == "resolution" &&
+                      videoresolution == pref.vheight ? (
+                        <MaterialCommunityIcons
+                          name="check-bold"
+                          size={18}
+                          color={NORMAL_TEXT_COLOR}
+                        />
+                      ) : (
+                        ""
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                ) : (
+                  ""
+                );
               })}
             </View>
           </Modal>
-
 
           <StatusBar
             animated
@@ -1919,11 +2518,11 @@ const styles = StyleSheet.create({
   },
   mainContainer: { flex: 1, backgroundColor: BACKGROUND_COLOR },
   bodyContent: { backgroundColor: BACKGROUND_COLOR, padding: 10,width:PAGE_WIDTH,flexWrap:'wrap' },
-  headingLabel: { fontSize: 20, color: NORMAL_TEXT_COLOR, padding: 4, justifyContent: 'center', alignItems: 'center', width: "100%", borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, },
-  detailsText: { fontSize: 11, marginBottom: 5, color: DETAILS_TEXT_COLOR, padding: 4 },
+  headingLabel: { fontSize: 17, color: NORMAL_TEXT_COLOR, padding: 4, justifyContent: 'center', alignItems: 'center', width: "100%", borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, },
+  detailsText: { fontSize: 11, color: DETAILS_TEXT_COLOR, padding: 4,marginBottom:3 },
   options: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row', },
   singleoption: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', borderColor: TAB_COLOR, borderWidth: 1, marginRight: 3 },
-  marginContainer: { marginLeft: 5, marginRight: 5 },
+  marginContainer: { marginLeft: 5, marginRight: 5, },
   button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 10, borderRadius: 20, marginRight: 10 },
   imageSectionHorizontal: {
     width: PAGE_WIDTH,
@@ -1940,7 +2539,7 @@ const styles = StyleSheet.create({
   imageSectionVertical: {
     width: PAGE_WIDTH / 3.1,
     height: actuatedNormalize(155),
-    borderRadius: 18,
+    borderRadius: 5,
     marginBottom: 10,
     marginHorizontal: 1
   },
@@ -1948,7 +2547,7 @@ const styles = StyleSheet.create({
     width: 135,
     height: 150,
     marginHorizontal: 4,
-    borderRadius: 10,
+    borderRadius: 5,
     marginBottom: 10,
   },
   playIcon: { position: 'absolute', width: 25, height: 25, right: 6, bottom: 12 },
