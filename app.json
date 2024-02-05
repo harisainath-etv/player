@@ -11,7 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#00021c"
     },
-    "plugins": ["@config-plugins/react-native-google-cast","@react-native-google-signin/google-signin"],
+    "plugins": ["@config-plugins/react-native-google-cast"],
     "updates": {
       "fallbackToCacheTimeout": 0
     },

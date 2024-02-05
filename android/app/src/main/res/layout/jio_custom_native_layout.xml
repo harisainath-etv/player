@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    >
+
+<!--    <LinearLayout-->
+<!--        android:orientation="vertical"-->
+<!--        android:layout_width="320dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:id="@+id/infeedElementContainer"-->
+<!--        >-->
+
+        <!-- style="?android:attr/ratingBarStyleSmall" -->
+<!--        <LinearLayout-->
+<!--            android:orientation="horizontal"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            >-->
+
+<!--            <FrameLayout-->
+<!--                android:tag="@string/jio_native_icon_layout"-->
+<!--                android:id="@+id/jio_custom_icon"-->
+<!--                android:layout_width="48dp"-->
+<!--                android:layout_gravity="start"-->
+<!--                android:layout_height="48dp"/>-->
+
+<!--            <LinearLayout-->
+<!--                android:orientation="vertical"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="48dp"-->
+<!--                >-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/jio_tv_title"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:ellipsize="end"-->
+<!--                    android:maxLines="1"-->
+<!--                    android:paddingLeft="2dp"-->
+<!--                    android:paddingRight="1dp"-->
+<!--                    android:tag="@string/jio_native_title"-->
+<!--                    android:textColor="#000000"-->
+<!--                    android:textSize="10sp"-->
+<!--                    android:textStyle="bold" />-->
+<!--                <TextView-->
+<!--                    android:id="@+id/jio_custom_desc"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="left"-->
+<!--                    android:layout_marginTop="1sp"-->
+<!--                    android:ellipsize="end"-->
+<!--                    android:tag="@string/jio_native_description"-->
+<!--                    android:maxWidth="150dp"-->
+<!--                    android:paddingLeft="2dp"-->
+<!--                    android:paddingRight="2dp"-->
+<!--                    android:textColor="#000000"-->
+<!--                    android:textSize="7sp" />-->
+<!--            </LinearLayout>-->
+<!--        </LinearLayout>-->
+
+        <RelativeLayout
+            android:id="@+id/jio_custom_media_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="@string/jio_native_custom_image_layout"
+            />
+<!--    </LinearLayout>-->
+</RelativeLayout>
