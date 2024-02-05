@@ -38,6 +38,7 @@ import LinearGradient from "react-native-linear-gradient";
 import Entypo from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { normalize } from "react-native-elements";
 
 export default function Shorts({ navigation }) {
   const [startindex, setstartindex] = useState(0);
@@ -646,17 +647,12 @@ export default function Shorts({ navigation }) {
               borderColor: NORMAL_TEXT_COLOR,
               borderWidth: 0.5,
               padding: 7,
-              width: "50%",
+              width: "43%",
               backgroundColor: NORMAL_TEXT_COLOR,
-              left: 5,
+              marginLeft: 8,
             }}
           >
-            <Ionicons
-              name="navigate-circle"
-              size={30}
-              color={TAB_COLOR}
-              style={{ left: 3 }}
-            />
+            <Ionicons name="navigate-circle" size={30} color={TAB_COLOR} />
 
             <LinearGradient
               useAngle={true}
@@ -671,8 +667,8 @@ export default function Shorts({ navigation }) {
               ]}
               style={{
                 borderRadius: 10,
-                left: 8,
-                width: 135,
+                // marginleft: 10,
+                width: normalize(100),
               }}
             >
               <Text
