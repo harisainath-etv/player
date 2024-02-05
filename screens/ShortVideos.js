@@ -5,7 +5,6 @@ import {
   StyleSheet,
   StatusBar,
   TouchableOpacity,
-  Button,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -35,6 +34,7 @@ import Footer from "./footer";
 import { stringMd5 } from "react-native-quick-md5";
 import Share from "react-native-share";
 import { StackActions } from "@react-navigation/native";
+import LinearGradient from "react-native-linear-gradient";
 import {
   Entypo,
   FontAwesome,
@@ -92,6 +92,7 @@ export default function Shorts({ navigation }) {
       axios
         .get(url)
         .then((response) => {
+          console.log(response.data, "hhhhhhhh");
           var currentTimestamp = Math.floor(Date.now() / 1000).toString();
           if (sessionId == null) sessionId = "";
           var md5String = stringMd5(
@@ -483,7 +484,7 @@ export default function Shorts({ navigation }) {
           volume={1}
           rate={1.0}
           useTextureView={false}
-          resizeMode={"cover"}
+          resizeMode={"stretch"}
           style={{
             width: PAGE_WIDTH,
             height: Math.round(PAGE_HEIGHT),
@@ -519,33 +520,28 @@ export default function Shorts({ navigation }) {
           ) : (
             ""
           )}
-        </TouchableOpacity>
 
-        <Text
-          style={{
-            color: NORMAL_TEXT_COLOR,
-            fontSize: 18,
-            fontWeight: "bold",
-            position: "absolute",
-            bottom: 105,
-            left: 3,
-            borderWidth: 0.5,
-            borderRadius: 10,
-            textAlign: "justify",
-            borderColor: NORMAL_TEXT_COLOR,
-            backgroundColor: DARKED_BORDER_COLOR,
-            padding: 5,
-            width: "60%",
-          }}
-        >
-          # {item.title}
-        </Text>
+          <Text
+            style={{
+              color: NORMAL_TEXT_COLOR,
+              fontSize: 16,
+              fontWeight: "bold",
+              position: "absolute",
+              bottom: 105,
+              left: 6,
+              padding: 5,
+              width: "60%",
+            }}
+          >
+            # {item.title}
+          </Text>
+        </TouchableOpacity>
 
         <View
           style={{
             position: "absolute",
             right: 20,
-            top: "50%",
+            top: "65%",
           }}
         >
           {item.likecontent ? (
@@ -561,15 +557,15 @@ export default function Shorts({ navigation }) {
             >
               <FontAwesome
                 name="heart"
-                size={28}
+                size={24}
                 color="red"
                 style={{
                   backgroundColor: TAB_COLOR,
                   borderColor: TAB_COLOR,
                   borderWidth: 0.5,
-                  borderRadius: 44 / 2,
-                  width: 44,
-                  height: 44,
+                  borderRadius: 35 / 2,
+                  width: 35,
+                  height: 35,
                 }}
               />
             </TouchableOpacity>
@@ -580,16 +576,16 @@ export default function Shorts({ navigation }) {
             >
               <FontAwesome
                 name="heart"
-                size={28}
+                size={24}
                 color={NORMAL_TEXT_COLOR}
                 style={{
                   backgroundColor: TAB_COLOR,
                   borderColor: TAB_COLOR,
                   borderWidth: 0.5,
-                  borderRadius: 44 / 2,
-                  width: 44,
-                  height: 44,
-                  padding: 8,
+                  borderRadius: 35 / 2,
+                  width: 35,
+                  height: 35,
+                  padding: 6,
                 }}
               />
             </TouchableOpacity>
@@ -603,16 +599,16 @@ export default function Shorts({ navigation }) {
             >
               <Entypo
                 name="heart-outlined"
-                size={28}
+                size={24}
                 color={NORMAL_TEXT_COLOR}
                 style={{
                   backgroundColor: TAB_COLOR,
                   borderColor: TAB_COLOR,
                   borderWidth: 0.5,
-                  borderRadius: 44 / 2,
-                  width: 44,
-                  height: 44,
-                  padding: 8,
+                  borderRadius: 35 / 2,
+                  width: 35,
+                  height: 35,
+                  padding: 6,
                 }}
               />
             </TouchableOpacity>
@@ -623,16 +619,16 @@ export default function Shorts({ navigation }) {
           >
             <MaterialCommunityIcons
               name="share"
-              size={35}
+              size={24}
               color={NORMAL_TEXT_COLOR}
               style={{
                 marginTop: 50,
                 backgroundColor: TAB_COLOR,
                 borderColor: TAB_COLOR,
                 borderWidth: 0.5,
-                borderRadius: 44 / 2,
-                width: 44,
-                height: 44,
+                borderRadius: 35 / 2,
+                width: 35,
+                height: 35,
                 padding: 2,
                 paddingHorizontal: 6,
               }}
@@ -646,32 +642,53 @@ export default function Shorts({ navigation }) {
               fullEpisode(item.full_catalog_id, item.full_content_id)
             }
             style={{
-              left: 5,
               bottom: 50,
-              flexDirection: "row",
-              borderWidth: 1,
-              borderColor: NORMAL_TEXT_COLOR,
-              width: "60%",
               borderRadius: 10,
-              backgroundColor: DARKED_BORDER_COLOR,
+              flexDirection: "row",
+              borderColor: NORMAL_TEXT_COLOR,
+              borderWidth: 0.5,
+              padding: 7,
+              width: "50%",
+              backgroundColor: NORMAL_TEXT_COLOR,
+              left: 5,
             }}
           >
             <Ionicons
               name="navigate-circle"
-              size={35}
-              color={NORMAL_TEXT_COLOR}
+              size={30}
+              color={TAB_COLOR}
+              style={{ left: 3 }}
             />
-            <Text
+
+            <LinearGradient
+              useAngle={true}
+              angle={125}
+              angleCenter={{ x: 0.5, y: 0.5 }}
+              colors={[
+                BUTTON_COLOR,
+                TAB_COLOR,
+                TAB_COLOR,
+                TAB_COLOR,
+                BUTTON_COLOR,
+              ]}
               style={{
-                fontSize: 20,
-                fontWeight: "bold",
-                color: NORMAL_TEXT_COLOR,
-                top: 5,
-                left: 5,
+                borderRadius: 10,
+                left: 8,
+                width: 135,
               }}
             >
-              Watch Full Episode
-            </Text>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: 12,
+                  fontWeight: "bold",
+                  color: NORMAL_TEXT_COLOR,
+                  top: 8,
+                }}
+              >
+                Watch Now
+              </Text>
+            </LinearGradient>
           </TouchableOpacity>
         ) : (
           ""
