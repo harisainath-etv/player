@@ -1419,12 +1419,13 @@ console.log(img,"lllloooooooooooooooooooo");
       <ScrollView style={{ flex: 1, flexGrow: 1, }} nestedScrollEnabled={true} horizontal={false}>
           <View style={[styles.container, { marginTop: !fullscreen ? 50 : 0 }]}>
           {showAd ? (
-            <JioAdView
-              adType={4}
-              adspotKey={"fkh9qm1i"}
-              adHeight={200}
-              adWidth={400}
-            />
+           
+              <JioAdView
+                adType={4}
+                adspotKey={"fkh9qm1i"}
+                adHeight={200}
+                adWidth={330}
+              />
           ) : playUrl != "" && 
             playUrl != null &&
             streemexceedlimit == false &&

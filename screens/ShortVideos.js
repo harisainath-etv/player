@@ -1,6 +1,6 @@
 import { View, FlatList, Text, StyleSheet, StatusBar, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, COMMON_BASE_URL, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, VIDEO_AUTH_TOKEN } from '../constants'
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, COMMON_BASE_URL, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
 import TransparentHeader from './transparentHeader';
 import Video from 'react-native-video';
 import axios from 'axios';
@@ -11,6 +11,16 @@ import Footer from './footer';
 import { stringMd5 } from 'react-native-quick-md5';
 import Share from 'react-native-share';
 import { StackActions } from '@react-navigation/native';
+import JioAdView from '../JioAdView';
+import { DeviceEventEmitter } from 'react-native';
+import { log } from 'react-native-reanimated';
+import { Image } from 'react-native';
+import normalize from "../Utils/Helpers/Dimen";
+import {
+    Entypo,
+    FontAwesome,
+    MaterialCommunityIcons,
+  } from "@expo/vector-icons";
 export default function Shorts({ navigation }) {
     const [startindex, setstartindex] = useState(0);
     var limit = 100;
@@ -22,7 +32,15 @@ export default function Shorts({ navigation }) {
     const [likecontent, setlikecontent] = useState(false);
     const [loggedin, setloggedin] = useState(false);
     const [scrollvideoid, setscrollvideoid] = useState();
-
+    const [currentVideoIndex, setCurrentVideoIndex] = useState(-1);
+    const handleVideoComplete = () => {
+        console.log("hello")
+        const nextIndex = currentVideoIndex + 1;
+        if (nextIndex < Videos.length) {
+            flatListRef.current.scrollToIndex({ index: nextIndex });
+            setCurrentVideoIndex(nextIndex);
+        }
+    };
     const filterItems = (stringNeeded, arrayvalues) => {
         let query = stringNeeded.toLowerCase();
         return arrayvalues.filter(item => item.toLowerCase().indexOf(query) >= 0);
@@ -236,74 +254,177 @@ export default function Shorts({ navigation }) {
             console.log(error);
         })
     }
-    const renderItem = ({ item, index }) => {
 
+    useEffect(() => {
+        const adClosedSubscription = DeviceEventEmitter.addListener(
+            'onAdClosed',
+            (isVideoCompleted) => {
+                console.log(isVideoCompleted, "isVideoCompleted===================")
+                if (!isVideoCompleted) {
+                    handleVideoComplete();
+                }
+            }
+        );
+
+        return () => {
+            adClosedSubscription.remove();
+        };
+    }, [currentVideoIndex]);
+    const renderItem = ({ item, index }) => {
+        const isAdItem = (index + 1) % 2 === 0;
         return (
 
             <View style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flex: 1, flexGrow: 1 }}>
-                <Video
-                    ref={videoRef}
-                    source={{ uri: item.video }}
-                    controls={false}
-                    paused={currentIndexValue === index ? false : true}
-                    playInBackground={false}
-                    repeat={true}
-                    volume={1}
-                    rate={1.0}
-                    useTextureView={false}
-                    resizeMode={'cover'}
-                    style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flexGrow: 1, flex: 1 }}
-                    playWhenInactive={false}
-                />
-                <TouchableOpacity style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), position: 'absolute', top: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.1)' }} onPress={() => {
-                    if (currentIndexValue == -1) {
-                        setcurrentIndexValue(index)
-                    }
-                    else {
-                        setcurrentIndexValue(-1)
-                    }
-                }}>
-                    {currentIndexValue == -1 ?
-                        <AntDesign
-                            name='pausecircle'
-                            color={NORMAL_TEXT_COLOR}
-                            size={40}
-                        ></AntDesign> : ""
-                    }
-                    {/* <Text style={{color:NORMAL_TEXT_COLOR,fontSize:16,fontWeignt:'800',marginLeft:10,position:'absolute',bottom:80,left:10}}>
-                        {item.title}
-                    </Text> */}
-                </TouchableOpacity>
+                {isAdItem ? (
+                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: normalize(280) }}>
+                        <JioAdView
+                            adType={4}
+                            adspotKey={"fkh9qm1i"}
+                            adHeight={200}
+                            adWidth={300}
+                        />
+                        {/* <Image source={{uri:"https://etv-win-image.akamaized.net/etvwin/telugumovies/goonda/82793/goonda-Goonda_Movie-270x360.jpg"}} style={{resizeMode:'contain',height:200,width:'100%'}}/> */}
+                    </View>
+                ) : (
+                    <>
+                        <Video
+                            ref={videoRef}
+                            source={{ uri: item.video }}
+                            controls={false}
+                            paused={currentIndexValue === index ? false : true}
+                            playInBackground={false}
+                            repeat={true}
+                            volume={1}
+                            rate={1.0}
+                            useTextureView={false}
+                            resizeMode={'stretch'}
+                            style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), flexGrow: 1, flex: 1 }}
+                            playWhenInactive={false}
+                            onEnd={handleVideoComplete}
+                        />
+                        <TouchableOpacity style={{ width: PAGE_WIDTH, height: Math.round(PAGE_HEIGHT), position: 'absolute', top: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.1)' }} onPress={() => {
+                            if (currentIndexValue == -1) {
+                                setcurrentIndexValue(index)
+                            }
+                            else {
+                                setcurrentIndexValue(-1)
+                            }
+                        }}>
+                            {currentIndexValue == -1 ?
+                                <AntDesign
+                                    name='pausecircle'
+                                    color={NORMAL_TEXT_COLOR}
+                                    size={40}
+                                ></AntDesign> : ""
+                            }
 
-                <View style={{ position: 'absolute', right: 15, top: '50%', }}>
-                    {
-                        item.likecontent ?
+                            <Text
+                                style={{
+                                    color: NORMAL_TEXT_COLOR,
+                                    fontSize: 16,
+                                    fontWeight: "bold",
+                                    position: "absolute",
+                                    bottom: 105,
+                                    left: 6,
+                                    padding: 5,
+                                    width: "60%",
+                                }}
+                            >
+                                # {item.title}
+                            </Text>
+                        </TouchableOpacity>
 
-                            <TouchableOpacity onPress={() => deleteLike(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like1" size={28} color={NORMAL_TEXT_COLOR} style={{}} /></TouchableOpacity>
+                        <View style={{ position: 'absolute', right: 15, top: '50%', }}>
+                            {
+                                item.likecontent ?
 
-                            :
-                            likecontent ?
-                                <TouchableOpacity onPress={() => deleteLike(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like1" size={28} color={NORMAL_TEXT_COLOR} style={{}} /></TouchableOpacity>
+                                    <TouchableOpacity onPress={() => deleteLike(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                        <FontAwesome
+                                            name="heart"
+                                            size={24}
+                                            color="red"
+                                            style={{
+                                                backgroundColor: TAB_COLOR,
+                                                borderColor: TAB_COLOR,
+                                                borderWidth: 0.5,
+                                                borderRadius: 35 / 2,
+                                                width: 35,
+                                                height: 35,
+                                            }}
+                                        />
+                                    </TouchableOpacity>
+
+                                    :
+                                    likecontent ?
+                                        <TouchableOpacity onPress={() => deleteLike(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                            <FontAwesome
+                                                name="heart"
+                                                size={24}
+                                                color={NORMAL_TEXT_COLOR}
+                                                style={{
+                                                    backgroundColor: TAB_COLOR,
+                                                    borderColor: TAB_COLOR,
+                                                    borderWidth: 0.5,
+                                                    borderRadius: 35 / 2,
+                                                    width: 35,
+                                                    height: 35,
+                                                    padding: 6,
+                                                }}
+                                            />
+                                        </TouchableOpacity>
+                                        :
+
+                                        <TouchableOpacity onPress={() => likevideo(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                            <Entypo
+                                                name="heart-outlined"
+                                                size={24}
+                                                color={NORMAL_TEXT_COLOR}
+                                                style={{
+                                                    backgroundColor: TAB_COLOR,
+                                                    borderColor: TAB_COLOR,
+                                                    borderWidth: 0.5,
+                                                    borderRadius: 35 / 2,
+                                                    width: 35,
+                                                    height: 35,
+                                                    padding: 6,
+                                                }}
+                                            />
+                                        </TouchableOpacity>
+
+                            }
+
+
+                            <TouchableOpacity onPress={() => shareOptions(item.shareUrl, item.title)}>
+                                <MaterialCommunityIcons
+                                    name="share"
+                                    size={24}
+                                    color={NORMAL_TEXT_COLOR}
+                                    style={{
+                                        marginTop: 50,
+                                        backgroundColor: TAB_COLOR,
+                                        borderColor: TAB_COLOR,
+                                        borderWidth: 0.5,
+                                        borderRadius: 35 / 2,
+                                        width: 35,
+                                        height: 35,
+                                        padding: 2,
+                                        paddingHorizontal: 6,
+                                    }}
+                                />
+                            </TouchableOpacity>
+
+                            {item.full_catalog_id && item.full_content_id ?
+                                <TouchableOpacity onPress={() => fullEpisode(item.full_catalog_id, item.full_content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                    <Ionicons name="navigate-circle" size={34} color={NORMAL_TEXT_COLOR} style={{ marginTop: 50 }} />
+                                </TouchableOpacity>
                                 :
 
-                                <TouchableOpacity onPress={() => likevideo(item.catalog_id, item.content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}><AntDesign name="like2" size={28} color={NORMAL_TEXT_COLOR} style={{}} />
-                                </TouchableOpacity>
-
-                    }
+                                ""}
 
 
-                    <TouchableOpacity onPress={() => shareOptions(item.shareUrl, item.title)}><AntDesign name="sharealt" size={28} color={NORMAL_TEXT_COLOR} style={{ marginTop: 50 }} /></TouchableOpacity>
-
-                    {item.full_catalog_id && item.full_content_id ?
-                        <TouchableOpacity onPress={() => fullEpisode(item.full_catalog_id, item.full_content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <Ionicons name="navigate-circle" size={34} color={NORMAL_TEXT_COLOR} style={{ marginTop: 50 }} />
-                        </TouchableOpacity>
-                        :
-
-                        ""}
-
-
-                </View>
+                        </View>
+                    </>
+                )}
             </View>
 
         );
