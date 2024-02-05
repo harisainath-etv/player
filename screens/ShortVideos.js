@@ -5,19 +5,24 @@ import {
   StyleSheet,
   StatusBar,
   TouchableOpacity,
+  Button,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ACCESS_TOKEN,
   AUTH_TOKEN,
   BACKGROUND_COLOR,
+  BUTTON_COLOR,
   COMMON_BASE_URL,
+  DARKED_BORDER_COLOR,
+  DETAILS_TEXT_COLOR,
   FIRETV_BASE_URL,
   FIRETV_BASE_URL_STAGING,
   NORMAL_TEXT_COLOR,
   PAGE_HEIGHT,
   PAGE_WIDTH,
   SECRET_KEY,
+  TAB_COLOR,
   VIDEO_AUTH_TOKEN,
 } from "../constants";
 import TransparentHeader from "./transparentHeader";
@@ -30,6 +35,12 @@ import Footer from "./footer";
 import { stringMd5 } from "react-native-quick-md5";
 import Share from "react-native-share";
 import { StackActions } from "@react-navigation/native";
+import {
+  Entypo,
+  FontAwesome,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
+import { normalize } from "react-native-elements";
 export default function Shorts({ navigation }) {
   const [startindex, setstartindex] = useState(0);
   var limit = 100;
@@ -508,32 +519,58 @@ export default function Shorts({ navigation }) {
           ) : (
             ""
           )}
-          {/* <Text
-            style={{
-              color: NORMAL_TEXT_COLOR,
-              fontSize: 16,
-              fontWeignt: "800",
-              marginLeft: 10,
-              position: "absolute",
-              bottom: 80,
-              left: 10,
-            }}
-          >
-            {item.title}
-          </Text> */}
         </TouchableOpacity>
 
-        <View style={{ position: "absolute", right: 15, top: "50%" }}>
+        <Text
+          style={{
+            color: NORMAL_TEXT_COLOR,
+            fontSize: 18,
+            fontWeight: "bold",
+            position: "absolute",
+            bottom: 105,
+            left: 3,
+            borderWidth: 0.5,
+            borderRadius: 10,
+            textAlign: "justify",
+            borderColor: NORMAL_TEXT_COLOR,
+            backgroundColor: DARKED_BORDER_COLOR,
+            padding: 5,
+            width: "60%",
+          }}
+        >
+          # {item.title}
+        </Text>
+
+        <View
+          style={{
+            position: "absolute",
+            right: 20,
+            top: "50%",
+          }}
+        >
           {item.likecontent ? (
             <TouchableOpacity
               onPress={() => deleteLike(item.catalog_id, item.content_id)}
-              style={{ justifyContent: "center", alignItems: "center" }}
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: TAB_COLOR,
+                borderWidth: 1,
+                borderRadius: "50%",
+              }}
             >
-              <AntDesign
-                name="like1"
+              <FontAwesome
+                name="heart"
                 size={28}
-                color={NORMAL_TEXT_COLOR}
-                style={{}}
+                color="red"
+                style={{
+                  backgroundColor: TAB_COLOR,
+                  borderColor: TAB_COLOR,
+                  borderWidth: 0.5,
+                  borderRadius: 44 / 2,
+                  width: 44,
+                  height: 44,
+                }}
               />
             </TouchableOpacity>
           ) : likecontent ? (
@@ -541,23 +578,42 @@ export default function Shorts({ navigation }) {
               onPress={() => deleteLike(item.catalog_id, item.content_id)}
               style={{ justifyContent: "center", alignItems: "center" }}
             >
-              <AntDesign
-                name="like1"
+              <FontAwesome
+                name="heart"
                 size={28}
                 color={NORMAL_TEXT_COLOR}
-                style={{}}
+                style={{
+                  backgroundColor: TAB_COLOR,
+                  borderColor: TAB_COLOR,
+                  borderWidth: 0.5,
+                  borderRadius: 44 / 2,
+                  width: 44,
+                  height: 44,
+                  padding: 8,
+                }}
               />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               onPress={() => likevideo(item.catalog_id, item.content_id)}
-              style={{ justifyContent: "center", alignItems: "center" }}
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+              }}
             >
-              <AntDesign
-                name="like2"
+              <Entypo
+                name="heart-outlined"
                 size={28}
                 color={NORMAL_TEXT_COLOR}
-                style={{}}
+                style={{
+                  backgroundColor: TAB_COLOR,
+                  borderColor: TAB_COLOR,
+                  borderWidth: 0.5,
+                  borderRadius: 44 / 2,
+                  width: 44,
+                  height: 44,
+                  padding: 8,
+                }}
               />
             </TouchableOpacity>
           )}
@@ -565,32 +621,61 @@ export default function Shorts({ navigation }) {
           <TouchableOpacity
             onPress={() => shareOptions(item.shareUrl, item.title)}
           >
-            <AntDesign
-              name="sharealt"
-              size={28}
+            <MaterialCommunityIcons
+              name="share"
+              size={35}
               color={NORMAL_TEXT_COLOR}
-              style={{ marginTop: 50 }}
+              style={{
+                marginTop: 50,
+                backgroundColor: TAB_COLOR,
+                borderColor: TAB_COLOR,
+                borderWidth: 0.5,
+                borderRadius: 44 / 2,
+                width: 44,
+                height: 44,
+                padding: 2,
+                paddingHorizontal: 6,
+              }}
             />
           </TouchableOpacity>
-
-          {item.full_catalog_id && item.full_content_id ? (
-            <TouchableOpacity
-              onPress={() =>
-                fullEpisode(item.full_catalog_id, item.full_content_id)
-              }
-              style={{ justifyContent: "center", alignItems: "center" }}
-            >
-              <Ionicons
-                name="navigate-circle"
-                size={34}
-                color={NORMAL_TEXT_COLOR}
-                style={{ marginTop: 50 }}
-              />
-            </TouchableOpacity>
-          ) : (
-            ""
-          )}
         </View>
+
+        {item.full_catalog_id && item.full_content_id ? (
+          <TouchableOpacity
+            onPress={() =>
+              fullEpisode(item.full_catalog_id, item.full_content_id)
+            }
+            style={{
+              left: 5,
+              bottom: 50,
+              flexDirection: "row",
+              borderWidth: 1,
+              borderColor: NORMAL_TEXT_COLOR,
+              width: "60%",
+              borderRadius: 10,
+              backgroundColor: DARKED_BORDER_COLOR,
+            }}
+          >
+            <Ionicons
+              name="navigate-circle"
+              size={35}
+              color={NORMAL_TEXT_COLOR}
+            />
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "bold",
+                color: NORMAL_TEXT_COLOR,
+                top: 5,
+                left: 5,
+              }}
+            >
+              Watch Full Episode
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          ""
+        )}
       </View>
     );
   };
