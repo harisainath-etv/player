@@ -35,12 +35,10 @@ import { stringMd5 } from "react-native-quick-md5";
 import Share from "react-native-share";
 import { StackActions } from "@react-navigation/native";
 import LinearGradient from "react-native-linear-gradient";
-import {
-  Entypo,
-  FontAwesome,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
-import { normalize } from "react-native-elements";
+import Entypo from "react-native-vector-icons/Entypo";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
+
 export default function Shorts({ navigation }) {
   const [startindex, setstartindex] = useState(0);
   var limit = 100;
