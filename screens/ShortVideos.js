@@ -1,6 +1,6 @@
 import { View, FlatList, Text, StyleSheet, StatusBar, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, COMMON_BASE_URL, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
+import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BUTTON_COLOR, COMMON_BASE_URL, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
 import TransparentHeader from './transparentHeader';
 import Video from 'react-native-video';
 import axios from 'axios';
@@ -20,7 +20,8 @@ import {
     Entypo,
     FontAwesome,
     MaterialCommunityIcons,
-  } from "@expo/vector-icons";
+} from "@expo/vector-icons";
+import LinearGradient from 'react-native-linear-gradient';
 export default function Shorts({ navigation }) {
     const [startindex, setstartindex] = useState(0);
     var limit = 100;
@@ -334,7 +335,7 @@ export default function Shorts({ navigation }) {
                             </Text>
                         </TouchableOpacity>
 
-                        <View style={{ position: 'absolute', right: 15, top: '50%', }}>
+                        <View style={{ position: 'absolute', right: 15, top: '65%', }}>
                             {
                                 item.likecontent ?
 
@@ -416,6 +417,35 @@ export default function Shorts({ navigation }) {
                             {item.full_catalog_id && item.full_content_id ?
                                 <TouchableOpacity onPress={() => fullEpisode(item.full_catalog_id, item.full_content_id)} style={{ justifyContent: 'center', alignItems: 'center' }}>
                                     <Ionicons name="navigate-circle" size={34} color={NORMAL_TEXT_COLOR} style={{ marginTop: 50 }} />
+                                    <LinearGradient
+                                        useAngle={true}
+                                        angle={125}
+                                        angleCenter={{ x: 0.5, y: 0.5 }}
+                                        colors={[
+                                            BUTTON_COLOR,
+                                            TAB_COLOR,
+                                            TAB_COLOR,
+                                            TAB_COLOR,
+                                            BUTTON_COLOR,
+                                        ]}
+                                        style={{
+                                            borderRadius: 10,
+                                            left: 8,
+                                            width: 135,
+                                        }}
+                                    >
+                                        <Text
+                                            style={{
+                                                textAlign: "center",
+                                                fontSize: 12,
+                                                fontWeight: "bold",
+                                                color: NORMAL_TEXT_COLOR,
+                                                top: 8,
+                                            }}
+                                        >
+                                            Watch Now
+                                        </Text>
+                                    </LinearGradient>
                                 </TouchableOpacity>
                                 :
 
