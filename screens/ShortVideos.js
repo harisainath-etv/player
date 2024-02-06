@@ -13,8 +13,6 @@ import {
   BACKGROUND_COLOR,
   BUTTON_COLOR,
   COMMON_BASE_URL,
-  DARKED_BORDER_COLOR,
-  DETAILS_TEXT_COLOR,
   FIRETV_BASE_URL,
   FIRETV_BASE_URL_STAGING,
   NORMAL_TEXT_COLOR,
@@ -34,12 +32,15 @@ import Footer from "./footer";
 import { stringMd5 } from "react-native-quick-md5";
 import Share from "react-native-share";
 import { StackActions } from "@react-navigation/native";
-import LinearGradient from "react-native-linear-gradient";
+import JioAdView from "../JioAdView";
+import { DeviceEventEmitter } from "react-native";
+import { log } from "react-native-reanimated";
+import { Image } from "react-native";
+import normalize from "../Utils/Helpers/Dimen";
 import Entypo from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-import { normalize } from "react-native-elements";
-
+import LinearGradient from "react-native-linear-gradient";
 export default function Shorts({ navigation }) {
   const [startindex, setstartindex] = useState(0);
   var limit = 100;
@@ -51,7 +52,15 @@ export default function Shorts({ navigation }) {
   const [likecontent, setlikecontent] = useState(false);
   const [loggedin, setloggedin] = useState(false);
   const [scrollvideoid, setscrollvideoid] = useState();
-
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(-1);
+  const handleVideoComplete = () => {
+    console.log("hello");
+    const nextIndex = currentVideoIndex + 1;
+    if (nextIndex < Videos.length) {
+      flatListRef.current.scrollToIndex({ index: nextIndex });
+      setCurrentVideoIndex(nextIndex);
+    }
+  };
   const filterItems = (stringNeeded, arrayvalues) => {
     let query = stringNeeded.toLowerCase();
     return arrayvalues.filter((item) => item.toLowerCase().indexOf(query) >= 0);
@@ -91,7 +100,6 @@ export default function Shorts({ navigation }) {
       axios
         .get(url)
         .then((response) => {
-          console.log(response.data, "hhhhhhhh");
           var currentTimestamp = Math.floor(Date.now() / 1000).toString();
           if (sessionId == null) sessionId = "";
           var md5String = stringMd5(
@@ -463,7 +471,24 @@ export default function Shorts({ navigation }) {
         console.log(error);
       });
   };
+
+  useEffect(() => {
+    const adClosedSubscription = DeviceEventEmitter.addListener(
+      "onAdClosed",
+      (isVideoCompleted) => {
+        console.log(isVideoCompleted, "isVideoCompleted===================");
+        if (!isVideoCompleted) {
+          handleVideoComplete();
+        }
+      }
+    );
+
+    return () => {
+      adClosedSubscription.remove();
+    };
+  }, [currentVideoIndex]);
   const renderItem = ({ item, index }) => {
+    const isAdItem = (index + 1) % 2 === 0;
     return (
       <View
         style={{
@@ -473,169 +498,175 @@ export default function Shorts({ navigation }) {
           flexGrow: 1,
         }}
       >
-        <Video
-          ref={videoRef}
-          source={{ uri: item.video }}
-          controls={false}
-          paused={currentIndexValue === index ? false : true}
-          playInBackground={false}
-          repeat={true}
-          volume={1}
-          rate={1.0}
-          useTextureView={false}
-          resizeMode={"stretch"}
-          style={{
-            width: PAGE_WIDTH,
-            height: Math.round(PAGE_HEIGHT),
-            flexGrow: 1,
-            flex: 1,
-          }}
-          playWhenInactive={false}
-        />
-        <TouchableOpacity
-          style={{
-            width: PAGE_WIDTH,
-            height: Math.round(PAGE_HEIGHT),
-            position: "absolute",
-            top: 0,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "rgba(0,0,0,0.1)",
-          }}
-          onPress={() => {
-            if (currentIndexValue == -1) {
-              setcurrentIndexValue(index);
-            } else {
-              setcurrentIndexValue(-1);
-            }
-          }}
-        >
-          {currentIndexValue == -1 ? (
-            <AntDesign
-              name="pausecircle"
-              color={NORMAL_TEXT_COLOR}
-              size={40}
-            ></AntDesign>
-          ) : (
-            ""
-          )}
-
-          <Text
+        {isAdItem ? (
+          <View
             style={{
-              color: NORMAL_TEXT_COLOR,
-              fontSize: 16,
-              fontWeight: "bold",
-              position: "absolute",
-              bottom: 105,
-              left: 6,
-              padding: 5,
-              width: "60%",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: normalize(280),
             }}
           >
-            # {item.title}
-          </Text>
-        </TouchableOpacity>
-
-        <View
-          style={{
-            position: "absolute",
-            right: 20,
-            top: "65%",
-          }}
-        >
-          {item.likecontent ? (
-            <TouchableOpacity
-              onPress={() => deleteLike(item.catalog_id, item.content_id)}
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: TAB_COLOR,
-                borderWidth: 1,
-                borderRadius: "50%",
-              }}
-            >
-              <FontAwesome
-                name="heart"
-                size={24}
-                color="red"
-                style={{
-                  backgroundColor: TAB_COLOR,
-                  borderColor: TAB_COLOR,
-                  borderWidth: 0.5,
-                  borderRadius: 35 / 2,
-                  width: 35,
-                  height: 35,
-                }}
-              />
-            </TouchableOpacity>
-          ) : likecontent ? (
-            <TouchableOpacity
-              onPress={() => deleteLike(item.catalog_id, item.content_id)}
-              style={{ justifyContent: "center", alignItems: "center" }}
-            >
-              <FontAwesome
-                name="heart"
-                size={24}
-                color={NORMAL_TEXT_COLOR}
-                style={{
-                  backgroundColor: TAB_COLOR,
-                  borderColor: TAB_COLOR,
-                  borderWidth: 0.5,
-                  borderRadius: 35 / 2,
-                  width: 35,
-                  height: 35,
-                  padding: 6,
-                }}
-              />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              onPress={() => likevideo(item.catalog_id, item.content_id)}
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Entypo
-                name="heart-outlined"
-                size={24}
-                color={NORMAL_TEXT_COLOR}
-                style={{
-                  backgroundColor: TAB_COLOR,
-                  borderColor: TAB_COLOR,
-                  borderWidth: 0.5,
-                  borderRadius: 35 / 2,
-                  width: 35,
-                  height: 35,
-                  padding: 6,
-                }}
-              />
-            </TouchableOpacity>
-          )}
-
-          <TouchableOpacity
-            onPress={() => shareOptions(item.shareUrl, item.title)}
-          >
-            <MaterialCommunityIcons
-              name="share"
-              size={24}
-              color={NORMAL_TEXT_COLOR}
-              style={{
-                marginTop: 50,
-                backgroundColor: TAB_COLOR,
-                borderColor: TAB_COLOR,
-                borderWidth: 0.5,
-                borderRadius: 35 / 2,
-                width: 35,
-                height: 35,
-                padding: 2,
-                paddingHorizontal: 6,
-              }}
+            <JioAdView
+              adType={4}
+              adspotKey={"fkh9qm1i"}
+              adHeight={200}
+              adWidth={300}
             />
-          </TouchableOpacity>
-        </View>
+            {/* <Image source={{uri:"https://etv-win-image.akamaized.net/etvwin/telugumovies/goonda/82793/goonda-Goonda_Movie-270x360.jpg"}} style={{resizeMode:'contain',height:200,width:'100%'}}/> */}
+          </View>
+        ) : (
+          <>
+            <Video
+              ref={videoRef}
+              source={{ uri: item.video }}
+              controls={false}
+              paused={currentIndexValue === index ? false : true}
+              playInBackground={false}
+              repeat={true}
+              volume={1}
+              rate={1.0}
+              useTextureView={false}
+              resizeMode={"stretch"}
+              style={{
+                width: PAGE_WIDTH,
+                height: Math.round(PAGE_HEIGHT),
+                flexGrow: 1,
+                flex: 1,
+              }}
+              playWhenInactive={false}
+              onEnd={handleVideoComplete}
+            />
+            <TouchableOpacity
+              style={{
+                width: PAGE_WIDTH,
+                height: Math.round(PAGE_HEIGHT),
+                position: "absolute",
+                top: 0,
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "rgba(0,0,0,0.1)",
+              }}
+              onPress={() => {
+                if (currentIndexValue == -1) {
+                  setcurrentIndexValue(index);
+                } else {
+                  setcurrentIndexValue(-1);
+                }
+              }}
+            >
+              {currentIndexValue == -1 ? (
+                <AntDesign
+                  name="pausecircle"
+                  color={NORMAL_TEXT_COLOR}
+                  size={40}
+                ></AntDesign>
+              ) : (
+                ""
+              )}
 
-        {item.full_catalog_id && item.full_content_id ? (
+              <Text
+                style={{
+                  color: NORMAL_TEXT_COLOR,
+                  fontSize: 16,
+                  fontWeight: "bold",
+                  position: "absolute",
+                  bottom: 105,
+                  left: 6,
+                  padding: 5,
+                  width: "60%",
+                }}
+              >
+                # {item.title}
+              </Text>
+            </TouchableOpacity>
+
+            <View style={{ position: "absolute", right: 15, top: "50%" }}>
+              {item.likecontent ? (
+                <TouchableOpacity
+                  onPress={() => deleteLike(item.catalog_id, item.content_id)}
+                  style={{ justifyContent: "center", alignItems: "center" }}
+                >
+                  <FontAwesome
+                    name="heart"
+                    size={24}
+                    color="red"
+                    style={{
+                      backgroundColor: TAB_COLOR,
+                      borderColor: TAB_COLOR,
+                      borderWidth: 0.5,
+                      borderRadius: 35 / 2,
+                      width: 35,
+                      height: 35,
+                    }}
+                  />
+                </TouchableOpacity>
+              ) : likecontent ? (
+                <TouchableOpacity
+                  onPress={() => deleteLike(item.catalog_id, item.content_id)}
+                  style={{ justifyContent: "center", alignItems: "center" }}
+                >
+                  <FontAwesome
+                    name="heart"
+                    size={24}
+                    color={NORMAL_TEXT_COLOR}
+                    style={{
+                      backgroundColor: TAB_COLOR,
+                      borderColor: TAB_COLOR,
+                      borderWidth: 0.5,
+                      borderRadius: 35 / 2,
+                      width: 35,
+                      height: 35,
+                      padding: 6,
+                    }}
+                  />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => likevideo(item.catalog_id, item.content_id)}
+                  style={{ justifyContent: "center", alignItems: "center" }}
+                >
+                  <Entypo
+                    name="heart-outlined"
+                    size={24}
+                    color={NORMAL_TEXT_COLOR}
+                    style={{
+                      backgroundColor: TAB_COLOR,
+                      borderColor: TAB_COLOR,
+                      borderWidth: 0.5,
+                      borderRadius: 35 / 2,
+                      width: 35,
+                      height: 35,
+                      padding: 6,
+                    }}
+                  />
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                onPress={() => shareOptions(item.shareUrl, item.title)}
+              >
+                <MaterialCommunityIcons
+                  name="share"
+                  size={24}
+                  color={NORMAL_TEXT_COLOR}
+                  style={{
+                    marginTop: 50,
+                    backgroundColor: TAB_COLOR,
+                    borderColor: TAB_COLOR,
+                    borderWidth: 0.5,
+                    borderRadius: 35 / 2,
+                    width: 35,
+                    height: 35,
+                    padding: 2,
+                    paddingHorizontal: 6,
+                  }}
+                />
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+
+        {item.full_catalog_id && item.full_content_id && !isAdItem ? (
           <TouchableOpacity
             onPress={() =>
               fullEpisode(item.full_catalog_id, item.full_content_id)
@@ -647,13 +678,12 @@ export default function Shorts({ navigation }) {
               borderColor: NORMAL_TEXT_COLOR,
               borderWidth: 0.5,
               padding: 7,
-              width: "43%",
+              width: "40%",
               backgroundColor: NORMAL_TEXT_COLOR,
               marginLeft: 8,
             }}
           >
             <Ionicons name="navigate-circle" size={30} color={TAB_COLOR} />
-
             <LinearGradient
               useAngle={true}
               angle={125}
@@ -667,8 +697,8 @@ export default function Shorts({ navigation }) {
               ]}
               style={{
                 borderRadius: 10,
-                // marginleft: 10,
-                width: normalize(100),
+                left: 8,
+                width: "65%",
               }}
             >
               <Text
