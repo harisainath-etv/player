@@ -179,7 +179,33 @@ function Home({ navigation, route }) {
     setModalVisible(!isModalVisible);
   };
 
-  const isTopToBottom = false;
+  const getGradientColors = (index) => {
+    if (index % 2 === 0) {
+      return {
+        colors: [
+          HEADING_TEXT_COLOR,
+          BUTTON_COLOR,
+          BUTTON_COLOR,
+          BACKGROUND_TRANSPARENT_COLOR,
+          BACKGROUND_TRANSPARENT_COLOR,
+          HEADING_TEXT_COLOR,
+        ],
+        locations: [0, 0.25, 0.15, 1, 1, 0.5],
+      };
+    } else {
+      return {
+        colors: [
+          HEADING_TEXT_COLOR,
+          BUTTON_COLOR,
+          BUTTON_COLOR,
+          BACKGROUND_TRANSPARENT_COLOR,
+          BACKGROUND_TRANSPARENT_COLOR,
+          HEADING_TEXT_COLOR,
+        ],
+        locations: [0, 0.15, 0.15, 1, 1, 0.5],
+      };
+    }
+  };
   const silentLogin = async () => {
     console.log("silent login");
     var region = await AsyncStorage.getItem("country_code");
@@ -1716,16 +1742,19 @@ function Home({ navigation, route }) {
                     <LinearGradient
                       angle={180}
                       useAngle={true}
-                      locations={[0, 0.15, 0, 0, 0.75, 1, 1]}
-                      colors={[
-                        HEADING_TEXT_COLOR,
-                        BUTTON_COLOR,
-                        BACKGROUND_TRANSPARENT_COLOR,
-                        BACKGROUND_TRANSPARENT_COLOR,
-                        BACKGROUND_TRANSPARENT_COLOR,
-                        NORMAL_TEXT_COLOR,
-                        DARKED_BORDER_COLOR,
-                      ]}
+                      // locations={[0, 0.15, 0, 0, 1, 1, 1]}
+                      // locations={[0, 0.15, 0.15, 1, 1, 0.25]}
+                      // colors={[
+                      //   HEADING_TEXT_COLOR,
+                      //   BUTTON_COLOR,
+                      //   BACKGROUND_TRANSPARENT_COLOR,
+                      //   BACKGROUND_TRANSPARENT_COLOR,
+                      //   BACKGROUND_TRANSPARENT_COLOR,
+                      //   NORMAL_TEXT_COLOR,
+                      //   BACKGROUND_TRANSPARENT_COLOR_MENU,
+                      // ]}
+                      colors={getGradientColors(index).colors}
+                      locations={getGradientColors(index).locations}
                       style={{
                         right: 0,
                         left: 0,
@@ -1753,7 +1782,7 @@ function Home({ navigation, route }) {
                               width: PAGE_WIDTH - 150,
                               height: 150,
                               position: "absolute",
-                              bottom: 30,
+                              bottom: 50,
                               alignItems: "center",
                             },
                           ]}
