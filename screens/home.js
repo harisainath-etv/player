@@ -47,6 +47,10 @@ import {
   FOOTER_DEFAULT_TEXT_COLOR,
   actuatedNormalize,
   actuatedNormalizeVertical,
+  BACKGROUND_TRANSPARENT_COLOR,
+  BACKGROUND_TRANSPARENT_GRADIENT_MENU,
+  BACKGROUND_DARK_COLOR,
+  DARKED_BORDER_COLOR,
 } from "../constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StackActions } from "@react-navigation/native";
@@ -174,6 +178,8 @@ function Home({ navigation, route }) {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
+
+  const isTopToBottom = false;
   const silentLogin = async () => {
     console.log("silent login");
     var region = await AsyncStorage.getItem("country_code");
@@ -1634,7 +1640,7 @@ function Home({ navigation, route }) {
     var mainIndex = index;
     const sourceName = item.displayName;
     return (
-      <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
+      <View style={{ flex: 1 }}>
         <View
           style={{
             width: PAGE_WIDTH,
@@ -1682,6 +1688,7 @@ function Home({ navigation, route }) {
                       width: "100%",
                       justifyContent: "center",
                       alignItems: "center",
+                      padding: 3,
                     }}
                   >
                     <FastImage
@@ -1706,35 +1713,60 @@ function Home({ navigation, route }) {
                       }}
                     />
 
-                    {item.title_image_display == true ||
-                    item.title_image_display == "true" ||
-                    item.title_image_display == 1 ? (
-                      <FastImage
-                        resizeMode={
-                          isTablet
-                            ? FastImage.resizeMode.contain
-                            : FastImage.resizeMode.contain
-                        }
-                        key={"title" + index}
-                        style={[
-                          {
-                            borderBottomLeftRadius: 0,
-                            borderBottomRightRadius: 0,
-                            width: PAGE_WIDTH - 150,
-                            height: 150,
-                            position: "absolute",
-                            bottom: 30,
-                          },
-                        ]}
-                        source={{
-                          uri: item.title_image,
-                          priority: FastImage.priority.high,
-                          cache: FastImage.cacheControl.immutable,
-                        }}
-                      />
-                    ) : (
-                      ""
-                    )}
+                    <LinearGradient
+                      angle={180}
+                      useAngle={true}
+                      locations={[0, 0.15, 0, 0, 0.75, 1, 1]}
+                      colors={[
+                        HEADING_TEXT_COLOR,
+                        BUTTON_COLOR,
+                        BACKGROUND_TRANSPARENT_COLOR,
+                        BACKGROUND_TRANSPARENT_COLOR,
+                        BACKGROUND_TRANSPARENT_COLOR,
+                        NORMAL_TEXT_COLOR,
+                        DARKED_BORDER_COLOR,
+                      ]}
+                      style={{
+                        right: 0,
+                        left: 0,
+                        bottom: 0,
+                        top: 0,
+                        opacity: 0.8,
+                        position: "absolute",
+                        alignItems: "center",
+                      }}
+                    >
+                      {item.title_image_display == true ||
+                      item.title_image_display == "true" ||
+                      item.title_image_display == 1 ? (
+                        <FastImage
+                          resizeMode={
+                            isTablet
+                              ? FastImage.resizeMode.contain
+                              : FastImage.resizeMode.contain
+                          }
+                          key={"title" + index}
+                          style={[
+                            {
+                              borderBottomLeftRadius: 0,
+                              borderBottomRightRadius: 0,
+                              width: PAGE_WIDTH - 150,
+                              height: 150,
+                              position: "absolute",
+                              bottom: 30,
+                              alignItems: "center",
+                            },
+                          ]}
+                          source={{
+                            uri: item.title_image,
+                            priority: FastImage.priority.high,
+                            cache: FastImage.cacheControl.immutable,
+                          }}
+                        />
+                      ) : (
+                        ""
+                      )}
+                    </LinearGradient>
                   </View>
                 )}
               />
@@ -1817,6 +1849,7 @@ function Home({ navigation, route }) {
                           style={{
                             width: 80,
                             height: 40,
+                            right: 10,
                             resizeMode: "contain",
                           }}
                           source={require("../assets/images/Plus.png")}
@@ -3555,7 +3588,7 @@ const styles = StyleSheet.create({
   },
   buttonsPosition: {
     position: "absolute",
-    bottom: 10,
+    bottom: 17,
     flexDirection: "row",
     width: "100%",
     alignItems: "center",
