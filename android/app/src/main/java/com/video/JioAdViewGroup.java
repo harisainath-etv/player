@@ -229,7 +229,7 @@ public class JioAdViewGroup extends ReactViewGroup implements LifecycleEventList
             @Override
             public void onAdMediaEnd(JioAdView jioAdView) {
                 Log.d("Test", "onAdMediaEnd callback");
-                Toast.makeText(context, "onAdMediaEnd", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "onAdMediaEnd", Toast.LENGTH_SHORT).show();
 
                 //Notify in App.js
                 /*WritableMap payload = Arguments.createMap();
@@ -243,20 +243,20 @@ public class JioAdViewGroup extends ReactViewGroup implements LifecycleEventList
             @Override
             public void onAdClosed(JioAdView jioAdView, boolean isVideoCompleted, boolean isEligibleForReward) {
                 Log.d("Test", "onAdClosed callback=> " + "isVideoCompleted: " + isVideoCompleted + " isEligibleForReward: " + isEligibleForReward);
-                Toast.makeText(context, "onAdClosed", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "onAdClosed", Toast.LENGTH_SHORT).show();
                  sendEvent("onAdClosed", isVideoCompleted);
             }
 
             @Override
             public void onAdFailedToLoad(JioAdView adview, JioAdError jioAdError) {
                 Log.d("Test", "onAdFailedToLoad callback." + jioAdError.getErrorDescription());
-                Toast.makeText(context, "" + jioAdError.getErrorDescription(), Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "" + jioAdError.getErrorDescription(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onAdPrepared(JioAdView adView) {
                 Log.d("Test", "onAdPrepared callback");
-                Toast.makeText(context, "onAdPrepared", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "onAdPrepared", Toast.LENGTH_SHORT).show();
                 drawView();
                 mJioAdView.loadAd();
             }
@@ -264,7 +264,7 @@ public class JioAdViewGroup extends ReactViewGroup implements LifecycleEventList
             @Override
             public void onAdChange(JioAdView jioAdView, int adNumber) {
                 Log.d("Test", "onAdChange callback");
-                Toast.makeText(context, "onAdChange", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "onAdChange", Toast.LENGTH_SHORT).show();
                 drawView();
             }
 
@@ -272,19 +272,19 @@ public class JioAdViewGroup extends ReactViewGroup implements LifecycleEventList
             @Override
             public void onAdReceived(JioAdView jioAdView) {
                 Log.d("Test", "onAdReceived callback");
-                Toast.makeText(context, "onAdReceived", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "onAdReceived", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onAdClicked(JioAdView adview) {
                 Log.d("Test", "onAdClicked callback");
-                Toast.makeText(context, "onAdClicked", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "onAdClicked", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onAdRender(JioAdView adview) {
                 Log.d("Test", "onAdRender callback");
-                Toast.makeText(context, "onAdRender", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "onAdRender", Toast.LENGTH_SHORT).show();
                 drawView();
 
 //                if (mAdType == JioAdView.AD_TYPE.CUSTOM_NATIVE) {
@@ -298,14 +298,14 @@ public class JioAdViewGroup extends ReactViewGroup implements LifecycleEventList
             @Override
             public void onAdMediaStart(JioAdView adview) {
                 Log.d("Test", "onAdMediaStart callback");
-                Toast.makeText(context, "onAdMediaStart", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "onAdMediaStart", Toast.LENGTH_SHORT).show();
                 drawView();
             }
 
             @Override
             public void onAdRefresh(JioAdView adview) {
                 Log.d("Test", "onAdRefresh callback");
-                Toast.makeText(context, "onAdRefresh", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "onAdRefresh", Toast.LENGTH_SHORT).show();
                 drawView();
 //                if (mAdType == JioAdView.AD_TYPE.CUSTOM_NATIVE) {
 //                    measureView(mIcon, 48, 48);
@@ -316,20 +316,20 @@ public class JioAdViewGroup extends ReactViewGroup implements LifecycleEventList
             @Override
             public void onAdMediaExpand(JioAdView adview) {
                 Log.d("Test", "onAdMediaExpand callback");
-                Toast.makeText(context, "onAdMediaExpand", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "onAdMediaExpand", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onAdMediaCollapse(JioAdView adview) {
                 Log.d("Test", "onAdMediaCollapse callback");
-                Toast.makeText(context, "onAdMediaCollapse", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "onAdMediaCollapse", Toast.LENGTH_SHORT).show();
                 drawView();
             }
 
             @Override
             public void onAdSkippable(JioAdView jioAdView) {
                 Log.d("Test", "onAdSkippable callback");
-                Toast.makeText(context, "onAdSkippable", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "onAdSkippable", Toast.LENGTH_SHORT).show();
             }
         });
     }

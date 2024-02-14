@@ -398,48 +398,7 @@ export default function Shows({ navigation, route }) {
         })
     }
 
-    const downloadFile = async (offlineUrl) => {
-        var sessionId = await AsyncStorage.getItem('session');
-        if (sessionId == null || sessionId != "") {
-            navigation.dispatch(StackActions.replace("Login"));
-        }
-        else {
-            const granted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-                {
-                    title: 'Download File',
-                    message:
-                        'Need App Access To Download Files',
-                    buttonPositive: 'OK',
-                },
-            );
-            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                // if (offlineUrl != "") {
-                var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
-                var offlineprefrences = [];
-                if (await RNFS.exists(downloaddirectory)) {
-                    //setDownloadedStatus(1)
-                }
-                else {
-                    RNFS.mkdir(downloaddirectory);
-                }
-                var offlinedownloadapi = offlineUrl + "?service_id=6&play_url=yes&protocol=http_pd&us=745d7e9f1e37ca27fdffbebfe8a99877";
-                await axios.get(offlinedownloadapi).then(response => {
-                    for (let o = 0; o < response.data.playback_urls.length; o++) {
-                        offlineprefrences.push({ "display_name": response.data.playback_urls[o].display_name, "playback_url": response.data.playback_urls[o].playback_url, "offlineUrl": offlineUrl, "downloaddirectory": downloaddirectory })
-                    }
-                    setPreference(offlineprefrences);
-                    toggleModal()
-                }).catch(error => { })
-
-                // }
-
-            }
-            else {
-                alert("Please give access to download files.");
-            }
-        }
-    }
+    
 
     const startDownloading = async (playback_url, offlineUrl, downloaddirectory, downloadquality) => {
         var splittedOfflineUrl = offlineUrl.split("/");
@@ -492,49 +451,8 @@ export default function Shows({ navigation, route }) {
             </View>
         )
     }
-    const followContent = async () => {
-
-        var sessionId = await AsyncStorage.getItem('session');
-        if (sessionId != "" && sessionId != null) {
-            await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/favourite", {
-                listitem: { catalog_id: catalogId, content_id: contentId },
-                auth_token: VIDEO_AUTH_TOKEN,
-                access_token: ACCESS_TOKEN,
-
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            }).then(response => {
-                //console.log(JSON.stringify(response.data));
-                setToggle(true)
-            }).catch(error => {
-                alert("Unable to follow the content. Please try again later.");
-            })
-        }
-        else {
-            navigation.navigate('Login')
-        }
-
-    }
-    const unfollowContent = async () => {
-        var sessionId = await AsyncStorage.getItem('session');
-        var region = await AsyncStorage.getItem('country_code');
-
-        await axios.get(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/favourite/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region + '&content_id=' + contentId + '&catalog_id=' + catalogId).then(response => {
-            //console.log(JSON.stringify(response.data.data.items[0]));
-            axios.delete(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/favourite/listitems/" + response.data.data.items[0].listitem_id + "?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(resp => {
-                //console.log(JSON.stringify(resp.data));
-                setToggle(false)
-            }).catch(err => { })
-        }).catch(error => {
-            //console.log(JSON.stringify(error.response.data));
-        })
-
-        //Delete fcm topic for notification
-        // await axios.get(FIRETV_BASE_URL + "/delete_fcm_topic?auth_token="+VIDEO_AUTH_TOKEN+"&access_token="+ACCESS_TOKEN+"&region="+region+"&token=null&topic=tvshow_"+contentId).then(respo=>{}).catch(erro=>{})
-
-    }
+   
+   
     const shareOptions = async () => {
         const shareOptions = {
             title: title,
@@ -543,46 +461,7 @@ export default function Shows({ navigation, route }) {
         };
         const ShareResponse = await Share.open(shareOptions);
     }
-    const updateRating = async (rate) => {
-        Alert.alert('Rating', 'Your rating is ' + rate + '. Please confirm', [
-            {
-                text: 'Cancel',
-                onPress: () => console.log('Cancel Pressed'),
-                style: 'cancel',
-            },
-            {
-                text: 'OK', onPress: async () => {
-
-
-                    var sessionId = await AsyncStorage.getItem('session');
-                    if (sessionId != "" && sessionId != null) {
-                        await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/user_ratings", {
-                            listitem: { catalog_id: catalogId, content_id: contentId, user_ratings: rate },
-                            auth_token: VIDEO_AUTH_TOKEN,
-                            access_token: ACCESS_TOKEN,
-                            user_id: sessionId,
-                            list_type: "user_ratings"
-
-                        }, {
-                            headers: {
-                                'Content-Type': 'application/json',
-                            }
-                        }).then(response => {
-                            setratingdone(true);
-                        }).catch(error => {
-                            alert("Unable to rate the content. Please try again later.");
-                            setratingdone(false);
-                        })
-                    }
-                    else {
-                        navigation.dispatch(StackActions.replace('Login'))
-                    }
-
-                }
-            },
-        ]);
-
-    }
+  
     const subcatrender = ({ item, index }) => {
         return (
             <>
@@ -668,8 +547,6 @@ export default function Shows({ navigation, route }) {
                                     <View style={{ flexDirection: 'row', marginTop: 5 }}>
                                         <Text style={styles.detailsText}>{channel}</Text>
 
-                                        {/* <Text style={styles.detailsText}>{contentRating}</Text>
-                                        <Text style={[{ color: TAB_COLOR, fontWeight: 'bold', borderRightColor: TAB_COLOR, borderWidth: 2 }]}></Text> */}
 
                                         {displayGenres.map((resp, index) => {
 
@@ -687,41 +564,6 @@ export default function Shows({ navigation, route }) {
                                         <Text style={styles.detailsText}>{description}</Text>
                                     </ReadMore>
                                 </View>
-                                {/* <View style={styles.options}>
-
-                                    <View style={styles.singleoption}>
-                                        {ratingdone ?
-                                            <View>
-                                                <AirbnbRating onFinishRating={rate => updateRating(rate)}
-                                                    showRating={false}
-                                                    count={5}
-                                                    defaultRating={userRating}
-                                                    size={15} />
-                                                <Pressable onPress={() => alert('You have already rated the content.')} style={{ width: '100%', height: "100%", position: 'absolute' }}></Pressable>
-                                            </View>
-
-                                            :
-                                            <AirbnbRating onFinishRating={rate => updateRating(rate)}
-                                                showRating={false}
-                                                count={5}
-                                                defaultRating={userRating}
-                                                size={13} />
-                                        }
-                                    </View>
-
-                                    <View style={styles.singleoption}>
-                                        <TouchableOpacity onPress={shareOptions}><MaterialCommunityIcons name="share-variant" size={20} color={NORMAL_TEXT_COLOR} /></TouchableOpacity></View>
-                                    <View style={styles.singleoption}>
-
-                                        {toggle ?
-                                            <TouchableOpacity onPress={unfollowContent}><MaterialCommunityIcons name="toggle-switch" size={30} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
-                                            :
-                                            <TouchableOpacity onPress={followContent}><MaterialCommunityIcons name="toggle-switch-off" size={30} color={NORMAL_TEXT_COLOR} /></TouchableOpacity>
-                                        }
-
-                                    </View>
-                                </View> */}
-
                             </View>
 
                             <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start', width: "100%", padding: 10 }}>
@@ -761,7 +603,7 @@ export default function Shows({ navigation, route }) {
                                                             :
                                                             <TouchableOpacity key={'seasons' + index} onPress={() => movetoscreen(item.item.seo_url, index, item.item.title)}>
                                                                 <View style={{ borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, padding: 15 }}>
-                                                                    <Text style={{ color: TAB_COLOR, fontWeight: '500' }}>{item.item.title}</Text>
+                                                                    <Text style={{ color: TAB_COLOR, fontWeight: '500' }}>{item.item.title}dd</Text>
                                                                 </View>
                                                             </TouchableOpacity>
                                                         }

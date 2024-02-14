@@ -9,7 +9,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
-import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, actuatedNormalize, actuatedNormalizeVertical } from '../constants';
+import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, actuatedNormalize, actuatedNormalizeVertical, BACKGROUND_TRANSPARENT_COLOR } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackActions } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -832,23 +832,52 @@ function Home({ navigation, route }) {
 
                                     <View style={{ height: (PAGE_HEIGHT / 100) * 76, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
                                         <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.contain} key={index} style={[{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, width: "100%", height: (PAGE_HEIGHT / 100) * 76 }]} source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                        <LinearGradient
+                                            // angle={isTopToBottom ? 90 : -90}
+                                            angle={180}
+                                            useAngle={true}
+                                            locations={[0, 0.15, 0, 0, 0.25, 0.75, 1]}
+                                            // angleCenter={{ x: 0.5, y: 2 }}
+                                            // start={{ x: 0.5, y: 0 }}
+                                            // end={{ x: 0.5, y: 0.5 }}
 
-                                        {item.title_image_display == true || item.title_image_display == "true" || item.title_image_display == 1 ?
-                                            <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.contain} key={"title" + index} style={[{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, width: PAGE_WIDTH - 150, height: 150, position: 'absolute', bottom: 30 }]} source={{ uri: item.title_image, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                                            colors={[
+                                                HEADING_TEXT_COLOR,
+                                                BUTTON_COLOR,
+                                                // BUTTON_COLOR,
+                                                BACKGROUND_TRANSPARENT_COLOR,
+                                                BACKGROUND_TRANSPARENT_COLOR,
+                                                BACKGROUND_TRANSPARENT_COLOR,
+                                                BUTTON_COLOR,
+                                            ]}
+                                            style={{
+                                                right: 0,
+                                                left: 0,
+                                                bottom: 0,
+                                                top: 0,
+                                                opacity: 0.8,
+                                                position: "absolute",
+                                                alignItems: "center",
+                                            }}
+                                        >
+                                            {item.title_image_display == true || item.title_image_display == "true" || item.title_image_display == 1 ?
+                                                <FastImage resizeMode={isTablet ? FastImage.resizeMode.contain : FastImage.resizeMode.contain} key={"title" + index} style={[{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, width: PAGE_WIDTH - 150, height: 150, position: 'absolute', bottom: 30 }]} source={{ uri: item.title_image, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
 
-                                            : ""}
+                                                : ""}
+                                        </LinearGradient>
 
                                     </View>
 
 
                                 }
+
                             />
 
 
                             <View style={styles.buttonsContainer}>
                                 <View style={styles.buttonsPosition}>
 
-                                    <View style={VIDEO_TYPES.includes(item.data[sliderKey].theme) ? {  } : { width: "100%", justifyContent: 'center', alignItems: 'center' }}>
+                                    <View style={VIDEO_TYPES.includes(item.data[sliderKey].theme) ? {} : { width: "100%", justifyContent: 'center', alignItems: 'center' }}>
                                         <Pressable style={VIDEO_TYPES.includes(item.data[sliderKey].theme) ? { width: "100%", justifyContent: 'flex-end', alignItems: 'flex-end' } : { width: "100%", justifyContent: 'center', alignItems: 'center' }} onPress={() => {
                                             {
                                                 item.data[sliderKey].medialistinlist ?
@@ -872,7 +901,7 @@ function Home({ navigation, route }) {
 
 
                                     {VIDEO_TYPES.includes(item.data[sliderKey].theme) ?
-                                        <View style={{  }}><Pressable style={{ width: "100%" }} onPress={() => { watchLater(item.data[sliderKey].catalog_id, item.data[sliderKey].content_id) }}>
+                                        <View style={{}}><Pressable style={{ width: "100%" }} onPress={() => { watchLater(item.data[sliderKey].catalog_id, item.data[sliderKey].content_id) }}>
                                             <Image style={{
                                                 width: 80,
                                                 height: 40,
@@ -1649,7 +1678,7 @@ function Home({ navigation, route }) {
 
 const styles = StyleSheet.create({
     buttonsContainer: { width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', zIndex: 1000, position: 'absolute' },
-    buttonsPosition: { position: 'absolute', bottom: 10, flexDirection: 'row', width: '100%', alignItems: 'center',justifyContent:'center' },
+    buttonsPosition: { position: 'absolute', bottom: 10, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center' },
     button: { paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7, borderRadius: 40, marginRight: 5, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5 },
     wishlistbutton: { borderRadius: 40, borderWidth: 1.5, borderColor: TAB_COLOR, justifyContent: 'center', alignItems: 'center', paddingLeft: 35, paddingRight: 35, paddingBottom: 7, paddingTop: 7 },
     subscribeImage: { width: actuatedNormalize(160), height: actuatedNormalizeVertical(85), resizeMode: 'contain', justifyContent: 'center', alignItems: 'center', },
