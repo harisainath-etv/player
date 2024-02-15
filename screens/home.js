@@ -3712,16 +3712,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   sectionHeader: {
-    color: HEADING_TEXT_COLOR,
-    fontSize: 15,
-    fontWeight: "400",
+    color: NORMAL_TEXT_COLOR,
+    fontSize: 16,
+    fontWeight: "600",
     left: 3,
-
     width: "50%",
   },
   sectionHeaderMore: {
-    color: MORE_LINK_COLOR,
-    right: 15,
+    rcolor: MORE_LINK_COLOR,
+    right: 14,
     fontSize: 13,
     width: "50%",
     textAlign: "right",

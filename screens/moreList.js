@@ -346,7 +346,7 @@ function MoreList({ navigation, route }) {
           keyExtractor={(x, i) => i.toString()}
           horizontal={false}
           contentContainerStyle={{ flexGrow: 1, flexWrap: "nowrap" }}
-          style={{ height: PAGE_HEIGHT }}
+          // style={{ height: PAGE_HEIGHT }}
           renderItem={renderItem}
         />
       ) : (
@@ -417,17 +417,19 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   sectionHeaderView: {
+    display: "flex",
     flexDirection: "row",
     width: "100%",
     alignItems: "center",
-    marginTop: 90,
+    marginTop: 75,
   },
   sectionHeader: {
     color: HEADING_TEXT_COLOR,
     fontSize: 20,
     fontWeight: "400",
-    marginLeft: 20,
-    padding: 2,
+    marginLeft: 45,
+    // padding: 4,
+    bottom: 18,
   },
   imageSectionHorizontal: {
     width: PAGE_WIDTH / 2.06,
