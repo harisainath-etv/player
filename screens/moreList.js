@@ -417,18 +417,17 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   sectionHeaderView: {
-    display: "flex",
     flexDirection: "row",
     width: "100%",
     alignItems: "center",
     marginTop: 75,
+    justifyContent: "space-between",
   },
   sectionHeader: {
     color: HEADING_TEXT_COLOR,
     fontSize: 20,
     fontWeight: "400",
     marginLeft: 45,
-    // padding: 4,
     bottom: 18,
   },
   imageSectionHorizontal: {

@@ -186,11 +186,13 @@ function Home({ navigation, route }) {
           HEADING_TEXT_COLOR,
           BUTTON_COLOR,
           BUTTON_COLOR,
-          BACKGROUND_TRANSPARENT_COLOR,
-          BACKGROUND_TRANSPARENT_COLOR,
-          HEADING_TEXT_COLOR,
+          // BACKGROUND_TRANSPARENT_COLOR,
+          // BACKGROUND_TRANSPARENT_COLOR,
+          BUTTON_COLOR,
+          BUTTON_COLOR,
+          // HEADING_TEXT_COLOR,
         ],
-        locations: [0, 0.25, 0.15, 1, 1, 0.5],
+        locations: [0, 0.15, 0.15, 0, 0],
       };
     } else {
       return {
@@ -198,11 +200,13 @@ function Home({ navigation, route }) {
           HEADING_TEXT_COLOR,
           BUTTON_COLOR,
           BUTTON_COLOR,
-          BACKGROUND_TRANSPARENT_COLOR,
-          BACKGROUND_TRANSPARENT_COLOR,
-          HEADING_TEXT_COLOR,
+          // BACKGROUND_TRANSPARENT_COLOR,
+          // BACKGROUND_TRANSPARENT_COLOR,
+          BUTTON_COLOR,
+          BUTTON_COLOR,
+          // HEADING_TEXT_COLOR,
         ],
-        locations: [0, 0.15, 0.15, 1, 1, 0.5],
+        locations: [0, 0.1, 0.15, 0, 0],
       };
     }
   };
@@ -1714,7 +1718,6 @@ function Home({ navigation, route }) {
                       width: "100%",
                       justifyContent: "center",
                       alignItems: "center",
-                      padding: 3,
                     }}
                   >
                     <FastImage
@@ -1737,34 +1740,30 @@ function Home({ navigation, route }) {
                         priority: FastImage.priority.high,
                         cache: FastImage.cacheControl.immutable,
                       }}
-                    />
-
-                    <LinearGradient
-                      angle={180}
-                      useAngle={true}
-                      // locations={[0, 0.15, 0, 0, 1, 1, 1]}
-                      // locations={[0, 0.15, 0.15, 1, 1, 0.25]}
-                      // colors={[
-                      //   HEADING_TEXT_COLOR,
-                      //   BUTTON_COLOR,
-                      //   BACKGROUND_TRANSPARENT_COLOR,
-                      //   BACKGROUND_TRANSPARENT_COLOR,
-                      //   BACKGROUND_TRANSPARENT_COLOR,
-                      //   NORMAL_TEXT_COLOR,
-                      //   BACKGROUND_TRANSPARENT_COLOR_MENU,
-                      // ]}
-                      colors={getGradientColors(index).colors}
-                      locations={getGradientColors(index).locations}
-                      style={{
-                        right: 0,
-                        left: 0,
-                        bottom: 0,
-                        top: 0,
-                        opacity: 0.8,
-                        position: "absolute",
-                        alignItems: "center",
-                      }}
                     >
+                      <LinearGradient
+                        colors={["#292828", "#29282898", "rgba(0, 0, 0, 0)"]}
+                        locations={[0.37, 0.7, 1]}
+                        style={{
+                          opacity: 1,
+                          flex: 0.4,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      />
+                      <LinearGradient
+                        colors={["#292828", "rgba(0, 0, 0, 0)"]}
+                        locations={[0.17, 1]}
+                        style={{
+                          opacity: 1,
+                          flex: 1,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        useAngle={true}
+                        angle={0}
+                      />
+
                       {item.title_image_display == true ||
                       item.title_image_display == "true" ||
                       item.title_image_display == 1 ? (
@@ -1782,8 +1781,8 @@ function Home({ navigation, route }) {
                               width: PAGE_WIDTH - 150,
                               height: 150,
                               position: "absolute",
-                              bottom: 50,
-                              alignItems: "center",
+                              bottom: 30,
+                              alignSelf: "center",
                             },
                           ]}
                           source={{
@@ -1795,7 +1794,7 @@ function Home({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </LinearGradient>
+                    </FastImage>
                   </View>
                 )}
               />
@@ -1906,7 +1905,7 @@ function Home({ navigation, route }) {
             }}
           >
             <View style={styles.sectionHeaderView}>
-              <Text style={styles.sectionHeader}>{item.displayName}</Text>
+              <Text style={styles.sectionHeader}>ddddd{item.displayName}</Text>
               {item.data.length > 1 ? (
                 <Pressable
                   style={{ width: "100%" }}
@@ -2190,7 +2189,7 @@ function Home({ navigation, route }) {
                       name="dots-grid"
                       size={25}
                       color={NORMAL_TEXT_COLOR}
-                    />{" "}
+                    />
                   </Text>
                 </Pressable>
               ) : (
@@ -3592,7 +3591,8 @@ function Home({ navigation, route }) {
           zIndex: 10000000,
           position: "absolute",
           right: 30,
-          bottom: 70,
+          bottom: 60,
+          color: TAB_COLOR,
         }}
       />
 
@@ -3660,7 +3660,7 @@ const styles = StyleSheet.create({
     height: actuatedNormalizeVertical(35),
     justifyContent: "center",
     alignItems: "center",
-    padding: 8,
+    padding: 10,
     borderRadius: 15,
   },
   playIcon: {
@@ -3710,16 +3710,16 @@ const styles = StyleSheet.create({
     marginTop: 10,
     width: "100%",
     justifyContent: "space-between",
+    left: 5,
   },
   sectionHeader: {
     color: NORMAL_TEXT_COLOR,
     fontSize: 16,
     fontWeight: "600",
-    left: 3,
     width: "50%",
   },
   sectionHeaderMore: {
-    rcolor: MORE_LINK_COLOR,
+    color: MORE_LINK_COLOR,
     right: 14,
     fontSize: 13,
     width: "50%",
@@ -3729,7 +3729,7 @@ const styles = StyleSheet.create({
     width: actuatedNormalize(190),
     height: actuatedNormalize(117),
     marginHorizontal: 3,
-    borderRadius: 10,
+    borderRadius: 100,
     marginBottom: 10,
     borderWidth: 1,
   },
@@ -3739,7 +3739,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
     borderRadius: 5,
     marginHorizontal: 10,
-    marginBottom: 10,
+    // marginBottom: 5,
     borderWidth: 1,
   },
   imageSectionHorizontalSingle: {
@@ -3751,7 +3751,7 @@ const styles = StyleSheet.create({
     width: actuatedNormalize(PAGE_WIDTH - 20),
     height: actuatedNormalizeVertical(340),
     borderRadius: 10,
-    marginBottom: 10,
+    // marginBottom: 10,
     borderWidth: 1,
     resizeMode: "contain",
   },
