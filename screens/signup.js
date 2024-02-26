@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressable } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressable, KeyboardAvoidingView, Platform } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
@@ -50,22 +50,22 @@ export default function Signup({ navigation }) {
         else
             return false;
     }
-    const triggersuccessanalytics = async (name, method, u_id, device_id,event_id) => {
+    const triggersuccessanalytics = async (name, method, u_id, device_id, event_id) => {
         sdk.trackEvent(name, {
             method: method,
             u_id: u_id,
             device_id: device_id,
             event_time: new Date(),
-            event_id:event_id
+            event_id: event_id
         });
     }
-    const triggerfailureanalytics = async (name, error_type, method, device_id,event_id) => {
+    const triggerfailureanalytics = async (name, error_type, method, device_id, event_id) => {
         sdk.trackEvent(name, {
             error_type: error_type,
             method: method,
             device_id: device_id,
             event_time: new Date(),
-            event_id:event_id
+            event_id: event_id
         });
     }
     async function postData(type) {
@@ -78,7 +78,7 @@ export default function Signup({ navigation }) {
         //posting data
         axios.post(FIRETV_BASE_URL + "users", {
             auth_token: AUTH_TOKEN,
-            user: { email_id: userId, firstname: name, password: newpassword, region: region }
+            user: { email_id: userId, firstname: name, password: newpassword, region: region, current_app_version: "android-1.8" }
         }, {
             headers: {
                 'Accept': 'application/json',
@@ -90,13 +90,13 @@ export default function Signup({ navigation }) {
                 setOtpError('')
                 setOtpError('Verification link has been sent to \r\n \r\n ' + userId + '. \r\n \r\n Please click the link in that email to continue.');
                 setshowresend(true);
-                triggersuccessanalytics('signup_success', 'email id', user_id, uniqueid,'03')
+                triggersuccessanalytics('signup_success', 'email id', user_id, uniqueid, '03')
 
             }).catch(error => {
                 //console.log(error.response.status);
                 //console.log(error.response.headers);
                 setOtpError(error.response.data.error.message)
-                triggerfailureanalytics('signup_failure', error.response.data.error.message, 'email id', uniqueid,'04')
+                triggerfailureanalytics('signup_failure', error.response.data.error.message, 'email id', uniqueid, '04')
             }
             );
     }
@@ -124,8 +124,13 @@ export default function Signup({ navigation }) {
     }
 
     const registerEmailUser = async () => {
+        const validateEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
         if (name.trim() == "") { setNameError("Please enter name."); return true; } else setNameError("");
-        if (emailMobile.trim() == "") { setemailMobileError("Please enter your email."); return true; } else setemailMobileError("");
+        if (emailMobile.trim() == "") { setemailMobileError("Please enter your email."); return true; }
+        else if (!validateEmail.test(emailMobile)) {
+            setemailMobileError("Email Address must be in correct format");
+            return true;
+        } else setemailMobileError("");
         if (newpassword.trim() == "") { setnewpasswordError("Please enter new password."); return true; } else setnewpasswordError("");
         if (confirmpassword.trim() == "") { setconfirmpasswordError("Please confirm your password."); return true; } else setconfirmpasswordError("");
         if (confirmpassword.trim() != newpassword.trim()) { setconfirmpasswordError("Password Mismatch. Please re-enter"); return true; } else setconfirmpasswordError("");
@@ -223,7 +228,7 @@ export default function Signup({ navigation }) {
                         :
                         navigation.navigate('Otp', { 'otpkey': 'signupMobile' })
 
-                    type == 'email' ? triggersuccessanalytics('signup_success', 'email id', user_id, uniqueid,'03') : ""
+                    type == 'email' ? triggersuccessanalytics('signup_success', 'email id', user_id, uniqueid, '03') : ""
                 }
                 setshowresend(true);
 
@@ -231,7 +236,7 @@ export default function Signup({ navigation }) {
                 //console.log(error.response.status);
                 //console.log(error.response.headers);
                 setOtpError(error.response.data.error.message)
-                type == 'email' ? triggerfailureanalytics('signup_failure', error.response.data.error.message, 'email id', uniqueid,'04') : ""
+                type == 'email' ? triggerfailureanalytics('signup_failure', error.response.data.error.message, 'email id', uniqueid, '04') : ""
             }
             );
     }
@@ -285,221 +290,230 @@ export default function Signup({ navigation }) {
         navigation.navigate('Webview', { uri: url })
     }
     return (
-        <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
-            {region == 'IN' ?
-                <ScrollView style={{ flex: 1, }}>
-                    <View style={styles.header}>
-                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 17, fontWeight: '500' }}>Sign Up</Text>
-                        <TouchableOpacity style={{ position: 'absolute', right: 20, }} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: '500' }}>SKIP</Text></TouchableOpacity>
-                    </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 15, }}>
-                        <Pressable onPress={() => { setSelected('mobile'); setTermsCheck(false); }} style={[selected == 'mobile' ? styles.selectedBackground : styles.unselectedBackground, { borderTopLeftRadius: 10, borderBottomLeftRadius: 10 }]}><View style={styles.innerView}><Text style={selected == 'mobile' ? { fontWeight: 'bold', color: NORMAL_TEXT_COLOR } : { fontWeight: 'bold' }}>Mobile No</Text></View></Pressable>
-                        <Pressable onPress={() => { setSelected('email'); setTermsCheck(false); }} style={[selected == 'email' ? styles.selectedBackground : styles.unselectedBackground, { borderTopRightRadius: 10, borderBottomRightRadius: 10 }]}><View style={styles.innerView}><Text style={selected == 'email' ? { fontWeight: 'bold', color: NORMAL_TEXT_COLOR } : { fontWeight: 'bold' }}>Email Id</Text></View></Pressable>
-                    </View>
-
-                    {selected == 'mobile' ?
-                        <View style={styles.body}>
-                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={styles.errormessage}>{otpError}</Text>
-                            </View>
-                            <TextInput maxLength={10} onChangeText={setname} value={Name} style={styles.textinput} placeholder="Name*" placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='default' />
-                            <Text style={styles.errormessage}>{nameerror}</Text>
-
-                            <TextInput maxLength={10} onChangeText={setMobile} value={Mobile} style={styles.textinput} placeholder="Mobile Number*" placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='phone-pad' />
-                            <Text style={styles.errormessage}>{MobileError}</Text>
-                            <View style={{ marginBottom: 20, marginTop: 10, flexDirection: 'row', width: '100%', justifyContent: 'flex-start', alignItems: 'center' }}>
-                                {termscheck ?
-                                    <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
-                                    :
-                                    <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
-                                }
-
-                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12, justifyContent: 'center', alignItems: 'center', }}> I agree to the </Text>
-
-                                <Pressable onPress={() => navigatetopage('termsCondition')}>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }}> TERMS OF USE </Text>
-                                </Pressable>
-
-                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12, justifyContent: 'center', alignItems: 'center', }}>and</Text>
-
-                                <Pressable onPress={() => navigatetopage('privacy')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }} > PRIVACY POLICY </Text></Pressable>
-
-
-                            </View>
-                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <View style={{ flexDirection: 'row', width: '100%' }}>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                        <TouchableOpacity onPress={signUpMobileUser}>
-                                            <LinearGradient
-                                                useAngle={true}
-                                                angle={125}
-                                                angleCenter={{ x: 0.5, y: 0.5 }}
-                                                colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
-                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text>
-                                            </LinearGradient>
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Login'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Already a Member?</Text>
-                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign In</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            </View>
-
-
-                        </View>
-                        :
-                        <View style={styles.body}>
-                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={styles.errormessage}>{otpError}</Text>
-                            </View>
-                            {showresend ?
-                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20, }}>
-                                    <Pressable onPress={resendEmail}><Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 18 }}>Resend Email</Text></Pressable>
-                                </View>
-                                :
-                                ""
-                            }
-
-                            <TextInput onChangeText={setName} value={name} style={styles.textinput} placeholder="Name *" placeholderTextColor={NORMAL_TEXT_COLOR} />
-                            <Text style={styles.errormessage}>{nameError}</Text>
-                            <TextInput onChangeText={setemailMobile} value={emailMobile} style={styles.textinput} placeholder="Email*" placeholderTextColor={NORMAL_TEXT_COLOR} />
-                            <Text style={styles.errormessage}>{emailMobileError}</Text>
-                            <TextInput onChangeText={setnewpassword} secureTextEntry={true} value={newpassword} style={styles.textinput} placeholder="New Password *" placeholderTextColor={NORMAL_TEXT_COLOR} />
-                            <Text style={styles.errormessage}>{newpasswordError}</Text>
-                            <TextInput onChangeText={setconfirmpassword} secureTextEntry={true} value={confirmpassword} style={styles.textinput} placeholder="Confirm Password *" placeholderTextColor={NORMAL_TEXT_COLOR} />
-                            <Text style={styles.errormessage}>{confirmpasswordError}</Text>
-
-                            <View style={{ marginBottom: 20, marginTop: 10, flexDirection: 'row', width: '100%', justifyContent: 'flex-start', alignItems: 'center' }}>
-                                {termscheck ?
-                                    <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
-                                    :
-                                    <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
-                                }
-                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12, justifyContent: 'center', alignItems: 'center', }}> I agree to the </Text>
-
-                                <Pressable onPress={() => navigatetopage('termsCondition')}>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }}> TERMS OF USE </Text>
-                                </Pressable>
-
-                                <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12, justifyContent: 'center', alignItems: 'center', }}>and</Text>
-
-                                <Pressable onPress={() => navigatetopage('privacy')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }} > PRIVACY POLICY </Text></Pressable>
-                            </View>
-
-                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <View style={{ flexDirection: 'row', width: '100%' }}>
-                                    <Text style={styles.errormessage}>{registerError}</Text>
-                                    <Text style={styles.successmessage}>{registerSuccess}</Text>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                        <TouchableOpacity onPress={registerEmailUser}>
-
-                                            <LinearGradient
-                                                useAngle={true}
-                                                angle={125}
-                                                angleCenter={{ x: 0.5, y: 0.5 }}
-                                                colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
-                                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text>
-                                            </LinearGradient>
-
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
-                                        <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Login'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Already a Member?</Text>
-                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign In</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-                    }
-                </ScrollView>
-                :
-                <ScrollView style={{ flex: 1, }}>
-                    <View style={styles.body}>
-                        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
-                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 17, fontWeight: '500' }}>Sign Up</Text>
-                        </View>
-                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={styles.errormessage}>{otpError}</Text>
-                        </View>
-                        {showresend ?
-                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20, }}>
-                                <Pressable onPress={resendEmail}><Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 18 }}>Resend Email</Text></Pressable>
-                            </View>
-                            :
-                            ""
-                        }
-
-                        <TextInput onChangeText={setName} value={name} style={styles.textinput} placeholder="Name *" placeholderTextColor={NORMAL_TEXT_COLOR} />
-                        <Text style={styles.errormessage}>{nameError}</Text>
-                        <TextInput onChangeText={setemailMobile} value={emailMobile} style={styles.textinput} placeholder="Email / Mobile No*" placeholderTextColor={NORMAL_TEXT_COLOR} />
-                        <Text style={styles.errormessage}>{emailMobileError}</Text>
-                        <TextInput onChangeText={setnewpassword} secureTextEntry={true} value={newpassword} style={styles.textinput} placeholder="New Password *" placeholderTextColor={NORMAL_TEXT_COLOR} />
-                        <Text style={styles.errormessage}>{newpasswordError}</Text>
-                        <TextInput onChangeText={setconfirmpassword} secureTextEntry={true} value={confirmpassword} style={styles.textinput} placeholder="Confirm Password *" placeholderTextColor={NORMAL_TEXT_COLOR} />
-                        <Text style={styles.errormessage}>{confirmpasswordError}</Text>
-
-                        <View style={{ marginBottom: 10, marginTop: 10, flexDirection: 'row', width: '100%', }}>
-                            {termscheck ?
-                                <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
-                                :
-                                <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
-                            }
-                            <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 14, marginLeft: 10, flex: 1, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>I agree to the
-
-                                <Pressable onPress={() => navigatetopage('termsCondition')}>
-                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }}> TERMS OF USE </Text>
-                                </Pressable> and
-
-                                <Pressable onPress={() => navigatetopage('privacy')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }} > PRIVACY POLICY </Text></Pressable>
-
-                            </Text>
-                        </View>
-
-                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={{ flexDirection: 'row', width: '100%' }}>
-                                <Text style={styles.errormessage}>{registerError}</Text>
-                                <Text style={styles.successmessage}>{registerSuccess}</Text>
-                                <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                    <TouchableOpacity onPress={registerEmailUserInternational}>
-
-                                        <LinearGradient
-                                            useAngle={true}
-                                            angle={125}
-                                            angleCenter={{ x: 0.5, y: 0.5 }}
-                                            colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
-                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign Up</Text>
-                                        </LinearGradient>
-
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </View>
-
-                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', marginTop: 50 }}>
-                            <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Login'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Already a Member?</Text>
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign In</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </ScrollView>
-            }
-
-            <View style={{ width: "100%", position: 'absolute', bottom: 30, flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center' }}>
-                <Pressable onPress={() => loadView('privacy')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Privacy Policy</Text></Pressable>
-                <Pressable onPress={() => navigation.navigate('HTMLRender', { pagename: 'terms_conditions' })}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Terms of Use</Text></Pressable>
-                <Pressable onPress={() => loadView('faq')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>FAQ</Text></Pressable>
-                <Pressable onPress={() => loadView('contactUs')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Contact Us</Text></Pressable>
-            </View>
+        <>
             <StatusBar
                 animated
                 backgroundColor="transparent"
                 barStyle="dark-content"
                 translucent={true}
             />
-        </View>
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+                <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR }}>
+                    {region == 'IN' ?
+                        <ScrollView  showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ paddingBottom: 70 }}>
+                            <View style={styles.header}>
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 17, fontWeight: '500' }}>Sign Up</Text>
+                                <TouchableOpacity style={{ position: 'absolute', right: 20, }} onPress={() => navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: '500' }}>SKIP</Text></TouchableOpacity>
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 15, }}>
+                                <Pressable onPress={() => { setSelected('mobile'); setTermsCheck(false); }} style={[selected == 'mobile' ? styles.selectedBackground : styles.unselectedBackground, { borderTopLeftRadius: 10, borderBottomLeftRadius: 10 }]}><View style={styles.innerView}><Text style={selected == 'mobile' ? { fontWeight: 'bold', color: NORMAL_TEXT_COLOR } : { fontWeight: 'bold' }}>Mobile No</Text></View></Pressable>
+                                <Pressable onPress={() => { setSelected('email'); setTermsCheck(false); }} style={[selected == 'email' ? styles.selectedBackground : styles.unselectedBackground, { borderTopRightRadius: 10, borderBottomRightRadius: 10 }]}><View style={styles.innerView}><Text style={selected == 'email' ? { fontWeight: 'bold', color: NORMAL_TEXT_COLOR } : { fontWeight: 'bold' }}>Email Id</Text></View></Pressable>
+                            </View>
+
+                            {selected == 'mobile' ?
+                                <View style={styles.body}>
+                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                        <Text style={styles.errormessage}>{otpError}</Text>
+                                    </View>
+                                    <TextInput maxLength={10} onChangeText={setname} value={Name} style={styles.textinput} placeholder="Name*" placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='default' />
+                                    <Text style={styles.errormessage}>{nameerror}</Text>
+
+                                    <TextInput maxLength={10} onChangeText={setMobile} value={Mobile} style={styles.textinput} placeholder="Mobile Number*" placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='phone-pad' />
+                                    <Text style={styles.errormessage}>{MobileError}</Text>
+                                    <View style={{ marginBottom: 20, marginTop: 10, flexDirection: 'row', width: '100%', justifyContent: 'flex-start', alignItems: 'center' }}>
+                                        {termscheck ?
+                                            <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                            :
+                                            <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                        }
+
+                                        <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12, justifyContent: 'center', alignItems: 'center', }}> I agree to the </Text>
+
+                                        <Pressable onPress={() => navigatetopage('termsCondition')}>
+                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }}> TERMS OF USE </Text>
+                                        </Pressable>
+
+                                        <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12, justifyContent: 'center', alignItems: 'center', }}>and</Text>
+
+                                        <Pressable onPress={() => navigatetopage('privacy')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }} > PRIVACY POLICY </Text></Pressable>
+
+
+                                    </View>
+                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                        <View style={{ flexDirection: 'row', width: '100%' }}>
+                                            <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
+                                                <TouchableOpacity onPress={signUpMobileUser}>
+                                                    <LinearGradient
+                                                        useAngle={true}
+                                                        angle={125}
+                                                        angleCenter={{ x: 0.5, y: 0.5 }}
+                                                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
+                                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text>
+                                                    </LinearGradient>
+                                                </TouchableOpacity>
+                                            </View>
+                                            <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
+                                                <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Login'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Already a Member?</Text>
+                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign In</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                    </View>
+
+
+                                </View>
+                                :
+                                <View style={styles.body}>
+                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                        <Text style={styles.errormessage}>{otpError}</Text>
+                                    </View>
+                                    {showresend ?
+                                        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20, }}>
+                                            <Pressable onPress={resendEmail}><Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 18 }}>Resend Email</Text></Pressable>
+                                        </View>
+                                        :
+                                        ""
+                                    }
+
+                                    <TextInput onChangeText={setName} value={name} style={styles.textinput} placeholder="Name *" placeholderTextColor={NORMAL_TEXT_COLOR} />
+                                    <Text style={styles.errormessage}>{nameError}</Text>
+                                    <TextInput onChangeText={setemailMobile} value={emailMobile} style={styles.textinput} placeholder="Email*" placeholderTextColor={NORMAL_TEXT_COLOR} />
+                                    <Text style={styles.errormessage}>{emailMobileError}</Text>
+                                    <TextInput onChangeText={setnewpassword} secureTextEntry={true} value={newpassword} style={styles.textinput} placeholder="New Password *" placeholderTextColor={NORMAL_TEXT_COLOR} />
+                                    <Text style={styles.errormessage}>{newpasswordError}</Text>
+                                    <TextInput onChangeText={setconfirmpassword} secureTextEntry={true} value={confirmpassword} style={styles.textinput} placeholder="Confirm Password *" placeholderTextColor={NORMAL_TEXT_COLOR} />
+                                    <Text style={styles.errormessage}>{confirmpasswordError}</Text>
+
+                                    <View style={{ marginBottom: 20, marginTop: 10, flexDirection: 'row', width: '100%', justifyContent: 'flex-start', alignItems: 'center' }}>
+                                        {termscheck ?
+                                            <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                            :
+                                            <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                        }
+                                        <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12, justifyContent: 'center', alignItems: 'center', }}> I agree to the </Text>
+
+                                        <Pressable onPress={() => navigatetopage('termsCondition')}>
+                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }}> TERMS OF USE </Text>
+                                        </Pressable>
+
+                                        <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 12, justifyContent: 'center', alignItems: 'center', }}>and</Text>
+
+                                        <Pressable onPress={() => navigatetopage('privacy')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12, }} > PRIVACY POLICY </Text></Pressable>
+                                    </View>
+
+                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                        <View style={{ flexDirection: 'row', width: '100%' }}>
+                                            <Text style={styles.errormessage}>{registerError}</Text>
+                                            <Text style={styles.successmessage}>{registerSuccess}</Text>
+                                            <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
+                                                <TouchableOpacity onPress={registerEmailUser}>
+
+                                                    <LinearGradient
+                                                        useAngle={true}
+                                                        angle={125}
+                                                        angleCenter={{ x: 0.5, y: 0.5 }}
+                                                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
+                                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Next</Text>
+                                                    </LinearGradient>
+
+                                                </TouchableOpacity>
+                                            </View>
+                                            <View style={{ justifyContent: 'center', alignItems: 'center', width: '50%' }}>
+                                                <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Login'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Already a Member?</Text>
+                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign In</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                    </View>
+                                </View>
+                            }
+                        </ScrollView>
+                        :
+                        <ScrollView  showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ paddingBottom: 70 }}>
+                            <View style={styles.body}>
+                                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 17, fontWeight: '500' }}>Sign Up</Text>
+                                </View>
+                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                    <Text style={styles.errormessage}>{otpError}</Text>
+                                </View>
+                                {showresend ?
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20, }}>
+                                        <Pressable onPress={resendEmail}><Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 18 }}>Resend Email</Text></Pressable>
+                                    </View>
+                                    :
+                                    ""
+                                }
+
+                                <TextInput onChangeText={setName} value={name} style={styles.textinput} placeholder="Name *" placeholderTextColor={NORMAL_TEXT_COLOR} />
+                                <Text style={styles.errormessage}>{nameError}</Text>
+                                <TextInput onChangeText={setemailMobile} value={emailMobile} style={styles.textinput} placeholder="Email / Mobile No*" placeholderTextColor={NORMAL_TEXT_COLOR} keyboardType='email-address'/>
+                                <Text style={styles.errormessage}>{emailMobileError}</Text>
+                                <TextInput onChangeText={setnewpassword} secureTextEntry={true} value={newpassword} style={styles.textinput} placeholder="New Password *" placeholderTextColor={NORMAL_TEXT_COLOR} />
+                                <Text style={styles.errormessage}>{newpasswordError}</Text>
+                                <TextInput onChangeText={setconfirmpassword} secureTextEntry={true} value={confirmpassword} style={styles.textinput} placeholder="Confirm Password *" placeholderTextColor={NORMAL_TEXT_COLOR} />
+                                <Text style={styles.errormessage}>{confirmpasswordError}</Text>
+
+                                <View style={{ marginBottom: 10, marginTop: 10, flexDirection: 'row', width: '100%', }}>
+                                    {termscheck ?
+                                        <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-marked' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                        :
+                                        <Pressable onPress={() => { setTermsCheck(!termscheck) }}><MaterialCommunityIcons name='checkbox-blank-outline' size={22} color={NORMAL_TEXT_COLOR} /></Pressable>
+                                    }
+                                    <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 14, marginLeft: 10, flex: 1, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>I agree to the
+
+                                        <Pressable onPress={() => navigatetopage('termsCondition')}>
+                                            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }}> TERMS OF USE </Text>
+                                        </Pressable> and
+
+                                        <Pressable onPress={() => navigatetopage('privacy')}><Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 11, fontWeight: '500' }} > PRIVACY POLICY </Text></Pressable>
+
+                                    </Text>
+                                </View>
+
+                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                    <View style={{ flexDirection: 'row', width: '100%' }}>
+                                        <Text style={styles.errormessage}>{registerError}</Text>
+                                        <Text style={styles.successmessage}>{registerSuccess}</Text>
+                                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                                            <TouchableOpacity onPress={registerEmailUserInternational}>
+
+                                                <LinearGradient
+                                                    useAngle={true}
+                                                    angle={125}
+                                                    angleCenter={{ x: 0.5, y: 0.5 }}
+                                                    colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR, BUTTON_COLOR]} style={styles.button}>
+                                                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign Up</Text>
+                                                </LinearGradient>
+
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </View>
+
+                                <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', marginTop: 50 }}>
+                                    <TouchableOpacity onPress={() => navigation.dispatch(StackActions.replace('Login'))} style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 16 }}>Already a Member?</Text>
+                                        <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>Sign In</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </ScrollView>
+                    }
+
+                    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+                        <View style={{ position: 'absolute', bottom: 30, width: '100%', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 20 }}>
+                            <Pressable onPress={() => loadView('privacy')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Privacy Policy</Text></Pressable>
+                            <Pressable onPress={() => navigation.navigate('HTMLRender', { pagename: 'terms_conditions' })}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Terms of Use</Text></Pressable>
+                            <Pressable onPress={() => loadView('faq')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>FAQ</Text></Pressable>
+                            <Pressable onPress={() => loadView('contactUs')}><Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>Contact Us</Text></Pressable>
+                        </View>
+                    </KeyboardAvoidingView>
+                </View>
+            </KeyboardAvoidingView>
+        </>
+
     )
 }
 

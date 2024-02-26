@@ -1,15 +1,45 @@
-import { View, Text, StyleSheet, StatusBar, Pressable, ScrollView, Alert } from 'react-native'
+import { View, Text, StyleSheet, StatusBar, Pressable, ScrollView, Alert, BackHandler, LogBox } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ACCESS_TOKEN, BACKGROUND_COLOR, DARKED_BORDER_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, NORMAL_TEXT_COLOR, PAGE_HEIGHT, VIDEO_AUTH_TOKEN } from '../constants';
 import FastImage from 'react-native-fast-image';
 import Footer from './footer';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { StackActions } from '@react-navigation/native';
+import { StackActions, useIsFocused } from '@react-navigation/native';
 import Header from './header';
 import axios from 'axios';
 var watchlaterTasks = [];
 export default function WatchLater({ navigation }) {
+    const isfocued = useIsFocused();
+    useEffect(()=>{
+      const finalSes =async()=>{
+          try {
+              BackHandler.addEventListener('hardwareBackPress', Back);
+              LogBox.ignoreLogs(['`new NativeEventEmitter()` was called with a non-null']);
+          } catch (error) {
+              console.log(error)
+          }
+      }
+      finalSes();
+  },[isfocued])
+  const Back = async () => {
+      try {
+          if (navigation.canGoBack()) {
+              navigation.goBack();
+          } else {
+              const sessionlo = await AsyncStorage.getItem('session');
+              const login = JSON.parse(sessionlo); // Parse the session data if needed
+              if (login) {
+                  navigation.dispatch(StackActions.replace('Menu', { pageFriendlyId: 'Menu' }));
+              } else {
+                  navigation.dispatch(StackActions.replace('Signup'));
+              }
+          }
+      } catch (error) {
+          console.error("Error occurred while navigating:", error);
+          // Handle the error as per your requirement
+      }
+  }
     const [watchlistVideo, setWatchlistVideo] = useState([]);
     const dataFetchedRef = useRef(false);
 

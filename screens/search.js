@@ -1,4 +1,4 @@
-import { View, TextInput, TouchableOpacity, StyleSheet, Text, Pressable, StatusBar, FlatList, ActivityIndicator, Image } from 'react-native'
+import { View, TextInput, TouchableOpacity, StyleSheet, Text, Pressable, StatusBar, FlatList, ActivityIndicator, Image, KeyboardAvoidingView, Platform } from 'react-native'
 import React, { useState } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, NORMAL_TEXT_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, PAGE_HEIGHT, PAGE_WIDTH, LAYOUT_TYPES, VIDEO_TYPES, actuatedNormalize } from '../constants'
@@ -37,6 +37,7 @@ export default function Search({ navigation }) {
             const from = paginationLoadCount * pagenumber;
             console.log(FIRETV_BASE_URL_STAGING + "/search?q=" + search + "&page_size=" + paginationLoadCount + "&from=" + from + "&start_count=0&page=" + pagenumber + "&item_language=eng&region=" + region + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN);
             axios.get(FIRETV_BASE_URL_STAGING + "/search?q=" + search + "&page_size=" + paginationLoadCount + "&from=" + from + "&start_count=0&page=" + pagenumber + "&item_language=eng&region=" + region + "&auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN).then(response => {
+                console.log(response,"bbbbbbbbbbbbbbbbb")
                 setPagenumber(pagenumber + 1);
                 if (response.data.data.items.length > 0) {
                     for (var i = 0; i < response.data.data.items.length; i++) {
@@ -92,6 +93,7 @@ export default function Search({ navigation }) {
         await AsyncStorage.setItem('sourceName',sourceName);
         navigation.navigate(page, { seoUrl: url, theme: theme })
     }
+    
     const renderItem = ({ item, index }) => {
         return (
             <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, }}>
@@ -132,6 +134,9 @@ export default function Search({ navigation }) {
         );
     }
     return (
+        <KeyboardAvoidingView
+         style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <View style={{ width: "100%", flexDirection: 'row', marginTop: 50, position: 'absolute', top: 0, zIndex: 40 }}>
                 <View style={{ marginRight: 10 }}>
@@ -151,6 +156,9 @@ export default function Search({ navigation }) {
                     <TouchableOpacity onPress={loadDataCheck}><Ionicons name="search-circle" size={30} color="#ffffff" style={{ marginTop: 10 }} /></TouchableOpacity>
                 </View>
             </View>
+             {/* <View style={{ justifyContent: 'center', alignItems: 'center',width:"100%",flex:1 }}>
+                        {episodes.length == 0 && search != "" ? <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20, }}>No Results Found</Text> : ""}
+                    </View> */}
             {episodes.length == 0 && search == "" ?
                 <View style={{ alignItems: 'center', justifyContent: 'center', width: "100%" }}>
                     <Text style={{ color: DETAILS_TEXT_COLOR, fontSize: 22 }}>Search for Shows, Serials, Episodes, Movies, Recipes and Videos</Text>
@@ -165,10 +173,17 @@ export default function Search({ navigation }) {
                         contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap' }}
                         style={{ height: PAGE_HEIGHT }}
                         renderItem={renderItem}
+                        ListEmptyComponent={< View >
+                            <Text style={{
+                                fontSize: 20,
+                                fontFamily: "bold",
+                                color: NORMAL_TEXT_COLOR,
+                                paddingLeft: 15,
+                                // alignSelf: 'center'
+                            }}>No Results Found</Text>
+                        </View>}
                     /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} /></View>}
-                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                        {episodes.length == 0 && search != "" ? <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20 }}>No Results Found</Text> : ""}
-                    </View>
+                   
 
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                         {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} ></ActivityIndicator> : ""}
@@ -184,6 +199,7 @@ export default function Search({ navigation }) {
             />
 
         </View>
+        </KeyboardAvoidingView>
     )
 }
 
