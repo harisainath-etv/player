@@ -34,7 +34,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { StackActions } from "@react-navigation/native";
 
 export default function Subscribe({ navigation, route }) {
-  console.log(route, "hhhhhhhh");
+  // console.log(route)
   const [subscribeplans, setsubscribeplans] = useState([]);
   const dataFetchedRef = useRef(false);
   const [selectedplan, setSelectedPlan] = useState("");
@@ -63,7 +63,6 @@ export default function Subscribe({ navigation, route }) {
     setcurrentplan(currentplan);
     var items = [];
     AsyncStorage.setItem("selectedplan", selectedplan);
-
     const region = await AsyncStorage.getItem("country_code");
     axios
       .get(
@@ -95,7 +94,6 @@ export default function Subscribe({ navigation, route }) {
     var plans = [];
     const region = await AsyncStorage.getItem("country_code");
     const selectedPlan = await AsyncStorage.getItem("selectedplan");
-    console.log(selectedPlan, "ol========");
     axios
       .get(
         FIRETV_BASE_URL_STAGING +
@@ -207,11 +205,6 @@ export default function Subscribe({ navigation, route }) {
               setselectedcategoryid(item.item.category_id);
               setcategory(item.item.category);
               setcatalogid(item.item.catalog_id);
-              //   navigation.navigate({
-              //     name: "Subscribe",
-              //     params: { plan_name: item.item.display_title },
-              //     merge: true,
-              //   });
             }}
           >
             <Image
@@ -334,7 +327,17 @@ export default function Subscribe({ navigation, route }) {
             } else {
               AsyncStorage.setItem("payable_upgrade", "yes");
             }
-            navigation.navigate("Confirmation");
+            navigation.navigate({
+              name: "Confirmation",
+              params: {
+                planname: selectedname,
+                plan: buttonchange,
+                pack_value: selectedpriceforpayment,
+                source: route?.params?.sourcetitle,
+              },
+              merge: true,
+            });
+            // navigation.navigate("Confirmation");
           })
           .catch((error) => {
             alert(error.response.data.error);
@@ -636,12 +639,6 @@ export default function Subscribe({ navigation, route }) {
                         currentplan == resp.id
                           ? setAsyncData(1)
                           : setAsyncData(2);
-                        // navigation.navigate({
-                        //   name: "Confirmation",
-                        //   params: { plan: resp.title, pack_value: resp.price },
-                        //   merge: true,
-                        // });
-                        // console.log(params);
                       }}
                     >
                       <View style={styles.container}>

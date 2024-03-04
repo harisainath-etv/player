@@ -11,7 +11,6 @@ import {
   Alert,
   ActivityIndicator,
   PermissionsAndroid,
-  Pressable,
 } from "react-native";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -48,14 +47,15 @@ import {
 } from "../constants";
 import DeviceInfo from "react-native-device-info";
 import LinearGradient from "react-native-linear-gradient";
-import { OptimizedFlatList } from "react-native-optimized-flatlist";
+// import { OptimizedFlatList } from 'react-native-optimized-flatlist'
 import RNBackgroundDownloader from "react-native-background-downloader";
-import RNFS from "react-native-fs";
+// import RNFS from 'react-native-fs';
 var indexValue = 0;
 var isTablet = DeviceInfo.isTablet();
 var internaltabs = [];
 export default function Shows({ navigation, route }) {
   var { seoUrl, selectTitle, ind } = route.params;
+  const [isShow, setIsShow] = useState(false);
   const [toggle, setToggle] = useState(false);
   const [title, setTitle] = useState();
   const [thumbnail, setThumbnail] = useState();
@@ -99,6 +99,9 @@ export default function Shows({ navigation, route }) {
   const [downloadedStatus, setDownloadedStatus] = useState(0);
   const [taskdownloading, settaskdownloading] = useState();
   const [tabDataLoading, setTabDataLoading] = useState(false);
+  const showMoreLess = () => {
+    setIsShow(!isShow);
+  };
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
@@ -1187,7 +1190,7 @@ export default function Shows({ navigation, route }) {
       ) : (
         <View style={{ flex: 1 }}>
           <NormalHeader></NormalHeader>
-          <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
+          <ScrollView style={{ flex: 1 }}>
             <View style={styles.container}>
               <View
                 style={
@@ -1196,7 +1199,7 @@ export default function Shows({ navigation, route }) {
                     : { height: (PAGE_HEIGHT / 100) * 76, width: PAGE_WIDTH }
                 }
               >
-                <Pressable
+                <TouchableOpacity
                   style={{
                     justifyContent: "center",
                     alignItems: "center",
@@ -1230,15 +1233,6 @@ export default function Shows({ navigation, route }) {
                           }
                     }
                   ></FastImage>
-                  <View style={{ bottom: 50 }}>
-                    <Image
-                      style={{
-                        height: 40,
-                        resizeMode: "contain",
-                      }}
-                      source={require("../assets/images/playbutton.png")}
-                    />
-                  </View>
 
                   <LinearGradient
                     useAngle={true}
@@ -1273,7 +1267,7 @@ export default function Shows({ navigation, route }) {
                       </Text>
                     </View>
                   </LinearGradient>
-                </Pressable>
+                </TouchableOpacity>
               </View>
 
               <View style={styles.bodyContent}>
@@ -1301,7 +1295,6 @@ export default function Shows({ navigation, route }) {
                           <FontAwesome5
                             name="dot-circle"
                             size={10}
-                            bottom={2}
                             color={TAB_COLOR}
                           />
                           <Text
@@ -1317,15 +1310,33 @@ export default function Shows({ navigation, route }) {
                       );
                     })}
                   </View>
-                  <ReadMore
-                    numberOfLines={3}
-                    style={styles.detailsText}
-                    seeMoreText="Read More"
-                    seeMoreStyle={{ color: TAB_COLOR, fontWeight: "bold" }}
-                    seeLessStyle={{ color: TAB_COLOR, fontWeight: "bold" }}
-                  >
-                    <Text style={styles.detailsText}>{description}</Text>
-                  </ReadMore>
+                  <>
+                    <Text
+                      ellipsizeMode="tail"
+                      numberOfLines={isShow ? undefined : 2}
+                      style={styles.detailsText}
+                    >
+                      {description}
+                    </Text>
+
+                    <TouchableOpacity
+                      onPress={showMoreLess}
+                      style={styles.detailsText}
+                    >
+                      {isShow ? (
+                        <Text style={{ color: TAB_COLOR, fontWeight: "bold" }}>
+                          {"Read Less"}
+                        </Text>
+                      ) : (
+                        <Text style={{ color: TAB_COLOR, fontWeight: "bold" }}>
+                          {"Read More"}
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  </>
+                  {/* <ReadMore numberOfLines={3} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
+                                        <Text style={styles.detailsText}>{description}</Text>
+                                    </ReadMore> */}
                 </View>
               </View>
 
@@ -1483,7 +1494,7 @@ export default function Shows({ navigation, route }) {
                                       fontWeight: "500",
                                     }}
                                   >
-                                    {item.item.title}dd
+                                    {item.item.title}
                                   </Text>
                                 </View>
                               </TouchableOpacity>
@@ -1590,7 +1601,7 @@ export default function Shows({ navigation, route }) {
                           style={{ width: "100%", marginTop: 20 }}
                         >
                           {cat[0] ? (
-                            <OptimizedFlatList
+                            <FlatList
                               data={cat[0].thumbnails}
                               contentContainerStyle={
                                 VIDEO_TYPES.includes(itemType)
@@ -1603,8 +1614,9 @@ export default function Shows({ navigation, route }) {
                               }
                               keyExtractor={(x, i) => i.toString()}
                               renderItem={subcatrender}
-                              initialNumToRender={5}
-                              maxToRenderPerBatch={10}
+                              initialNumToRender={2}
+                              maxToRenderPerBatch={3}
+                              windowSize={5}
                             />
                           ) : (
                             <View
@@ -1709,12 +1721,12 @@ export default function Shows({ navigation, route }) {
 
 const styles = StyleSheet.create({
   button: {
-    paddingLeft: 40,
-    paddingRight: 40,
+    paddingLeft: 35,
+    paddingRight: 35,
     paddingBottom: 7,
     paddingTop: 7,
-    borderRadius: 10,
-    width: "100%",
+    borderRadius: 40,
+    width: "98%",
     position: "absolute",
     bottom: 40,
     justifyContent: "center",

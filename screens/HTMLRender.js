@@ -1,14 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  StatusBar,
-  View,
-  LogBox,
-  useWindowDimensions,
-  Dimensions,
-} from "react-native";
+import { ScrollView, StyleSheet, StatusBar, View, LogBox } from "react-native";
 import { WebView } from "react-native-webview";
 
 import {
@@ -24,7 +16,6 @@ import NormalHeader from "./normalHeader";
 import { BackHandler } from "react-native";
 import { StackActions, useIsFocused } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import RenderHTML from "react-native-render-html";
 var pagename = "";
 const HTMLRender = ({ navigation, route }) => {
   const [staticPage, setStaticPage] = useState({
@@ -96,21 +87,7 @@ const HTMLRender = ({ navigation, route }) => {
   return (
     <View style={styles.mainContainer}>
       <NormalHeader></NormalHeader>
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        {/* <RenderHTML
-          source={{ html: staticPage.description }}
-          contentWidth={100}
-          systemFonts={systemfonts}
-          tagsStyles={{
-            p: { fontFamily: "PoppinsBold", color: "red" },
-          }}
-        /> */}
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <WebView
           source={{
             html:
@@ -125,7 +102,7 @@ const HTMLRender = ({ navigation, route }) => {
           style={{
             alignItems: "center",
             backgroundColor: BACKGROUND_COLOR,
-            width: PAGE_WIDTH,
+            width: PAGE_WIDTH - 20,
             height: PAGE_HEIGHT,
             marginTop: 100,
           }}

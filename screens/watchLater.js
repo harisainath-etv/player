@@ -8,7 +8,6 @@ import {
   Alert,
   BackHandler,
   LogBox,
-  TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useState, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,7 +19,6 @@ import {
   FIRETV_BASE_URL_STAGING,
   NORMAL_TEXT_COLOR,
   PAGE_HEIGHT,
-  TAB_COLOR,
   VIDEO_AUTH_TOKEN,
 } from "../constants";
 import FastImage from "react-native-fast-image";
@@ -213,7 +211,7 @@ export default function WatchLater({ navigation }) {
                           </Text>
                         </View>
                         <View style={{ alignSelf: "center", width: "10%" }}>
-                          <TouchableOpacity
+                          <Pressable
                             onPress={() =>
                               deleteWatchLater(
                                 singleVideo.listitem_id,
@@ -224,9 +222,9 @@ export default function WatchLater({ navigation }) {
                             <MaterialCommunityIcons
                               name="delete-circle"
                               size={30}
-                              color={TAB_COLOR}
+                              color={NORMAL_TEXT_COLOR}
                             />
-                          </TouchableOpacity>
+                          </Pressable>
                         </View>
                       </Pressable>
                     ) : (

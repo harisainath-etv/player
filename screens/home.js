@@ -995,7 +995,7 @@ function Home({ navigation, route }) {
     });
   };
   const loadasyncdata = async () => {
-    await AsyncStorage.setItem("firstload", "no");
+    // await AsyncStorage.setItem('firstload', 'no');
     const getCurrentVersion = await AsyncStorage.getItem("currentVersion");
 
     //fetching ip data
@@ -3043,7 +3043,7 @@ function Home({ navigation, route }) {
             }}
           >
             <View style={styles.sectionHeaderView}>
-              {/* <Text style={styles.sectionHeader}>{item.displayName}</Text> */}
+              <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 1 ? (
                 <Pressable
                   style={{ width: "100%" }}
@@ -3055,13 +3055,13 @@ function Home({ navigation, route }) {
                     });
                   }}
                 >
-                  {/* <Text style={styles.sectionHeaderMore}>
+                  <Text style={styles.sectionHeaderMore}>
                     <MaterialCommunityIcons
                       name="dots-grid"
                       size={25}
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
-                  </Text> */}
+                  </Text>
                 </Pressable>
               ) : (
                 ""
@@ -3384,7 +3384,7 @@ function Home({ navigation, route }) {
               <Text
                 style={{ color: TAB_COLOR, fontWeight: "bold", fontSize: 13 }}
               >
-                {item.displayName}
+                {item?.displayName}
               </Text>
             </View>
           </Pressable>
@@ -3398,7 +3398,7 @@ function Home({ navigation, route }) {
                   fontSize: 13,
                 }}
               >
-                {item.displayName}
+                {item?.displayName}
               </Text>
             </View>
           </Pressable>
@@ -3429,7 +3429,7 @@ function Home({ navigation, route }) {
     LogBox.ignoreLogs([
       "`new NativeEventEmitter()` was called with a non-null",
     ]);
-  }, [totalHomeData]);
+  }, [isfocus]);
 
   const memoizedValue = useMemo(() => renderItem, [totalHomeData]);
   const loadFilters = async () => {

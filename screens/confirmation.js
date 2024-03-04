@@ -36,11 +36,8 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function Confirmation({ navigation, route }) {
-  // var Plan_type = route.params?.uri;
-  // var Source = route.params?.source;
-  // const [uri, setUri] = useState(uri);
-  // const [source, setSource] = useState(source);
-  // console.log(plan_type, "helooooooooooooo");
+  // const {alldata}= route?.params;
+  console.log(route?.params, "hello");
   const [amount, setAmount] = useState();
   const [chargedamount, setchargedamount] = useState();
   const [currency, setcurrency] = useState();
@@ -74,6 +71,7 @@ export default function Confirmation({ navigation, route }) {
     var region = await AsyncStorage.getItem("country_code");
     var actual_price = await AsyncStorage.getItem("actual_price");
     var payable_currency = await AsyncStorage.getItem("payable_currency");
+    console.log(payable_currency);
     var payable_category = await AsyncStorage.getItem("payable_category");
     var payable_catalog_id = await AsyncStorage.getItem("payable_catalog_id");
     var payable_category_id = await AsyncStorage.getItem("payable_category_id");
@@ -176,9 +174,39 @@ export default function Confirmation({ navigation, route }) {
             }
           )
           .then((resp) => {
+            if (resp?.data?.data?.transaction_id) {
+              const sdk_Event_billdesk = {
+                plan_type: route?.params?.plan,
+                source: route?.params?.source,
+                plan_name: route?.params?.planname,
+                payment_mode: "billdesk",
+                coupon_code: "1",
+                coupon_code_type: "SAVE 50%",
+                coupon_code_name: "Pranab",
+                price_charged: route?.params?.pack_value,
+                order_id: resp?.data?.data?.transaction_id,
+                pack_value: route?.params?.pack_value,
+                pack_value_currency: payable_currency,
+                platform: "android",
+              };
+              sdk.trackEvent("subscription_checkout", sdk_Event_billdesk);
+            }
+            console.log(resp?.data?.data?.transaction_id, "kkkkkkkkkkkkk");
             if (resp.data.data.code != "1070")
-              navigation.navigate("Webview", {
-                uri: resp.data.data.payment_url + "?msg=" + resp.data.data.msg,
+              navigation.navigate({
+                name: "Webview",
+                params: {
+                  uri:
+                    resp.data.data.payment_url +
+                    "&encRequest=" +
+                    resp.data.data.msg +
+                    "&access_code=" +
+                    resp.data.data.access_code,
+                  alldata: route.params,
+                  order_id: resp?.data?.data?.transaction_id,
+                  payment_mode: "billdesk",
+                },
+                merge: true,
               });
             else {
               alert(resp.data.data.message);
@@ -233,15 +261,44 @@ export default function Confirmation({ navigation, route }) {
             }
           )
           .then((resp) => {
+            if (resp?.data?.data?.transaction_id) {
+              const sdk_Event_ccavenue = {
+                plan_type: route?.params?.plan,
+                source: route?.params?.source,
+                plan_name: route?.params?.planname,
+                payment_mode: "ccavenue",
+                coupon_code: "1",
+                coupon_code_type: "SAVE 50%",
+                coupon_code_name: "Pranab",
+                price_charged: route?.params?.pack_value,
+                order_id: resp?.data?.data?.transaction_id,
+                pack_value: route?.params?.pack_value,
+                pack_value_currency: payable_currency,
+                platform: "android",
+              };
+              sdk.trackEvent("subscription_checkout", sdk_Event_ccavenue);
+            }
+            console.log(
+              resp?.data?.data?.transaction_id,
+              "ccavenue------------"
+            );
             if (resp.data.data.code != "1070") {
-              navigation.navigate("Webview", {
-                uri:
-                  resp.data.data.payment_url +
-                  "&encRequest=" +
-                  resp.data.data.msg +
-                  "&access_code=" +
-                  resp.data.data.access_code,
+              navigation.navigate({
+                name: "Webview",
+                params: {
+                  uri:
+                    resp.data.data.payment_url +
+                    "&encRequest=" +
+                    resp.data.data.msg +
+                    "&access_code=" +
+                    resp.data.data.access_code,
+                  alldata: route.params,
+                  order_id: resp?.data?.data?.transaction_id,
+                  payment_gateway: "ccavenue",
+                },
+                merge: true,
               });
+              // navigation.navigate('Webview', { uri: resp.data.data.payment_url + "&encRequest=" + resp.data.data.msg + "&access_code=" + resp.data.data.access_code},{alldata: route?.params , order_id:resp?.data?.data?.transaction_id})
             } else {
               alert(resp.data.data.message);
               navigation.dispatch(

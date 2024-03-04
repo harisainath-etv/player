@@ -14,6 +14,7 @@ import messaging from '@react-native-firebase/messaging';
 
 export default function Otp({ navigation, route }) {
     const { otpkey } = route.params;
+    // console.log(route.params,"jjjjj-------------")
     const [LoginRegisterMobile, setLoginRegisterMobile] = useState();
     const [otp1, setotp1] = useState();
     const [otp2, setotp2] = useState();
@@ -89,6 +90,7 @@ export default function Otp({ navigation, route }) {
                 }
             })
                 .then(response => {
+                    console.log(response.data.data,"pranab==============")
                     triggersuccessanalytics('login_success', 'phone number', user_id, uniqueid,'05')
                     AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                     AsyncStorage.setItem('add_profile', JSON.stringify(response.data.data.add_profile))

@@ -26,7 +26,7 @@ import FoodFilter from "./screens/FoodFilter";
 import FilterData from "./screens/FilterData";
 import Profile from "./screens/profile";
 import EditProfile from "./screens/editProfile";
-import FrontProfile from "./screens/frontProfile";
+// import FrontProfile from './screens/frontProfile';
 import Feedback from "./screens/feedback";
 import Settings from "./screens/settings";
 import Subscribe from "./screens/subscribe";
@@ -55,7 +55,7 @@ import {
   Alert,
   StyleSheet,
 } from "react-native";
-import SplashScreen from "react-native-splash-screen";
+// import SplashScreen from 'react-native-splash-screen'
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
@@ -63,6 +63,9 @@ import messaging from "@react-native-firebase/messaging";
 import queryString from "query-string";
 import Rate, { AndroidMarket } from "react-native-rate";
 import EpisodesMoreListUrl from "./screens/EpisodesMoreListUrl";
+import Splash from "./screens/Splash";
+import Onboarding from "./screens/Onboarding";
+// import connectionrequest from './components/NetInfo';
 
 const Stack = createStackNavigator();
 
@@ -508,7 +511,7 @@ export default function App() {
           removeunwanted();
         });
     }
-    SplashScreen.hide();
+    // SplashScreen.hide();
   }
   const options = {
     AppleAppID: IOS_PACKAGE_NAME,
@@ -793,16 +796,16 @@ export default function App() {
     await AsyncStorage.setItem("fcm_token", token);
   };
 
-  const linking = {
-    prefixes: ["https://staging.etvwin.com"],
-    config: {
-      screens: {},
-    },
-  };
+  // const linking = {
+  //   prefixes: ['hari://staging.etvwin.com'],
+  //   config: {
+  //     screens: {},
+  //   },
+  // };
 
   return (
     <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
-      <NavigationContainer linking={linking}>
+      <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
             presentation: "transparentModal",
@@ -810,10 +813,16 @@ export default function App() {
           }}
         >
           <Stack.Screen
-            name="FrontProfile"
-            component={FrontProfile}
+            name="Splash"
+            component={Splash}
             options={{ header: () => null }}
           />
+          <Stack.Screen
+            name="Onboarding"
+            component={Onboarding}
+            options={{ header: () => null }}
+          />
+          {/* <Stack.Screen name="FrontProfile" component={FrontProfile} options={{ header: () => null, }} /> */}
           <Stack.Screen
             name="Home"
             component={Home}

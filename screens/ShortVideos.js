@@ -510,7 +510,7 @@ export default function Shorts({ navigation }) {
             }}
           >
             <JioAdView
-              adType={2}
+              adType={1}
               adspotKey={"a16v5py4"}
               adHeight={400}
               adWidth={300}

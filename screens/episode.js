@@ -2319,7 +2319,9 @@ export default function Episode({ navigation, route }) {
                       currenttimestamp !== "00:00:10" &&
                       !addcount &&
                       passedtheme != "live" &&
-                      passedtheme != "livetv"
+                      passedtheme != "livetv" &&
+                      !fullscreen &&
+                      !subid
                     ) {
                       // setPreads(false);
                       setPlay(false); // Pause the video when JioAdView ends
@@ -2331,7 +2333,9 @@ export default function Episode({ navigation, route }) {
                       currenttimestamp !== "00:00:00" &&
                       passedtheme != "live" &&
                       passedtheme != "livetv" &&
-                      !prec
+                      !prec &&
+                      !fullscreen &&
+                      !subid
                     ) {
                       setPlay(false);
                       setPreads(true);
@@ -2696,7 +2700,15 @@ export default function Episode({ navigation, route }) {
                         }
                       >
                         <Slider
-                          style={{ width: "100%", height: 40 }}
+                          style={
+                            fullscreen
+                              ? {
+                                  width: "100%",
+                                  height: 40,
+                                  marginLeft: normalize(10),
+                                }
+                              : { width: "100%", height: 40 }
+                          }
                           minimumValue={0}
                           maximumValue={Math.floor(duration)}
                           minimumTrackTintColor={TAB_COLOR}
@@ -2733,7 +2745,18 @@ export default function Episode({ navigation, route }) {
                         />
                       </View>
                       {passedtheme != "live" && passedtheme != "livetv" ? (
-                        <View style={{ top: 30, width: "15%", right: 5 }}>
+                        <View
+                          style={
+                            fullscreen
+                              ? {
+                                  top: 30,
+                                  width: "15%",
+                                  right: 5,
+                                  marginLeft: normalize(10),
+                                }
+                              : { top: 30, width: "15%", right: 5 }
+                          }
+                        >
                           <Text style={{ color: "#ffffff", fontSize: 11 }}>
                             {currenttimestamp}
                           </Text>
@@ -3198,7 +3221,7 @@ export default function Episode({ navigation, route }) {
                     marginLeft: 20,
                   }}
                 >
-                  Related
+                  Relateds
                 </Text>
                 {/* <JioAdView
                   adType={1}
@@ -3350,7 +3373,7 @@ export default function Episode({ navigation, route }) {
             </Modal>
           </ScrollView>
         </View>
-        {subcatcurrentTheme == "movie" ? (
+        {subcatcurrentTheme == "movie" && !fullscreen ? (
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             <TouchableOpacity
               style={{ position: "absolute", bottom: 0 }}
