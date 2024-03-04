@@ -1,37 +1,77 @@
-import { StyleSheet, View, Text, ScrollView, Alert, TouchableOpacity, PermissionsAndroid, BackHandler, ActivityIndicator, Pressable, StatusBar, Platform, FlatList, Image, TouchableWithoutFeedback, DeviceEventEmitter } from 'react-native';
-import React, { useEffect, useState, createRef, useRef } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
+  PermissionsAndroid,
+  BackHandler,
+  ActivityIndicator,
+  Pressable,
+  StatusBar,
+  Platform,
+  FlatList,
+  Image,
+  TouchableWithoutFeedback,
+  DeviceEventEmitter,
+} from "react-native";
+import React, { useEffect, useState, createRef, useRef } from "react";
 import * as NavigationBar from "expo-navigation-bar";
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Feather from 'react-native-vector-icons/Feather';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, BUTTON_COLOR, COMMON_BASE_URL, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, IMAGE_BORDER_COLOR, LAYOUT_TYPES, MORE_LINK_COLOR, NORMAL_TEXT_COLOR, PAGE_HEIGHT, PAGE_WIDTH, SECRET_KEY, TAB_COLOR, VIDEO_AUTH_TOKEN, VIDEO_TYPES, actuatedNormalize, } from '../constants';
-import axios from 'axios';
-import ReadMore from '@fawazahmed/react-native-read-more';
-import { stringMd5 } from 'react-native-quick-md5';
-import Orientation from 'react-native-orientation-locker';
-import Video from 'react-native-video';
-import { StackActions, useIsFocused } from '@react-navigation/native';
-import RNFS from 'react-native-fs';
-import RNBackgroundDownloader from 'react-native-background-downloader';
-import Share from 'react-native-share';
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import Feather from "react-native-vector-icons/Feather";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  ACCESS_TOKEN,
+  AUTH_TOKEN,
+  BACKGROUND_COLOR,
+  BACKGROUND_TRANSPARENT_COLOR,
+  BUTTON_COLOR,
+  COMMON_BASE_URL,
+  DARKED_BORDER_COLOR,
+  DETAILS_TEXT_COLOR,
+  FIRETV_BASE_URL,
+  FIRETV_BASE_URL_STAGING,
+  FOOTER_DEFAULT_TEXT_COLOR,
+  IMAGE_BORDER_COLOR,
+  LAYOUT_TYPES,
+  MORE_LINK_COLOR,
+  NORMAL_TEXT_COLOR,
+  PAGE_HEIGHT,
+  PAGE_WIDTH,
+  SECRET_KEY,
+  TAB_COLOR,
+  VIDEO_AUTH_TOKEN,
+  VIDEO_TYPES,
+  actuatedNormalize,
+} from "../constants";
+import axios from "axios";
+import ReadMore from "@fawazahmed/react-native-read-more";
+import { stringMd5 } from "react-native-quick-md5";
+import Orientation from "react-native-orientation-locker";
+import Video from "react-native-video";
+import { StackActions, useIsFocused } from "@react-navigation/native";
+import RNFS from "react-native-fs";
+import RNBackgroundDownloader from "react-native-background-downloader";
+import Share from "react-native-share";
 import Modal from "react-native-modal";
-import Slider from '@react-native-community/slider';
-import GoogleCast, { useRemoteMediaClient, } from 'react-native-google-cast';
-import DeviceInfo from 'react-native-device-info';
-import FastImage from 'react-native-fast-image';
-import SwipeUpDown from 'react-native-swipe-up-down';
-import { check, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import Slider from "@react-native-community/slider";
+import GoogleCast, { useRemoteMediaClient } from "react-native-google-cast";
+import DeviceInfo from "react-native-device-info";
+import FastImage from "react-native-fast-image";
+import SwipeUpDown from "react-native-swipe-up-down";
+import { check, PERMISSIONS, RESULTS } from "react-native-permissions";
 import JioAdView from "../JioAdView";
 import { log } from "react-native-reanimated";
 import { createThumbnail } from "react-native-create-thumbnail";
 import normalize from "../Utils/Helpers/Dimen";
-import NormalHeader from './normalHeader';
-import { SafeAreaView } from 'react-native';
-import Header from './header';
-import LinearGradient from 'react-native-linear-gradient';
+import NormalHeader from "./normalHeader";
+import { SafeAreaView } from "react-native";
+import Header from "./header";
+import LinearGradient from "react-native-linear-gradient";
 // import HeaderFull from '../components/Header';
 
 var isTablet = DeviceInfo.isTablet();
@@ -45,8 +85,8 @@ export default function Episode({ navigation, route }) {
   const [progress, setProgress] = useState(null);
   const filterItems = (stringNeeded, arrayvalues) => {
     let query = stringNeeded.toLowerCase();
-    return arrayvalues.filter(item => item.toLowerCase().indexOf(query) >= 0);
-  }
+    return arrayvalues.filter((item) => item.toLowerCase().indexOf(query) >= 0);
+  };
   const [title, setTitle] = useState();
   const [channel, setChannel] = useState();
   const [contentRating, setContentRating] = useState();
@@ -61,7 +101,7 @@ export default function Episode({ navigation, route }) {
   const [loadings, setLoadings] = useState(false);
   const [offlineUrl, setOfflineUrl] = useState("");
   //0 - not downloaded, 1-downloaded, 2-downloading
-  const [downloadedStatus, setDownloadedStatus] = useState(0)
+  const [downloadedStatus, setDownloadedStatus] = useState(0);
   const [taskdownloading, settaskdownloading] = useState();
   const [pauseDownload, setPauseDownload] = useState(false);
   const [thumbnailImage, setThumbnailImage] = useState("");
@@ -70,12 +110,16 @@ export default function Episode({ navigation, route }) {
   const [showupgrade, setshowupgrade] = useState(false);
   const videoRef = useRef(null);
   const videorefs = useRef(null);
-  const [state, setState] = useState({ showControls: false, progress: 0, isPaused: false, });
+  const [state, setState] = useState({
+    showControls: false,
+    progress: 0,
+    isPaused: false,
+  });
   const [contentId, setContentId] = useState();
   const [catalogId, setCatalogId] = useState();
   const [watchlatercontent, setwatchlatercontent] = useState();
   const [likecontent, setlikecontent] = useState();
-  const [shareUrl, setShareUrl] = useState()
+  const [shareUrl, setShareUrl] = useState();
   const [isModalVisible, setModalVisible] = useState(false);
   const [isResolutionModalVisible, setResolutionModalVisible] = useState(false);
   const [prefrence, setPreference] = useState([]);
@@ -84,9 +128,9 @@ export default function Episode({ navigation, route }) {
   const [currenttimestamp, setcurrenttimestamp] = useState("00:00:00");
   const [duration, setDuration] = useState("");
   const [currentloadingtime, setcurrentloadingtime] = useState(0);
-  const [videoType, setvideoType] = useState('auto');
-  const [videoresolution, setvideoresolution] = useState('1280');
-  const [subcategoryImages, setsubcategoryImages] = useState([])
+  const [videoType, setvideoType] = useState("auto");
+  const [videoresolution, setvideoresolution] = useState("1280");
+  const [subcategoryImages, setsubcategoryImages] = useState([]);
   const [seektime, setseektime] = useState();
   const [showsettingsicon, setshowsettingsicon] = useState(true);
   const [introstarttime, setintrostarttime] = useState("");
@@ -101,7 +145,9 @@ export default function Episode({ navigation, route }) {
   const [seriesname, setseriesname] = useState();
   const [seriesid, setseriesid] = useState();
   const [streemexceedlimit, setstreemexceedlimit] = useState(false);
-  const [streemexceedlimitmessage, setstreemexceedlimitmessage] = useState("Screen Limit Exceeded");
+  const [streemexceedlimitmessage, setstreemexceedlimitmessage] = useState(
+    "Screen Limit Exceeded"
+  );
   const [loginrequired, setloginrequired] = useState(false);
   const [isfree, setisfree] = useState(false);
   const [relatedshows, setRelatedShows] = useState([]);
@@ -112,13 +158,13 @@ export default function Episode({ navigation, route }) {
   const [livetvshowstheme, setlivetvshowstheme] = useState("");
   const [durationsttring, setdurationsttring] = useState("");
   const [relatedMovies, setRelatedMovies] = useState([]);
-  const [castDisplay, setCastDisplay] = useState('basic_plan');
+  const [castDisplay, setCastDisplay] = useState("basic_plan");
   const [pbtime, setpbtime] = useState(1);
   const [descriptionLines, setdescriptionLines] = useState(5);
   const [showAd, setShowAd] = useState(false);
   const [currenttimesec, setCurrenttimesec] = useState(0);
   const [addcount, setAddcount] = useState(0);
-  const [thumbimg, setThumbimg] = useState('');
+  const [thumbimg, setThumbimg] = useState("");
   const [realseek, setRealseek] = useState(false);
   const [adCounter, setAdCounter] = useState(false);
   const [img, setImg] = useState("");
@@ -138,7 +184,7 @@ export default function Episode({ navigation, route }) {
   };
   const toggleModalResolution = () => {
     setResolutionModalVisible(!isResolutionModalVisible);
-  }
+  };
   // const onShoot = () => {
   //   setImg("https://etv-win-image.akamaized.net/etvwin/originalmovies/odiyan/81628/odiyan-Odiyan_Movie_4K-270x360.jpg")
   // }
@@ -163,90 +209,94 @@ export default function Episode({ navigation, route }) {
   useEffect(() => {
     const finalSes = async () => {
       try {
-        const session_hand = await AsyncStorage.getItem('session');
+        const session_hand = await AsyncStorage.getItem("session");
         setLoginsol(JSON.stringify(session_hand));
       } catch (error) {
         setLoginsol(null);
       }
-    }
+    };
     finalSes();
-  }, [isfocued])
+  }, [isfocued]);
   function showMoreLess() {
     setIsShow(!isShow);
   }
   const navigationConfig = async () => {
     // // Just incase it is not hidden
     // NavigationBar.setBackgroundColorAsync('red');
-    if (Platform.OS = 'android')
-      NavigationBar.setVisibilityAsync("hidden");
+    if ((Platform.OS = "android")) NavigationBar.setVisibilityAsync("hidden");
   };
   const navigationConfigVisible = async () => {
-    if (Platform.OS = 'android')
-      NavigationBar.setVisibilityAsync("visible");
+    if ((Platform.OS = "android")) NavigationBar.setVisibilityAsync("visible");
   };
   const exitScreen = async () => {
-    StatusBar.setHidden(false)
+    StatusBar.setHidden(false);
     Orientation.getOrientation((orientation) => {
-      if (orientation === 'PORTRAIT' || orientation === 'UNKNOWN' || orientation === '') {
-        checkgoback()
+      if (
+        orientation === "PORTRAIT" ||
+        orientation === "UNKNOWN" ||
+        orientation === ""
+      ) {
+        checkgoback();
+      } else {
+        handleFullscreen();
       }
-      else {
-        handleFullscreen()
-      }
-    })
-  }
+    });
+  };
 
   const loadData = async () => {
     checkOfflineDownload();
-    if (playUrl == '') {
+    if (playUrl == "") {
       setLoading(true);
       const baseUrl = FIRETV_BASE_URL;
-      var removequeryStrings = seourl.split('?');
-      var splittedData = removequeryStrings[0].split('/');
+      var removequeryStrings = seourl.split("?");
+      var splittedData = removequeryStrings[0].split("/");
       splittedData = splittedData.filter(function (e) {
         return e;
       });
-      const checkNews = filterItems('news', splittedData);
-      const checkShow = filterItems('show', splittedData);
-      const checkSeason = filterItems('season', splittedData);
-      const checkMovies = filterItems('movie', splittedData);
-      const checkChannel = filterItems('channel', splittedData);
-      const checkEvent = filterItems('event', splittedData);
-      const checkLive = filterItems('live', splittedData);
-      const region = await AsyncStorage.getItem('country_code');
-      var urlPath = '';
-      var urlPath1 = '';
+      const checkNews = filterItems("news", splittedData);
+      const checkShow = filterItems("show", splittedData);
+      const checkSeason = filterItems("season", splittedData);
+      const checkMovies = filterItems("movie", splittedData);
+      const checkChannel = filterItems("channel", splittedData);
+      const checkEvent = filterItems("event", splittedData);
+      const checkLive = filterItems("live", splittedData);
+      const region = await AsyncStorage.getItem("country_code");
+      var urlPath = "";
+      var urlPath1 = "";
       var totalData = [];
-      var sessionId = await AsyncStorage.getItem('session');
+      var sessionId = await AsyncStorage.getItem("session");
       if (splittedData.length == 4 && checkChannel.length == 0) {
         urlPath =
           baseUrl +
-          'catalogs/' +
+          "catalogs/" +
           splittedData[0] +
-          '/items/' +
+          "/items/" +
           splittedData[1] +
-          '/subcategories/' +
+          "/subcategories/" +
           splittedData[2] +
-          '/episodes/' +
+          "/episodes/" +
           splittedData[3];
-      } else if (splittedData[0] == 'tv-shows') {
+      } else if (splittedData[0] == "tv-shows") {
         // if (splittedData[3] == "" || splittedData[3] == null || splittedData[3] == 'undefined')
         //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/episodes/" + splittedData[1];
         // else
         urlPath =
           baseUrl +
-          'catalogs/' +
+          "catalogs/" +
           splittedData[0] +
-          '/episodes/' +
+          "/episodes/" +
           splittedData[splittedData.length - 1];
-      } else if ((splittedData[0] == 'news' || checkNews.length > 0) && checkMovies.length == 0) {
+      } else if (
+        (splittedData[0] == "news" || checkNews.length > 0) &&
+        checkMovies.length == 0
+      ) {
         urlPath =
           baseUrl +
-          'catalogs/' +
+          "catalogs/" +
           splittedData[splittedData.length - 3] +
-          '/items/' +
+          "/items/" +
           splittedData[splittedData.length - 2] +
-          '/episodes/' +
+          "/episodes/" +
           splittedData[splittedData.length - 1];
       } else if (
         (checkShow.length > 0 || checkEvent.length > 0) &&
@@ -254,75 +304,75 @@ export default function Episode({ navigation, route }) {
       ) {
         urlPath =
           baseUrl +
-          'catalogs/' +
+          "catalogs/" +
           splittedData[0] +
-          '/items/' +
+          "/items/" +
           splittedData[splittedData.length - 2] +
-          '/episodes/' +
+          "/episodes/" +
           splittedData[splittedData.length - 1];
       } else if (checkChannel.length > 0) {
         urlPath =
           baseUrl +
-          'catalogs/' +
+          "catalogs/" +
           splittedData[1] +
-          '/items/' +
+          "/items/" +
           splittedData[splittedData.length - 1];
-      } else if (theme == 'videolist') {
+      } else if (theme == "videolist") {
         urlPath =
           baseUrl +
-          'catalogs/' +
+          "catalogs/" +
           splittedData[0] +
-          '/items/' +
+          "/items/" +
           splittedData[1] +
-          '/videolists/' +
+          "/videolists/" +
           splittedData[2];
       } else {
         //if (splittedData.length == 2)
         urlPath =
           baseUrl +
-          'catalogs/' +
+          "catalogs/" +
           splittedData[0] +
-          '/items/' +
+          "/items/" +
           splittedData[splittedData.length - 1];
         if (splittedData.length == 3)
           urlPath1 =
             baseUrl +
-            'catalogs/' +
+            "catalogs/" +
             splittedData[splittedData.length - 3] +
-            '/items/' +
+            "/items/" +
             splittedData[splittedData.length - 2] +
-            '/episodes/' +
+            "/episodes/" +
             splittedData[splittedData.length - 1];
         //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/" + splittedData[2];
         // if (splittedData.length == 4)
         //   urlPath = baseUrl + "catalogs/" + splittedData[0] + "/items/" + splittedData[1] + "/" + splittedData[2] + "/" + splittedData[3];
       }
       const url =
-        urlPath + '.gzip?&auth_token=' + AUTH_TOKEN + '&region=' + region;
+        urlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
       const relatedurl =
         urlPath +
-        '/related.gzip?&auth_token=' +
+        "/related.gzip?&auth_token=" +
         AUTH_TOKEN +
-        '&region=' +
+        "&region=" +
         region;
       //  console.log(seourl);
       await axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           setTitle(response.data.data.title);
           setOfflineUrl(response.data.data.play_url.saranyu.url);
           setShareUrl(COMMON_BASE_URL + seourl);
-          if (response.data.data.hasOwnProperty('channel_object'))
+          if (response.data.data.hasOwnProperty("channel_object"))
             setChannel(response.data.data.channel_object.name);
-          if (response.data.data.hasOwnProperty('cbfc_rating'))
+          if (response.data.data.hasOwnProperty("cbfc_rating"))
             setContentRating(response.data.data.cbfc_rating);
-          if (response.data.data.hasOwnProperty('display_ott_guidelines'))
+          if (response.data.data.hasOwnProperty("display_ott_guidelines"))
             setContentguidelines(response.data.data.display_ott_guidelines);
-          if (response.data.data.hasOwnProperty('display_genres'))
+          if (response.data.data.hasOwnProperty("display_genres"))
             setDisplayGenres(response.data.data.display_genres);
-          if (response.data.data.hasOwnProperty('description'))
+          if (response.data.data.hasOwnProperty("description"))
             setDescription(response.data.data.description);
-          if (response.data.data.hasOwnProperty('thumbnails'))
+          if (response.data.data.hasOwnProperty("thumbnails"))
             setThumbnailImage(response.data.data.thumbnails.high_4_3.url);
           setContentId(response.data.data.content_id);
           setCatalogId(response.data.data.catalog_id);
@@ -337,41 +387,41 @@ export default function Episode({ navigation, route }) {
           setloginrequired(response.data.data.access_control.login_required);
           setisfree(response.data.data.access_control.is_free);
           setdurationsttring(response.data.data.duration_string);
-          if (response.data.data.hasOwnProperty('subcategory_object')) {
+          if (response.data.data.hasOwnProperty("subcategory_object")) {
             setseriesname(
-              response.data.data.subcategory_object.parentree.sub_name,
+              response.data.data.subcategory_object.parentree.sub_name
             );
             setseriesid(response.data.data.subcategory_object.parentree.sub_id);
           }
-          AsyncStorage.getItem('watchLater_' + response.data.data.content_id)
-            .then(resp => {
-              if (resp != '' && resp != null) setwatchlatercontent(true);
+          AsyncStorage.getItem("watchLater_" + response.data.data.content_id)
+            .then((resp) => {
+              if (resp != "" && resp != null) setwatchlatercontent(true);
             })
-            .catch(erro => { });
-          AsyncStorage.getItem('like_' + response.data.data.content_id)
-            .then(resp => {
+            .catch((erro) => {});
+          AsyncStorage.getItem("like_" + response.data.data.content_id)
+            .then((resp) => {
               //console.log(resp);
-              if (resp != '' && resp != null) setlikecontent(true);
+              if (resp != "" && resp != null) setlikecontent(true);
             })
-            .catch(erro => { });
+            .catch((erro) => {});
           var currentTimestamp = Math.floor(Date.now() / 1000).toString();
           //console.log(sessionId);
           if (sessionId != null) setloggedin(true);
-          if (sessionId == null) sessionId = '';
+          if (sessionId == null) sessionId = "";
           var md5String = stringMd5(
             response.data.data.catalog_id +
-            response.data.data.content_id +
-            sessionId +
-            currentTimestamp +
-            SECRET_KEY,
+              response.data.data.content_id +
+              sessionId +
+              currentTimestamp +
+              SECRET_KEY
           );
           axios
             .post(
-              FIRETV_BASE_URL + 'v2/users/get_all_details',
+              FIRETV_BASE_URL + "v2/users/get_all_details",
               {
                 catalog_id: response.data.data.catalog_id,
                 content_id: response.data.data.content_id,
-                category: '',
+                category: "",
                 region: region,
                 auth_token: VIDEO_AUTH_TOKEN,
                 access_token: ACCESS_TOKEN,
@@ -381,74 +431,72 @@ export default function Episode({ navigation, route }) {
               },
               {
                 headers: {
-                  'Content-Type': 'application/json',
+                  "Content-Type": "application/json",
                 },
-              },
+              }
             )
-            .then(resp => {
-
+            .then((resp) => {
               setstreemexceedlimit(
-                resp.data.data.stream_info.is_stream_limit_exceed,
+                resp.data.data.stream_info.is_stream_limit_exceed
               );
               setstreemexceedlimitmessage(resp.data.data.stream_info.message);
               if (onlineplayUrl == false) {
-                if (resp.data.data.stream_info.adaptive_url != '') {
+                if (resp.data.data.stream_info.adaptive_url != "") {
                   setPlayUrl(resp.data.data.stream_info.adaptive_url);
                   setseektime(resp.data.data.stream_info.play_back_time);
                   if (resp.data.data.access_control.login_required == true) {
-                    if (sessionId == '' || sessionId == null) {
-                      setPlayUrl('');
+                    if (sessionId == "" || sessionId == null) {
+                      setPlayUrl("");
                     }
                     axios
                       .get(
                         FIRETV_BASE_URL_STAGING +
-                        'user/session/' +
-                        sessionId +
-                        '?auth_token=' +
-                        AUTH_TOKEN,
+                          "user/session/" +
+                          sessionId +
+                          "?auth_token=" +
+                          AUTH_TOKEN
                       )
-                      .then(resp => {
-                        if (resp.data.message != 'Valid session id.') {
-                          setPlayUrl('');
+                      .then((resp) => {
+                        if (resp.data.message != "Valid session id.") {
+                          setPlayUrl("");
                         }
                       })
-                      .catch(err => {
-                        setPlayUrl('');
+                      .catch((err) => {
+                        setPlayUrl("");
                       });
                   }
                   setLoading(false);
                 } else if (
-                  resp.data.data.stream_info.preview.adaptive_url != ''
+                  resp.data.data.stream_info.preview.adaptive_url != ""
                 ) {
                   setPlayUrl(resp.data.data.stream_info.preview.adaptive_url);
                   setPreview(true);
                   setLoading(false);
-                }
-                else {
+                } else {
                   setLoading(false);
                 }
               }
             })
-            .catch(error => {
+            .catch((error) => {
               setLoading(false);
               //console.log(JSON.stringify(error.response.data));
             });
           setCurrentFriendlyId(response.data.data.friendly_id);
           setsubcatcurrentTheme(response.data.data.theme);
           setlivetvshowstheme(passedtheme);
-          if (passedtheme == 'live' || passedtheme == 'livetv') {
+          if (passedtheme == "live" || passedtheme == "livetv") {
             axios
               .post(
                 FIRETV_BASE_URL +
-                '/get_all_shows?auth_token=' +
-                AUTH_TOKEN +
-                '&access_token=' +
-                ACCESS_TOKEN,
+                  "/get_all_shows?auth_token=" +
+                  AUTH_TOKEN +
+                  "&access_token=" +
+                  ACCESS_TOKEN,
                 {
                   friendly_id: response.data.data.friendly_id,
-                },
+                }
               )
-              .then(livetvshows => {
+              .then((livetvshows) => {
                 //console.log(JSON.stringify(livetvshows.data.resp));
                 if (livetvshows.data.resp.length >= 15) var counter = 15;
                 else var counter = livetvshows.data.resp.length;
@@ -463,20 +511,20 @@ export default function Episode({ navigation, route }) {
                 }
                 setRelatedShows(relatedShows);
               })
-              .catch(livetvshowserror => {
+              .catch((livetvshowserror) => {
                 console.log(livetvshowserror);
               });
           }
         })
-        .catch(error => {
+        .catch((error) => {
           setLoading(false);
           alternativeUrl(
-            urlPath1 + '.gzip?&auth_token=' + AUTH_TOKEN + '&region=' + region,
+            urlPath1 + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region,
             sessionId,
-            region,
+            region
           );
         });
-      if (passedtheme != 'live' && passedtheme != 'livetv') {
+      if (passedtheme != "live" && passedtheme != "livetv") {
         loadRelatedData(relatedurl);
       }
     }
@@ -489,21 +537,21 @@ export default function Episode({ navigation, route }) {
     console.log(url);
     await axios
       .get(url)
-      .then(response => {
+      .then((response) => {
         setTitle(response.data.data.title);
         setOfflineUrl(response.data.data.play_url.saranyu.url);
         setShareUrl(COMMON_BASE_URL + seourl);
-        if (response.data.data.hasOwnProperty('channel_object'))
+        if (response.data.data.hasOwnProperty("channel_object"))
           setChannel(response.data.data.channel_object.name);
-        if (response.data.data.hasOwnProperty('cbfc_rating'))
+        if (response.data.data.hasOwnProperty("cbfc_rating"))
           setContentRating(response.data.data.cbfc_rating);
-        if (response.data.data.hasOwnProperty('display_ott_guidelines'))
+        if (response.data.data.hasOwnProperty("display_ott_guidelines"))
           setContentguidelines(response.data.data.display_ott_guidelines);
-        if (response.data.data.hasOwnProperty('display_genres'))
+        if (response.data.data.hasOwnProperty("display_genres"))
           setDisplayGenres(response.data.data.display_genres);
-        if (response.data.data.hasOwnProperty('description'))
+        if (response.data.data.hasOwnProperty("description"))
           setDescription(response.data.data.description);
-        if (response.data.data.hasOwnProperty('thumbnails'))
+        if (response.data.data.hasOwnProperty("thumbnails"))
           setThumbnailImage(response.data.data.thumbnails.high_4_3.url);
         setContentId(response.data.data.content_id);
         setCatalogId(response.data.data.catalog_id);
@@ -518,41 +566,41 @@ export default function Episode({ navigation, route }) {
         setloginrequired(response.data.data.access_control.login_required);
         setisfree(response.data.data.access_control.is_free);
         setdurationsttring(response.data.data.duration_string);
-        if (response.data.data.hasOwnProperty('subcategory_object')) {
+        if (response.data.data.hasOwnProperty("subcategory_object")) {
           setseriesname(
-            response.data.data.subcategory_object.parentree.sub_name,
+            response.data.data.subcategory_object.parentree.sub_name
           );
           setseriesid(response.data.data.subcategory_object.parentree.sub_id);
         }
-        AsyncStorage.getItem('watchLater_' + response.data.data.content_id)
-          .then(resp => {
-            if (resp != '' && resp != null) setwatchlatercontent(true);
+        AsyncStorage.getItem("watchLater_" + response.data.data.content_id)
+          .then((resp) => {
+            if (resp != "" && resp != null) setwatchlatercontent(true);
           })
-          .catch(erro => { });
-        AsyncStorage.getItem('like_' + response.data.data.content_id)
-          .then(resp => {
+          .catch((erro) => {});
+        AsyncStorage.getItem("like_" + response.data.data.content_id)
+          .then((resp) => {
             //console.log(resp);
-            if (resp != '' && resp != null) setlikecontent(true);
+            if (resp != "" && resp != null) setlikecontent(true);
           })
-          .catch(erro => { });
+          .catch((erro) => {});
         var currentTimestamp = Math.floor(Date.now() / 1000).toString();
         //console.log(sessionId);
         if (sessionId != null) setloggedin(true);
-        if (sessionId == null) sessionId = '';
+        if (sessionId == null) sessionId = "";
         var md5String = stringMd5(
           response.data.data.catalog_id +
-          response.data.data.content_id +
-          sessionId +
-          currentTimestamp +
-          SECRET_KEY,
+            response.data.data.content_id +
+            sessionId +
+            currentTimestamp +
+            SECRET_KEY
         );
         axios
           .post(
-            FIRETV_BASE_URL + 'v2/users/get_all_details',
+            FIRETV_BASE_URL + "v2/users/get_all_details",
             {
               catalog_id: response.data.data.catalog_id,
               content_id: response.data.data.content_id,
-              category: '',
+              category: "",
               region: region,
               auth_token: VIDEO_AUTH_TOKEN,
               access_token: ACCESS_TOKEN,
@@ -562,43 +610,42 @@ export default function Episode({ navigation, route }) {
             },
             {
               headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
               },
-            },
+            }
           )
-          .then(resp => {
-
+          .then((resp) => {
             setstreemexceedlimit(
-              resp.data.data.stream_info.is_stream_limit_exceed,
+              resp.data.data.stream_info.is_stream_limit_exceed
             );
             setstreemexceedlimitmessage(resp.data.data.stream_info.message);
             if (onlineplayUrl == false) {
-              if (resp.data.data.stream_info.adaptive_url != '') {
+              if (resp.data.data.stream_info.adaptive_url != "") {
                 setPlayUrl(resp.data.data.stream_info.adaptive_url);
                 setseektime(resp.data.data.stream_info.play_back_time);
                 if (resp.data.data.access_control.login_required == true) {
-                  if (sessionId == '' || sessionId == null) {
-                    setPlayUrl('');
+                  if (sessionId == "" || sessionId == null) {
+                    setPlayUrl("");
                   }
                   axios
                     .get(
                       FIRETV_BASE_URL_STAGING +
-                      'user/session/' +
-                      sessionId +
-                      '?auth_token=' +
-                      AUTH_TOKEN,
+                        "user/session/" +
+                        sessionId +
+                        "?auth_token=" +
+                        AUTH_TOKEN
                     )
-                    .then(resp => {
-                      if (resp.data.message != 'Valid session id.') {
-                        setPlayUrl('');
+                    .then((resp) => {
+                      if (resp.data.message != "Valid session id.") {
+                        setPlayUrl("");
                       }
                     })
-                    .catch(err => {
-                      setPlayUrl('');
+                    .catch((err) => {
+                      setPlayUrl("");
                     });
                 }
               } else if (
-                resp.data.data.stream_info.preview.adaptive_url != ''
+                resp.data.data.stream_info.preview.adaptive_url != ""
               ) {
                 setPlayUrl(resp.data.data.stream_info.preview.adaptive_url);
                 setPreview(true);
@@ -606,26 +653,26 @@ export default function Episode({ navigation, route }) {
             }
             setLoading(false);
           })
-          .catch(error => {
+          .catch((error) => {
             //console.log(JSON.stringify(error.response.data));
             setLoading(false);
           });
         setCurrentFriendlyId(response.data.data.friendly_id);
         setsubcatcurrentTheme(response.data.data.theme);
         setlivetvshowstheme(passedtheme);
-        if (passedtheme == 'live' || passedtheme == 'livetv') {
+        if (passedtheme == "live" || passedtheme == "livetv") {
           axios
             .post(
               FIRETV_BASE_URL +
-              '/get_all_shows?auth_token=' +
-              AUTH_TOKEN +
-              '&access_token=' +
-              ACCESS_TOKEN,
+                "/get_all_shows?auth_token=" +
+                AUTH_TOKEN +
+                "&access_token=" +
+                ACCESS_TOKEN,
               {
                 friendly_id: response.data.data.friendly_id,
-              },
+              }
             )
-            .then(livetvshows => {
+            .then((livetvshows) => {
               //console.log(JSON.stringify(livetvshows.data.resp));
               if (livetvshows.data.resp.length >= 15) var counter = 15;
               else var counter = livetvshows.data.resp.length;
@@ -640,57 +687,107 @@ export default function Episode({ navigation, route }) {
               }
               setRelatedShows(relatedShows);
             })
-            .catch(livetvshowserror => {
+            .catch((livetvshowserror) => {
               console.log(livetvshowserror);
             });
         }
 
         setLoading(false);
       })
-      .catch(error => {
+      .catch((error) => {
         setLoading(false);
         alternativeUrl(urlPath1);
       });
   }
   const loadRelatedData = async (relatedurl) => {
-    axios.get(relatedurl).then(resp => {
-      var subcategorydata = [];
-      for (var s = 0; s < resp.data.data.items.length; s++) {
-        subcategorydata.push({ 'thumbnail': resp.data.data.items[s].thumbnails.medium_3_4.url, 'title': resp.data.data.items[s].title, 'date': resp.data.data.items[s].release_date_uts, 'premium': resp.data.data.items[s].access_control.is_free, 'theme': resp.data.data.items[s].theme, 'seo_url': resp.data.data.items[s].seo_url })
-      }
-      console.log(JSON.stringify(subcategorydata));
-      setRelatedMovies(subcategorydata)
-    }).catch(err => {
-      console.log("related" + err);
-    })
-  }
+    axios
+      .get(relatedurl)
+      .then((resp) => {
+        var subcategorydata = [];
+        for (var s = 0; s < resp.data.data.items.length; s++) {
+          subcategorydata.push({
+            thumbnail: resp.data.data.items[s].thumbnails.medium_3_4.url,
+            title: resp.data.data.items[s].title,
+            date: resp.data.data.items[s].release_date_uts,
+            premium: resp.data.data.items[s].access_control.is_free,
+            theme: resp.data.data.items[s].theme,
+            seo_url: resp.data.data.items[s].seo_url,
+          });
+        }
+        console.log(JSON.stringify(subcategorydata));
+        setRelatedMovies(subcategorydata);
+      })
+      .catch((err) => {
+        console.log("related" + err);
+      });
+  };
   const getsubcatDetails = async () => {
     console.log("hi");
     var totalData = [];
-    const region = await AsyncStorage.getItem('country_code');
-    await axios.get(FIRETV_BASE_URL_STAGING + "catalog_lists/movie-videolists?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&item_language=eng&region=" + region + "&parent_id=" + contentId).then(resp => {
-      if (resp.data.data.catalog_list_items.length > 10)
-        var len = 10;
-      else
-        var len = resp.data.data.catalog_list_items.length;
+    const region = await AsyncStorage.getItem("country_code");
+    await axios
+      .get(
+        FIRETV_BASE_URL_STAGING +
+          "catalog_lists/movie-videolists?auth_token=" +
+          VIDEO_AUTH_TOKEN +
+          "&access_token=" +
+          ACCESS_TOKEN +
+          "&item_language=eng&region=" +
+          region +
+          "&parent_id=" +
+          contentId
+      )
+      .then((resp) => {
+        if (resp.data.data.catalog_list_items.length > 10) var len = 10;
+        else var len = resp.data.data.catalog_list_items.length;
 
-      for (var o = 0; o < len; o++) {
-        var subcategorydata = [];
-        if (resp.data.data.catalog_list_items[o].catalog_list_items.length > 10)
-          var len1 = 10;
-        else
-          var len1 = resp.data.data.catalog_list_items[o].catalog_list_items.length;
+        for (var o = 0; o < len; o++) {
+          var subcategorydata = [];
+          if (
+            resp.data.data.catalog_list_items[o].catalog_list_items.length > 10
+          )
+            var len1 = 10;
+          else
+            var len1 =
+              resp.data.data.catalog_list_items[o].catalog_list_items.length;
 
-        for (var s = 0; s < len1; s++) {
-          subcategorydata.push({ 'thumbnail': resp.data.data.catalog_list_items[o].catalog_list_items[s].thumbnails.high_4_3.url, 'title': resp.data.data.catalog_list_items[o].catalog_list_items[s].title, 'premium': resp.data.data.catalog_list_items[o].catalog_list_items[s].access_control.is_free, 'theme': resp.data.data.catalog_list_items[o].catalog_list_items[s].theme, 'seo_url': resp.data.data.catalog_list_items[o].catalog_list_items[s].seo_url, 'short_description': resp.data.data.catalog_list_items[o].catalog_list_items[s].description, 'item_type': resp.data.data.catalog_list_items[o].theme })
+          for (var s = 0; s < len1; s++) {
+            subcategorydata.push({
+              thumbnail:
+                resp.data.data.catalog_list_items[o].catalog_list_items[s]
+                  .thumbnails.high_4_3.url,
+              title:
+                resp.data.data.catalog_list_items[o].catalog_list_items[s]
+                  .title,
+              premium:
+                resp.data.data.catalog_list_items[o].catalog_list_items[s]
+                  .access_control.is_free,
+              theme:
+                resp.data.data.catalog_list_items[o].catalog_list_items[s]
+                  .theme,
+              seo_url:
+                resp.data.data.catalog_list_items[o].catalog_list_items[s]
+                  .seo_url,
+              short_description:
+                resp.data.data.catalog_list_items[o].catalog_list_items[s]
+                  .description,
+              item_type: resp.data.data.catalog_list_items[o].theme,
+            });
+          }
+          totalData.push({
+            display_title: resp.data.data.catalog_list_items[o].display_title,
+            item_type: resp.data.data.catalog_list_items[o].theme,
+            thumbnails: subcategorydata,
+            friendlyId: resp.data.data.catalog_list_items[o].friendly_id,
+            parent_id: contentId,
+          });
+          setsubcategoryImages([...subcategoryImages, totalData]);
         }
-        totalData.push({ 'display_title': resp.data.data.catalog_list_items[o].display_title, 'item_type': resp.data.data.catalog_list_items[o].theme, 'thumbnails': subcategorydata, 'friendlyId': resp.data.data.catalog_list_items[o].friendly_id, 'parent_id': contentId })
-        setsubcategoryImages([...subcategoryImages, totalData])
-      }
-    }).catch(err => {
-      console.log(err);
-    })
-  }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   async function getLiveTvData() {
     var All = [];
@@ -698,48 +795,106 @@ export default function Episode({ navigation, route }) {
     var definedPageName = "live";
     var premiumContent = false;
     var premiumCheckData = "";
-    const region = await AsyncStorage.getItem('country_code');
-    const url = FIRETV_BASE_URL + "/catalog_lists/" + definedPageName + ".gzip?item_language=eng&region=" + region + "&auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&page=0&page_size=100&npage_size=100";
+    const region = await AsyncStorage.getItem("country_code");
+    const url =
+      FIRETV_BASE_URL +
+      "/catalog_lists/" +
+      definedPageName +
+      ".gzip?item_language=eng&region=" +
+      region +
+      "&auth_token=" +
+      AUTH_TOKEN +
+      "&access_token=" +
+      ACCESS_TOKEN +
+      "&page=0&page_size=100&npage_size=100";
     const resp = await fetch(url);
     const data = await resp.json();
     if (data.data.catalog_list_items.length > 0) {
       for (var i = 0; i < data.data.catalog_list_items.length; i++) {
-        if (data.data.catalog_list_items[i].hasOwnProperty('access_control')) {
-          premiumCheckData = (data.data.catalog_list_items[i].access_control);
+        if (data.data.catalog_list_items[i].hasOwnProperty("access_control")) {
+          premiumCheckData = data.data.catalog_list_items[i].access_control;
           if (premiumCheckData != "") {
-            if (premiumCheckData['is_free']) {
+            if (premiumCheckData["is_free"]) {
               premiumContent = false;
-            }
-            else {
+            } else {
               premiumContent = true;
             }
           }
         }
-        var displayTitle = data.data.catalog_list_items[i].title
+        var displayTitle = data.data.catalog_list_items[i].title;
         if (displayTitle.length > 19)
           displayTitle = displayTitle.substr(0, 19) + "\u2026";
 
-
-        if (definedPageName == 'live') {
-
-
-          if (data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_4_3') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_3_4') || data.data.catalog_list_items[i].thumbnails.hasOwnProperty('high_16_9')) {
+        if (definedPageName == "live") {
+          if (
+            data.data.catalog_list_items[i].thumbnails.hasOwnProperty(
+              "high_4_3"
+            ) ||
+            data.data.catalog_list_items[i].thumbnails.hasOwnProperty(
+              "high_3_4"
+            ) ||
+            data.data.catalog_list_items[i].thumbnails.hasOwnProperty(
+              "high_16_9"
+            )
+          ) {
             if (data.data.catalog_list_items[i].layout_type == "top_banner")
-              All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": data.data.catalog_list_items[i].friendly_id, "displayTitle": "" });
+              All.push({
+                uri: data.data.catalog_list_items[i].thumbnails.high_3_4.url,
+                theme: data.data.catalog_list_items[i].theme,
+                premium: premiumContent,
+                seoUrl: data.data.catalog_list_items[i].seo_url,
+                medialistinlist:
+                  data.data.catalog_list_items[i].media_list_in_list,
+                friendlyId: data.data.catalog_list_items[i].friendly_id,
+                displayTitle: "",
+              });
+            else if (
+              data.data.catalog_list_items[i].layout_type == "tv_shows" ||
+              data.data.catalog_list_items[i].layout_type == "show"
+            )
+              All.push({
+                uri: data.data.catalog_list_items[i].thumbnails.high_3_4.url,
+                theme: data.data.catalog_list_items[i].theme,
+                premium: premiumContent,
+                seoUrl: data.data.catalog_list_items[i].seo_url,
+                medialistinlist:
+                  data.data.catalog_list_items[i].media_list_in_list,
+                friendlyId: data.data.catalog_list_items[i].friendly_id,
+                displayTitle: "",
+              });
+            else if (
+              data.data.catalog_list_items[i].layout_type == "tv_shows_banner"
+            )
+              All.push({
+                uri: data.data.catalog_list_items[i].thumbnails.high_4_3.url,
+                theme: data.data.catalog_list_items[i].theme,
+                premium: premiumContent,
+                seoUrl: data.data.catalog_list_items[i].seo_url,
+                medialistinlist:
+                  data.data.catalog_list_items[i].media_list_in_list,
+                friendlyId: data.data.catalog_list_items[i].friendly_id,
+                displayTitle: "",
+              });
             else
-              if (data.data.catalog_list_items[i].layout_type == "tv_shows" || data.data.catalog_list_items[i].layout_type == "show")
-                All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": data.data.catalog_list_items[i].friendly_id, "displayTitle": "" });
-              else
-                if (data.data.catalog_list_items[i].layout_type == "tv_shows_banner")
-                  All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_4_3.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": data.data.catalog_list_items[i].friendly_id, "displayTitle": "" });
-                else
-                  All.push({ "uri": data.data.catalog_list_items[i].thumbnails.high_3_4.url, "theme": data.data.catalog_list_items[i].theme, "premium": premiumContent, "seoUrl": data.data.catalog_list_items[i].seo_url, "medialistinlist": data.data.catalog_list_items[i].media_list_in_list, "friendlyId": data.data.catalog_list_items[i].friendly_id, "displayTitle": displayTitle });
-
-
+              All.push({
+                uri: data.data.catalog_list_items[i].thumbnails.high_3_4.url,
+                theme: data.data.catalog_list_items[i].theme,
+                premium: premiumContent,
+                seoUrl: data.data.catalog_list_items[i].seo_url,
+                medialistinlist:
+                  data.data.catalog_list_items[i].media_list_in_list,
+                friendlyId: data.data.catalog_list_items[i].friendly_id,
+                displayTitle: displayTitle,
+              });
           }
         }
       }
-      Final.push({ "friendlyId": data.data.friendly_id, "data": All, "layoutType": data.data.layout_type, "displayName": data.data.display_title });
+      Final.push({
+        friendlyId: data.data.friendly_id,
+        data: All,
+        layoutType: data.data.layout_type,
+        displayName: data.data.display_title,
+      });
       All = [];
     }
     console.log(JSON.stringify(Final));
@@ -748,18 +903,17 @@ export default function Episode({ navigation, route }) {
 
   const triggeranalytics = async (name, sec, event_id) => {
     var chromeCastConnected = 0;
-    GoogleCast.getCastState().then(state => {
-      if (state == 'connected') {
+    GoogleCast.getCastState().then((state) => {
+      if (state == "connected") {
         chromeCastConnected = 1;
-      }
-      else {
+      } else {
         chromeCastConnected = 0;
       }
-    })
+    });
     const uniqueid = await DeviceInfo.getUniqueId();
-    const sessionId = await AsyncStorage.getItem('session');
-    const user_id = await AsyncStorage.getItem('user_id');
-    const source = await AsyncStorage.getItem('sourceName');
+    const sessionId = await AsyncStorage.getItem("session");
+    const user_id = await AsyncStorage.getItem("user_id");
+    const source = await AsyncStorage.getItem("sourceName");
     console.log(source);
     sdk.trackEvent(name, {
       content_provider: contentprovider,
@@ -782,309 +936,442 @@ export default function Episode({ navigation, route }) {
       video_id: contentId,
       video_name: title,
       video_language: contentlanguage,
-      subtitles: 'none',
+      subtitles: "none",
       event_time: new Date(),
-      event_id: event_id
+      event_id: event_id,
     });
-  }
+  };
   const triggerOtherAnalytics = async (name, obj) => {
     sdk.trackEvent(name, obj);
-  }
+  };
 
   const checkOfflineDownload = async () => {
-    var sessionId = await AsyncStorage.getItem('session');
+    var sessionId = await AsyncStorage.getItem("session");
     if (offlineUrl != "") {
       var splittedOfflineUrl = offlineUrl.split("/");
-      var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/' + splittedOfflineUrl[splittedOfflineUrl.length - 1] + ".ts.download";
+      var downloaddirectory =
+        RNBackgroundDownloader.directories.documents +
+        "/offlinedownload/" +
+        splittedOfflineUrl[splittedOfflineUrl.length - 1] +
+        ".ts.download";
       if (await RNFS.exists(downloaddirectory)) {
         //console.log(downloadpercent);
-        var downloadpercent = await AsyncStorage.getItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1]);
-        var downloadtask = await AsyncStorage.getItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1]);
+        var downloadpercent = await AsyncStorage.getItem(
+          "download_" + splittedOfflineUrl[splittedOfflineUrl.length - 1]
+        );
+        var downloadtask = await AsyncStorage.getItem(
+          "download_task" + splittedOfflineUrl[splittedOfflineUrl.length - 1]
+        );
         //console.log(downloadtask);
         if (downloadtask != "" || downloadtask != null)
           settaskdownloading(downloadtask);
-        if (downloadpercent == '100' && sessionId != "" && sessionId != null) {
-          setDownloadedStatus(1)
-          setPlayUrl(downloaddirectory)
-          setOnlinePlayUrl(true)
+        if (downloadpercent == "100" && sessionId != "" && sessionId != null) {
+          setDownloadedStatus(1);
+          setPlayUrl(downloaddirectory);
+          setOnlinePlayUrl(true);
           setshowsettingsicon(false);
-        }
-        else if (downloadpercent != "" || downloadpercent != null) {
-          setDownloadedStatus(2)
-          setOnlinePlayUrl(false)
+        } else if (downloadpercent != "" || downloadpercent != null) {
+          setDownloadedStatus(2);
+          setOnlinePlayUrl(false);
           setPauseDownload(true);
-        }
-        else {
-          setDownloadedStatus(0)
-          setOnlinePlayUrl(false)
+        } else {
+          setDownloadedStatus(0);
+          setOnlinePlayUrl(false);
           setPauseDownload(false);
         }
       }
     }
-
-  }
+  };
   useEffect(() => {
     if (dataFetchedRef.current) return;
     dataFetchedRef.current = true;
-    loadData()
-    if (passedtheme == 'live' || passedtheme == 'livetv')
-      getLiveTvData()
+    loadData();
+    if (passedtheme == "live" || passedtheme == "livetv") getLiveTvData();
     if (fullscreen) {
       navigationConfig();
-    }
-    else {
+    } else {
       navigationConfigVisible();
     }
     setTimeout(function () {
       setDisplayGuidelines(false);
     }, 10000);
-  })
+  });
   useEffect(() => {
     Orientation.getDeviceOrientation((orientation) => {
-      if (orientation === 'LANDSCAPE-LEFT') {
+      if (orientation === "LANDSCAPE-LEFT") {
         setFullscreen(true);
-        StatusBar.setHidden(true)
+        StatusBar.setHidden(true);
         Orientation.lockToLandscapeLeft();
         return true;
+      } else if (orientation === "LANDSCAPE-RIGHT") {
+        setFullscreen(true);
+        StatusBar.setHidden(true);
+        Orientation.lockToLandscapeRight();
+        return true;
       }
-      else
-        if (orientation === 'LANDSCAPE-RIGHT') {
-          setFullscreen(true);
-          StatusBar.setHidden(true)
-          Orientation.lockToLandscapeRight();
-          return true;
-        }
 
       if (!fullscreentap) {
-        if (orientation === 'PORTRAIT' || orientation === 'UNKNOWN' || orientation === '') {
+        if (
+          orientation === "PORTRAIT" ||
+          orientation === "UNKNOWN" ||
+          orientation === ""
+        ) {
           setFullscreen(false);
-          StatusBar.setHidden(false)
+          StatusBar.setHidden(false);
           Orientation.lockToPortrait();
           return true;
         }
       }
-    })
-    BackHandler.addEventListener('hardwareBackPress', exitScreen);
-  }, [subcatcurrentTheme, livetvshowstheme, relatedMovies])
+    });
+    BackHandler.addEventListener("hardwareBackPress", exitScreen);
+  }, [subcatcurrentTheme, livetvshowstheme, relatedMovies]);
   function handleFullscreen() {
     setfullscreentap(!fullscreentap);
     Orientation.getOrientation((orientation) => {
       console.log(orientation);
-      if (orientation === 'LANDSCAPE-LEFT' || orientation === 'LANDSCAPE-RIGHT') {
+      if (
+        orientation === "LANDSCAPE-LEFT" ||
+        orientation === "LANDSCAPE-RIGHT"
+      ) {
         setFullscreen(false);
-        StatusBar.setHidden(false)
+        StatusBar.setHidden(false);
         Orientation.lockToPortrait();
         return true;
+      } else if (
+        orientation === "PORTRAIT" ||
+        orientation === "UNKNOWN" ||
+        orientation === ""
+      ) {
+        setFullscreen(true);
+        StatusBar.setHidden(true);
+        Orientation.lockToLandscapeLeft();
+        return true;
       }
-      else
-        if (orientation === 'PORTRAIT' || orientation === 'UNKNOWN' || orientation === '') {
-          setFullscreen(true);
-          StatusBar.setHidden(true)
-          Orientation.lockToLandscapeLeft();
-          return true;
-        }
-    })
+    });
   }
   function showControls() {
     state.showControls
       ? setState({ ...state, showControls: false })
       : setState({ ...state, showControls: true });
     // setShowThumbnailSeekBar(false);
-    setTimeout(function () { setState({ ...state, showControls: false }) }, 5000)
+    setTimeout(function () {
+      setState({ ...state, showControls: false });
+    }, 5000);
   }
   const checkgoback = () => {
-    if (goto != '' && goto != null) {
-      navigation.dispatch(StackActions.replace(goto))
-    }
-    else {
-      if (navigation.canGoBack())
-        navigation.goBack()
+    if (goto != "" && goto != null) {
+      navigation.dispatch(StackActions.replace(goto));
+    } else {
+      if (navigation.canGoBack()) navigation.goBack();
       else
-        navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+        navigation.dispatch(
+          StackActions.replace("Home", { pageFriendlyId: "featured-1" })
+        );
     }
-  }
+  };
   const downloadFile = async () => {
     if (!loggedin) {
       navigation.dispatch(StackActions.replace("Login"));
-    }
-    else {
+    } else {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
         {
-          title: 'Download File',
-          message:
-            'Need App Access To Download Files',
-          buttonPositive: 'OK',
-        },
+          title: "Download File",
+          message: "Need App Access To Download Files",
+          buttonPositive: "OK",
+        }
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         // if (offlineUrl != "") {
-        var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/';
+        var downloaddirectory =
+          RNBackgroundDownloader.directories.documents + "/offlinedownload/";
         var offlineprefrences = [];
         if (await RNFS.exists(downloaddirectory)) {
           //setDownloadedStatus(1)
-        }
-        else {
+        } else {
           RNFS.mkdir(downloaddirectory);
         }
-        var offlinedownloadapi = offlineUrl + "?service_id=6&play_url=yes&protocol=http_pd&us=745d7e9f1e37ca27fdffbebfe8a99877";
-        await axios.get(offlinedownloadapi).then(response => {
-          for (let o = 0; o < response.data.playback_urls.length; o++) {
-            offlineprefrences.push({ "display_name": response.data.playback_urls[o].display_name, "playback_url": response.data.playback_urls[o].playback_url, "offlineUrl": offlineUrl, "downloaddirectory": downloaddirectory })
-          }
-          setPreference(offlineprefrences);
-          toggleModal()
-        }).catch(error => { })
+        var offlinedownloadapi =
+          offlineUrl +
+          "?service_id=6&play_url=yes&protocol=http_pd&us=745d7e9f1e37ca27fdffbebfe8a99877";
+        await axios
+          .get(offlinedownloadapi)
+          .then((response) => {
+            for (let o = 0; o < response.data.playback_urls.length; o++) {
+              offlineprefrences.push({
+                display_name: response.data.playback_urls[o].display_name,
+                playback_url: response.data.playback_urls[o].playback_url,
+                offlineUrl: offlineUrl,
+                downloaddirectory: downloaddirectory,
+              });
+            }
+            setPreference(offlineprefrences);
+            toggleModal();
+          })
+          .catch((error) => {});
 
         // }
-
-      }
-      else {
+      } else {
         alert("Please give access to download files.");
       }
     }
-  }
+  };
 
-  const startDownloading = async (playback_url, offlineUrl, downloaddirectory, downloadquality) => {
+  const startDownloading = async (
+    playback_url,
+    offlineUrl,
+    downloaddirectory,
+    downloadquality
+  ) => {
     var splittedOfflineUrl = offlineUrl.split("/");
-    AsyncStorage.setItem('download_url' + splittedOfflineUrl[splittedOfflineUrl.length - 1], playback_url);
-    AsyncStorage.setItem('download_path' + splittedOfflineUrl[splittedOfflineUrl.length - 1], `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts.download`);
-    AsyncStorage.setItem('download_title' + splittedOfflineUrl[splittedOfflineUrl.length - 1], title);
-    AsyncStorage.setItem('download_thumbnail' + splittedOfflineUrl[splittedOfflineUrl.length - 1], thumbnailImage);
-    AsyncStorage.setItem('download_seourl' + splittedOfflineUrl[splittedOfflineUrl.length - 1], seourl)
+    AsyncStorage.setItem(
+      "download_url" + splittedOfflineUrl[splittedOfflineUrl.length - 1],
+      playback_url
+    );
+    AsyncStorage.setItem(
+      "download_path" + splittedOfflineUrl[splittedOfflineUrl.length - 1],
+      `${downloaddirectory}/${
+        splittedOfflineUrl[splittedOfflineUrl.length - 1]
+      }.ts.download`
+    );
+    AsyncStorage.setItem(
+      "download_title" + splittedOfflineUrl[splittedOfflineUrl.length - 1],
+      title
+    );
+    AsyncStorage.setItem(
+      "download_thumbnail" + splittedOfflineUrl[splittedOfflineUrl.length - 1],
+      thumbnailImage
+    );
+    AsyncStorage.setItem(
+      "download_seourl" + splittedOfflineUrl[splittedOfflineUrl.length - 1],
+      seourl
+    );
 
     let tasks = RNBackgroundDownloader.download({
       id: splittedOfflineUrl[splittedOfflineUrl.length - 1],
       url: playback_url,
-      destination: `${downloaddirectory}/${splittedOfflineUrl[splittedOfflineUrl.length - 1]}.ts.download`
-    }).begin((expectedBytes) => {
-      setDownloadedStatus(2)
-      // console.log(`Going to download ${expectedBytes} bytes!`);
-      toggleModal()
-    }).progress((percent) => {
-      let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "download_quality": downloadquality, "source": "source", "percentage_downloaded": `${percent * 100}`, 'event_time': new Date(), 'event_id': '09' };
-      triggerOtherAnalytics('download_video', jsonObj)
-
-      AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(percent * 100));
-      // console.log(`Downloaded: ${percent * 100}%`);
-    }).done(() => {
-      AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(1 * 100));
-      setDownloadedStatus(1)
-      // console.log('Download is done!');
-    }).error((error) => {
-      // console.log('Download canceled due to error: ', error);
+      destination: `${downloaddirectory}/${
+        splittedOfflineUrl[splittedOfflineUrl.length - 1]
+      }.ts.download`,
     })
+      .begin((expectedBytes) => {
+        setDownloadedStatus(2);
+        // console.log(`Going to download ${expectedBytes} bytes!`);
+        toggleModal();
+      })
+      .progress((percent) => {
+        let jsonObj = {
+          content_type: contenttype,
+          video_name: title,
+          genre: displayGenres,
+          video_language: contentlanguage,
+          download_quality: downloadquality,
+          source: "source",
+          percentage_downloaded: `${percent * 100}`,
+          event_time: new Date(),
+          event_id: "09",
+        };
+        triggerOtherAnalytics("download_video", jsonObj);
+
+        AsyncStorage.setItem(
+          "download_" + splittedOfflineUrl[splittedOfflineUrl.length - 1],
+          JSON.stringify(percent * 100)
+        );
+        // console.log(`Downloaded: ${percent * 100}%`);
+      })
+      .done(() => {
+        AsyncStorage.setItem(
+          "download_" + splittedOfflineUrl[splittedOfflineUrl.length - 1],
+          JSON.stringify(1 * 100)
+        );
+        setDownloadedStatus(1);
+        // console.log('Download is done!');
+      })
+      .error((error) => {
+        // console.log('Download canceled due to error: ', error);
+      });
     settaskdownloading(tasks);
-    AsyncStorage.setItem('download_task' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(tasks));
-    navigation.dispatch(StackActions.replace('Offline'));
-  }
+    AsyncStorage.setItem(
+      "download_task" + splittedOfflineUrl[splittedOfflineUrl.length - 1],
+      JSON.stringify(tasks)
+    );
+    navigation.dispatch(StackActions.replace("Offline"));
+  };
 
   const deleteDownload = async () => {
+    Alert.alert(
+      "Delete File",
+      "Please confirm to delete the file from offline.",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: async () => {
+            //console.log('OK Pressed')
 
-    Alert.alert('Delete File', 'Please confirm to delete the file from offline.', [
-      {
-        text: 'Cancel',
-        onPress: () => { },
-        style: 'cancel',
-      },
-      {
-        text: 'OK', onPress: async () => {
-          //console.log('OK Pressed')
-
-          var splittedOfflineUrl = offlineUrl.split("/");
-          var downloaddirectory = RNBackgroundDownloader.directories.documents + '/offlinedownload/' + splittedOfflineUrl[splittedOfflineUrl.length - 1] + ".ts.download";
-          if (await RNFS.exists(downloaddirectory)) {
-            await RNFS.unlink(downloaddirectory)
-            setDownloadedStatus(0)
-          }
-          navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
-        }
-      },
-    ]);
-  }
+            var splittedOfflineUrl = offlineUrl.split("/");
+            var downloaddirectory =
+              RNBackgroundDownloader.directories.documents +
+              "/offlinedownload/" +
+              splittedOfflineUrl[splittedOfflineUrl.length - 1] +
+              ".ts.download";
+            if (await RNFS.exists(downloaddirectory)) {
+              await RNFS.unlink(downloaddirectory);
+              setDownloadedStatus(0);
+            }
+            navigation.dispatch(
+              StackActions.replace("Home", { pageFriendlyId: "featured-1" })
+            );
+          },
+        },
+      ]
+    );
+  };
   const pauseDownloadAction = async () => {
     taskdownloading.pause();
     setPauseDownload(true);
-  }
+  };
   const resumeDownloadAction = async () => {
     taskdownloading.resume();
     setPauseDownload(false);
-  }
+  };
   const checkpreviewContent = async () => {
-    triggeranalytics('pb_end', pbtime, '02')
+    triggeranalytics("pb_end", pbtime, "02");
     if (preview) {
       setshowupgrade(true);
     }
     await toHoursAndMinutes(0);
     await playnextitem();
-  }
+  };
   const watchLater = async () => {
     if (!loggedin) {
       navigation.dispatch(StackActions.replace("Login"));
+    } else {
+      var sessionId = await AsyncStorage.getItem("session");
+      await axios
+        .post(
+          FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchlater",
+          {
+            listitem: { catalog_id: catalogId, content_id: contentId },
+            auth_token: VIDEO_AUTH_TOKEN,
+            access_token: ACCESS_TOKEN,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          alert("Added to watchlist");
+          AsyncStorage.setItem("watchLater_" + contentId, contentId);
+          let jsonObj = {
+            content_type: contenttype,
+            video_name: title,
+            genre: displayGenres,
+            video_language: contentlanguage,
+            event_time: new Date(),
+            event_id: "07",
+          };
+          triggerOtherAnalytics("watch_later", jsonObj);
+          setwatchlatercontent(true);
+        })
+        .catch((error) => {
+          alert("Unable to add to watchlist. Please try again later.");
+        });
     }
-    else {
-      var sessionId = await AsyncStorage.getItem('session');
-      await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchlater", {
-        listitem: { catalog_id: catalogId, content_id: contentId },
-        auth_token: VIDEO_AUTH_TOKEN,
-        access_token: ACCESS_TOKEN,
-
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }).then(response => {
-        alert("Added to watchlist");
-        AsyncStorage.setItem("watchLater_" + contentId, contentId);
-        let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, 'event_time': new Date(), 'event_id': '07' };
-        triggerOtherAnalytics('watch_later', jsonObj);
-        setwatchlatercontent(true);
-      }).catch(error => {
-        alert("Unable to add to watchlist. Please try again later.");
-      })
-    }
-  }
+  };
   const likeContent = async () => {
     if (!loggedin) {
       navigation.dispatch(StackActions.replace("Login"));
+    } else {
+      var sessionId = await AsyncStorage.getItem("session");
+      await axios
+        .post(
+          FIRETV_BASE_URL + "users/" + sessionId + "/playlists/like",
+          {
+            listitem: {
+              catalog_id: catalogId,
+              content_id: contentId,
+              like_count: "true",
+            },
+            auth_token: VIDEO_AUTH_TOKEN,
+            access_token: ACCESS_TOKEN,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          AsyncStorage.setItem("like_" + contentId, contentId);
+          setlikecontent(true);
+          let jsonObj = {
+            content_type: contenttype,
+            video_name: title,
+            genre: displayGenres,
+            video_language: contentlanguage,
+            content_value: contentvalue,
+            event_time: new Date(),
+            event_id: "08",
+          };
+          triggerOtherAnalytics("like_button", jsonObj);
+        })
+        .catch((error) => {
+          alert("Unable to like the content. Please try again later.");
+        });
     }
-    else {
-      var sessionId = await AsyncStorage.getItem('session');
-      await axios.post(FIRETV_BASE_URL + "users/" + sessionId + "/playlists/like", {
-        listitem: { catalog_id: catalogId, content_id: contentId, like_count: "true" },
-        auth_token: VIDEO_AUTH_TOKEN,
-        access_token: ACCESS_TOKEN,
-
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }).then(response => {
-        AsyncStorage.setItem("like_" + contentId, contentId);
-        setlikecontent(true);
-        let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "content_value": contentvalue, 'event_time': new Date(), 'event_id': '08' };
-        triggerOtherAnalytics('like_button', jsonObj)
-      }).catch(error => {
-        alert("Unable to like the content. Please try again later.");
-      })
-    }
-  }
+  };
   const deleteLike = async (catalog_id, contentId) => {
-    var sessionId = await AsyncStorage.getItem('session');
-    var region = await AsyncStorage.getItem('country_code');
-    await axios.get(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/like/listitems?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region + '&content_id=' + contentId + '&catalog_id=' + catalog_id).then(response => {
-      //console.log(JSON.stringify(response.data.data.items[0]));
-      axios.delete(FIRETV_BASE_URL + "/users/" + sessionId + "/playlists/like/listitems/" + response.data.data.items[0].listitem_id + "?auth_token=" + VIDEO_AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region).then(resp => {
-        AsyncStorage.removeItem('like_' + contentId)
-        setlikecontent(false);
-      }).catch(err => { })
-
-
-    }).catch(error => {
-      //console.log(JSON.stringify(error.response.data));
-    })
-
-  }
+    var sessionId = await AsyncStorage.getItem("session");
+    var region = await AsyncStorage.getItem("country_code");
+    await axios
+      .get(
+        FIRETV_BASE_URL +
+          "/users/" +
+          sessionId +
+          "/playlists/like/listitems?auth_token=" +
+          VIDEO_AUTH_TOKEN +
+          "&access_token=" +
+          ACCESS_TOKEN +
+          "&region=" +
+          region +
+          "&content_id=" +
+          contentId +
+          "&catalog_id=" +
+          catalog_id
+      )
+      .then((response) => {
+        //console.log(JSON.stringify(response.data.data.items[0]));
+        axios
+          .delete(
+            FIRETV_BASE_URL +
+              "/users/" +
+              sessionId +
+              "/playlists/like/listitems/" +
+              response.data.data.items[0].listitem_id +
+              "?auth_token=" +
+              VIDEO_AUTH_TOKEN +
+              "&access_token=" +
+              ACCESS_TOKEN +
+              "&region=" +
+              region
+          )
+          .then((resp) => {
+            AsyncStorage.removeItem("like_" + contentId);
+            setlikecontent(false);
+          })
+          .catch((err) => {});
+      })
+      .catch((error) => {
+        //console.log(JSON.stringify(error.response.data));
+      });
+  };
 
   const shareOptions = async () => {
     const shareOptions = {
@@ -1092,45 +1379,54 @@ export default function Episode({ navigation, route }) {
       failOnCancel: false,
       urls: [shareUrl],
     };
-    let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "content_value": contentvalue, 'event_time': new Date(), 'event_id': '11' };
-    triggerOtherAnalytics('share', jsonObj)
+    let jsonObj = {
+      content_type: contenttype,
+      video_name: title,
+      genre: displayGenres,
+      video_language: contentlanguage,
+      content_value: contentvalue,
+      event_time: new Date(),
+      event_id: "11",
+    };
+    triggerOtherAnalytics("share", jsonObj);
 
     const ShareResponse = await Share.open(shareOptions);
-  }
+  };
 
   const toHoursAndMinutes = async (totalSeconds) => {
     Orientation.getDeviceOrientation((orientation) => {
-      if (orientation === 'LANDSCAPE-LEFT') {
+      if (orientation === "LANDSCAPE-LEFT") {
         setFullscreen(true);
-        StatusBar.setHidden(true)
+        StatusBar.setHidden(true);
         Orientation.lockToLandscapeLeft();
+      } else if (orientation === "LANDSCAPE-RIGHT") {
+        setFullscreen(true);
+        StatusBar.setHidden(true);
+        Orientation.lockToLandscapeRight();
       }
-      else
-        if (orientation === 'LANDSCAPE-RIGHT') {
-          setFullscreen(true);
-          StatusBar.setHidden(true)
-          Orientation.lockToLandscapeRight();
-        }
 
       if (!fullscreentap) {
-        if (orientation === 'PORTRAIT' || orientation === 'UNKNOWN' || orientation === '') {
+        if (
+          orientation === "PORTRAIT" ||
+          orientation === "UNKNOWN" ||
+          orientation === ""
+        ) {
           setFullscreen(false);
-          StatusBar.setHidden(false)
+          StatusBar.setHidden(false);
           Orientation.lockToPortrait();
         }
       }
-    })
+    });
 
     const totalMinutes = Math.floor(totalSeconds / 60);
 
     var seconds = totalSeconds % 60;
     var hours = Math.floor(totalMinutes / 60);
     var minutes = totalMinutes % 60;
-    seconds = String(seconds).padStart(2, '0');
-    hours = String(hours).padStart(2, '0');
-    minutes = String(minutes).padStart(2, '0');
+    seconds = String(seconds).padStart(2, "0");
+    hours = String(hours).padStart(2, "0");
+    minutes = String(minutes).padStart(2, "0");
     var timestamp = hours + ":" + minutes + ":" + seconds;
-
 
     function secondsToTimestamp(seconds) {
       const tigtotalSeconds = Math.floor(seconds);
@@ -1173,153 +1469,403 @@ export default function Episode({ navigation, route }) {
       triggeranalytics("pb_90", totalSeconds);
     }
 
-
     // if (state.showControls) {
     setcurrenttimestamp(timestamp);
     setcurrentloadingtime(totalSeconds);
     // }
-    setpbtime(pbtime + 1)
+    setpbtime(pbtime + 1);
     console.log(pbtime);
-    if ((totalSeconds % 30) == 0) {
-      var sessionId = await AsyncStorage.getItem('session');
-      if (sessionId != "" && sessionId != null && timestamp != "" && timestamp != null) {
-        const watchhistorybaseurl = await AsyncStorage.getItem('watchhistory_api');
-        await axios.post(watchhistorybaseurl + "users/" + sessionId + "/playlists/watchhistory", {
-          listitem: {
-            catalog_id: catalogId, content_id: contentId, like_count: "true", play_back_status: "playing",
-            play_back_time: timestamp
-          },
-          auth_token: VIDEO_AUTH_TOKEN,
-          access_token: ACCESS_TOKEN
-        }, {
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }).then(response => {
-          console.log(JSON.stringify(response.data));
-        }).catch(error => {
-          console.log(error);
-        })
+    if (totalSeconds % 30 == 0) {
+      var sessionId = await AsyncStorage.getItem("session");
+      if (
+        sessionId != "" &&
+        sessionId != null &&
+        timestamp != "" &&
+        timestamp != null
+      ) {
+        const watchhistorybaseurl = await AsyncStorage.getItem(
+          "watchhistory_api"
+        );
+        await axios
+          .post(
+            watchhistorybaseurl +
+              "users/" +
+              sessionId +
+              "/playlists/watchhistory",
+            {
+              listitem: {
+                catalog_id: catalogId,
+                content_id: contentId,
+                like_count: "true",
+                play_back_status: "playing",
+                play_back_time: timestamp,
+              },
+              auth_token: VIDEO_AUTH_TOKEN,
+              access_token: ACCESS_TOKEN,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          )
+          .then((response) => {
+            console.log(JSON.stringify(response.data));
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       }
     }
-  }
+  };
   const loadResolutionSettings = async () => {
-    var resolution = []
-    var settingsapi = offlineUrl + "?service_id=6&play_url=yes&protocol=hls&us=745d7e9f1e37ca27fdffbebfe8a99877";
-    await axios.get(settingsapi).then(response => {
-      for (let o = 0; o < response.data.playback_urls.length; o++) {
-        var displayname = response.data.playback_urls[o].display_name.split('-');
-        const found = resolution.some(el => el.display_name === displayname[0]);
-        if (!found) {
-          resolution.push({ "display_name": displayname[0], "vwidth": response.data.playback_urls[o].vwidth, "vheight": response.data.playback_urls[o].vheight })
+    var resolution = [];
+    var settingsapi =
+      offlineUrl +
+      "?service_id=6&play_url=yes&protocol=hls&us=745d7e9f1e37ca27fdffbebfe8a99877";
+    await axios
+      .get(settingsapi)
+      .then((response) => {
+        for (let o = 0; o < response.data.playback_urls.length; o++) {
+          var displayname =
+            response.data.playback_urls[o].display_name.split("-");
+          const found = resolution.some(
+            (el) => el.display_name === displayname[0]
+          );
+          if (!found) {
+            resolution.push({
+              display_name: displayname[0],
+              vwidth: response.data.playback_urls[o].vwidth,
+              vheight: response.data.playback_urls[o].vheight,
+            });
+          }
         }
-      }
-      setResolutionPreference(resolution);
-      toggleModalResolution()
-    }).catch(error => { })
-  }
+        setResolutionPreference(resolution);
+        toggleModalResolution();
+      })
+      .catch((error) => {});
+  };
   const setVideoResolution = async (type, resolution) => {
     setvideoType(type);
     setvideoresolution(resolution);
     toggleModalResolution();
-  }
+  };
 
   function renderSubcat({ item }) {
-
     return (
-      <View style={{ textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+      <View
+        style={{
+          textAlign: "left",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+        }}
+      >
         {item.map((subcat, i) => {
           return (
-            <View style={{ textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start', width: "100%", marginBottom: 20 }} key={'main' + i}>
-              {subcat.thumbnails.length > 0 ?
-                <View style={{ textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
-                  <Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 18, marginBottom: 10, textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start', fontWeight: '600' }} key={'heading' + i}>{subcat.display_title}</Text>
-                </View> : ""}
+            <View
+              style={{
+                textAlign: "left",
+                justifyContent: "flex-start",
+                alignItems: "flex-start",
+                width: "100%",
+                marginBottom: 20,
+              }}
+              key={"main" + i}
+            >
+              {subcat.thumbnails.length > 0 ? (
+                <View
+                  style={{
+                    textAlign: "left",
+                    justifyContent: "flex-start",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: NORMAL_TEXT_COLOR,
+                      marginLeft: 5,
+                      fontSize: 18,
+                      marginBottom: 10,
+                      textAlign: "left",
+                      justifyContent: "flex-start",
+                      alignItems: "flex-start",
+                      fontWeight: "600",
+                    }}
+                    key={"heading" + i}
+                  >
+                    {subcat.display_title}
+                  </Text>
+                </View>
+              ) : (
+                ""
+              )}
 
               <FlatList
                 data={subcat.thumbnails}
                 keyExtractor={(x, i) => i.toString()}
                 renderItem={(items, index) => {
                   return (
-                    <View style={{ marginBottom: 10,paddingBottom:normalize(40) }} key={'innerkey' + index}>
+                    <View
+                      style={{ marginBottom: 10, paddingBottom: normalize(40) }}
+                      key={"innerkey" + index}
+                    >
                       <View>
-                        {VIDEO_TYPES.includes(items.item.theme) ?
-                          <TouchableOpacity onPress={() => {
-                            navigation.navigate({ name: 'Episode', params: { seoUrl: items.item.seo_url, theme: "videolist", suburl: seourl }, key: { index } });
-                            setNetinfo(false);
-                            }}>
-                            <FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                        {VIDEO_TYPES.includes(items.item.theme) ? (
+                          <TouchableOpacity
+                            onPress={() => {
+                              navigation.navigate({
+                                name: "Episode",
+                                params: {
+                                  seoUrl: items.item.seo_url,
+                                  theme: "videolist",
+                                  suburl: seourl,
+                                },
+                                key: { index },
+                              });
+                              setNetinfo(false);
+                            }}
+                          >
+                            <FastImage
+                              resizeMode={FastImage.resizeMode.contain}
+                              key={"image" + index}
+                              style={styles.imageSectionHorizontal}
+                              source={{
+                                uri: items.item.thumbnail,
+                                priority: FastImage.priority.high,
+                                cache: FastImage.cacheControl.immutable,
+                              }}
+                            />
 
-                            <View style={{ width: "100%", backgroundColor: DARKED_BORDER_COLOR, position: 'absolute', bottom: 0, borderRadius: 8, alignItems: 'flex-start', justifyContent: 'center', padding: 5 }}>
-                              <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: '500' }}>{items.item.title}</Text>
-                              <ReadMore numberOfLines={2} style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 12, fontWeight: '500' }} seeMoreText="" seeMoreStyle={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold' }}>
-                                <Text style={{}}>{items.item.short_description}</Text>
+                            <View
+                              style={{
+                                width: "100%",
+                                backgroundColor: DARKED_BORDER_COLOR,
+                                position: "absolute",
+                                bottom: 0,
+                                borderRadius: 8,
+                                alignItems: "flex-start",
+                                justifyContent: "center",
+                                padding: 5,
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  color: NORMAL_TEXT_COLOR,
+                                  fontSize: 15,
+                                  fontWeight: "500",
+                                }}
+                              >
+                                {items.item.title}
+                              </Text>
+                              <ReadMore
+                                numberOfLines={2}
+                                style={{
+                                  color: FOOTER_DEFAULT_TEXT_COLOR,
+                                  fontSize: 12,
+                                  fontWeight: "500",
+                                }}
+                                seeMoreText=""
+                                seeMoreStyle={{
+                                  color: FOOTER_DEFAULT_TEXT_COLOR,
+                                  fontWeight: "bold",
+                                }}
+                                seeLessStyle={{
+                                  color: FOOTER_DEFAULT_TEXT_COLOR,
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                <Text style={{}}>
+                                  {items.item.short_description}
+                                </Text>
                               </ReadMore>
                             </View>
-
                           </TouchableOpacity>
-                          :
-                          <TouchableOpacity onPress={() => {
-                            navigation.navigate({ name: 'Shows', params: { seoUrl: items.item.seo_url, theme: "videolist", suburl: seourl }, key: { index } });
-                            setNetinfo(false);
-                            }}><FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionHorizontal} source={{ uri: items.item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+                        ) : (
+                          <TouchableOpacity
+                            onPress={() => {
+                              navigation.navigate({
+                                name: "Shows",
+                                params: {
+                                  seoUrl: items.item.seo_url,
+                                  theme: "videolist",
+                                  suburl: seourl,
+                                },
+                                key: { index },
+                              });
+                              setNetinfo(false);
+                            }}
+                          >
+                            <FastImage
+                              resizeMode={FastImage.resizeMode.contain}
+                              key={"image" + index}
+                              style={styles.imageSectionHorizontal}
+                              source={{
+                                uri: items.item.thumbnail,
+                                priority: FastImage.priority.high,
+                                cache: FastImage.cacheControl.immutable,
+                              }}
+                            />
 
-                            <View style={{ width: "100%", backgroundColor: DARKED_BORDER_COLOR, position: 'absolute', bottom: 0, borderRadius: 8, alignItems: 'flex-start', justifyContent: 'center', padding: 5 }}>
-                              <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: '500' }}>{items.item.title}</Text>
-                              <ReadMore numberOfLines={2} style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 12, fontWeight: '500' }} seeMoreText="" seeMoreStyle={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold' }}>
-                                <Text style={{}}>{items.item.short_description}</Text>
+                            <View
+                              style={{
+                                width: "100%",
+                                backgroundColor: DARKED_BORDER_COLOR,
+                                position: "absolute",
+                                bottom: 0,
+                                borderRadius: 8,
+                                alignItems: "flex-start",
+                                justifyContent: "center",
+                                padding: 5,
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  color: NORMAL_TEXT_COLOR,
+                                  fontSize: 15,
+                                  fontWeight: "500",
+                                }}
+                              >
+                                {items.item.title}
+                              </Text>
+                              <ReadMore
+                                numberOfLines={2}
+                                style={{
+                                  color: FOOTER_DEFAULT_TEXT_COLOR,
+                                  fontSize: 12,
+                                  fontWeight: "500",
+                                }}
+                                seeMoreText=""
+                                seeMoreStyle={{
+                                  color: FOOTER_DEFAULT_TEXT_COLOR,
+                                  fontWeight: "bold",
+                                }}
+                                seeLessStyle={{
+                                  color: FOOTER_DEFAULT_TEXT_COLOR,
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                <Text style={{}}>
+                                  {items.item.short_description}
+                                </Text>
                               </ReadMore>
                             </View>
-
-
                           </TouchableOpacity>
-                        }
+                        )}
                       </View>
-                      <View style={VIDEO_TYPES.includes(items.item.theme) ? { width: PAGE_WIDTH / 2.06 } : ""}>
-                        {subcat.display_title == 'Episodes' ?
-                          <View style={{ justifyContent: 'center', }}><Text style={{ color: NORMAL_TEXT_COLOR, marginLeft: 5, fontSize: 12 }}>{items.item.title} </Text></View> : ""
+                      <View
+                        style={
+                          VIDEO_TYPES.includes(items.item.theme)
+                            ? { width: PAGE_WIDTH / 2.06 }
+                            : ""
                         }
+                      >
+                        {subcat.display_title == "Episodes" ? (
+                          <View style={{ justifyContent: "center" }}>
+                            <Text
+                              style={{
+                                color: NORMAL_TEXT_COLOR,
+                                marginLeft: 5,
+                                fontSize: 12,
+                              }}
+                            >
+                              {items.item.title}{" "}
+                            </Text>
+                          </View>
+                        ) : (
+                          ""
+                        )}
                       </View>
                     </View>
-                  )
+                  );
                 }}
               ></FlatList>
 
-              {subcat.name != 'related' && subcategoryImages?.length > 10 ?
-                <TouchableOpacity style={{ width: "100%", justifyContent: 'center', alignItems: 'center', backgroundColor: DARKED_BORDER_COLOR, marginTop: -20 }} onPress={() => {
-                  setNetinfo(false);
-                  navigation.navigate('EpisodesMoreList', { firendlyId: subcat.friendlyId, layoutType: LAYOUT_TYPES[1], parent_id: subcat.parent_id })}}>
+              {subcat.name != "related" && subcategoryImages?.length > 10 ? (
+                <TouchableOpacity
+                  style={{
+                    width: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: DARKED_BORDER_COLOR,
+                    marginTop: -20,
+                  }}
+                  onPress={() => {
+                    setNetinfo(false);
+                    navigation.navigate("EpisodesMoreList", {
+                      firendlyId: subcat.friendlyId,
+                      layoutType: LAYOUT_TYPES[1],
+                      parent_id: subcat.parent_id,
+                    });
+                  }}
+                >
                   <Text style={styles.sectionHeaderMore}>Load more ...</Text>
-                </TouchableOpacity> : ""}
+                </TouchableOpacity>
+              ) : (
+                ""
+              )}
             </View>
-          )
+          );
         })}
       </View>
-    )
+    );
   }
 
   const playnextitem = async () => {
-    triggeranalytics('pb_start', pbtime, '01')
-    const session = await AsyncStorage.getItem('session');
-    const region = await AsyncStorage.getItem('country_code');
-    var nextitem = FIRETV_BASE_URL_STAGING + "/catalogs/" + catalogId + "/items/" + contentId + "/next_item?auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN + "&region=" + region + "&item_language=eng";
-    axios.get(nextitem).then(response => {
-      navigation.replace('Episode', { seoUrl: response.data.data.seo_url, theme: 'episode' });
-    }).catch(error => {
-      console.log(error.response.data);
-    })
-  }
+    triggeranalytics("pb_start", pbtime, "01");
+    const session = await AsyncStorage.getItem("session");
+    const region = await AsyncStorage.getItem("country_code");
+    var nextitem =
+      FIRETV_BASE_URL_STAGING +
+      "/catalogs/" +
+      catalogId +
+      "/items/" +
+      contentId +
+      "/next_item?auth_token=" +
+      AUTH_TOKEN +
+      "&access_token=" +
+      ACCESS_TOKEN +
+      "&region=" +
+      region +
+      "&item_language=eng";
+    axios
+      .get(nextitem)
+      .then((response) => {
+        navigation.replace("Episode", {
+          seoUrl: response.data.data.seo_url,
+          theme: "episode",
+        });
+      })
+      .catch((error) => {
+        console.log(error.response.data);
+      });
+  };
   const gotoPage = async (full_catalog_id, full_content_id) => {
-    const region = await AsyncStorage.getItem('country_code');
-    var urlPath = FIRETV_BASE_URL + "catalogs/" + full_catalog_id + "/items/" + full_content_id + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
+    const region = await AsyncStorage.getItem("country_code");
+    var urlPath =
+      FIRETV_BASE_URL +
+      "catalogs/" +
+      full_catalog_id +
+      "/items/" +
+      full_content_id +
+      ".gzip?&auth_token=" +
+      AUTH_TOKEN +
+      "&region=" +
+      region;
     // console.log(urlPath);
-    axios.get(urlPath).then(response => {
-      navigation.dispatch(StackActions.replace('Shows', { seoUrl: response.data.data.seo_url, theme: response.data.data.theme }))
-    }).catch(error => {
-      console.log(error);
-    })
-  }
-
+    axios
+      .get(urlPath)
+      .then((response) => {
+        navigation.dispatch(
+          StackActions.replace("Shows", {
+            seoUrl: response.data.data.seo_url,
+            theme: response.data.data.theme,
+          })
+        );
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   useEffect(() => {
     if (showThumbnailSeekBar) {
@@ -1329,7 +1875,6 @@ export default function Episode({ navigation, route }) {
       return () => clearTimeout(timer);
     }
   }, [showThumbnailSeekBar]);
-
 
   // useEffect(() => {
   //   var thumbnailHit = [];
@@ -1357,17 +1902,20 @@ export default function Episode({ navigation, route }) {
 
   useEffect(() => {
     const planforRemove = async () => {
-      var currentplan = await AsyncStorage.getItem('plan_id');
+      var currentplan = await AsyncStorage.getItem("plan_id");
       if (currentplan) {
-        setSubid(JSON.stringify(currentplan))
+        setSubid(JSON.stringify(currentplan));
       }
-      console.log(JSON.stringify(currentplan), "planfor id --------------------")
-    }
-    planforRemove()
-  }, [showAd])
+      console.log(
+        JSON.stringify(currentplan),
+        "planfor id --------------------"
+      );
+    };
+    planforRemove();
+  }, [showAd]);
   useEffect(() => {
     const adClosedSubscription = DeviceEventEmitter.addListener(
-      'onAdClosed',
+      "onAdClosed",
       (isVideoCompleted) => {
         setShowAd(isVideoCompleted);
         setPlay(true);
@@ -1393,9 +1941,9 @@ export default function Episode({ navigation, route }) {
   }, [showAd]);
   useEffect(() => {
     const adClosedSubscription = DeviceEventEmitter.addListener(
-      'onAdClosed',
+      "onAdClosed",
       (isVideoCompleted) => {
-        console.log(isVideoCompleted, "preads=============")
+        console.log(isVideoCompleted, "preads=============");
         setPreads(isVideoCompleted);
         setPlay(true);
       }
@@ -1425,30 +1973,84 @@ export default function Episode({ navigation, route }) {
   // };
   // console.log(img, "lllloooooooooooooooooooo");
 
-
-
   const renderShows = (item, index) => {
     return (
-      <TouchableOpacity onPress={() => gotoPage(item.item.catalog_id, item.item.content_id)} key={"RealtedShows" + index} style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 30, width: "100%" }}>
-        <FastImage source={{ uri: item.item.image, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={isTablet ? styles.imageSectionVerticalTab : styles.imageSectionHorizontal} resizeMode={FastImage.resizeMode.contain} />
-        {!isTablet ?
-          <View style={{ width: "100%", backgroundColor: DARKED_BORDER_COLOR, position: 'absolute', bottom: 0, borderRadius: 8, alignItems: 'flex-start', justifyContent: 'center', padding: 5 }}>
-            <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: '500' }}>{item.item.title}</Text>
-            <ReadMore numberOfLines={2} style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 12, fontWeight: '500' }} seeMoreText="" seeMoreStyle={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontWeight: 'bold' }}>
+      <TouchableOpacity
+        onPress={() => gotoPage(item.item.catalog_id, item.item.content_id)}
+        key={"RealtedShows" + index}
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          marginBottom: 30,
+          width: "100%",
+        }}
+      >
+        <FastImage
+          source={{
+            uri: item.item.image,
+            priority: FastImage.priority.high,
+            cache: FastImage.cacheControl.immutable,
+          }}
+          style={
+            isTablet
+              ? styles.imageSectionVerticalTab
+              : styles.imageSectionHorizontal
+          }
+          resizeMode={FastImage.resizeMode.contain}
+        />
+        {!isTablet ? (
+          <View
+            style={{
+              width: "100%",
+              backgroundColor: DARKED_BORDER_COLOR,
+              position: "absolute",
+              bottom: 0,
+              borderRadius: 8,
+              alignItems: "flex-start",
+              justifyContent: "center",
+              padding: 5,
+            }}
+          >
+            <Text
+              style={{
+                color: NORMAL_TEXT_COLOR,
+                fontSize: 15,
+                fontWeight: "500",
+              }}
+            >
+              {item.item.title}
+            </Text>
+            <ReadMore
+              numberOfLines={2}
+              style={{
+                color: FOOTER_DEFAULT_TEXT_COLOR,
+                fontSize: 12,
+                fontWeight: "500",
+              }}
+              seeMoreText=""
+              seeMoreStyle={{
+                color: FOOTER_DEFAULT_TEXT_COLOR,
+                fontWeight: "bold",
+              }}
+              seeLessStyle={{
+                color: FOOTER_DEFAULT_TEXT_COLOR,
+                fontWeight: "bold",
+              }}
+            >
               <Text style={{}}>{item.item.desc}</Text>
             </ReadMore>
           </View>
-          :
-          ""}
+        ) : (
+          ""
+        )}
       </TouchableOpacity>
-    )
-  }
-
+    );
+  };
 
   const renderItem = ({ item, index }) => {
     return (
-      <View style={{ backgroundColor: BACKGROUND_COLOR, }}>
-        {item.layoutType == 'live' && item.data.length != 0 ?
+      <View style={{ backgroundColor: BACKGROUND_COLOR }}>
+        {item.layoutType == "live" && item.data.length != 0 ? (
           <View>
             <FlatList
               data={item.data}
@@ -1456,46 +2058,100 @@ export default function Episode({ navigation, route }) {
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               style={styles.containerMargin}
-              renderItem={
-                ({ item, index }) =>
-                  <Pressable onPress={() => {
-                    VIDEO_TYPES.includes(item.theme) ?
-                      navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seoUrl, theme: item.theme })) : navigation.dispatch(StackActions.replace('Shows', { seoUrl: item.seoUrl }))
-                  }}>
-                    {currentFriendlyId != item.friendlyId ?
-                      <>
-                        <FastImage
-                          style={[styles.imageSectionVertical,]}
-                          resizeMode={FastImage.resizeMode.contain}
-                          source={{ uri: item.uri, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
-                        {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={{ position: 'absolute', width: 25, height: 25, right: 15, bottom: 15 }}></Image> : ""}
-                        {item.premium ? <Image source={require('../assets/images/crown.png')} style={styles.crownIcon}></Image> : ""}
-                      </>
-                      : ""}
-                  </Pressable>
-              }
+              renderItem={({ item, index }) => (
+                <Pressable
+                  onPress={() => {
+                    VIDEO_TYPES.includes(item.theme)
+                      ? navigation.dispatch(
+                          StackActions.replace("Episode", {
+                            seoUrl: item.seoUrl,
+                            theme: item.theme,
+                          })
+                        )
+                      : navigation.dispatch(
+                          StackActions.replace("Shows", { seoUrl: item.seoUrl })
+                        );
+                  }}
+                >
+                  {currentFriendlyId != item.friendlyId ? (
+                    <>
+                      <FastImage
+                        style={[styles.imageSectionVertical]}
+                        resizeMode={FastImage.resizeMode.contain}
+                        source={{
+                          uri: item.uri,
+                          priority: FastImage.priority.high,
+                          cache: FastImage.cacheControl.immutable,
+                        }}
+                      />
+                      {VIDEO_TYPES.includes(item.theme) ? (
+                        <Image
+                          source={require("../assets/images/play.png")}
+                          style={{
+                            position: "absolute",
+                            width: 25,
+                            height: 25,
+                            right: 15,
+                            bottom: 15,
+                          }}
+                        ></Image>
+                      ) : (
+                        ""
+                      )}
+                      {item.premium ? (
+                        <Image
+                          source={require("../assets/images/crown.png")}
+                          style={styles.crownIcon}
+                        ></Image>
+                      ) : (
+                        ""
+                      )}
+                    </>
+                  ) : (
+                    ""
+                  )}
+                </Pressable>
+              )}
             />
           </View>
-          : ""}
+        ) : (
+          ""
+        )}
       </View>
     );
-  }
+  };
 
   const renderRelatedMovies = ({ item, index }) => {
     return (
       <>
-        <Pressable style={{ marginBottom: 20 }} onPress={() =>
-          VIDEO_TYPES.includes(item.theme) ?
-            navigation.dispatch(StackActions.replace('Episode', { seoUrl: item.seo_url }))
-            :
-            navigation.navigate({ name: 'Shows', params: { seoUrl: item.seo_url }, key: { index } })
-
-        }>
-          <FastImage resizeMode={FastImage.resizeMode.contain} key={'image' + index} style={styles.imageSectionVertical} source={{ uri: item.thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} />
+        <Pressable
+          style={{ marginBottom: 20 }}
+          onPress={() =>
+            VIDEO_TYPES.includes(item.theme)
+              ? navigation.dispatch(
+                  StackActions.replace("Episode", { seoUrl: item.seo_url })
+                )
+              : navigation.navigate({
+                  name: "Shows",
+                  params: { seoUrl: item.seo_url },
+                  key: { index },
+                })
+          }
+        >
+          <FastImage
+            resizeMode={FastImage.resizeMode.contain}
+            key={"image" + index}
+            style={styles.imageSectionVertical}
+            source={{
+              uri: item.thumbnail,
+              priority: FastImage.priority.high,
+              cache: FastImage.cacheControl.immutable,
+            }}
+          />
         </Pressable>
       </>
-    )
-  }
+    );
+  };
 
   return (
     <>
@@ -1516,9 +2172,11 @@ export default function Episode({ navigation, route }) {
            adWidth={330}
          />
        ) :""} */}
-          <View style={{ top: 0, right: 0, left: 0, }}>
-            {passedtheme != "live" && passedtheme != "livetv" && showAd && !subid ? (
-
+          <View style={{ top: 0, right: 0, left: 0 }}>
+            {passedtheme != "live" &&
+            passedtheme != "livetv" &&
+            showAd &&
+            !subid ? (
               <View
                 style={{
                   position: "absolute",
@@ -1546,14 +2204,13 @@ export default function Episode({ navigation, route }) {
                     adHeight={200}
                     adWidth={330}
                   />
-
                 </TouchableOpacity>
               </View>
-            ) :
-              null
-            }
-            {passedtheme != "live" && passedtheme != "livetv" && preads && !subid ? (
-
+            ) : null}
+            {passedtheme != "live" &&
+            passedtheme != "livetv" &&
+            preads &&
+            !subid ? (
               <View
                 style={{
                   position: "absolute",
@@ -1581,16 +2238,13 @@ export default function Episode({ navigation, route }) {
                     adHeight={200}
                     adWidth={330}
                   />
-
                 </TouchableOpacity>
               </View>
-            ) :
-              null
-            }
+            ) : null}
             {playUrl != "" &&
-              playUrl != null &&
-              streemexceedlimit == false &&
-              !showupgrade ? (
+            playUrl != null &&
+            streemexceedlimit == false &&
+            !showupgrade ? (
               <Pressable onPress={showControls}>
                 {/* {img ? (
                         <View ref={videorefs}
@@ -1645,8 +2299,8 @@ export default function Episode({ navigation, route }) {
                     fullscreen
                       ? styles.fullscreenVideo
                       : isTablet
-                        ? styles.videoTab
-                        : styles.video
+                      ? styles.videoTab
+                      : styles.video
                   }
                   onEnd={checkpreviewContent}
                   playWhenInactive={false}
@@ -1660,13 +2314,25 @@ export default function Episode({ navigation, route }) {
                     var milliseconds = play.currentTime;
                     toHoursAndMinutes(Math.floor(milliseconds));
                     // setCurrenttimesec(play.currentTime);
-                    if (play.currentTime >= 10 && currenttimestamp !== '00:00:10' && !addcount && passedtheme != "live" && passedtheme != "livetv") {
+                    if (
+                      play.currentTime >= 10 &&
+                      currenttimestamp !== "00:00:10" &&
+                      !addcount &&
+                      passedtheme != "live" &&
+                      passedtheme != "livetv"
+                    ) {
                       // setPreads(false);
                       setPlay(false); // Pause the video when JioAdView ends
                       setShowAd(true);
                       setLoadings(true);
                       setAddcount(() => addcount + 1); // Show JioAdView
-                    } else if (play.currentTime >= 0 && currenttimestamp !== '00:00:00' && passedtheme != "live" && passedtheme != "livetv" && !prec) {
+                    } else if (
+                      play.currentTime >= 0 &&
+                      currenttimestamp !== "00:00:00" &&
+                      passedtheme != "live" &&
+                      passedtheme != "livetv" &&
+                      !prec
+                    ) {
                       setPlay(false);
                       setPreads(true);
                       setPrec(() => prec + 1);
@@ -1687,8 +2353,8 @@ export default function Episode({ navigation, route }) {
                       var splittedtime = seektime.split(":");
                       videoRef.current.seek(
                         +(splittedtime[0] * 3600) +
-                        +(splittedtime[1] * 60) +
-                        +splittedtime[2]
+                          +(splittedtime[1] * 60) +
+                          +splittedtime[2]
                       );
                     }
 
@@ -1727,7 +2393,7 @@ export default function Episode({ navigation, route }) {
                       left: `${Math.min(
                         Math.max(
                           (progress?.currentTime / progress?.seekableDuration) *
-                          100,
+                            100,
                           fullscreen ? 14 : 25
                         ),
                         86
@@ -1767,7 +2433,6 @@ export default function Episode({ navigation, route }) {
                     </Text>
                   </View>
                 )}
-
 
                 {state.showControls && (
                   <View
@@ -1887,10 +2552,10 @@ export default function Episode({ navigation, route }) {
 
                 <View style={{ position: "absolute", right: 20, bottom: 80 }}>
                   {introstarttime != "" &&
-                    introstarttime != null &&
-                    !preview &&
-                    introstarttime <= currentloadingtime &&
-                    introendtime >= currentloadingtime ? (
+                  introstarttime != null &&
+                  !preview &&
+                  introstarttime <= currentloadingtime &&
+                  introendtime >= currentloadingtime ? (
                     <TouchableOpacity
                       onPress={() => {
                         videoRef.current.seek(introendtime);
@@ -1910,9 +2575,9 @@ export default function Episode({ navigation, route }) {
 
                 <View style={{ position: "absolute", right: 20, bottom: 80 }}>
                   {endcreditsstarttime != "" &&
-                    endcreditsstarttime != null &&
-                    !preview &&
-                    endcreditsstarttime <= currentloadingtime ? (
+                  endcreditsstarttime != null &&
+                  !preview &&
+                  endcreditsstarttime <= currentloadingtime ? (
                     <TouchableOpacity
                       onPress={playnextitem}
                       style={{
@@ -1970,7 +2635,10 @@ export default function Episode({ navigation, route }) {
                             else triggeranalytics("pb_start", pbtime, "01");
                           }}
                           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                          style={{ justifyContent: 'center', alignItems: 'center' }}
+                          style={{
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
                         >
                           {play ? (
                             <MaterialCommunityIcons
@@ -2027,7 +2695,6 @@ export default function Episode({ navigation, route }) {
                             : { width: "100%", top: 20 }
                         }
                       >
-
                         <Slider
                           style={{ width: "100%", height: 40 }}
                           minimumValue={0}
@@ -2049,7 +2716,6 @@ export default function Episode({ navigation, route }) {
                             if (videoRef.current) {
                               videoRef.current.seek(Math.floor(val));
                             }
-
                           }}
                           onValueChange={(val) => {
                             console.log(val, "val");
@@ -2116,14 +2782,20 @@ export default function Episode({ navigation, route }) {
                   </TouchableOpacity>
                 ) : loggedin ? (
                   <TouchableOpacity
-                    onPress={() => navigation.navigate("Subscribe")}
+                    onPress={() =>
+                      navigation.navigate({
+                        name: "Subscribe",
+                        params: { sourcetitle: title },
+                        merge: true,
+                      })
+                    }
                     style={[styles.button, { width: 200 }]}
                   >
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 16 }}>
                       Upgrade / Subscribe
                     </Text>
                   </TouchableOpacity>
-                ) : loginsol == 'null' ? (
+                ) : loginsol == "null" ? (
                   <View
                     style={{
                       justifyContent: "center",
@@ -2180,7 +2852,6 @@ export default function Episode({ navigation, route }) {
                             justifyContent: "center",
                             alignItems: "center",
                             marginLeft: 5,
-
                           }}
                         >
                           <FontAwesome5
@@ -2201,30 +2872,37 @@ export default function Episode({ navigation, route }) {
                       );
                     })}
                     {durationsttring ? (
-                      <Text style={styles.detailsText}> - {durationsttring}</Text>
+                      <Text style={styles.detailsText}>
+                        {" "}
+                        - {durationsttring}
+                      </Text>
                     ) : (
                       ""
                     )}
                   </View>
 
-
-
                   <>
                     <Text
                       ellipsizeMode="tail"
                       numberOfLines={isShow ? undefined : 2}
-                      style={styles.detailsText}>
+                      style={styles.detailsText}
+                    >
                       {description}
                     </Text>
 
-                    <TouchableOpacity onPress={showMoreLess} style={styles.detailsText}>
-                      {
-                        isShow ? <Text style={{ color: TAB_COLOR, fontWeight: "bold" }}>
+                    <TouchableOpacity
+                      onPress={showMoreLess}
+                      style={styles.detailsText}
+                    >
+                      {isShow ? (
+                        <Text style={{ color: TAB_COLOR, fontWeight: "bold" }}>
                           {"Read Less"}
                         </Text>
-                          : <Text style={{ color: TAB_COLOR, fontWeight: "bold" }}>
-                            {"Read More"}
-                          </Text>}
+                      ) : (
+                        <Text style={{ color: TAB_COLOR, fontWeight: "bold" }}>
+                          {"Read More"}
+                        </Text>
+                      )}
                       {/* <Text style={styles.detailsText}>
                             {isShow ? 'Less' : 'More...'}
                           </Text> */}
@@ -2307,8 +2985,8 @@ export default function Episode({ navigation, route }) {
                       }}
                     >
                       {passedtheme != "live" &&
-                        passedtheme != "livetv" &&
-                        !preview ? (
+                      passedtheme != "livetv" &&
+                      !preview ? (
                         <View style={styles.singleoption}>
                           {downloadedStatus == 0 ? (
                             <TouchableOpacity onPress={downloadFile}>
@@ -2349,7 +3027,9 @@ export default function Episode({ navigation, route }) {
                                   />
                                 </TouchableOpacity>
                               ) : (
-                                <TouchableOpacity onPress={resumeDownloadAction}>
+                                <TouchableOpacity
+                                  onPress={resumeDownloadAction}
+                                >
                                   <MaterialCommunityIcons
                                     name="motion-pause"
                                     size={18}
@@ -2438,13 +3118,12 @@ export default function Episode({ navigation, route }) {
                   ""
                 )}
               </View>
-
             ) : (
               ""
             )}
             {(passedtheme == "live" || passedtheme == "livetv") &&
-              !fullscreen &&
-              totalHomeData ? (
+            !fullscreen &&
+            totalHomeData ? (
               <FlatList
                 data={totalHomeData}
                 keyExtractor={(x, i) => i.toString()}
@@ -2458,8 +3137,8 @@ export default function Episode({ navigation, route }) {
             )}
 
             {(passedtheme == "live" || passedtheme == "livetv") &&
-              relatedshows.length > 0 &&
-              !fullscreen ? (
+            relatedshows.length > 0 &&
+            !fullscreen ? (
               <>
                 <View
                   style={{ marginTop: 20, padding: 6, flex: 1, width: "100%" }}
@@ -2498,8 +3177,9 @@ export default function Episode({ navigation, route }) {
               ""
             )}
             {passedtheme != "live" &&
-              passedtheme != "livetv" && !fullscreen &&
-              relatedMovies.length > 0 ? (
+            passedtheme != "livetv" &&
+            !fullscreen &&
+            relatedMovies.length > 0 ? (
               <View
                 style={{
                   justifyContent: "flex-start",
@@ -2518,7 +3198,7 @@ export default function Episode({ navigation, route }) {
                     marginLeft: 20,
                   }}
                 >
-                  Relateds
+                  Related
                 </Text>
                 {/* <JioAdView
                   adType={1}
@@ -2651,7 +3331,7 @@ export default function Episode({ navigation, route }) {
                           {pref.display_name}
                         </Text>
                         {videoType == "resolution" &&
-                          videoresolution == pref.vheight ? (
+                        videoresolution == pref.vheight ? (
                           <MaterialCommunityIcons
                             name="check-bold"
                             size={18}
@@ -2668,90 +3348,151 @@ export default function Episode({ navigation, route }) {
                 })}
               </View>
             </Modal>
-
-
           </ScrollView>
         </View>
-        {subcatcurrentTheme == 'movie' ?
-          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <TouchableOpacity style={{ position: 'absolute', bottom: 0 }} onPress={()=>{
-              setNetinfo(!netinfo);
-              // setPlay(false);
-              }}>
+        {subcatcurrentTheme == "movie" ? (
+          <View style={{ justifyContent: "center", alignItems: "center" }}>
+            <TouchableOpacity
+              style={{ position: "absolute", bottom: 0 }}
+              onPress={() => {
+                setNetinfo(!netinfo);
+                // setPlay(false);
+              }}
+            >
               <View
-                style={{ height: normalize(50), width: normalize(320), borderTopRightRadius: normalize(20), borderTopLeftRadius: normalize(20),backgroundColor:BACKGROUND_COLOR}}>
-                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 20, fontWeight: 'bold', justifyContent: 'center', alignSelf: 'center', marginTop: normalize(10) }}>Load More...</Text>
+                style={{
+                  height: normalize(50),
+                  width: normalize(320),
+                  borderTopRightRadius: normalize(20),
+                  borderTopLeftRadius: normalize(20),
+                  backgroundColor: BACKGROUND_COLOR,
+                }}
+              >
+                <Text
+                  style={{
+                    color: NORMAL_TEXT_COLOR,
+                    fontSize: 20,
+                    fontWeight: "bold",
+                    justifyContent: "center",
+                    alignSelf: "center",
+                    marginTop: normalize(10),
+                  }}
+                >
+                  Load More...
+                </Text>
               </View>
-            </TouchableOpacity></View>
-          : null}
-         {netinfo ?<Modal
-                animationIn={'slideInUp'}
-                animationOut={'slideOutDown'}
-                backdropTransitionOutTiming={0}
-                hideModalContentWhileAnimating={true}
-                isVisible={netinfo}
-                style={{ width: '100%', alignSelf: 'center', margin: 0 }}
-                animationInTiming={800}
-                animationOutTiming={1000}
-                onBackdropPress={() => setNetinfo(false)}
-                onShow={()=>{
-                  if (subcatcurrentTheme == 'movie') {
-                    getsubcatDetails()
-                  }
-                }} >
-                <View
+            </TouchableOpacity>
+          </View>
+        ) : null}
+        {netinfo ? (
+          <Modal
+            animationIn={"slideInUp"}
+            animationOut={"slideOutDown"}
+            backdropTransitionOutTiming={0}
+            hideModalContentWhileAnimating={true}
+            isVisible={netinfo}
+            style={{ width: "100%", alignSelf: "center", margin: 0 }}
+            animationInTiming={800}
+            animationOutTiming={1000}
+            onBackdropPress={() => setNetinfo(false)}
+            onShow={() => {
+              if (subcatcurrentTheme == "movie") {
+                getsubcatDetails();
+              }
+            }}
+          >
+            <View
+              style={{
+                width: "100%",
+                height: normalize(680),
+                backgroundColor: BACKGROUND_COLOR,
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                borderTopRightRadius: normalize(20),
+                borderTopLeftRadius: normalize(20),
+                paddingVertical: normalize(10),
+                alignItems: "center",
+              }}
+              behavior={Platform.OS == "ios" ? "padding" : "height"}
+            >
+              <TouchableOpacity
+                onPress={() => {
+                  setNetinfo(false);
+                }}
+              >
+                <LinearGradient
+                  useAngle={true}
+                  angle={125}
+                  angleCenter={{ x: 0.5, y: 0.5 }}
+                  colors={[
+                    BUTTON_COLOR,
+                    TAB_COLOR,
+                    TAB_COLOR,
+                    TAB_COLOR,
+                    BUTTON_COLOR,
+                  ]}
+                  style={{
+                    width: normalize(100),
+                    height: normalize(30),
+                    borderRadius: 10,
+                  }}
+                >
+                  <View
                     style={{
-                        width: '100%',
-                        height: normalize(680),
-                        backgroundColor: BACKGROUND_COLOR,
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        borderTopRightRadius: normalize(20),
-                        borderTopLeftRadius: normalize(20),
-                        paddingVertical: normalize(10),
-                        alignItems: 'center',
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginTop: normalize(9),
                     }}
-                    behavior={Platform.OS == 'ios' ? 'padding' : 'height'}>
-                    <TouchableOpacity onPress={()=>{
-                      setNetinfo(false);
-                    }}>
-                      <LinearGradient
-                            useAngle={true}
-                            angle={125}
-                            angleCenter={{ x: 0.5, y: 0.5 }}
-                            colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR, BUTTON_COLOR]}
-                            style={{ width: normalize(100), height: normalize(30), borderRadius: 10 }}>
-                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: normalize(9) }}>
-                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 10, fontWeight: 'bold' }}>Close</Text>
-                            </View>
-                        </LinearGradient>
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                         {
-                  (passedtheme != 'live' && passedtheme != 'livetv' && subcategoryImages && !fullscreen) ?
-                    <FlatList
-                      data={subcategoryImages}
-                      renderItem={renderSubcat}
-                      keyExtractor={(x, i) => i.toString()}
-                      contentContainerStyle={{ marginTop: 30 }}
-                      ListEmptyComponent={< View >
-                        <Text style={{
-                          fontSize: 20,
-                          fontFamily: "bold",
-                          color: NORMAL_TEXT_COLOR,
-                          //  marginLeft:55
-                          alignSelf: 'center'
-                        }}>No Results Found</Text>
-                      </View>}
-                    />
-                    :
-                    ""}
-                    </TouchableOpacity>
-                </View>
-               
-            </Modal>:""}
+                  >
+                    <Text
+                      style={{
+                        color: NORMAL_TEXT_COLOR,
+                        fontSize: 10,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Close
+                    </Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                {passedtheme != "live" &&
+                passedtheme != "livetv" &&
+                subcategoryImages &&
+                !fullscreen ? (
+                  <FlatList
+                    data={subcategoryImages}
+                    renderItem={renderSubcat}
+                    keyExtractor={(x, i) => i.toString()}
+                    contentContainerStyle={{ marginTop: 30 }}
+                    ListEmptyComponent={
+                      <View>
+                        <Text
+                          style={{
+                            fontSize: 20,
+                            fontFamily: "bold",
+                            color: NORMAL_TEXT_COLOR,
+                            //  marginLeft:55
+                            alignSelf: "center",
+                          }}
+                        >
+                          No Results Found
+                        </Text>
+                      </View>
+                    }
+                  />
+                ) : (
+                  ""
+                )}
+              </TouchableOpacity>
+            </View>
+          </Modal>
+        ) : (
+          ""
+        )}
         {/*Load More =============*/}
         {/* {subcatcurrentTheme == 'movie' ?
           <SwipeUpDown
@@ -2805,10 +3546,7 @@ export default function Episode({ navigation, route }) {
             iconColor={TAB_COLOR}
           />
           : ""} */}
-
       </View>
-
-
     </>
   );
 }
@@ -2816,69 +3554,110 @@ export default function Episode({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: BACKGROUND_COLOR,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
   },
   video: {
     height: 270,
     width: PAGE_WIDTH,
-    backgroundColor: 'black',
+    backgroundColor: "black",
   },
   videoTab: {
     height: 450,
     width: PAGE_WIDTH,
-    backgroundColor: 'black',
+    backgroundColor: "black",
   },
   fullscreenVideo: {
     height: PAGE_WIDTH,
     width: PAGE_HEIGHT,
-    backgroundColor: 'black',
+    backgroundColor: "black",
   },
   fullscreenButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 20,
     top: 30,
     paddingRight: 10,
   },
   settingsicon: {
-    position: 'absolute',
+    position: "absolute",
     right: 60,
     top: 30,
     paddingRight: 10,
   },
   navigationBack: {
-    position: 'absolute',
+    position: "absolute",
     left: 15,
     top: 35,
     paddingLeft: 10,
   },
   mainContainer: { flex: 1, backgroundColor: BACKGROUND_COLOR },
-  bodyContent: { backgroundColor: BACKGROUND_COLOR, padding: 10, width: PAGE_WIDTH, flexWrap: 'wrap' },
-  headingLabel: { fontSize: 17, color: NORMAL_TEXT_COLOR, padding: 4, justifyContent: 'center', alignItems: 'center', width: "100%", borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, },
-  detailsText: { fontSize: 11, color: DETAILS_TEXT_COLOR, padding: 4, marginBottom: 3 },
-  options: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row', },
-  singleoption: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', borderColor: TAB_COLOR, borderWidth: 1, marginRight: 3 },
-  marginContainer: { marginLeft: 5, marginRight: 5, },
-  button: { justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 100, padding: 10, borderRadius: 20, marginRight: 10 },
+  bodyContent: {
+    backgroundColor: BACKGROUND_COLOR,
+    padding: 10,
+    width: PAGE_WIDTH,
+    flexWrap: "wrap",
+  },
+  headingLabel: {
+    fontSize: 17,
+    color: NORMAL_TEXT_COLOR,
+    padding: 4,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR,
+    borderBottomWidth: 1,
+  },
+  detailsText: {
+    fontSize: 11,
+    color: DETAILS_TEXT_COLOR,
+    padding: 4,
+    marginBottom: 3,
+  },
+  options: {
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    flexDirection: "row",
+  },
+  singleoption: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: TAB_COLOR,
+    borderWidth: 1,
+    marginRight: 3,
+  },
+  marginContainer: { marginLeft: 5, marginRight: 5 },
+  button: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: TAB_COLOR,
+    color: NORMAL_TEXT_COLOR,
+    width: 100,
+    padding: 10,
+    borderRadius: 20,
+    marginRight: 10,
+  },
   imageSectionHorizontal: {
     width: PAGE_WIDTH,
     height: actuatedNormalize(280),
     borderRadius: 8,
     marginBottom: 8,
-    borderWidth: 1
+    borderWidth: 1,
   },
   sectionHeaderMore: {
     color: MORE_LINK_COLOR,
     fontSize: 13,
-    fontWeight: '600'
+    fontWeight: "600",
   },
   imageSectionVertical: {
     width: PAGE_WIDTH / 3.1,
     height: actuatedNormalize(155),
     borderRadius: 5,
     marginBottom: 10,
-    marginHorizontal: 1
+    marginHorizontal: 1,
   },
   imageSectionVerticalTab: {
     width: 135,
@@ -2887,6 +3666,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 10,
   },
-  playIcon: { position: 'absolute', width: 25, height: 25, right: 6, bottom: 12 },
-  crownIcon: { position: 'absolute', width: 25, height: 25, left: 8, top: 5 },
+  playIcon: {
+    position: "absolute",
+    width: 25,
+    height: 25,
+    right: 6,
+    bottom: 12,
+  },
+  crownIcon: { position: "absolute", width: 25, height: 25, left: 8, top: 5 },
 });

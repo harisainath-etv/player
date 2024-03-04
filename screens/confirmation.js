@@ -35,7 +35,12 @@ import LinearGradient from "react-native-linear-gradient";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
-export default function Confirmation({ navigation }) {
+export default function Confirmation({ navigation, route }) {
+  // var Plan_type = route.params?.uri;
+  // var Source = route.params?.source;
+  // const [uri, setUri] = useState(uri);
+  // const [source, setSource] = useState(source);
+  // console.log(plan_type, "helooooooooooooo");
   const [amount, setAmount] = useState();
   const [chargedamount, setchargedamount] = useState();
   const [currency, setcurrency] = useState();
