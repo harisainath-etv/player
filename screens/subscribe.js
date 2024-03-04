@@ -9,7 +9,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { StackActions } from '@react-navigation/native';
 
-export default function Subscribe({ navigation }) {
+export default function Subscribe({ navigation,route }) {
+    // console.log(route)
     const [subscribeplans, setsubscribeplans] = useState([]);
     const dataFetchedRef = useRef(false);
     const [selectedplan, setSelectedPlan] = useState('');
@@ -192,7 +193,12 @@ export default function Subscribe({ navigation }) {
                     else {
                         AsyncStorage.setItem('payable_upgrade', 'yes');
                     }
-                    navigation.navigate("Confirmation");
+                    navigation.navigate({
+                        name: "Confirmation",
+                        params: {planname:selectedname, plan: buttonchange, pack_value: selectedpriceforpayment,source: route?.params?.sourcetitle},
+                        merge: true,
+                      });
+                    // navigation.navigate("Confirmation");
                 }).catch(error => {
                     alert(error.response.data.error)
                 })

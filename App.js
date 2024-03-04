@@ -26,7 +26,7 @@ import FoodFilter from './screens/FoodFilter';
 import FilterData from './screens/FilterData';
 import Profile from './screens/profile';
 import EditProfile from './screens/editProfile';
-import FrontProfile from './screens/frontProfile';
+// import FrontProfile from './screens/frontProfile';
 import Feedback from './screens/feedback';
 import Settings from './screens/settings';
 import Subscribe from './screens/subscribe';
@@ -39,7 +39,7 @@ import HTMLRender from './screens/HTMLRender';
 import Menu from './screens/Menu';
 import { BACKGROUND_COLOR, FIRETV_BASE_URL, AUTH_TOKEN, APP_VERSION, FIRETV_BASE_URL_STAGING, ANDROID_PACKAGE_NAME, IOS_PACKAGE_NAME, VIDEO_TYPES } from './constants';
 import { View, Dimensions, Platform, Linking, Alert, StyleSheet } from 'react-native';
-import SplashScreen from 'react-native-splash-screen'
+// import SplashScreen from 'react-native-splash-screen'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
@@ -47,6 +47,9 @@ import messaging from '@react-native-firebase/messaging';
 import queryString from 'query-string';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import EpisodesMoreListUrl from './screens/EpisodesMoreListUrl';
+import Splash from './screens/Splash';
+import Onboarding from './screens/Onboarding';
+// import connectionrequest from './components/NetInfo';
 
 const Stack = createStackNavigator();
 
@@ -110,6 +113,7 @@ const setAsyncData = async (key, value) => {
 
 var gateways = [];
 export default function App() {
+
   const { url: initialUrl, processing } = useInitialURL();
   const width = Dimensions.get('window').width;
   const height = Dimensions.get('window').height;
@@ -290,7 +294,7 @@ export default function App() {
         removeunwanted()
       })
     }
-    SplashScreen.hide();
+    // SplashScreen.hide();
   }
   const options = {
     AppleAppID: IOS_PACKAGE_NAME,
@@ -428,21 +432,23 @@ export default function App() {
   }
 
 
-  const linking = {
-    prefixes: ['hari://staging.etvwin.com'],
-    config: {
-      screens: {},
-    },
-  };
+  // const linking = {
+  //   prefixes: ['hari://staging.etvwin.com'],
+  //   config: {
+  //     screens: {},
+  //   },
+  // };
 
 
 
 
   return (
     <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
-      <NavigationContainer linking={linking}>
+      <NavigationContainer>
         <Stack.Navigator screenOptions={{ presentation: 'transparentModal', backgroundColor: BACKGROUND_COLOR }}>
-          <Stack.Screen name="FrontProfile" component={FrontProfile} options={{ header: () => null, }} />
+        <Stack.Screen name="Splash" component={Splash} options={{ header: () => null, }} />
+        <Stack.Screen name="Onboarding" component={Onboarding} options={{ header: () => null, }} />
+          {/* <Stack.Screen name="FrontProfile" component={FrontProfile} options={{ header: () => null, }} /> */}
           <Stack.Screen name="Home" component={Home} options={{ header: () => null, }} />
           <Stack.Screen name="News" component={News} options={{ header: () => null, }} />
           <Stack.Screen name="OtherResponse" component={OtherResponse} options={{ header: () => null, }} />

@@ -568,7 +568,7 @@ import {
                   ""
                 )}
   
-                <Text
+                {/* <Text
                   style={{
                     color: NORMAL_TEXT_COLOR,
                     fontSize: 16,
@@ -581,10 +581,10 @@ import {
                   }}
                 >
                   # {item.title}
-                </Text>
+                </Text> */}
               </TouchableOpacity>
   
-              <View style={{ position: "absolute", right: 15, top: "65%" }}>
+              <View style={{ position: "absolute", right: 15, top: "50%" }}>
                 {item.likecontent ? (
                   <TouchableOpacity
                     onPress={() => deleteLike(item.catalog_id, item.content_id)}

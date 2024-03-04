@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback, useMemo, } from 'react';
-import { View, FlatList, StyleSheet, Text, Pressable, ActivityIndicator, RefreshControl, TouchableOpacity, Image, LogBox, StatusBar, BackHandler } from 'react-native';
+import { View, FlatList, StyleSheet, Text, Pressable, ActivityIndicator, RefreshControl, TouchableOpacity, Image, LogBox, StatusBar, BackHandler, Platform } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, {
     Extrapolate,
@@ -11,7 +11,7 @@ import Animated, {
 import FastImage from 'react-native-fast-image';
 import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, SLIDER_PAGINATION_SELECTED_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, MORE_LINK_COLOR, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, VIDEO_AUTH_TOKEN, FIRETV_BASE_URL_STAGING, APP_VERSION, BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU, BACKGROUND_TRANSPARENT_COLOR_MENU, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, actuatedNormalize, actuatedNormalizeVertical, BACKGROUND_TRANSPARENT_COLOR } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StackActions } from '@react-navigation/native';
+import { StackActions, useIsFocused } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
@@ -23,8 +23,10 @@ import messaging from '@react-native-firebase/messaging';
 import base64 from 'react-native-base64';
 import Orientation from 'react-native-orientation-locker';
 import { CastButton } from 'react-native-google-cast';
-
-
+import connectionrequest from '../components/NetInfo';
+import { Alert } from 'react-native';
+import normalize from '../Utils/Helpers/Dimen';
+import IconNet from 'react-native-vector-icons/MaterialCommunityIcons';
 export const ElementsText = {
     AUTOPLAY: 'AutoPlay',
 };
@@ -35,7 +37,23 @@ var popup = false;
 var isTablet = DeviceInfo.isTablet();
 var gateways = [];
 function Home({ navigation, route }) {
-
+    const isfocus = useIsFocused();
+    useEffect(() => {
+        const interval = setInterval(() => {
+            // console.log("hello");
+            connectionrequest()
+                .then(() => {
+                    // console.log("pranab");
+                    setNetinfo(false);
+                })
+                .catch((err) => {
+                    setNetinfo(true);
+                    // Alert.alert("hello", err);
+                });
+        }, 1000); // Call every 1 second (1000 milliseconds)
+    
+        return () => clearInterval(interval); // Cleanup on component unmount
+    }, [isfocus]);
     const [colors, setColors] = useState([
         SLIDER_PAGINATION_SELECTED_COLOR,
         SLIDER_PAGINATION_SELECTED_COLOR,
@@ -85,6 +103,7 @@ function Home({ navigation, route }) {
     const [loggedin, setloggedin] = useState(false);
     const [menubgcolor, setmenubgColor] = useState(BACKGROUND_TOTAL_TRANSPARENT_COLOR_MENU);
     const [sliderKey, setSliderKey] = useState(0);
+    const [netinfo, setNetinfo] = useState(false);
     var menuref = useRef();
     const progressValue = useSharedValue(0);
     const progressValue1 = useSharedValue(0);
@@ -440,7 +459,7 @@ function Home({ navigation, route }) {
 
     }
     const loadasyncdata = async () => {
-        await AsyncStorage.setItem('firstload', 'no');
+        // await AsyncStorage.setItem('firstload', 'no');
         const getCurrentVersion = await AsyncStorage.getItem('currentVersion');
 
         //fetching ip data
@@ -781,7 +800,7 @@ function Home({ navigation, route }) {
             await AsyncStorage.setItem('sourceName', sourceName);
         navigation.navigate(page, { seoUrl: url, theme: theme })
     }
-
+    // {carsoule banner section start  -------------------}
     const renderItem = ({ item, index }) => {
         const inputRange = [(index - 1) * PAGE_WIDTH, index * PAGE_WIDTH, (index + 1) * PAGE_WIDTH];
         const translateX = scrollx.interpolate({ inputRange, outputRange: [-PAGE_WIDTH * 0.5, 0, PAGE_WIDTH * 0.5] })
@@ -803,7 +822,7 @@ function Home({ navigation, route }) {
 
                     {item.layoutType == 'top_banner' ?
                         <>
-                            <Carousel
+                            {/* <Carousel
                                 {...baseOptions}
                                 loop
                                 pagingEnabled={pagingEnabled}
@@ -871,7 +890,123 @@ function Home({ navigation, route }) {
 
                                 }
 
+                            /> */}
+                            <Carousel
+                                {...baseOptions}
+                                loop
+                                pagingEnabled={pagingEnabled}
+                                snapEnabled={snapEnabled}
+                                autoPlay={autoPlay}
+                                autoPlayInterval={5000}
+                                modeConfig={{
+                                    snapDirection: "left",
+                                    moveSize: window.width,
+                                    stackInterval: 30,
+                                    scaleInterval: 0.08,
+                                    rotateZDeg: 135,
+                                }}
+                                onProgressChange={(_, absoluteProgress) => {
+                                    progressValue.value = absoluteProgress;
+                                    setSliderKey(Math.trunc(absoluteProgress));
+                                }}
+                                withAnimation={{
+                                    type: "timing",
+                                    config: {
+                                        damping: 13,
+                                    },
+                                }}
+                                windowSize={3}
+                                panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
+                                data={item.data}
+                                style={{ top: -15, width: "100%" }}
+                                scrollAnimationDuration={1000}
+                                renderItem={({ item, index, animationValue }) => (
+                                    <View
+                                        style={{
+                                            height: (PAGE_HEIGHT / 100) * 76,
+                                            width: "100%",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                        }}
+                                    >
+                                        <FastImage
+                                            resizeMode={
+                                                isTablet
+                                                    ? FastImage.resizeMode.contain
+                                                    : FastImage.resizeMode.contain
+                                            }
+                                            key={index}
+                                            style={[
+                                                {
+                                                    borderBottomLeftRadius: 0,
+                                                    borderBottomRightRadius: 0,
+                                                    width: "100%",
+                                                    height: (PAGE_HEIGHT / 100) * 76,
+                                                },
+                                            ]}
+                                            source={{
+                                                uri: item.uri,
+                                                priority: FastImage.priority.high,
+                                                cache: FastImage.cacheControl.immutable,
+                                            }}
+                                        >
+                                            <LinearGradient
+                                                colors={["#292828", "#29282898", "rgba(0, 0, 0, 0)"]}
+                                                locations={[0.37, 0.7, 1]}
+                                                style={{
+                                                    opacity: 1,
+                                                    flex: 0.4,
+                                                    justifyContent: "center",
+                                                    alignItems: "center",
+                                                }}
+                                            />
+                                            <LinearGradient
+                                                colors={["#292828", "rgba(0, 0, 0, 0)"]}
+                                                locations={[0.17, 1]}
+                                                style={{
+                                                    opacity: 1,
+                                                    flex: 1,
+                                                    justifyContent: "center",
+                                                    alignItems: "center",
+                                                }}
+                                                useAngle={true}
+                                                angle={0}
+                                            />
+                                            {item.title_image_display == true ||
+                                                item.title_image_display == "true" ||
+                                                item.title_image_display == 1 ? (
+                                                <FastImage
+                                                    resizeMode={
+                                                        isTablet
+                                                            ? FastImage.resizeMode.contain
+                                                            : FastImage.resizeMode.contain
+                                                    }
+                                                    key={"title" + index}
+                                                    style={[
+                                                        {
+                                                            borderBottomLeftRadius: 0,
+                                                            borderBottomRightRadius: 0,
+                                                            width: PAGE_WIDTH - 150,
+                                                            height: 150,
+                                                            position: "absolute",
+                                                            bottom: 30,
+                                                            alignSelf: "center",
+                                                        },
+                                                    ]}
+                                                    source={{
+                                                        uri: item.title_image,
+                                                        priority: FastImage.priority.high,
+                                                        cache: FastImage.cacheControl.immutable,
+                                                    }}
+                                                />
+                                            ) : (
+                                                ""
+                                            )}
+                                        </FastImage>
+                                    </View>
+                                )}
                             />
+
 
 
                             <View style={styles.buttonsContainer}>
@@ -1030,7 +1165,7 @@ function Home({ navigation, route }) {
                     </View>
                     : ""}
                 {(item.layoutType == 'tv_shows' || item.layoutType == "show") && item.data.length != 0 ?
-                    <View style={index == 0 ? { marginTop: 60 } : {}}>
+                    <View>
                         <View style={styles.sectionHeaderView}>
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
                             {item.data.length > 3 ? <Pressable style={{ width: "100%" }} onPress={() => {
@@ -1239,7 +1374,8 @@ function Home({ navigation, route }) {
 
                 {item.layoutType == 'movie_poster' && item.data.length != 0 ?
                     <View>
-                        <View style={styles.sectionHeaderView}>
+                        <View style={[styles.sectionHeaderView]}>
+
                             <Text style={styles.sectionHeader}>{item.displayName}</Text>
                             {item.data.length > 2 ? <Pressable style={{ width: "100%" }} onPress={() => {
                                 settotalHomeData([]);
@@ -1434,11 +1570,11 @@ function Home({ navigation, route }) {
                     : ""}
 
 
-
+                {/* {recommended for you && Trending --- Start} */}
                 {item.layoutType != 'tv_shows' && item.layoutType != 'show' && item.layoutType != 'top_banner' && item.layoutType != 'etv-exclusive_banner' && item.layoutType != 'tv_shows_banner' && item.layoutType != 'banner' && item.layoutType != 'channels' && item.layoutType != 'live' && item.layoutType != 'movie_poster' && item.layoutType != 'mini_movie_poster' && item.layoutType != 'news_slider' && item.data.length != 0 ?
                     <View style={index == 0 ? {} : {}}>
                         <View style={styles.sectionHeaderView}>
-                            <Text style={styles.sectionHeader}>{item.displayName}</Text>
+                            <Text style={[styles.sectionHeaderreconm]}>{item.displayName}</Text>
                             {item.data.length > 2 && item.layoutType != 'continue_watching' && item.displayName.toLowerCase() != 'food' ? <Pressable style={{ width: "100%" }} onPress={() => {
                                 settotalHomeData([]);
                                 navigation.navigate('MoreList', { firendlyId: item.friendlyId, layoutType: LAYOUT_TYPES[1] })
@@ -1504,10 +1640,12 @@ function Home({ navigation, route }) {
                             />
                         }
                     </View> : ""}
+                {/* {recommended for you && Trending --- end} */}
                 {index == totalHomeData.length - 1 ? <View style={{ marginBottom: 50 }}></View> : ""}
             </View>
         );
     }
+    // {carsoule banner section end  -------------------}
     function changeTabData(pageFriendlyId) {
         if (pageFriendlyId != 'live')
             navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: pageFriendlyId }))
@@ -1522,13 +1660,13 @@ function Home({ navigation, route }) {
 
                     <Pressable onPress={() => changeTabData(item.friendlyId)}>
                         <View style={styles.menuitem}>
-                            <Text style={{ color: TAB_COLOR, fontWeight: 'bold', fontSize: 13 }}>{item.displayName}</Text>
+                            <Text style={{ color: TAB_COLOR, fontWeight: 'bold', fontSize: 13 }}>{item?.displayName}</Text>
                         </View>
                     </Pressable>
                     :
                     <Pressable onPress={() => changeTabData(item.friendlyId)}>
                         <View style={styles.menuitem}>
-                            <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold', fontSize: 13 }}>{item.displayName}</Text>
+                            <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: 'bold', fontSize: 13 }}>{item?.displayName}</Text>
                         </View>
                     </Pressable>
                 }
@@ -1554,7 +1692,7 @@ function Home({ navigation, route }) {
         }
         BackHandler.addEventListener('hardwareBackPress', handleBack);
         LogBox.ignoreLogs(['`new NativeEventEmitter()` was called with a non-null']);
-    }, [totalHomeData])
+    }, [isfocus])
 
     const memoizedValue = useMemo(() => renderItem, [totalHomeData]);
     const loadFilters = async () => {
@@ -1664,6 +1802,73 @@ function Home({ navigation, route }) {
                 </View>
             </Modal>
 
+            <Modal
+                animationIn={'slideInUp'}
+                animationOut={'slideOutDown'}
+                backdropTransitionOutTiming={0}
+                hideModalContentWhileAnimating={true}
+                isVisible={netinfo}
+                style={{ width: '100%', alignSelf: 'center', margin: 0 }}
+                animationInTiming={800}
+                animationOutTiming={1000}
+                onBackdropPress={() => setNetinfo(true)}>
+                <View
+                    style={{
+                        width: '100%',
+                        height: normalize(400),
+                        backgroundColor: BACKGROUND_COLOR,
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        borderTopRightRadius: normalize(20),
+                        borderTopLeftRadius: normalize(20),
+                        paddingVertical: normalize(10),
+                        alignItems: 'center',
+                    }}
+                    behavior={Platform.OS == 'ios' ? 'padding' : 'height'}>
+                    <View>
+                        <IconNet name="radio-tower" size={100} color={'#c2c4c6'} />
+                    </View>
+                    <View>
+                        <Text
+                            style={{
+                                fontSize: normalize(18),
+                                fontWeight: '600',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: "white",
+                            }}>
+                            Oops !! Please connect to internet..
+                        </Text>
+                    </View>
+                    <TouchableOpacity onPress={() => {
+                        setNetinfo(false);
+                        // BackHandler.exitApp();;
+                    }} activeOpacity={0.6}
+                        style={{
+                            width: '75%',
+                            height: normalize(45),
+                            alignSelf: 'center',
+                            marginBottom: normalize(15),
+                            borderRadius: normalize(10),
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}>
+                        <LinearGradient
+                            useAngle={true}
+                            angle={125}
+                            angleCenter={{ x: 0.5, y: 0.5 }}
+                            colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                            style={{ width: "90%", height: normalize(40), borderRadius: 25 }}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: normalize(10) }}>
+                                <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: 'bold' }}>Retry</Text>
+                            </View>
+                        </LinearGradient>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+
             <CastButton style={{ width: 24, height: 24, tintColor: '#ffffff', zIndex: 10000000, position: 'absolute', right: 30, bottom: 70 }} />
 
             <StatusBar
@@ -1726,7 +1931,13 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: '400',
         left: 3,
-
+        width: "50%"
+    },
+    sectionHeaderreconm: {
+        color: HEADING_TEXT_COLOR,
+        fontSize: 15,
+        fontWeight: '400',
+        left: 8,
         width: "50%"
     },
     sectionHeaderMore: {

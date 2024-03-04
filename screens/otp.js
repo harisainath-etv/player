@@ -14,6 +14,7 @@ import messaging from '@react-native-firebase/messaging';
 
 export default function Otp({ navigation, route }) {
     const { otpkey } = route.params;
+    // console.log(route.params,"jjjjj-------------")
     const [LoginRegisterMobile, setLoginRegisterMobile] = useState();
     const [otp1, setotp1] = useState();
     const [otp2, setotp2] = useState();
@@ -81,7 +82,7 @@ export default function Otp({ navigation, route }) {
           
             axios.post(FIRETV_BASE_URL_STAGING + "users/verify_otp", {
                 auth_token: AUTH_TOKEN,
-                user: { action: "signin", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: loginMobile, mobile_number: loginMobile, device_token: device_token }
+                user: { action: "signin", region: region, type: "msisdn", key: otp1 + otp2 + otp3 + otp4 + otp5 + otp6, user_id: loginMobile, mobile_number: loginMobile, device_token: device_token,current_app_version: "android-1.8" }
             }, {
                 headers: {
                     'Accept': 'application/json',
@@ -89,6 +90,7 @@ export default function Otp({ navigation, route }) {
                 }
             })
                 .then(response => {
+                    console.log(response.data.data,"pranab==============")
                     triggersuccessanalytics('login_success', 'phone number', user_id, uniqueid,'05')
                     AsyncStorage.setItem('userobj', JSON.stringify(response.data.data))
                     AsyncStorage.setItem('add_profile', JSON.stringify(response.data.data.add_profile))

@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, StatusBar, View } from "react-native";
+import { ScrollView, StyleSheet, StatusBar, View, LogBox } from "react-native";
 import { WebView } from "react-native-webview";
 
 import {
@@ -13,8 +13,13 @@ import {
     PAGE_WIDTH,
 } from "../constants";
 import NormalHeader from "./normalHeader";
+import { BackHandler } from "react-native";
+import { StackActions, useIsFocused } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 var pagename = "";
 const HTMLRender = ({ navigation, route }) => {
+   
+
     const [staticPage, setStaticPage] = useState({
         display_title: "",
         description: "",
@@ -24,6 +29,37 @@ const HTMLRender = ({ navigation, route }) => {
     useEffect(() => {
         fetchData();
     }, []);
+    const isfocued = useIsFocused();
+    useEffect(()=>{
+      const finalSes =async()=>{
+          try {
+              BackHandler.addEventListener('hardwareBackPress', Back);
+              LogBox.ignoreLogs(['`new NativeEventEmitter()` was called with a non-null']);
+          } catch (error) {
+              console.log(error)
+          }
+      }
+      finalSes();
+  },[isfocued])
+  const Back = async () => {
+      try {
+          if (navigation.canGoBack()) {
+              navigation.goBack();
+          } else {
+              const sessionlo = await AsyncStorage.getItem('session');
+              const login = JSON.parse(sessionlo); // Parse the session data if needed
+  
+              if (login) {
+                  navigation.dispatch(StackActions.replace('Menu', { pageFriendlyId: 'Menu' }));
+              } else {
+                  navigation.dispatch(StackActions.replace('Signup'));
+              }
+          }
+      } catch (error) {
+          console.error("Error occurred while navigating:", error);
+          // Handle the error as per your requirement
+      }
+  }
 
     async function fetchData() {
         await axios.get(FIRETV_BASE_URL + "config/static_page/" + pagename + "?auth_token=" + AUTH_TOKEN + "&access_token=" + ACCESS_TOKEN).then(response => {

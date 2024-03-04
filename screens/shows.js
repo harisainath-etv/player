@@ -14,14 +14,15 @@ import NormalHeader from './normalHeader';
 import { AUTH_TOKEN, BACKGROUND_COLOR, FIRETV_BASE_URL, NORMAL_TEXT_COLOR, TAB_COLOR, PAGE_WIDTH, VIDEO_TYPES, MORE_LINK_COLOR, LAYOUT_TYPES, IMAGE_BORDER_COLOR, DETAILS_TEXT_COLOR, DARKED_BORDER_COLOR, VIDEO_AUTH_TOKEN, ACCESS_TOKEN, BUTTON_COLOR, FOOTER_DEFAULT_TEXT_COLOR, actuatedNormalize, PAGE_HEIGHT, FIRETV_BASE_URL_STAGING, COMMON_BASE_URL } from '../constants';
 import DeviceInfo from 'react-native-device-info';
 import LinearGradient from 'react-native-linear-gradient';
-import { OptimizedFlatList } from 'react-native-optimized-flatlist'
+// import { OptimizedFlatList } from 'react-native-optimized-flatlist'
 import RNBackgroundDownloader from 'react-native-background-downloader';
-import RNFS from 'react-native-fs';
+// import RNFS from 'react-native-fs';
 var indexValue = 0;
 var isTablet = DeviceInfo.isTablet();
 var internaltabs = [];
 export default function Shows({ navigation, route }) {
     var { seoUrl, selectTitle, ind } = route.params;
+    const [isShow, setIsShow] = useState(false);
     const [toggle, setToggle] = useState(false);
     const [title, setTitle] = useState();
     const [thumbnail, setThumbnail] = useState();
@@ -62,6 +63,9 @@ export default function Shows({ navigation, route }) {
     const [downloadedStatus, setDownloadedStatus] = useState(0)
     const [taskdownloading, settaskdownloading] = useState();
     const [tabDataLoading, setTabDataLoading] = useState(false);
+    const showMoreLess =()=>{
+        setIsShow(!isShow);
+    }
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -124,8 +128,7 @@ export default function Shows({ navigation, route }) {
 
         const url = urlPath + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region;
         await axios.get(url).then(response => {
-            if(response.data.data.title!="" && response.data.data.title!=null)
-            {
+            if (response.data.data.title != "" && response.data.data.title != null) {
                 setTitle(response.data.data.title);
                 setThumbnail(response.data.data.last_episode.thumbnails.high_3_4.url);
                 setEpisodeSeoUrl(response.data.data.last_episode.seo_url);
@@ -211,16 +214,17 @@ export default function Shows({ navigation, route }) {
                 mainArr.push({ 'name': 'related', 'display_title': 'Related Shows', 'item_type': 'show', 'subcategoryurl': relatedurlPath })
                 setSubcategoryList(mainArr);
             }
-            else{
-                alternativeUrl(urlPath1,relatedurlPath,sessionId,region,baseUrl)
+            else {
+                alternativeUrl(urlPath1, relatedurlPath, sessionId, region, baseUrl)
             }
             setLoading(false);
         }).catch(error => {
             setLoading(false);
-            alternativeUrl(urlPath1 + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region,relatedurlPath,sessionId,region,baseUrl)})
+            alternativeUrl(urlPath1 + ".gzip?&auth_token=" + AUTH_TOKEN + "&region=" + region, relatedurlPath, sessionId, region, baseUrl)
+        })
     }
 
-    async function alternativeUrl(url,relatedurlPath,sessionId,region,baseUrl){
+    async function alternativeUrl(url, relatedurlPath, sessionId, region, baseUrl) {
         console.log(url);
         setLoading(true);
         await axios.get(url).then(response => {
@@ -398,7 +402,7 @@ export default function Shows({ navigation, route }) {
         })
     }
 
-    
+
 
     const startDownloading = async (playback_url, offlineUrl, downloaddirectory, downloadquality) => {
         var splittedOfflineUrl = offlineUrl.split("/");
@@ -417,7 +421,7 @@ export default function Shows({ navigation, route }) {
             // console.log(`Going to download ${expectedBytes} bytes!`);
             toggleModal()
         }).progress((percent) => {
-            let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "download_quality": downloadquality, "source": "source", "percentage_downloaded": `${percent * 100}`,'event_time':new Date(),'event_id':'09' };
+            let jsonObj = { "content_type": contenttype, "video_name": title, "genre": displayGenres, "video_language": contentlanguage, "download_quality": downloadquality, "source": "source", "percentage_downloaded": `${percent * 100}`, 'event_time': new Date(), 'event_id': '09' };
             triggerOtherAnalytics('download_video', jsonObj)
 
             AsyncStorage.setItem('download_' + splittedOfflineUrl[splittedOfflineUrl.length - 1], JSON.stringify(percent * 100));
@@ -451,8 +455,8 @@ export default function Shows({ navigation, route }) {
             </View>
         )
     }
-   
-   
+
+
     const shareOptions = async () => {
         const shareOptions = {
             title: title,
@@ -461,7 +465,7 @@ export default function Shows({ navigation, route }) {
         };
         const ShareResponse = await Share.open(shareOptions);
     }
-  
+
     const subcatrender = ({ item, index }) => {
         return (
             <>
@@ -489,7 +493,7 @@ export default function Shows({ navigation, route }) {
                     }
 
                 </TouchableOpacity>
-                {subcategoryImages.length>0 && subcategoryImages[0][0].name!='related'?
+                {subcategoryImages.length > 0 && subcategoryImages[0][0].name != 'related' ?
                     index == (subcategoryImages[0][0].thumbnails.length - 1) && subcategoryImages[0][0].hasOwnProperty('friendlyId') ?
                         <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', marginTop: -20, marginBottom: 20, backgroundColor: BACKGROUND_COLOR, padding: 20 }} onPress={() => navigation.navigate('EpisodesMoreListUrl', { firendlyId: subcategoryImages[0][0].friendlyId, layoutType: LAYOUT_TYPES[1] })}><Text style={styles.sectionHeaderMore}>Load more...</Text></TouchableOpacity>
                         : ""
@@ -505,7 +509,8 @@ export default function Shows({ navigation, route }) {
             {loading ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator color={NORMAL_TEXT_COLOR} size={'large'}></ActivityIndicator></View> :
                 <View style={{ flex: 1 }}>
                     <NormalHeader></NormalHeader>
-                    <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true}>
+                    <ScrollView style={{ flex: 1 }}>
+                        
                         <View style={styles.container}>
                             <View
                                 style={
@@ -515,6 +520,7 @@ export default function Shows({ navigation, route }) {
                                         { height: (PAGE_HEIGHT / 100) * 76, width: PAGE_WIDTH, }
                                 }
                             >
+                                
                                 <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', width: "100%" }} onPress={() => navigation.navigate('Episode', { seoUrl: episodeSeoUrl, theme: 'video', showname: title, showcontentId: contentId })}>
                                     <FastImage resizeMode={FastImage.resizeMode.contain} source={{ uri: thumbnail, priority: FastImage.priority.high, cache: FastImage.cacheControl.immutable, }} style={
                                         isTablet ?
@@ -560,9 +566,27 @@ export default function Shows({ navigation, route }) {
                                         })}
 
                                     </View>
-                                    <ReadMore numberOfLines={3} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
+                                    <>
+                                        <Text
+                                            ellipsizeMode="tail"
+                                            numberOfLines={isShow ? undefined : 2}
+                                            style={styles.detailsText}>
+                                            {description}
+                                        </Text>
+
+                                        <TouchableOpacity onPress={showMoreLess} style={styles.detailsText}>
+                                            {
+                                                isShow ? <Text style={{ color: TAB_COLOR, fontWeight: "bold" }}>
+                                                    {"Read Less"}
+                                                </Text>
+                                                    : <Text style={{ color: TAB_COLOR, fontWeight: "bold" }}>
+                                                        {"Read More"}
+                                                    </Text>}
+                                        </TouchableOpacity>
+                                    </>
+                                    {/* <ReadMore numberOfLines={3} style={styles.detailsText} seeMoreText="Read More" seeMoreStyle={{ color: TAB_COLOR, fontWeight: 'bold' }} seeLessStyle={{ color: TAB_COLOR, fontWeight: 'bold' }}>
                                         <Text style={styles.detailsText}>{description}</Text>
-                                    </ReadMore>
+                                    </ReadMore> */}
                                 </View>
                             </View>
 
@@ -603,7 +627,7 @@ export default function Shows({ navigation, route }) {
                                                             :
                                                             <TouchableOpacity key={'seasons' + index} onPress={() => movetoscreen(item.item.seo_url, index, item.item.title)}>
                                                                 <View style={{ borderBottomColor: IMAGE_BORDER_COLOR, borderBottomWidth: 0.5, padding: 15 }}>
-                                                                    <Text style={{ color: TAB_COLOR, fontWeight: '500' }}>{item.item.title}dd</Text>
+                                                                    <Text style={{ color: TAB_COLOR, fontWeight: '500' }}>{item.item.title}</Text>
                                                                 </View>
                                                             </TouchableOpacity>
                                                         }
@@ -621,7 +645,7 @@ export default function Shows({ navigation, route }) {
                                     renderItem={renderSubcat}
                                     horizontal={true}
                                     keyExtractor={(x, i) => i.toString()}
-                                    contentContainerStyle={{  }}
+                                    contentContainerStyle={{}}
                                 /> : ""}
                                 <View style={{ borderBottomColor: FOOTER_DEFAULT_TEXT_COLOR, borderBottomWidth: 1, height: 5, width: "100%" }}></View>
                                 {!subcatLoading ?
@@ -657,13 +681,14 @@ export default function Shows({ navigation, route }) {
                                             return (
                                                 <View key={{ i }} style={{ width: "100%", marginTop: 20 }}>
                                                     {cat[0] ?
-                                                        <OptimizedFlatList
+                                                        <FlatList
                                                             data={cat[0].thumbnails}
                                                             contentContainerStyle={VIDEO_TYPES.includes(itemType) ? { width: "100%", } : { width: "100%", flexDirection: 'row', flexWrap: 'wrap' }}
                                                             keyExtractor={(x, i) => i.toString()}
                                                             renderItem={subcatrender}
-                                                            initialNumToRender={5}
-                                                            maxToRenderPerBatch={10}
+                                                            initialNumToRender={2}
+                                                            maxToRenderPerBatch={3}
+                                                            windowSize={5}
                                                         />
                                                         :
                                                         <View style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }}>
@@ -748,7 +773,7 @@ const styles = StyleSheet.create({
         color: NORMAL_TEXT_COLOR,
         fontSize: 15,
         textAlign: 'right',
-        fontWeight:'500'
+        fontWeight: '500'
     },
     imageSectionVertical: {
         width: PAGE_WIDTH / 3.1,

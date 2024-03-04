@@ -145,7 +145,7 @@ function SearchCalendarEpisodes({ navigation, route }) {
                 <Text style={styles.sectionHeader}>{displayTitle}</Text>
                 
             </View>
-            {totalHomeData.length==0 ? <Text style={{color:NORMAL_TEXT_COLOR,fontSize:20}}>No Episodes Found</Text> : ""}
+            {/* {totalHomeData.length==0 ? <Text style={{color:NORMAL_TEXT_COLOR,fontSize:20}}>No Episodes Found</Text> : ""} */}
             
             {/* body content */}
             {totalHomeData ? <FlatList
@@ -155,6 +155,14 @@ function SearchCalendarEpisodes({ navigation, route }) {
                 contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap' }}
                 style={{ height: PAGE_HEIGHT }}
                 renderItem={renderItem}
+                ListEmptyComponent={< View >
+                    <Text style={{
+                        fontSize: 20,
+                        fontFamily: "bold",
+                        color: NORMAL_TEXT_COLOR,
+                        alignSelf: 'center'
+                    }}>No Episodes Found</Text>
+                </View>}
             /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} /></View>}
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} ></ActivityIndicator> : ""}

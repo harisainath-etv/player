@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { useState, useEffect, useRef, } from 'react';
-import { View, FlatList, StyleSheet, Text, ActivityIndicator, Image, Pressable } from 'react-native';
+import { View, FlatList, StyleSheet, Text, ActivityIndicator, Image, Pressable, LogBox } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import { BACKGROUND_COLOR, AUTH_TOKEN, FIRETV_BASE_URL, TAB_COLOR, HEADING_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, ACCESS_TOKEN, PAGE_WIDTH, PAGE_HEIGHT, VIDEO_TYPES, LAYOUT_TYPES, actuatedNormalize } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from './footer';
 import NormalHeader from './normalHeader';
+import { BackHandler } from 'react-native';
+import normalize from '../Utils/Helpers/Dimen';
 
 
 export const ElementsText = {
@@ -180,7 +182,15 @@ function MoreList({ navigation, route }) {
         if (selectedItem == "") {
             selectedItem = 0;
         }
+        BackHandler.addEventListener('hardwareBackPress',Back);
+        LogBox.ignoreLogs(['`new NativeEventEmitter()` was called with a non-null']);
     }, []);
+    const Back =()=>{
+        if (navigation.canGoBack())
+        navigation.goBack()
+    else
+        navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+    }
     return (
         <View style={{ flex: 1, backgroundColor: BACKGROUND_COLOR, }}>
 
@@ -191,16 +201,25 @@ function MoreList({ navigation, route }) {
 
 
             {/* body content */}
-            {totalHomeData ? <FlatList
+           <FlatList
                 data={totalHomeData}
                 keyExtractor={(x, i) => i.toString()}
                 horizontal={false}
                 contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap' }}
                 style={{ height: PAGE_HEIGHT }}
                 renderItem={renderItem}
-            /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} /></View>}
-            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                {loading ? <ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} ></ActivityIndicator> : ""}
+                ListEmptyComponent={< View >
+                    <Text style={{
+                      fontSize: 20,
+                      fontFamily: "bold",
+                      color: NORMAL_TEXT_COLOR,
+                      //  marginLeft:55
+                      alignSelf: 'center'
+                    }}>No Results Found</Text>
+                  </View>}
+            />
+             <View style={{ left: "50%", position: 'absolute', zIndex: 10000, top: '50%' }}>
+                {loading ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} style={{}}></ActivityIndicator></View> : ""}
             </View>
             {/* <Footer
                 pageName={page}
@@ -251,13 +270,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center',
-        marginTop:100 
+        marginTop:80 
     },
     sectionHeader: {
         color: HEADING_TEXT_COLOR,
         fontSize: 20,
         fontWeight: '400',
-        marginLeft: 20
+        marginLeft: 40,
+        bottom:20
     },
     imageSectionHorizontal: {
         width: PAGE_WIDTH / 2.06,
@@ -281,7 +301,7 @@ const styles = StyleSheet.create({
         height: actuatedNormalize(155),
         borderRadius: 18,
         marginBottom: 10,
-        marginHorizontal: 1
+        marginHorizontal: 2
 
     },
     imageSectionCircle: {

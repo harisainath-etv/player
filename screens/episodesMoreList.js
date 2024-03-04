@@ -104,6 +104,15 @@ function EpisodesMoreList({ navigation, route }) {
                             showsHorizontalScrollIndicator={false}
                             style={styles.containerMargin}
                             numColumns={3}
+                            ListEmptyComponent={< View >
+                                <Text style={{
+                                  fontSize: 20,
+                                  fontFamily: "bold",
+                                  color: NORMAL_TEXT_COLOR,
+                                  //  marginLeft:55
+                                  alignSelf: 'center'
+                                }}>No Results Found</Text>
+                              </View>}
                             renderItem={
                                 ({ item, index }) =>
                                     <View>
@@ -139,6 +148,15 @@ function EpisodesMoreList({ navigation, route }) {
                             onEndReached={loadNextData}
                             showsHorizontalScrollIndicator={false}
                             numColumns={2}
+                            ListEmptyComponent={< View >
+                                <Text style={{
+                                  fontSize: 20,
+                                  fontFamily: "bold",
+                                  color: NORMAL_TEXT_COLOR,
+                                  //  marginLeft:55
+                                  alignSelf: 'center'
+                                }}>No Results Found</Text>
+                              </View>}
                             style={styles.containerMargin}
                             renderItem={
                                 ({ item, index }) =>
@@ -196,6 +214,15 @@ function EpisodesMoreList({ navigation, route }) {
                 horizontal={false}
                 contentContainerStyle={{ flexGrow: 1, flexWrap: 'nowrap' }}
                 style={{ height: PAGE_HEIGHT,}}
+                ListEmptyComponent={< View >
+                    <Text style={{
+                      fontSize: 20,
+                      fontFamily: "bold",
+                      color: NORMAL_TEXT_COLOR,
+                      //  marginLeft:55
+                      alignSelf: 'center'
+                    }}>No Results Found</Text>
+                  </View>}
                 renderItem={renderItem}
             /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={NORMAL_TEXT_COLOR} /></View>}
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>

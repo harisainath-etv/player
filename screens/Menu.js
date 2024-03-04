@@ -135,7 +135,7 @@ export default function Menu() {
     <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
       <ScrollView style={{ flex: 1 }}>
         <View style={{ width: PAGE_WIDTH, flexDirection: 'row', alignItems: 'center', marginTop: 30 }}>
-          <View style={styles.leftItems}>
+          <View style={[styles.leftItems]}>
             <Image source={require('../assets/images/winlogo.png')} style={styles.logoImage}></Image>
           </View>
           {/* <View style={{ position: 'absolute', right: 30 }}>

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable, StatusBar, TextInput, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native'
+import { View, Text, StyleSheet, Pressable, StatusBar, TextInput, ScrollView, TouchableOpacity, Image, ActivityIndicator, BackHandler, LogBox } from 'react-native'
 import React, { useEffect, useState, } from 'react'
 import { ACCESS_TOKEN, AUTH_TOKEN, BACKGROUND_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, IMAGE_BORDER_COLOR, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_UNSELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
@@ -6,7 +6,7 @@ import NormalHeader from './normalHeader'
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Modal from "react-native-modal";
-import { StackActions } from '@react-navigation/native'
+import { StackActions, useIsFocused } from '@react-navigation/native'
 
 export default function Feedback({ navigation }) {
   var arr = [];
@@ -83,6 +83,38 @@ export default function Feedback({ navigation }) {
       }
 
   }
+// login session handle ===============
+  const isfocued = useIsFocused();
+  useEffect(()=>{
+    const finalSes =async()=>{
+        try {
+            BackHandler.addEventListener('hardwareBackPress', Back);
+            LogBox.ignoreLogs(['`new NativeEventEmitter()` was called with a non-null']);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    finalSes();
+},[isfocued])
+const Back = async () => {
+    try {
+        if (navigation.canGoBack()) {
+            navigation.goBack();
+        } else {
+            const sessionlo = await AsyncStorage.getItem('session');
+            const login = JSON.parse(sessionlo); // Parse the session data if needed
+            if (login) {
+                navigation.dispatch(StackActions.replace('Menu', { pageFriendlyId: 'Menu' }));
+            } else {
+                navigation.dispatch(StackActions.replace('Signup'));
+            }
+        }
+    } catch (error) {
+        console.error("Error occurred while navigating:", error);
+        // Handle the error as per your requirement
+    }
+}
+//end================
   useEffect(() => {
     loaddata()
   }, [])

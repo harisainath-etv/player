@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Platform, TextInput, Image, Pressable,StyleSheet,StatusBar } from 'react-native'
+import { View, Text, TouchableOpacity, Platform, TextInput, Image, Pressable, StyleSheet, StatusBar } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import { ACCESS_TOKEN, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, BUTTON_COLOR, DARKED_BORDER_COLOR, DETAILS_TEXT_COLOR, FIRETV_BASE_URL_STAGING, FOOTER_DEFAULT_TEXT_COLOR, NORMAL_TEXT_COLOR, SECRET_KEY, SLIDER_PAGINATION_SELECTED_COLOR, TAB_COLOR, VIDEO_AUTH_TOKEN } from '../constants'
 import NormalHeader from './normalHeader'
@@ -11,7 +11,9 @@ import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export default function Confirmation({ navigation }) {
+export default function Confirmation({ navigation, route }) {
+    // const {alldata}= route?.params;
+    console.log(route?.params, "hello")
     const [amount, setAmount] = useState();
     const [chargedamount, setchargedamount] = useState();
     const [currency, setcurrency] = useState();
@@ -45,6 +47,7 @@ export default function Confirmation({ navigation }) {
         var region = await AsyncStorage.getItem('country_code');
         var actual_price = await AsyncStorage.getItem('actual_price');
         var payable_currency = await AsyncStorage.getItem('payable_currency');
+        console.log(payable_currency)
         var payable_category = await AsyncStorage.getItem('payable_category');
         var payable_catalog_id = await AsyncStorage.getItem('payable_catalog_id');
         var payable_category_id = await AsyncStorage.getItem('payable_category_id');
@@ -92,15 +95,38 @@ export default function Confirmation({ navigation }) {
                     upgrade_plan: palnupgrade,
                     user_info: { email: email, mobile_number: mobile_number },
                     miscellaneous: { browser: "chrome", device_brand: brand, device_IMEI: "NA", device_model: model, device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: network },
-                    renew_plan:renew
+                    renew_plan: renew
                 }, {
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
                     }
                 }).then(resp => {
+                    if(resp?.data?.data?.transaction_id){
+                        const sdk_Event_billdesk = {
+                            plan_type:route?.params?.plan,
+                            source:route?.params?.source,
+                            plan_name:route?.params?.planname,
+                            payment_mode:"billdesk",
+                            coupon_code:"1",
+                            coupon_code_type:"SAVE 50%",
+                            coupon_code_name:"Pranab",
+                            price_charged:route?.params?.pack_value,
+                            order_id:resp?.data?.data?.transaction_id,
+                            pack_value:route?.params?.pack_value,
+                            pack_value_currency:payable_currency,
+                            platform:"android"
+                        }
+                        sdk.trackEvent("subscription_checkout", sdk_Event_billdesk)
+                    }
+                    console.log(resp?.data?.data?.transaction_id, "kkkkkkkkkkkkk")
                     if (resp.data.data.code != "1070")
-                        navigation.navigate('Webview', { uri: resp.data.data.payment_url + "?msg=" + resp.data.data.msg })
+                    navigation.navigate({
+                        name: "Webview",
+                        params: {uri: resp.data.data.payment_url + "&encRequest=" + resp.data.data.msg + "&access_code=" + resp.data.data.access_code,alldata: route.params,order_id:resp?.data?.data?.transaction_id,payment_mode:"billdesk"},
+                        merge: true,
+                      });
+                    
                     else {
                         alert(resp.data.data.message);
                         navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
@@ -124,16 +150,39 @@ export default function Confirmation({ navigation }) {
                     upgrade_plan: palnupgrade,
                     user_info: { email: email, mobile_number: mobile_number },
                     miscellaneous: { browser: "chrome", device_brand: brand, device_IMEI: "NA", device_model: model, device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: network },
-                    renew_plan:renew
+                    renew_plan: renew
                 }, {
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
                     }
                 }).then(resp => {
-                    if (resp.data.data.code != "1070") {
-                        navigation.navigate('Webview', { uri: resp.data.data.payment_url + "&encRequest=" + resp.data.data.msg + "&access_code=" + resp.data.data.access_code })
+                    if(resp?.data?.data?.transaction_id){
+                        const sdk_Event_ccavenue = {
+                            plan_type:route?.params?.plan,
+                            source:route?.params?.source,
+                            plan_name:route?.params?.planname,
+                            payment_mode:"ccavenue",
+                            coupon_code:"1",
+                            coupon_code_type:"SAVE 50%",
+                            coupon_code_name:"Pranab",
+                            price_charged:route?.params?.pack_value,
+                            order_id:resp?.data?.data?.transaction_id,
+                            pack_value:route?.params?.pack_value,
+                            pack_value_currency:payable_currency,
+                            platform:"android"
+                        }
+                        sdk.trackEvent("subscription_checkout", sdk_Event_ccavenue)
                     }
+                    console.log(resp?.data?.data?.transaction_id, "ccavenue------------")
+                    if (resp.data.data.code != "1070") {
+                        navigation.navigate({
+                            name: "Webview",
+                            params: {uri: resp.data.data.payment_url + "&encRequest=" + resp.data.data.msg + "&access_code=" + resp.data.data.access_code,alldata: route.params,order_id:resp?.data?.data?.transaction_id, payment_gateway: "ccavenue"},
+                            merge: true,
+                          });
+                        // navigation.navigate('Webview', { uri: resp.data.data.payment_url + "&encRequest=" + resp.data.data.msg + "&access_code=" + resp.data.data.access_code},{alldata: route?.params , order_id:resp?.data?.data?.transaction_id})
+                    } 
                     else {
                         alert(resp.data.data.message);
                         navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
@@ -158,7 +207,7 @@ export default function Confirmation({ navigation }) {
                 upgrade_plan: palnupgrade,
                 user_info: { email: email, mobile_number: mobile_number },
                 miscellaneous: { browser: "chrome", device_brand: brand, device_IMEI: "NA", device_model: model, device_OS: Platform.OS, device_type: 'Android Mobile', inet: "NA", isp: "NA", operator: network },
-                renew_plan:renew
+                renew_plan: renew
             }, {
                 headers: {
                     'Accept': 'application/json',
@@ -208,7 +257,7 @@ export default function Confirmation({ navigation }) {
         }).catch(error => {
             setdiscountmessage(error.response.data.error.message)
         })
-    } 
+    }
 
     function renderProcessSection(val) {
         const styles = StyleSheet.create({
@@ -335,55 +384,55 @@ export default function Confirmation({ navigation }) {
 
     async function paymentGatewayAvailable(name) {
         const arr = await AsyncStorage.getItem('availableGateways');
-        
+
         const data = JSON.parse(arr);
         const { length } = data;
         const id = length + 1;
         const found = data.some(el => el.name === name);
-        if (found) 
-        return true
+        if (found)
+            return true
         else
-        return false;
-      }
+            return false;
+    }
 
     return (
         <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
 
             <TouchableOpacity onPress={() => {
-                    if (navigation.canGoBack())
-                        navigation.goBack()
-                    else
-                        navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
+                if (navigation.canGoBack())
+                    navigation.goBack()
+                else
+                    navigation.dispatch(StackActions.replace('Home', { pageFriendlyId: 'featured-1' }))
             }}>
-                <Ionicons name="arrow-back" size={30} color={NORMAL_TEXT_COLOR} style={{ marginTop: 60,marginLeft:10 }} />
+                <Ionicons name="arrow-back" size={30} color={NORMAL_TEXT_COLOR} style={{ marginTop: 60, marginLeft: 10 }} />
             </TouchableOpacity>
             {renderProcessSection(3)}
-            <View style={{ paddingLeft: 35,paddingRight:35, marginTop: 20 }}>
+            <View style={{ paddingLeft: 35, paddingRight: 35, marginTop: 20 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ color: SLIDER_PAGINATION_SELECTED_COLOR, fontSize: 15 }}>{planname}  / <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 14 }}>{planduration}</Text></Text>
                     <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>{currency} {amount}</Text>
                 </View>
                 {usersubscribed == 'yes' ?
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 40, }}>
-                        <View style={{marginRight:15,width:"75%"}}>
-                        <TextInput
-                            placeholder='Enter Coupon Code'
-                            placeholderTextColor={DETAILS_TEXT_COLOR}
-                            style={{ width: '100%',color: NORMAL_TEXT_COLOR,backgroundColor:DARKED_BORDER_COLOR,borderColor:FOOTER_DEFAULT_TEXT_COLOR,borderWidth:0.5,padding:8,borderRadius:8 }}
-                            onChangeText={setcoupon}
-                            value={coupon}
-                        />
+                        <View style={{ marginRight: 15, width: "75%" }}>
+                            <TextInput
+                                placeholder='Enter Coupon Code'
+                                placeholderTextColor={DETAILS_TEXT_COLOR}
+                                style={{ width: '100%', color: NORMAL_TEXT_COLOR, backgroundColor: DARKED_BORDER_COLOR, borderColor: FOOTER_DEFAULT_TEXT_COLOR, borderWidth: 0.5, padding: 8, borderRadius: 8 }}
+                                onChangeText={setcoupon}
+                                value={coupon}
+                            />
                         </View>
 
-                        <View style={{ justifyContent: 'center', alignItems: 'flex-end', width:"25%", }}>
+                        <View style={{ justifyContent: 'center', alignItems: 'flex-end', width: "25%", }}>
                             <TouchableOpacity onPress={() => applycoupon()}>
 
                                 <LinearGradient
                                     useAngle={true}
                                     angle={125}
                                     angleCenter={{ x: 0.5, y: 0.5 }}
-                                    colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
-                                    style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR,  paddingLeft: 15,paddingRight: 15,paddingTop:10,paddingBottom:10,width:"100%", borderRadius: 10, }}>
+                                    colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR, BUTTON_COLOR]}
+                                    style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, paddingLeft: 15, paddingRight: 15, paddingTop: 10, paddingBottom: 10, width: "100%", borderRadius: 10, }}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Apply</Text>
                                     </View>
@@ -399,7 +448,7 @@ export default function Confirmation({ navigation }) {
                     <Text style={{ color: '#00FF00' }}>{discountmessage}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
-                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15,fontWeight:'600' }}>Total Amount Payable</Text>
+                    <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: '600' }}>Total Amount Payable</Text>
                     {(chargedamount != "" && chargedamount != null) || (chargedamount == "0") ?
                         <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 18 }}>{currency} {chargedamount}</Text>
                         :
@@ -411,42 +460,42 @@ export default function Confirmation({ navigation }) {
                     paymentgateway == 'billdesk' ?
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
                             {paymentGatewayAvailable('billdesk') ?
-                            <Pressable onPress={() => setpaymentgateway('billdesk')} style={{ width: "45%" }}>
-                                <Image source={require('../assets/billdesk-tick.png')} style={{ width: '100%', height: 50 }} />
-                            </Pressable>
-                            :""}
+                                <Pressable onPress={() => setpaymentgateway('billdesk')} style={{ width: "45%" }}>
+                                    <Image source={require('../assets/billdesk-tick.png')} style={{ width: '100%', height: 50 }} />
+                                </Pressable>
+                                : ""}
                             {paymentGatewayAvailable('ccavenue') ?
-                            <Pressable onPress={() => setpaymentgateway('ccavenue')} style={{ width: "45%" }}>
-                                <Image source={require('../assets/ccavenue-untick.png')} style={{ width: '100%', height: 50 }} />
-                            </Pressable>
-                            :""}
+                                <Pressable onPress={() => setpaymentgateway('ccavenue')} style={{ width: "45%" }}>
+                                    <Image source={require('../assets/ccavenue-untick.png')} style={{ width: '100%', height: 50 }} />
+                                </Pressable>
+                                : ""}
                         </View>
                         :
                         paymentgateway == 'ccavenue' ?
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
                                 {paymentGatewayAvailable('billdesk') ?
-                                <Pressable onPress={() => setpaymentgateway('billdesk')} style={{ width: "45%" }}>
-                                    <Image source={require('../assets/billdesk-untick.png')} style={{ width: '100%', height: 50 }} />
-                                </Pressable>
-                                 :""}
-                                 {paymentGatewayAvailable('ccavenue') ?
-                                <Pressable onPress={() => setpaymentgateway('ccavenue')} style={{ width: "45%" }}>
-                                    <Image source={require('../assets/ccavenue-tick.png')} style={{ width: '100%', height: 50 }} />
-                                </Pressable>
-                                :""}
+                                    <Pressable onPress={() => setpaymentgateway('billdesk')} style={{ width: "45%" }}>
+                                        <Image source={require('../assets/billdesk-untick.png')} style={{ width: '100%', height: 50 }} />
+                                    </Pressable>
+                                    : ""}
+                                {paymentGatewayAvailable('ccavenue') ?
+                                    <Pressable onPress={() => setpaymentgateway('ccavenue')} style={{ width: "45%" }}>
+                                        <Image source={require('../assets/ccavenue-tick.png')} style={{ width: '100%', height: 50 }} />
+                                    </Pressable>
+                                    : ""}
                             </View>
                             :
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
                                 {paymentGatewayAvailable('billdesk') ?
-                                <Pressable onPress={() => setpaymentgateway('billdesk')} style={{ width: "45%" }}>
-                                    <Image source={require('../assets/billdesk-tick.png')} style={{ width: '100%', height: 50 }} />
-                                </Pressable>
-                                :""}
+                                    <Pressable onPress={() => setpaymentgateway('billdesk')} style={{ width: "45%" }}>
+                                        <Image source={require('../assets/billdesk-tick.png')} style={{ width: '100%', height: 50 }} />
+                                    </Pressable>
+                                    : ""}
                                 {paymentGatewayAvailable('ccavenue') ?
-                                <Pressable onPress={() => setpaymentgateway('ccavenue')} style={{ width: "45%" }}>
-                                    <Image source={require('../assets/ccavenue-untick.png')} style={{ width: '100%', height: 50 }} />
-                                </Pressable>
-                                :""}
+                                    <Pressable onPress={() => setpaymentgateway('ccavenue')} style={{ width: "45%" }}>
+                                        <Image source={require('../assets/ccavenue-untick.png')} style={{ width: '100%', height: 50 }} />
+                                    </Pressable>
+                                    : ""}
                             </View>
                     :
                     ""
@@ -461,7 +510,7 @@ export default function Confirmation({ navigation }) {
                         useAngle={true}
                         angle={125}
                         angleCenter={{ x: 0.5, y: 0.5 }}
-                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR,TAB_COLOR, BUTTON_COLOR]}
+                        colors={[BUTTON_COLOR, TAB_COLOR, TAB_COLOR, TAB_COLOR, BUTTON_COLOR]}
                         style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: TAB_COLOR, color: NORMAL_TEXT_COLOR, width: 150, padding: 10, borderRadius: 20, marginRight: 20 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 13, fontWeight: 'bold' }}>Make Payment</Text>
