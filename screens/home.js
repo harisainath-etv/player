@@ -5,7 +5,6 @@ import {
   FlatList,
   StyleSheet,
   Text,
-  Pressable,
   ActivityIndicator,
   RefreshControl,
   TouchableOpacity,
@@ -1867,7 +1866,7 @@ function Home({ navigation, route }) {
                           }
                     }
                   >
-                    <Pressable
+                    <TouchableOpacity
                       style={
                         VIDEO_TYPES.includes(item.data[sliderKey].theme)
                           ? {
@@ -1914,12 +1913,12 @@ function Home({ navigation, route }) {
                         }}
                         source={require("../assets/images/playbutton.png")}
                       />
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
 
                   {VIDEO_TYPES.includes(item.data[sliderKey].theme) ? (
                     <View style={{}}>
-                      <Pressable
+                      <TouchableOpacity
                         style={{ width: "100%" }}
                         onPress={() => {
                           watchLater(
@@ -1936,7 +1935,7 @@ function Home({ navigation, route }) {
                           }}
                           source={require("../assets/images/Plus.png")}
                         />
-                      </Pressable>
+                      </TouchableOpacity>
                     </View>
                   ) : (
                     ""
@@ -1961,7 +1960,7 @@ function Home({ navigation, route }) {
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 1 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() => {
                     settotalHomeData([]);
@@ -1978,7 +1977,7 @@ function Home({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -2002,7 +2001,7 @@ function Home({ navigation, route }) {
               data={item.data}
               style={{}}
               renderItem={({ item, index }) => (
-                <Pressable
+                <TouchableOpacity
                   onPress={() => {
                     {
                       item.medialistinlist
@@ -2038,7 +2037,7 @@ function Home({ navigation, route }) {
                       cache: FastImage.cacheControl.immutable,
                     }}
                   />
-                </Pressable>
+                </TouchableOpacity>
               )}
             />
           </View>
@@ -2058,7 +2057,7 @@ function Home({ navigation, route }) {
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 1 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() => {
                     settotalHomeData([]);
@@ -2075,7 +2074,7 @@ function Home({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -2098,7 +2097,7 @@ function Home({ navigation, route }) {
                 data={item.data}
                 style={{}}
                 renderItem={({ item, index }) => (
-                  <Pressable
+                  <TouchableOpacity
                     onPress={() => {
                       {
                         item.medialistinlist
@@ -2138,7 +2137,7 @@ function Home({ navigation, route }) {
                         cache: FastImage.cacheControl.immutable,
                       }}
                     />
-                  </Pressable>
+                  </TouchableOpacity>
                 )}
               />
             </View>
@@ -2174,7 +2173,7 @@ function Home({ navigation, route }) {
                 data={item.data}
                 style={{}}
                 renderItem={({ item, index }) => (
-                  <Pressable
+                  <TouchableOpacity
                     onPress={() => {
                       {
                         item.medialistinlist
@@ -2214,7 +2213,7 @@ function Home({ navigation, route }) {
                         cache: FastImage.cacheControl.immutable,
                       }}
                     />
-                  </Pressable>
+                  </TouchableOpacity>
                 )}
               />
             </View>
@@ -2228,7 +2227,7 @@ function Home({ navigation, route }) {
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 3 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() => {
                     settotalHomeData([]);
@@ -2245,7 +2244,7 @@ function Home({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -2259,7 +2258,7 @@ function Home({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2297,7 +2296,7 @@ function Home({ navigation, route }) {
                           cache: FastImage.cacheControl.immutable,
                         }}
                       />
-                    </Pressable>
+                    </TouchableOpacity>
                     {item.premium ? (
                       <Image
                         source={require("../assets/images/crown.png")}
@@ -2318,7 +2317,7 @@ function Home({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2358,7 +2357,7 @@ function Home({ navigation, route }) {
                           cache: FastImage.cacheControl.immutable,
                         }}
                       />
-                    </Pressable>
+                    </TouchableOpacity>
                     {item.premium ? (
                       <Image
                         source={require("../assets/images/crown.png")}
@@ -2381,7 +2380,7 @@ function Home({ navigation, route }) {
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 3 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() => {
                     settotalHomeData([]);
@@ -2398,7 +2397,7 @@ function Home({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -2414,7 +2413,7 @@ function Home({ navigation, route }) {
                   numColumns={3}
                   renderItem={({ item, index }) => (
                     <View style={{ marginRight: 5, marginLeft: 5 }}>
-                      <Pressable
+                      <TouchableOpacity
                         onPress={() => {
                           {
                             item.medialistinlist
@@ -2465,7 +2464,7 @@ function Home({ navigation, route }) {
                         ) : (
                           ""
                         )}
-                      </Pressable>
+                      </TouchableOpacity>
                     </View>
                   )}
                 />
@@ -2479,7 +2478,7 @@ function Home({ navigation, route }) {
                   numColumns={3}
                   renderItem={({ item, index }) => (
                     <View style={{ marginRight: 5, marginLeft: 5 }}>
-                      <Pressable
+                      <TouchableOpacity
                         onPress={() => {
                           {
                             item.medialistinlist
@@ -2522,7 +2521,7 @@ function Home({ navigation, route }) {
                         ) : (
                           ""
                         )}
-                      </Pressable>
+                      </TouchableOpacity>
                     </View>
                   )}
                 />
@@ -2544,7 +2543,7 @@ function Home({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2601,7 +2600,7 @@ function Home({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 )}
               />
@@ -2615,7 +2614,7 @@ function Home({ navigation, route }) {
                 numColumns={3}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2677,7 +2676,7 @@ function Home({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 )}
               />
@@ -2692,7 +2691,7 @@ function Home({ navigation, route }) {
             <View style={[styles.sectionHeaderView]}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 2 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() => {
                     settotalHomeData([]);
@@ -2709,7 +2708,7 @@ function Home({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -2723,7 +2722,7 @@ function Home({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2780,7 +2779,7 @@ function Home({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 )}
               />
@@ -2793,7 +2792,7 @@ function Home({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2850,7 +2849,7 @@ function Home({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 )}
               />
@@ -2865,7 +2864,7 @@ function Home({ navigation, route }) {
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 2 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() => {
                     settotalHomeData([]);
@@ -2882,7 +2881,7 @@ function Home({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -2896,7 +2895,7 @@ function Home({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2953,7 +2952,7 @@ function Home({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 )}
               />
@@ -2966,7 +2965,7 @@ function Home({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -3023,7 +3022,7 @@ function Home({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 )}
               />
@@ -3045,7 +3044,7 @@ function Home({ navigation, route }) {
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 1 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() => {
                     settotalHomeData([]);
@@ -3062,7 +3061,7 @@ function Home({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -3083,7 +3082,7 @@ function Home({ navigation, route }) {
                 data={item.data}
                 style={{}}
                 renderItem={({ item, index }) => (
-                  <Pressable
+                  <TouchableOpacity
                     onPress={() => {
                       {
                         item.medialistinlist
@@ -3160,7 +3159,7 @@ function Home({ navigation, route }) {
                         </Text>
                       </View>
                     </LinearGradient>
-                  </Pressable>
+                  </TouchableOpacity>
                 )}
               />
             </View>
@@ -3190,7 +3189,7 @@ function Home({ navigation, route }) {
               {item.data.length > 2 &&
               item.layoutType != "continue_watching" &&
               item.displayName.toLowerCase() != "food" ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() => {
                     settotalHomeData([]);
@@ -3207,7 +3206,7 @@ function Home({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -3221,7 +3220,7 @@ function Home({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View style={{}}>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -3267,7 +3266,7 @@ function Home({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                     <Text
                       style={{
                         color: NORMAL_TEXT_COLOR,
@@ -3289,7 +3288,7 @@ function Home({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View style={{ width: PAGE_WIDTH / 2.06 }}>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -3335,7 +3334,7 @@ function Home({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                     <Text
                       style={{
                         color: NORMAL_TEXT_COLOR,
@@ -3379,7 +3378,7 @@ function Home({ navigation, route }) {
     return (
       <View style={{ paddingTop: 5, flexDirection: "row" }}>
         {item.friendlyId == pageName ? (
-          <Pressable onPress={() => changeTabData(item.friendlyId)}>
+          <TouchableOpacity onPress={() => changeTabData(item.friendlyId)}>
             <View style={styles.menuitem}>
               <Text
                 style={{ color: TAB_COLOR, fontWeight: "bold", fontSize: 13 }}
@@ -3387,9 +3386,9 @@ function Home({ navigation, route }) {
                 {item?.displayName}
               </Text>
             </View>
-          </Pressable>
+          </TouchableOpacity>
         ) : (
-          <Pressable onPress={() => changeTabData(item.friendlyId)}>
+          <TouchableOpacity onPress={() => changeTabData(item.friendlyId)}>
             <View style={styles.menuitem}>
               <Text
                 style={{
@@ -3401,7 +3400,7 @@ function Home({ navigation, route }) {
                 {item?.displayName}
               </Text>
             </View>
-          </Pressable>
+          </TouchableOpacity>
         )}
       </View>
     );
@@ -3611,7 +3610,7 @@ function Home({ navigation, route }) {
             alignItems: "center",
           }}
         >
-          <Pressable
+          <TouchableOpacity
             onPress={toggleModal}
             style={{ position: "absolute", right: 0, zIndex: 1000, top: 0 }}
           >
@@ -3620,9 +3619,9 @@ function Home({ navigation, route }) {
               color={NORMAL_TEXT_COLOR}
               size={30}
             />
-          </Pressable>
+          </TouchableOpacity>
           {imagepopup ? (
-            <Pressable
+            <TouchableOpacity
               onPress={() => {
                 navigation.dispatch(StackActions.replace(redirectionpage));
               }}
@@ -3635,7 +3634,7 @@ function Home({ navigation, route }) {
                 }}
                 resizeMode="contain"
               ></Image>
-            </Pressable>
+            </TouchableOpacity>
           ) : (
             ""
           )}

@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  Pressable,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
@@ -1196,7 +1195,7 @@ export default function Login({ navigation }) {
                 padding: 15,
               }}
             >
-              <Pressable
+              <TouchableOpacity
                 onPress={() => setSelected("mobile")}
                 style={[
                   selected == "mobile"
@@ -1216,8 +1215,8 @@ export default function Login({ navigation }) {
                     Mobile No
                   </Text>
                 </View>
-              </Pressable>
-              <Pressable
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={() => setSelected("email")}
                 style={[
                   selected == "email"
@@ -1237,7 +1236,7 @@ export default function Login({ navigation }) {
                     Email Id
                   </Text>
                 </View>
-              </Pressable>
+              </TouchableOpacity>
             </View>
             {selected == "mobile" ? (
               <View style={styles.body}>
@@ -1371,7 +1370,7 @@ export default function Login({ navigation }) {
                       marginTop: 20,
                     }}
                   >
-                    <Pressable onPress={resendEmail}>
+                    <TouchableOpacity onPress={resendEmail}>
                       <Text
                         style={{
                           color: SLIDER_PAGINATION_SELECTED_COLOR,
@@ -1380,7 +1379,7 @@ export default function Login({ navigation }) {
                       >
                         Resend Email
                       </Text>
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 ) : (
                   ""
@@ -1484,7 +1483,7 @@ export default function Login({ navigation }) {
 
                 {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}> */}
 
-                {/* <Pressable
+                {/* <TouchableOpacity
                                         onPress={() => onFacebookButtonPress().then((resp) => {
                                             console.log(resp);
                                             socialsignin(resp)
@@ -1492,7 +1491,7 @@ export default function Login({ navigation }) {
                                         style={{ width: 195, height: 50, backgroundColor: '#395694', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginBottom: 20 }}
                                     >
                                         <Text style={{ color: NORMAL_TEXT_COLOR }}>Signin with Facebook</Text>
-                                    </Pressable> */}
+                                    </TouchableOpacity> */}
 
                 {/* {!user.idToken ? */}
                 {/* <GoogleSigninButton
@@ -1523,7 +1522,7 @@ export default function Login({ navigation }) {
                     marginTop: 20,
                   }}
                 >
-                  <Pressable onPress={resendVerificationInternational}>
+                  <TouchableOpacity onPress={resendVerificationInternational}>
                     <Text
                       style={{
                         color: SLIDER_PAGINATION_SELECTED_COLOR,
@@ -1532,7 +1531,7 @@ export default function Login({ navigation }) {
                     >
                       Resend
                     </Text>
-                  </Pressable>
+                  </TouchableOpacity>
                 </View>
               ) : (
                 ""
@@ -1634,7 +1633,7 @@ export default function Login({ navigation }) {
 
               {/* <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}> */}
 
-              {/* <Pressable
+              {/* <TouchableOpacity
                                     onPress={() => onFacebookButtonPress().then((resp) => {
                                         console.log(resp);
                                         socialsignin(resp)
@@ -1642,7 +1641,7 @@ export default function Login({ navigation }) {
                                     style={{ width: 195, height: 50, backgroundColor: '#395694', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginBottom: 20 }}
                                 >
                                     <Text style={{ color: NORMAL_TEXT_COLOR }}>Signin with Facebook</Text>
-                                </Pressable> */}
+                                </TouchableOpacity> */}
 
               {/* {!user.idToken ? */}
               {/* <GoogleSigninButton
@@ -1670,12 +1669,12 @@ export default function Login({ navigation }) {
           alignItems: "center",
         }}
       >
-        <Pressable onPress={() => loadView("privacy")}>
+        <TouchableOpacity onPress={() => loadView("privacy")}>
           <Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>
             Privacy Policy
           </Text>
-        </Pressable>
-        <Pressable
+        </TouchableOpacity>
+        <TouchableOpacity
           onPress={() =>
             navigation.navigate("HTMLRender", { pagename: "terms_conditions" })
           }
@@ -1683,17 +1682,17 @@ export default function Login({ navigation }) {
           <Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>
             Terms of Use
           </Text>
-        </Pressable>
-        <Pressable onPress={() => loadView("faq")}>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => loadView("faq")}>
           <Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>
             FAQ
           </Text>
-        </Pressable>
-        <Pressable onPress={() => loadView("contactUs")}>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => loadView("contactUs")}>
           <Text style={{ color: FOOTER_DEFAULT_TEXT_COLOR, fontSize: 11 }}>
             Contact Us
           </Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
       <StatusBar
         animated

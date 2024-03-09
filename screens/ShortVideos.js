@@ -14,8 +14,10 @@ import {
   BACKGROUND_COLOR,
   BUTTON_COLOR,
   COMMON_BASE_URL,
+  DARKED_BORDER_COLOR,
   FIRETV_BASE_URL,
   FIRETV_BASE_URL_STAGING,
+  HEADING_TEXT_COLOR,
   NORMAL_TEXT_COLOR,
   PAGE_HEIGHT,
   PAGE_WIDTH,
@@ -561,7 +563,7 @@ export default function Shorts({ navigation }) {
               {currentIndexValue == -1 ? (
                 <AntDesign
                   name="pausecircle"
-                  color={NORMAL_TEXT_COLOR}
+                  color={HEADING_TEXT_COLOR}
                   size={40}
                 ></AntDesign>
               ) : (
@@ -593,12 +595,13 @@ export default function Shorts({ navigation }) {
                   <FontAwesome
                     name="heart"
                     size={24}
-                    color="red"
+                    // color={TAB_COLOR}
                     style={{
-                      backgroundColor: TAB_COLOR,
-                      borderColor: TAB_COLOR,
-                      borderWidth: 0.5,
-                      borderRadius: 35 / 2,
+                      backgroundColor: DARKED_BORDER_COLOR,
+                      borderColor: NORMAL_TEXT_COLOR,
+                      borderWidth: 1,
+                      // borderRadius: 35 / 2,
+                      borderRadius: 35,
                       width: 35,
                       height: 35,
                     }}
@@ -612,12 +615,13 @@ export default function Shorts({ navigation }) {
                   <FontAwesome
                     name="heart"
                     size={24}
-                    color={NORMAL_TEXT_COLOR}
+                    color={TAB_COLOR}
                     style={{
-                      backgroundColor: TAB_COLOR,
-                      borderColor: TAB_COLOR,
-                      borderWidth: 0.5,
-                      borderRadius: 35 / 2,
+                      backgroundColor: DARKED_BORDER_COLOR,
+                      borderColor: NORMAL_TEXT_COLOR,
+                      borderWidth: 1,
+                      // borderRadius: 35 / 2,
+                      borderRadius: 35,
                       width: 35,
                       height: 35,
                       padding: 6,
@@ -634,10 +638,11 @@ export default function Shorts({ navigation }) {
                     size={24}
                     color={NORMAL_TEXT_COLOR}
                     style={{
-                      backgroundColor: TAB_COLOR,
-                      borderColor: TAB_COLOR,
-                      borderWidth: 0.5,
-                      borderRadius: 35 / 2,
+                      backgroundColor: DARKED_BORDER_COLOR,
+                      borderColor: NORMAL_TEXT_COLOR,
+                      borderWidth: 1,
+                      // borderRadius: 35 / 2,
+                      borderRadius: 35,
                       width: 35,
                       height: 35,
                       padding: 6,
@@ -652,13 +657,14 @@ export default function Shorts({ navigation }) {
                 <MaterialCommunityIcons
                   name="share"
                   size={24}
-                  color={NORMAL_TEXT_COLOR}
+                  color={HEADING_TEXT_COLOR}
                   style={{
                     marginTop: 50,
-                    backgroundColor: TAB_COLOR,
-                    borderColor: TAB_COLOR,
-                    borderWidth: 0.5,
-                    borderRadius: 35 / 2,
+                    backgroundColor: DARKED_BORDER_COLOR,
+                    borderColor: NORMAL_TEXT_COLOR,
+                    borderWidth: 1,
+                    // borderRadius: 35 / 2,
+                    borderRadius: 35,
                     width: 35,
                     height: 35,
                     padding: 2,

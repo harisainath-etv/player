@@ -3,7 +3,7 @@ import {
   Text,
   StyleSheet,
   StatusBar,
-  Pressable,
+  TouchableOpacity,
   ScrollView,
   Alert,
   BackHandler,
@@ -150,13 +150,13 @@ export default function WatchLater({ navigation }) {
   return (
     <View style={styles.mainContainer}>
       <Header pageName="WATCH-LATER"></Header>
-      <ScrollView style={{ padding: 10 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 50 }}>
         <Text
           style={{ color: NORMAL_TEXT_COLOR, fontSize: 15, fontWeight: "500" }}
         >
           Watchlist
         </Text>
-        <View style={{ marginTop: 15 }}>
+        <View style={{ marginTop: 10 }}>
           {watchlistVideo.length > 0 ? (
             // <Text style={{color:'white'}}>{JSON.stringify(watchlistVideo[0].title)}</Text>
             watchlistVideo.map((singleVideo, index) => {
@@ -173,7 +173,7 @@ export default function WatchLater({ navigation }) {
                 >
                   <View style={{ flexDirection: "row", width: "100%" }}>
                     {singleVideo.thumbnail ? (
-                      <Pressable
+                      <TouchableOpacity
                         onPress={() =>
                           navigation.dispatch(
                             StackActions.replace("Episode", {
@@ -211,7 +211,7 @@ export default function WatchLater({ navigation }) {
                           </Text>
                         </View>
                         <View style={{ alignSelf: "center", width: "10%" }}>
-                          <Pressable
+                          <TouchableOpacity
                             onPress={() =>
                               deleteWatchLater(
                                 singleVideo.listitem_id,
@@ -224,9 +224,9 @@ export default function WatchLater({ navigation }) {
                               size={30}
                               color={NORMAL_TEXT_COLOR}
                             />
-                          </Pressable>
+                          </TouchableOpacity>
                         </View>
-                      </Pressable>
+                      </TouchableOpacity>
                     ) : (
                       ""
                     )}

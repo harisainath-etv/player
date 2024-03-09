@@ -7,7 +7,7 @@ import {
   Text,
   ActivityIndicator,
   Image,
-  Pressable,
+  TouchableOpacity,
   LogBox,
 } from "react-native";
 import FastImage from "react-native-fast-image";
@@ -165,186 +165,8 @@ function MoreList({ navigation, route }) {
       settotalHomeData((totalHomeData) => [...totalHomeData, ...Final]);
       setloading(false);
     }
-    const renderItem = ({ item, index }) => {
-      return (
-        <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
-          {layout_type == LAYOUT_TYPES[0] ? (
-            <View>
-              <FlatList
-                data={item.data}
-                keyExtractor={(x, i) => i.toString()}
-                horizontal={false}
-                numColumns={3}
-                onEndReached={loadNextData}
-                showsHorizontalScrollIndicator={false}
-                style={styles.containerMargin}
-                renderItem={({ item, index }) => (
-                  <View>
-                    <Pressable
-                      onPress={() => {
-                        {
-                          item.medialistinlist
-                            ? navigation.navigate("MoreList", {
-                                firendlyId: item.friendlyId,
-                                layoutType: LAYOUT_TYPES[1],
-                              })
-                            : VIDEO_TYPES.includes(item.theme)
-                            ? navigation.navigate("Episode", {
-                                seoUrl: item.seoUrl,
-                              })
-                            : navigation.navigate("Shows", {
-                                seoUrl: item.seoUrl,
-                              });
-                        }
-                      }}
-                    >
-                      <FastImage
-                        resizeMode={FastImage.resizeMode.cover}
-                        style={[styles.imageSectionVertical]}
-                        source={{
-                          uri: item.uri,
-                          priority: FastImage.priority.high,
-                          cache: FastImage.cacheControl.immutable,
-                        }}
-                      />
-                      {VIDEO_TYPES.includes(item.theme) ? (
-                        <Image
-                          source={require("../assets/images/play.png")}
-                          style={{
-                            position: "absolute",
-                            width: 30,
-                            height: 30,
-                            right: 10,
-                            bottom: 15,
-                          }}
-                        ></Image>
-                      ) : (
-                        ""
-                      )}
-                      {item.premium ? (
-                        <Image
-                          source={require("../assets/images/crown.png")}
-                          style={styles.crownIcon}
-                        ></Image>
-                      ) : (
-                        ""
-                      )}
-                    </Pressable>
-                  </View>
-                )}
-              />
-            </View>
-          ) : (
-            ""
-          )}
-
-          {layout_type == LAYOUT_TYPES[1] ? (
-            <View>
-              <FlatList
-                data={item.data}
-                keyExtractor={(x, i) => i.toString()}
-                horizontal={false}
-                onEndReached={loadNextData}
-                showsHorizontalScrollIndicator={false}
-                style={styles.containerMargin}
-                numColumns={2}
-                renderItem={({ item, index }) => (
-                  <View style={{ width: PAGE_WIDTH / 2.06 }}>
-                    <Pressable
-                      onPress={() => {
-                        {
-                          item.medialistinlist
-                            ? navigation.navigate("MoreList", {
-                                firendlyId: item.friendlyId,
-                                layoutType: LAYOUT_TYPES[1],
-                              })
-                            : VIDEO_TYPES.includes(item.theme)
-                            ? navigation.navigate("Episode", {
-                                seoUrl: item.seoUrl,
-                              })
-                            : navigation.navigate("Shows", {
-                                seoUrl: item.seoUrl,
-                              });
-                        }
-                      }}
-                    >
-                      <FastImage
-                        resizeMode={FastImage.resizeMode.cover}
-                        style={[styles.imageSectionHorizontal]}
-                        source={{
-                          uri: item.uri,
-                          priority: FastImage.priority.high,
-                          cache: FastImage.cacheControl.immutable,
-                        }}
-                      />
-                      {VIDEO_TYPES.includes(item.theme) ? (
-                        <Image
-                          source={require("../assets/images/play.png")}
-                          style={{
-                            position: "absolute",
-                            width: 30,
-                            height: 30,
-                            right: 10,
-                            bottom: 15,
-                          }}
-                        ></Image>
-                      ) : (
-                        ""
-                      )}
-                      {item.premium ? (
-                        <Image
-                          source={require("../assets/images/crown.png")}
-                          style={styles.crownIcon}
-                        ></Image>
-                      ) : (
-                        ""
-                      )}
-                    </Pressable>
-                    {item.displayTitle != "" && item.displayTitle != null ? (
-                      <Text
-                        style={{
-                          color: NORMAL_TEXT_COLOR,
-                          alignSelf: "center",
-                          marginBottom: 12,
-                        }}
-                      >
-                        {item.displayTitle}
-                      </Text>
-                    ) : (
-                      ""
-                    )}
-                  </View>
-                )}
-              />
-            </View>
-          ) : (
-            ""
-          )}
-        </View>
-      );
-    };
-    const loadNextData = async () => {
-      loadData(pagenumber);
-    };
-    useEffect(() => {
-      if (dataFetchedRef.current) return;
-      dataFetchedRef.current = true;
-      loadData(pagenumber);
-      if (selectedItem == "") {
-        selectedItem = 0;
-      }
-      BackHandler.addEventListener("hardwareBackPress", Back);
-      LogBox.ignoreLogs([
-        "`new NativeEventEmitter()` was called with a non-null",
-      ]);
-    }, []);
-    const Back = () => {
-      if (navigation.canGoBack()) navigation.goBack();
-      else
-        navigation.dispatch(
-          StackActions.replace("Home", { pageFriendlyId: "featured-1" })
-        );
-    };
+  }
+  const renderItem = ({ item, index }) => {
     return (
       <View style={{ backgroundColor: BACKGROUND_COLOR, flex: 1 }}>
         {layout_type == LAYOUT_TYPES[0] ? (
@@ -359,7 +181,7 @@ function MoreList({ navigation, route }) {
               style={styles.containerMargin}
               renderItem={({ item, index }) => (
                 <View>
-                  <Pressable
+                  <TouchableOpacity
                     onPress={() => {
                       {
                         item.medialistinlist
@@ -408,7 +230,7 @@ function MoreList({ navigation, route }) {
                     ) : (
                       ""
                     )}
-                  </Pressable>
+                  </TouchableOpacity>
                 </View>
               )}
             />
@@ -429,7 +251,7 @@ function MoreList({ navigation, route }) {
               numColumns={2}
               renderItem={({ item, index }) => (
                 <View style={{ width: PAGE_WIDTH / 2.06 }}>
-                  <Pressable
+                  <TouchableOpacity
                     onPress={() => {
                       {
                         item.medialistinlist
@@ -478,7 +300,7 @@ function MoreList({ navigation, route }) {
                     ) : (
                       ""
                     )}
-                  </Pressable>
+                  </TouchableOpacity>
                   {item.displayTitle != "" && item.displayTitle != null ? (
                     <Text
                       style={{
@@ -501,7 +323,7 @@ function MoreList({ navigation, route }) {
         )}
       </View>
     );
-  }
+  };
   const loadNextData = async () => {
     loadData(pagenumber);
   };
@@ -627,7 +449,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     alignItems: "center",
-    marginTop: 80,
+    marginTop: 78,
   },
   sectionHeader: {
     color: HEADING_TEXT_COLOR,
@@ -656,7 +478,7 @@ const styles = StyleSheet.create({
   imageSectionVertical: {
     width: PAGE_WIDTH / 3.1,
     height: actuatedNormalize(155),
-    borderRadius: 18,
+    borderRadius: 6,
     marginBottom: 10,
     marginHorizontal: 2,
   },

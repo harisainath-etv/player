@@ -8,7 +8,6 @@ import {
   PermissionsAndroid,
   BackHandler,
   ActivityIndicator,
-  Pressable,
   StatusBar,
   Platform,
   FlatList,
@@ -1285,6 +1284,45 @@ export default function Episode({ navigation, route }) {
         });
     }
   };
+
+  const watchLaterDone = async () => {
+    if (!loggedin) {
+      navigation.dispatch(StackActions.replace("Login"));
+    } else {
+      var sessionId = await AsyncStorage.getItem("session");
+      await axios
+        .post(
+          FIRETV_BASE_URL + "users/" + sessionId + "/playlists/watchlater",
+          {
+            listitem: { catalog_id: catalogId, content_id: contentId },
+            auth_token: VIDEO_AUTH_TOKEN,
+            access_token: ACCESS_TOKEN,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          alert("Done");
+          AsyncStorage.setItem("watchLater_" + contentId, contentId);
+          let jsonObj = {
+            content_type: contenttype,
+            video_name: title,
+            genre: displayGenres,
+            video_language: contentlanguage,
+            event_time: new Date(),
+            event_id: "07",
+          };
+          triggerOtherAnalytics("watch_later", jsonObj);
+          setwatchlatercontent(true);
+        })
+        .catch((error) => {
+          alert("Unable to add to watchlist. Please try again later.");
+        });
+    }
+  };
   const likeContent = async () => {
     if (!loggedin) {
       navigation.dispatch(StackActions.replace("Login"));
@@ -2059,7 +2097,7 @@ export default function Episode({ navigation, route }) {
               showsHorizontalScrollIndicator={false}
               style={styles.containerMargin}
               renderItem={({ item, index }) => (
-                <Pressable
+                <TouchableOpacity
                   onPress={() => {
                     VIDEO_TYPES.includes(item.theme)
                       ? navigation.dispatch(
@@ -2110,7 +2148,7 @@ export default function Episode({ navigation, route }) {
                   ) : (
                     ""
                   )}
-                </Pressable>
+                </TouchableOpacity>
               )}
             />
           </View>
@@ -2124,7 +2162,7 @@ export default function Episode({ navigation, route }) {
   const renderRelatedMovies = ({ item, index }) => {
     return (
       <>
-        <Pressable
+        <TouchableOpacity
           style={{ marginBottom: 20 }}
           onPress={() =>
             VIDEO_TYPES.includes(item.theme)
@@ -2148,7 +2186,7 @@ export default function Episode({ navigation, route }) {
               cache: FastImage.cacheControl.immutable,
             }}
           />
-        </Pressable>
+        </TouchableOpacity>
       </>
     );
   };
@@ -2245,7 +2283,7 @@ export default function Episode({ navigation, route }) {
             playUrl != null &&
             streemexceedlimit == false &&
             !showupgrade ? (
-              <Pressable onPress={showControls}>
+              <TouchableOpacity onPress={showControls}>
                 {/* {img ? (
                         <View ref={videorefs}
                           style={realseek == true ? {
@@ -2767,7 +2805,7 @@ export default function Episode({ navigation, route }) {
                     </View>
                   </>
                 )}
-              </Pressable>
+              </TouchableOpacity>
             ) : (
               <View
                 style={{
@@ -2947,38 +2985,88 @@ export default function Episode({ navigation, route }) {
                   <View style={styles.options}>
                     <View
                       style={{
-                        flexDirection: "row",
+                        // flexDirection: "row",
                         justifyContent: "center",
                         alignItems: "center",
                         marginRight: 8,
                       }}
                     >
-                      <View style={styles.singleoption}>
+                      <TouchableOpacity>
                         {!likecontent ? (
-                          <Pressable onPress={likeContent}>
+                          <TouchableOpacity
+                            style={{
+                              flexDirection: "row",
+                            }}
+                            onPress={likeContent}
+                          >
                             <MaterialIcons
                               name="thumb-up-off-alt"
                               size={18}
                               color={NORMAL_TEXT_COLOR}
+                              style={{ right: 3 }}
                             />
-                          </Pressable>
+                            <Text
+                              style={{
+                                color: NORMAL_TEXT_COLOR,
+                                fontSize: 12,
+                              }}
+                            >
+                              Like
+                            </Text>
+                          </TouchableOpacity>
                         ) : (
-                          <Pressable
+                          <TouchableOpacity
+                            style={{ flexDirection: "row" }}
                             onPress={() => deleteLike(catalogId, contentId)}
                           >
                             <MaterialIcons
                               name="thumb-up"
                               size={18}
-                              color={NORMAL_TEXT_COLOR}
+                              color={TAB_COLOR}
+                              style={{ right: 3 }}
                             />
-                          </Pressable>
+                            <Text style={{ color: TAB_COLOR, fontSize: 12 }}>
+                              Like
+                            </Text>
+                          </TouchableOpacity>
                         )}
-                      </View>
-                      <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>
-                        Like
-                      </Text>
+                      </TouchableOpacity>
                     </View>
                     <View
+                      style={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginRight: 8,
+                        // backgroundColor: DARKED_BORDER_COLOR,
+                        // borderRadius: 10,
+                        // padding: normalize(5),
+                      }}
+                    >
+                      <TouchableOpacity
+                        style={{
+                          flexDirection: "row",
+                        }}
+                        onPress={shareOptions}
+                      >
+                        <MaterialCommunityIcons
+                          name="share-variant"
+                          size={18}
+                          color={NORMAL_TEXT_COLOR}
+                          style={{ right: 3 }}
+                        />
+                        <Text
+                          style={{
+                            color: NORMAL_TEXT_COLOR,
+                            fontSize: 12,
+                            left: 2,
+                          }}
+                        >
+                          Share
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    {/* <View
                       style={{
                         flexDirection: "row",
                         justifyContent: "center",
@@ -2998,8 +3086,9 @@ export default function Episode({ navigation, route }) {
                       <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>
                         Share
                       </Text>
-                    </View>
-                    <View
+                    </View> */}
+                    <TouchableOpacity
+                      onPress={downloadFile}
                       style={{
                         flexDirection: "row",
                         justifyContent: "center",
@@ -3010,15 +3099,15 @@ export default function Episode({ navigation, route }) {
                       {passedtheme != "live" &&
                       passedtheme != "livetv" &&
                       !preview ? (
-                        <View style={styles.singleoption}>
+                        <View>
                           {downloadedStatus == 0 ? (
-                            <TouchableOpacity onPress={downloadFile}>
+                            <View>
                               <MaterialCommunityIcons
                                 name="download"
                                 size={18}
                                 color={NORMAL_TEXT_COLOR}
                               />
-                            </TouchableOpacity>
+                            </View>
                           ) : (
                             ""
                           )}
@@ -3088,7 +3177,12 @@ export default function Episode({ navigation, route }) {
                           )}
                         </View>
                       ) : (
-                        <View style={styles.singleoption}>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            backgroundColor: "red",
+                          }}
+                        >
                           <MaterialCommunityIcons
                             name="download"
                             size={18}
@@ -3099,43 +3193,56 @@ export default function Episode({ navigation, route }) {
                       <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>
                         Download
                       </Text>
-                    </View>
-                    <View
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={watchLater}
                       style={{
                         flexDirection: "row",
                         justifyContent: "center",
                         alignItems: "center",
                       }}
                     >
-                      <View style={styles.singleoption}>
+                      <View>
                         {!watchlatercontent ? (
-                          <Pressable onPress={watchLater}>
-                            <MaterialIcons
-                              name="watch-later"
-                              size={18}
-                              color={NORMAL_TEXT_COLOR}
-                            />
-                          </Pressable>
-                        ) : (
-                          <Pressable
-                            onPress={() => {
-                              navigation.dispatch(
-                                StackActions.replace("WatchLater")
-                              );
-                            }}
+                          <TouchableOpacity
+                            onPress={watchLater}
+                            // onPress={() => {
+                            //   navigation.dispatch(
+                            //     StackActions.replace("WatchLater")
+                            //   );
+                            // }}
+                            style={{ flexDirection: "row" }}
                           >
                             <MaterialIcons
                               name="watch-later"
                               size={18}
-                              color={DARKED_BORDER_COLOR}
+                              color={NORMAL_TEXT_COLOR}
+                              style={{ right: 3 }}
                             />
-                          </Pressable>
+                            <Text
+                              style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}
+                            >
+                              Watch Later
+                            </Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <TouchableOpacity
+                            onPress={watchLaterDone}
+                            style={{ flexDirection: "row" }}
+                          >
+                            <MaterialIcons
+                              name="watch-later"
+                              size={18}
+                              color={TAB_COLOR}
+                              style={{ right: 3 }}
+                            />
+                            <Text style={{ color: TAB_COLOR, fontSize: 12 }}>
+                              Done
+                            </Text>
+                          </TouchableOpacity>
                         )}
                       </View>
-                      <Text style={{ color: NORMAL_TEXT_COLOR, fontSize: 12 }}>
-                        Watch Later
-                      </Text>
-                    </View>
+                    </TouchableOpacity>
                   </View>
                 ) : (
                   ""
@@ -3643,7 +3750,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   singleoption: {
-    width: 30,
+    // width: "50%",
     height: 30,
     borderRadius: 15,
     alignItems: "center",
@@ -3651,6 +3758,7 @@ const styles = StyleSheet.create({
     borderColor: TAB_COLOR,
     borderWidth: 1,
     marginRight: 3,
+    flexDirection: "row",
   },
   marginContainer: { marginLeft: 5, marginRight: 5 },
   button: {

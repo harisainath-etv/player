@@ -1,11 +1,10 @@
 import {
   View,
   Text,
-  TouchableOpacity,
   Platform,
   TextInput,
   Image,
-  Pressable,
+  TouchableOpacity,
   StyleSheet,
   StatusBar,
 } from "react-native";
@@ -751,7 +750,7 @@ export default function Confirmation({ navigation, route }) {
               }}
             >
               {paymentGatewayAvailable("billdesk") ? (
-                <Pressable
+                <TouchableOpacity
                   onPress={() => setpaymentgateway("billdesk")}
                   style={{ width: "45%" }}
                 >
@@ -759,12 +758,12 @@ export default function Confirmation({ navigation, route }) {
                     source={require("../assets/billdesk-tick.png")}
                     style={{ width: "100%", height: 50 }}
                   />
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
               {paymentGatewayAvailable("ccavenue") ? (
-                <Pressable
+                <TouchableOpacity
                   onPress={() => setpaymentgateway("ccavenue")}
                   style={{ width: "45%" }}
                 >
@@ -772,7 +771,7 @@ export default function Confirmation({ navigation, route }) {
                     source={require("../assets/ccavenue-untick.png")}
                     style={{ width: "100%", height: 50 }}
                   />
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -786,7 +785,7 @@ export default function Confirmation({ navigation, route }) {
               }}
             >
               {paymentGatewayAvailable("billdesk") ? (
-                <Pressable
+                <TouchableOpacity
                   onPress={() => setpaymentgateway("billdesk")}
                   style={{ width: "45%" }}
                 >
@@ -794,12 +793,12 @@ export default function Confirmation({ navigation, route }) {
                     source={require("../assets/billdesk-untick.png")}
                     style={{ width: "100%", height: 50 }}
                   />
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
               {paymentGatewayAvailable("ccavenue") ? (
-                <Pressable
+                <TouchableOpacity
                   onPress={() => setpaymentgateway("ccavenue")}
                   style={{ width: "45%" }}
                 >
@@ -807,7 +806,7 @@ export default function Confirmation({ navigation, route }) {
                     source={require("../assets/ccavenue-tick.png")}
                     style={{ width: "100%", height: 50 }}
                   />
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -821,7 +820,7 @@ export default function Confirmation({ navigation, route }) {
               }}
             >
               {paymentGatewayAvailable("billdesk") ? (
-                <Pressable
+                <TouchableOpacity
                   onPress={() => setpaymentgateway("billdesk")}
                   style={{ width: "45%" }}
                 >
@@ -829,12 +828,12 @@ export default function Confirmation({ navigation, route }) {
                     source={require("../assets/billdesk-tick.png")}
                     style={{ width: "100%", height: 50 }}
                   />
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
               {paymentGatewayAvailable("ccavenue") ? (
-                <Pressable
+                <TouchableOpacity
                   onPress={() => setpaymentgateway("ccavenue")}
                   style={{ width: "45%" }}
                 >
@@ -842,7 +841,7 @@ export default function Confirmation({ navigation, route }) {
                     source={require("../assets/ccavenue-untick.png")}
                     style={{ width: "100%", height: 50 }}
                   />
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}

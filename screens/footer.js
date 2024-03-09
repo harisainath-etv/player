@@ -15,11 +15,26 @@ import GoogleCast, {
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Modal from "react-native-modal";
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import { useNavigation, StackActions, useIsFocused } from '@react-navigation/native';
-import { PAGE_WIDTH, BACKGROUND_COLOR, BACKGROUND_TRANSPARENT_COLOR, NO_CAST_DEVICES, NORMAL_TEXT_COLOR, SLIDER_PAGINATION_SELECTED_COLOR, FIRETV_BASE_URL_STAGING, AUTH_TOKEN, FOOTER_DEFAULT_TEXT_COLOR, PAGE_HEIGHT } from '../constants'
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import {
+  useNavigation,
+  StackActions,
+  useIsFocused,
+} from "@react-navigation/native";
+import {
+  PAGE_WIDTH,
+  BACKGROUND_COLOR,
+  BACKGROUND_TRANSPARENT_COLOR,
+  NO_CAST_DEVICES,
+  NORMAL_TEXT_COLOR,
+  SLIDER_PAGINATION_SELECTED_COLOR,
+  FIRETV_BASE_URL_STAGING,
+  AUTH_TOKEN,
+  FOOTER_DEFAULT_TEXT_COLOR,
+  PAGE_HEIGHT,
+} from "../constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 export default function Footer(props) {
   const pageName = props.pageName;
@@ -28,87 +43,61 @@ export default function Footer(props) {
   const [castSet, setcastSet] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
 
-    const [login, setLogin] = useState("");
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [mobile, setMobile] = useState("");
-    const [profilePic, setProfilePic] = useState();
-    const [subscription_title, setsubscription_title] = useState("");
-    const [castDisplay, setCastDisplay] = useState('basic_plan');
-    const toggleModal = () => {
-        setModalVisible(!isModalVisible);
+  const [login, setLogin] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [profilePic, setProfilePic] = useState();
+  const [subscription_title, setsubscription_title] = useState("");
+  const [castDisplay, setCastDisplay] = useState("basic_plan");
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+  const isfocued = useIsFocused();
+  var client = useRemoteMediaClient();
+  const castDevice = useCastDevice();
+  const devices = useDevices();
+  useEffect(() => {
+    const finalSes = async () => {
+      try {
+        const session_hand = await AsyncStorage.getItem("session");
+        setLogin(session_hand ? JSON.stringify(session_hand) : null);
+      } catch (error) {
+        setLogin(null);
+      }
     };
-    const isfocued = useIsFocused()
-    var client = useRemoteMediaClient()
-    const castDevice = useCastDevice()
-    const devices = useDevices()
-    useEffect(()=>{
-        const finalSes =async()=>{
-            try {
-                const session_hand = await AsyncStorage.getItem('session');
-                setLogin(session_hand ? JSON.stringify(session_hand):null);
-            } catch (error) {
-                setLogin(null);
-            }
-        }
-        finalSes();
-    },[isfocued])
-    const loadData = async () => {
-        const firstname = await AsyncStorage.getItem('firstname');
-        const email = await AsyncStorage.getItem('email_id');
-        const mobile_number = await AsyncStorage.getItem('mobile_number');
-        const session = await AsyncStorage.getItem('session');
-        const profile_pic = await AsyncStorage.getItem('profile_pic');
-        const subscriptiontitle = await AsyncStorage.getItem('subscription_title');
-        const plandetail = await AsyncStorage.getItem('plan_id');
-        setCastDisplay(plandetail);
-        if (session != "" && session != null) {
-            await axios.get(FIRETV_BASE_URL_STAGING + "user/session/" + session + "?auth_token=" + AUTH_TOKEN).then(resp => {
-                if (resp.data.message == 'Valid session id.') {
-                    setName(firstname);
-                    setEmail(email);
-                    setMobile(mobile_number);
-                    setsubscription_title(subscriptiontitle)
-                }
-            }).catch(err => {
-                console.log(err);
-            })
-        }
-        if (profile_pic != "" && profile_pic != null)
-            setProfilePic(profile_pic)
-
-        //console.log(profile_pic);
-    }
-
-    const CastSession = (castSession) => {
-        const sessionManager = GoogleCast.getSessionManager()
-        if (castSet) {
-            sessionManager.endCurrentSession()
-            setcastSet(false)
-            alert('Disconnected');
-        }
-        else {
-            sessionManager.startSession(castSession)
-            setcastSet(true)
-            toggleModal()
-            alert('Connected');
-        }
-    }
-    useEffect(() => {
-        loadData();
-        GoogleCast.getCastState().then(state => {
-            setCastSate(state);
-            if (state == 'connected') {
-                setcastSet(true)
-            }
-            else {
-                setcastSet(false)
-            }
+    finalSes();
+  }, [isfocued]);
+  const loadData = async () => {
+    const firstname = await AsyncStorage.getItem("firstname");
+    const email = await AsyncStorage.getItem("email_id");
+    const mobile_number = await AsyncStorage.getItem("mobile_number");
+    const session = await AsyncStorage.getItem("session");
+    const profile_pic = await AsyncStorage.getItem("profile_pic");
+    const subscriptiontitle = await AsyncStorage.getItem("subscription_title");
+    const plandetail = await AsyncStorage.getItem("plan_id");
+    setCastDisplay(plandetail);
+    if (session != "" && session != null) {
+      await axios
+        .get(
+          FIRETV_BASE_URL_STAGING +
+            "user/session/" +
+            session +
+            "?auth_token=" +
+            AUTH_TOKEN
+        )
+        .then((resp) => {
+          if (resp.data.message == "Valid session id.") {
+            setName(firstname);
+            setEmail(email);
+            setMobile(mobile_number);
+            setsubscription_title(subscriptiontitle);
+          }
         })
         .catch((err) => {
           console.log(err);
         });
-    })
+    }
     if (profile_pic != "" && profile_pic != null) setProfilePic(profile_pic);
 
     //console.log(profile_pic);

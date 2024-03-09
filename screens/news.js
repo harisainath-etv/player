@@ -5,7 +5,6 @@ import {
   FlatList,
   StyleSheet,
   Text,
-  Pressable,
   ActivityIndicator,
   RefreshControl,
   TouchableOpacity,
@@ -1188,7 +1187,7 @@ function News({ navigation, route }) {
                       {item.displayTitle}
                     </Text>
                     <View style={styles.buttonsPosition}>
-                      <Pressable
+                      <TouchableOpacity
                         onPress={() => {
                           {
                             item.medialistinlist
@@ -1257,10 +1256,10 @@ function News({ navigation, route }) {
                             </Text>
                           </View>
                         </LinearGradient>
-                      </Pressable>
+                      </TouchableOpacity>
 
                       {VIDEO_TYPES.includes(item.theme) ? (
-                        <Pressable
+                        <TouchableOpacity
                           onPress={() => {
                             watchLater(item.catalog_id, item.content_id);
                           }}
@@ -1276,7 +1275,7 @@ function News({ navigation, route }) {
                             {" "}
                             + Watch Later
                           </Text>
-                        </Pressable>
+                        </TouchableOpacity>
                       ) : (
                         ""
                       )}
@@ -1302,7 +1301,7 @@ function News({ navigation, route }) {
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 1 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() =>
                     navigation.dispatch(
@@ -1320,7 +1319,7 @@ function News({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -1342,7 +1341,7 @@ function News({ navigation, route }) {
               data={item.data}
               style={{}}
               renderItem={({ item, index }) => (
-                <Pressable
+                <TouchableOpacity
                   onPress={() => {
                     {
                       item.medialistinlist
@@ -1377,7 +1376,7 @@ function News({ navigation, route }) {
                       cache: FastImage.cacheControl.immutable,
                     }}
                   />
-                </Pressable>
+                </TouchableOpacity>
               )}
             />
           </View>
@@ -1397,7 +1396,7 @@ function News({ navigation, route }) {
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 1 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() =>
                     navigation.dispatch(
@@ -1415,7 +1414,7 @@ function News({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -1436,7 +1435,7 @@ function News({ navigation, route }) {
                 data={item.data}
                 style={{}}
                 renderItem={({ item, index }) => (
-                  <Pressable
+                  <TouchableOpacity
                     onPress={() => {
                       {
                         item.medialistinlist
@@ -1476,7 +1475,7 @@ function News({ navigation, route }) {
                         cache: FastImage.cacheControl.immutable,
                       }}
                     />
-                  </Pressable>
+                  </TouchableOpacity>
                 )}
               />
             </View>
@@ -1510,7 +1509,7 @@ function News({ navigation, route }) {
                 data={item.data}
                 style={{}}
                 renderItem={({ item, index }) => (
-                  <Pressable
+                  <TouchableOpacity
                     onPress={() => {
                       {
                         item.medialistinlist
@@ -1550,7 +1549,7 @@ function News({ navigation, route }) {
                         cache: FastImage.cacheControl.immutable,
                       }}
                     />
-                  </Pressable>
+                  </TouchableOpacity>
                 )}
               />
             </View>
@@ -1591,7 +1590,7 @@ function News({ navigation, route }) {
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 3 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() =>
                     navigation.dispatch(
@@ -1609,7 +1608,7 @@ function News({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -1623,7 +1622,7 @@ function News({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -1661,7 +1660,7 @@ function News({ navigation, route }) {
                           cache: FastImage.cacheControl.immutable,
                         }}
                       />
-                    </Pressable>
+                    </TouchableOpacity>
                     {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
                     {item.premium ? (
                       <Image
@@ -1683,7 +1682,7 @@ function News({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -1721,7 +1720,7 @@ function News({ navigation, route }) {
                           cache: FastImage.cacheControl.immutable,
                         }}
                       />
-                    </Pressable>
+                    </TouchableOpacity>
                     {/* {VIDEO_TYPES.includes(item.theme) ? <Image source={require('../assets/images/play.png')} style={styles.playIcon}></Image> : ""} */}
                     {item.premium ? (
                       <Image
@@ -1745,7 +1744,7 @@ function News({ navigation, route }) {
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 3 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() =>
                     navigation.dispatch(
@@ -1763,7 +1762,7 @@ function News({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -1779,7 +1778,7 @@ function News({ navigation, route }) {
                   numColumns={3}
                   renderItem={({ item, index }) => (
                     <View style={{ marginRight: 5, marginLeft: 5 }}>
-                      <Pressable
+                      <TouchableOpacity
                         onPress={() => {
                           {
                             item.medialistinlist
@@ -1830,7 +1829,7 @@ function News({ navigation, route }) {
                         ) : (
                           ""
                         )}
-                      </Pressable>
+                      </TouchableOpacity>
                     </View>
                   )}
                 />
@@ -1844,7 +1843,7 @@ function News({ navigation, route }) {
                   numColumns={3}
                   renderItem={({ item, index }) => (
                     <View style={{ marginRight: 5, marginLeft: 5 }}>
-                      <Pressable
+                      <TouchableOpacity
                         onPress={() => {
                           {
                             item.medialistinlist
@@ -1888,7 +1887,7 @@ function News({ navigation, route }) {
                         ) : (
                           ""
                         )}
-                      </Pressable>
+                      </TouchableOpacity>
                     </View>
                   )}
                 />
@@ -1910,7 +1909,7 @@ function News({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -1967,7 +1966,7 @@ function News({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 )}
               />
@@ -1981,7 +1980,7 @@ function News({ navigation, route }) {
                 numColumns={3}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2038,7 +2037,7 @@ function News({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 )}
               />
@@ -2053,7 +2052,7 @@ function News({ navigation, route }) {
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 2 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() =>
                     navigation.dispatch(
@@ -2071,7 +2070,7 @@ function News({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -2085,7 +2084,7 @@ function News({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2142,7 +2141,7 @@ function News({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 )}
               />
@@ -2155,7 +2154,7 @@ function News({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2212,7 +2211,7 @@ function News({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 )}
               />
@@ -2227,7 +2226,7 @@ function News({ navigation, route }) {
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 2 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() =>
                     navigation.dispatch(
@@ -2245,7 +2244,7 @@ function News({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -2259,7 +2258,7 @@ function News({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2316,7 +2315,7 @@ function News({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 )}
               />
@@ -2329,7 +2328,7 @@ function News({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2386,7 +2385,7 @@ function News({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 )}
               />
@@ -2421,7 +2420,7 @@ function News({ navigation, route }) {
                 data={item.data}
                 style={{}}
                 renderItem={({ item, index }) => (
-                  <Pressable
+                  <TouchableOpacity
                     onPress={() => {
                       {
                         item.medialistinlist
@@ -2498,7 +2497,7 @@ function News({ navigation, route }) {
                         </Text>
                       </View>
                     </LinearGradient>
-                  </Pressable>
+                  </TouchableOpacity>
                 )}
               />
             </View>
@@ -2523,7 +2522,7 @@ function News({ navigation, route }) {
             <View style={styles.sectionHeaderView}>
               <Text style={styles.sectionHeader}>{item.displayName}</Text>
               {item.data.length > 2 ? (
-                <Pressable
+                <TouchableOpacity
                   style={{ width: "100%" }}
                   onPress={() =>
                     navigation.dispatch(
@@ -2541,7 +2540,7 @@ function News({ navigation, route }) {
                       color={NORMAL_TEXT_COLOR}
                     />{" "}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ) : (
                 ""
               )}
@@ -2555,7 +2554,7 @@ function News({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View style={{}}>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2602,7 +2601,7 @@ function News({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                     <Text
                       style={{
                         color: NORMAL_TEXT_COLOR,
@@ -2624,7 +2623,7 @@ function News({ navigation, route }) {
                 style={styles.containerMargin}
                 renderItem={({ item, index }) => (
                   <View style={{ width: PAGE_WIDTH / 2.06 }}>
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => {
                         {
                           item.medialistinlist
@@ -2671,7 +2670,7 @@ function News({ navigation, route }) {
                       ) : (
                         ""
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                     <Text
                       style={{
                         color: NORMAL_TEXT_COLOR,
@@ -2714,13 +2713,13 @@ function News({ navigation, route }) {
             </Text>
           </View>
         ) : (
-          <Pressable onPress={() => changeTabData(item.friendlyId)}>
+          <TouchableOpacity onPress={() => changeTabData(item.friendlyId)}>
             <View style={styles.menuitem}>
               <Text style={{ color: NORMAL_TEXT_COLOR, fontWeight: "bold" }}>
                 {item.displayName}
               </Text>
             </View>
-          </Pressable>
+          </TouchableOpacity>
         )}
       </View>
     );
@@ -2911,7 +2910,7 @@ function News({ navigation, route }) {
             alignItems: "center",
           }}
         >
-          <Pressable
+          <TouchableOpacity
             onPress={toggleModal}
             style={{ position: "absolute", right: 0, zIndex: 1000, top: 0 }}
           >
@@ -2920,9 +2919,9 @@ function News({ navigation, route }) {
               color={NORMAL_TEXT_COLOR}
               size={30}
             />
-          </Pressable>
+          </TouchableOpacity>
           {imagepopup ? (
-            <Pressable
+            <TouchableOpacity
               onPress={() => {
                 navigation.dispatch(StackActions.replace(redirectionpage));
               }}
@@ -2932,7 +2931,7 @@ function News({ navigation, route }) {
                 style={{ width: PAGE_WIDTH - 50, height: PAGE_HEIGHT - 50 }}
                 resizeMode="contain"
               ></Image>
-            </Pressable>
+            </TouchableOpacity>
           ) : (
             ""
           )}

@@ -2,7 +2,6 @@ import {
   View,
   Text,
   FlatList,
-  Pressable,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
@@ -194,7 +193,7 @@ export default function Subscribe({ navigation, route }) {
     return (
       <View>
         <View style={styles.container} key={index}>
-          <Pressable
+          <TouchableOpacity
             style={styles.pressable}
             onPress={() => {
               setSelectedPlan(item.item.plan_id);
@@ -237,7 +236,7 @@ export default function Subscribe({ navigation, route }) {
                 </Text>
               </View>
             </LinearGradient>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </View>
     );

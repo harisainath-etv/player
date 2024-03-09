@@ -49,6 +49,7 @@ import DeviceInfo from "react-native-device-info";
 import LinearGradient from "react-native-linear-gradient";
 // import { OptimizedFlatList } from 'react-native-optimized-flatlist'
 import RNBackgroundDownloader from "react-native-background-downloader";
+import { normalize } from "react-native-elements";
 // import RNFS from 'react-native-fs';
 var indexValue = 0;
 var isTablet = DeviceInfo.isTablet();
@@ -1006,17 +1007,18 @@ export default function Shows({ navigation, route }) {
           currentTab == item.name
             ? {
                 flexDirection: "row",
-                borderBottomColor: TAB_COLOR,
-                borderBottomWidth: 2,
+                color: "yellow",
               }
             : { flexDirection: "row" }
         }
       >
         <TouchableOpacity
           style={{
-            padding: 10,
-            justifyContent: "center",
+            padding: 6,
+            marginLeft: normalize(8),
             alignItems: "center",
+            justifyContent: "space-evenly",
+            color: TAB_COLOR,
           }}
           onPress={() =>
             getThumbnailImages(
@@ -1030,14 +1032,27 @@ export default function Shows({ navigation, route }) {
           }
         >
           <Text
-            style={{
-              color: NORMAL_TEXT_COLOR,
-              fontWeight: "500",
-              marginRight: 20,
-            }}
+            style={
+              currentTab == item.name
+                ? {
+                    color: TAB_COLOR,
+                    fontSize: 14,
+                    fontWeight: "600",
+                  }
+                : { color: NORMAL_TEXT_COLOR }
+            }
           >
             {item.display_title}
           </Text>
+          {/* <Text>
+          //   style={{
+          //     color: NORMAL_TEXT_COLOR,
+          //     fontWeight: "500",
+          //     textAlign: "center",
+          //   }}
+          
+          //   fffff {item.display_title}
+          </Text> */}
         </TouchableOpacity>
       </View>
     );
@@ -1295,6 +1310,7 @@ export default function Shows({ navigation, route }) {
                           <FontAwesome5
                             name="dot-circle"
                             size={10}
+                            style={{ bottom: 2 }}
                             color={TAB_COLOR}
                           />
                           <Text
