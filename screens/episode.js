@@ -3180,13 +3180,12 @@ export default function Episode({ navigation, route }) {
                         <View
                           style={{
                             flexDirection: "row",
-                            backgroundColor: "red",
                           }}
                         >
                           <MaterialCommunityIcons
                             name="download"
                             size={18}
-                            color={DARKED_BORDER_COLOR}
+                            color={NORMAL_TEXT_COLOR}
                           />
                         </View>
                       )}
@@ -3748,17 +3747,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-evenly",
     flexDirection: "row",
+    padding: 5,
+    right: 5,
   },
   singleoption: {
-    // width: "50%",
-    height: 30,
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-    borderColor: TAB_COLOR,
-    borderWidth: 1,
-    marginRight: 3,
-    flexDirection: "row",
+    // // width: "50%",
+    // height: 30,
+    // borderRadius: 15,
+    // alignItems: "center",
+    // justifyContent: "center",
+    // borderColor: TAB_COLOR,
+    // borderWidth: 1,
+    // marginRight: 3,
+    // flexDirection: "row",
   },
   marginContainer: { marginLeft: 5, marginRight: 5 },
   button: {
